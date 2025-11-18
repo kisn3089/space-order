@@ -16,8 +16,8 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "tsconfig": "workspace:*",
-    "lintconfig": "workspace:*",
+    "@share/tsconfig": "workspace:*",
+    "@share/lintconfig": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

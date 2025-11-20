@@ -9,7 +9,7 @@
     "check-types": "turbo run check-types",
     "dev:order": "docker-compose -f apps/order/docker-compose.yml",
     "prod:order": "docker-compose -f apps/order/docker-compose.prod.yml -d",
-    "dev:space": "turbo run start:dev --filter=space"
+    "dev:space": "docker-compose -f apps/space/docker-compose.yml"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

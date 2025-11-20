@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  # Next.js Frontend (order app) - Development
+  order:
+    build:
+      context: ../../
+      dockerfile: apps/order/Dockerfile
+      target: development
+    container_name: space-order-frontend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+      - /app/.next
+      - /app/apps/order/.next

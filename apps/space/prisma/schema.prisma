@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../../../packages/prisma/client"
+}
+
+/** 
+ * VS Code extension 호환성을 위해 url을 명시합니다.
+ * 실제로는 prisma.config.ts에서 DATABASE_URL을 관리합니다.
+ */
+datasource db {
+  provider = "mysql"
+  // url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}

@@ -1,9 +1,10 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../../../packages/prisma/client"
+  provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {

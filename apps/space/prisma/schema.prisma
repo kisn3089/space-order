@@ -6,15 +6,16 @@ datasource db {
   provider = "mysql"
 }
 
-enum Role {
+enum UserRole {
+  INTERN
+  ENGINEER
   ADMIN
-  USER
 }
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String?
-  role      Role     @default(USER)
+  role      UserRole     @default(INTERN)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

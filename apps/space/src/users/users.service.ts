@@ -1,56 +1,39 @@
-import { Body, Injectable, Param, Query } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-
-const users = [
-  { id: 1, name: 'John Doe', role: 'ENGINEER' },
-  { id: 2, name: 'Jane Smith', role: 'INTERN' },
-];
+import { UpdateUserDto } from './dto/update-user.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UserModel } from '../../../../packages/prisma/client/models';
 
 @Injectable()
 export class UsersService {
-  findAll(@Query('role') role?: 'INTERN' | 'ENGINEER' | 'ADMIN') {
-    const filteredUsers = role
-      ? users.filter((user) => user.role === role)
-      : users;
-    return filteredUsers;
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async create(createUserDto: CreateUserDto): Promise<UserModel> {
+    return await this.prismaService.user.create({
+      data: createUserDto,
+    });
   }
 
-  findMe() {
-    return users[0];
+  async findAll(): Promise<UserModel[]> {
+    return await this.prismaService.user.findMany({});
   }
 
-  findOne(@Param('id') id: string) {
-    const findedUser = users.find((user) => user.id === Number(id));
-    if (!findedUser) {
-      return { message: 'User not found' };
-    }
-
-    return findedUser;
+  async findOne(id: number): Promise<UserModel> {
+    return await this.prismaService.user.findUnique({
+      where: { id },
+    });
   }
 
-  create(@Body() user: CreateUserDto) {
-    console.log('user: ', user);
-
-    users.push(user);
-    return user;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return await this.prismaService.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  update(@Param('id') id: string, @Body() userUpdate: Partial<CreateUserDto>) {
-    const findUpdateUser = users.find((user) => user.id === Number(id));
-    if (!findUpdateUser) {
-      return { message: 'User not found' };
-    }
-    Object.assign(findUpdateUser, userUpdate);
-
-    return findUpdateUser;
-  }
-
-  delete(@Param('id') id: string) {
-    const userIndex = users.findIndex((user) => user.id === Number(id));
-    if (userIndex === -1) {
-      return { message: 'User not found' };
-    }
-    users.splice(userIndex, 1);
-    return { message: `User with id ${id} deleted` };
+  async remove(id: number): Promise<UserModel> {
+    return await this.prismaService.user.delete({
+      where: { id },
+    });
   }
 }

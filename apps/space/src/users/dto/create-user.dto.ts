@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, Min, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 
 export enum UserRole {
   INTERN = 'INTERN',
@@ -7,9 +7,9 @@ export enum UserRole {
 }
 
 export class CreateUserDto {
-  @IsNumber()
-  @Min(1)
-  id: number;
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 
   @IsString()
   @IsNotEmpty()

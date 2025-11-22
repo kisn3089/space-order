@@ -15,6 +15,10 @@ COPY apps/space/package.json ./apps/space/package.json
 # Install dependencies with pnpm
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
+# Copy prisma schema and generate client
+COPY apps/space/prisma ./apps/space/prisma
+RUN cd apps/space && pnpm exec prisma generate
+
 # Development stage
 FROM deps AS development
 WORKDIR /app

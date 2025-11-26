@@ -4,7 +4,7 @@ services:
   # MySQL Database for development
   mysql:
     image: mysql:8.0
-    container_name: space-dev-mysql
+    container_name: orderhub-dev-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -16,7 +16,7 @@ services:
     volumes:
       - mysql_dev_data:/var/lib/mysql
     networks:
-      - space-dev-network
+      - orderhub-dev-network
     healthcheck:
       test:
         [
@@ -35,14 +35,14 @@ services:
     env_file:
       - .env
 
-  # NestJS Backend (space app) - Development
-  space:
-    image: space-order-backend
+  # NestJS Backend (orderhub app) - Development
+  orderhub:
+    image: orderhub-order-backend
     build:
       context: ../../
-      dockerfile: apps/space/Dockerfile
+      dockerfile: apps/orderhub/Dockerfile
       target: development
-    container_name: space-dev-backend
+    container_name: orderhub-dev-backend
     restart: unless-stopped
     environment:
       NODE_ENV: development
@@ -54,7 +54,7 @@ services:
       mysql:
         condition: service_healthy
     networks:
-      - space-dev-network
+      - orderhub-dev-network
     volumes:
       - ../../:/app
       - /app/node_modules
@@ -62,7 +62,7 @@ services:
       - .env
 
 networks:
-  space-dev-network:
+  orderhub-dev-network:
     driver: bridge
 
 volumes:

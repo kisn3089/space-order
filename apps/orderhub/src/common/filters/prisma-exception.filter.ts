@@ -17,10 +17,13 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     switch (exception.code) {
       case 'P2002': {
         // Unique constraint violation
-        const targetFields = exception.meta?.target as string[];
+        const targetFields = exception.meta?.target as string;
+        const fieldName = targetFields;
+
+        const fieldNameKorean = this.translateFieldName(fieldName);
         response.status(HttpStatus.CONFLICT).json({
           statusCode: HttpStatus.CONFLICT,
-          message: `이미 존재하는 ${targetFields?.join(', ') || '데이터'}입니다.`,
+          message: `이미 사용 중인 ${fieldNameKorean}입니다.`,
           error: 'Conflict',
           field: targetFields,
         });
@@ -75,5 +78,13 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     // URL에서 ID 추출 (예: /admin/123 -> 123)
     const match = url.match(/\/(\d+)$/);
     return match ? match[1] : null;
+  }
+
+  private translateFieldName(fieldName: string | undefined): string {
+    // 필드명을 한국어로 번역
+    const translations: Record<string, string> = {
+      admin_email_key: '이메일',
+    };
+    return translations[fieldName || ''] || fieldName || '데이터';
   }
 }

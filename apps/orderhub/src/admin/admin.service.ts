@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -15,14 +15,9 @@ export class AdminService {
         ...createAdminDto,
         password: hashedPassword,
       },
-      select: {
-        publicId: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
+      omit: {
+        id: true,
+        password: true,
       },
     });
     return createdAdmin;
@@ -30,37 +25,39 @@ export class AdminService {
 
   async findAll() {
     return await this.prismaService.admin.findMany({
-      select: {
-        publicId: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
+      omit: {
+        id: true,
+        password: true,
       },
     });
   }
 
   async findOne(publicId: string) {
-    return await this.prismaService.admin.findUnique({
+    const admin = await this.prismaService.admin.findUnique({
       where: { publicId },
-      select: {
-        publicId: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
+      omit: {
+        id: true,
+        password: true,
       },
     });
+
+    if (!admin) {
+      throw new NotFoundException(`존재하지 않는 관리자입니다.`);
+    }
+
+    return admin;
   }
 
   async update(publicId: string, updateAdminDto: UpdateAdminDto) {
+    console.log('updateAdminDto: ', updateAdminDto);
+
     return await this.prismaService.admin.update({
       where: { publicId },
       data: updateAdminDto,
+      omit: {
+        id: true,
+        password: true,
+      },
     });
   }
 

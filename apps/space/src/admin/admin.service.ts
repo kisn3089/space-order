@@ -10,33 +10,61 @@ export class AdminService {
 
   async create(createAdminDto: CreateAdminDto) {
     const hashedPassword = await encryptPassword(createAdminDto.password);
-
-    return this.prismaService.admin.create({
+    const createdAdmin = await this.prismaService.admin.create({
       data: {
         ...createAdminDto,
         password: hashedPassword,
       },
+      select: {
+        publicId: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
+    return createdAdmin;
   }
 
   async findAll() {
-    return await this.prismaService.admin.findMany({});
-  }
-
-  async findOne(id: number) {
-    return await this.prismaService.admin.findUnique({
-      where: { id },
+    return await this.prismaService.admin.findMany({
+      select: {
+        publicId: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
-  async update(id: number, updateAdminDto: UpdateAdminDto) {
+  async findOne(publicId: string) {
+    return await this.prismaService.admin.findUnique({
+      where: { publicId },
+      select: {
+        publicId: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  async update(publicId: string, updateAdminDto: UpdateAdminDto) {
     return await this.prismaService.admin.update({
-      where: { id },
+      where: { publicId },
       data: updateAdminDto,
     });
   }
 
-  async remove(id: number) {
+  async remove(publicId: string) {
     /**
      * 전역 catch 이전에 먼저 처리된다.
      * const admin = await this.prismaService.admin.findUnique({ where: { id } });
@@ -45,7 +73,7 @@ export class AdminService {
      * }
      */
     return await this.prismaService.admin.delete({
-      where: { id },
+      where: { publicId },
     });
   }
 }

@@ -17,6 +17,7 @@ CREATE TABLE `admin` (
 -- CreateTable
 CREATE TABLE `owner` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `public_id` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
@@ -28,6 +29,7 @@ CREATE TABLE `owner` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `owner_public_id_key`(`public_id`),
     UNIQUE INDEX `owner_email_key`(`email`),
     UNIQUE INDEX `owner_business_number_key`(`business_number`),
     PRIMARY KEY (`id`)
@@ -36,6 +38,7 @@ CREATE TABLE `owner` (
 -- CreateTable
 CREATE TABLE `store` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `public_id` VARCHAR(191) NOT NULL,
     `owner_id` BIGINT NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NULL,
@@ -49,12 +52,14 @@ CREATE TABLE `store` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `store_public_id_key`(`public_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `menu` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `public_id` VARCHAR(191) NOT NULL,
     `store_id` BIGINT NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `price` INTEGER NOT NULL,
@@ -66,12 +71,14 @@ CREATE TABLE `menu` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `menu_public_id_key`(`public_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `order` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `public_id` VARCHAR(191) NOT NULL,
     `store_id` BIGINT NOT NULL,
     `table_num` INTEGER NOT NULL,
     `status` ENUM('PENDING', 'ACCEPTED', 'PREPARING', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
@@ -84,6 +91,7 @@ CREATE TABLE `order` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `order_public_id_key`(`public_id`),
     INDEX `order_store_id_status_completed_at_idx`(`store_id`, `status`, `completed_at`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -91,6 +99,7 @@ CREATE TABLE `order` (
 -- CreateTable
 CREATE TABLE `order_item` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `public_id` VARCHAR(191) NOT NULL,
     `order_id` BIGINT NOT NULL,
     `menu_id` BIGINT NOT NULL,
     `menu_name` VARCHAR(191) NOT NULL,
@@ -99,6 +108,7 @@ CREATE TABLE `order_item` (
     `options` JSON NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `order_item_public_id_key`(`public_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

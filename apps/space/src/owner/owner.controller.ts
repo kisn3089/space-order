@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { OwnerService } from './owner.service';
 import { CreateOwnerDto } from './dto/create-owner.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
@@ -17,18 +25,21 @@ export class OwnerController {
     return this.ownerService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ownerService.findOne(+id);
+  @Get(':publicId')
+  findOne(@Param('publicId') publicId: string) {
+    return this.ownerService.findOne(publicId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOwnerDto: UpdateOwnerDto) {
-    return this.ownerService.update(+id, updateOwnerDto);
+  @Patch(':publicId')
+  async update(
+    @Param('publicId') publicId: string,
+    @Body() updateOwnerDto: UpdateOwnerDto,
+  ) {
+    return await this.ownerService.update(publicId, updateOwnerDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ownerService.remove(+id);
+  @Delete(':publicId')
+  async remove(@Param('publicId') publicId: string) {
+    await this.ownerService.remove(publicId);
   }
 }

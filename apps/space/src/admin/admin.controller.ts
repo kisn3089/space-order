@@ -28,21 +28,24 @@ export class AdminController {
     return this.adminService.findAll();
   }
 
-  @Get(':id')
+  @Get(':publicId')
   @HttpCode(200)
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  findOne(@Param('publicId') publicId: string) {
+    return this.adminService.findOne(publicId);
   }
 
-  @Patch(':id')
+  @Patch(':publicId')
   @HttpCode(200)
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  update(
+    @Param('publicId') publicId: string,
+    @Body() updateAdminDto: UpdateAdminDto,
+  ) {
+    return this.adminService.update(publicId, updateAdminDto);
   }
 
-  @Delete(':id')
+  @Delete(':publicId')
   @HttpCode(204)
-  async remove(@Param('id') id: string) {
-    await this.adminService.remove(+id);
+  async remove(@Param('publicId') publicId: string) {
+    await this.adminService.remove(publicId);
   }
 }

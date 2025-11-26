@@ -51,6 +51,7 @@ enum OrderStatus {
 
 model Admin {
   id          BigInt    @id @default(autoincrement())
+  publicId       String    @unique @default(cuid()) @map("public_id")
   email       String    @unique
   password    String
   name        String
@@ -65,6 +66,7 @@ model Admin {
 
 model Owner {
   id             BigInt    @id @default(autoincrement())
+  publicId       String    @unique @default(cuid()) @map("public_id")
   email          String    @unique
   password       String
   name           String
@@ -82,19 +84,20 @@ model Owner {
 }
 
 model Store {
-  id            BigInt   @id @default(autoincrement())
-  ownerId       BigInt   @map("owner_id")
-  name          String
-  phone         String?
-  address       String
-  addressDetail String?  @map("address_detail")
-  businessHours String?  @map("business_hours")
-  description   String?  @db.Text
-  tableCount    Int      @default(0) @map("table_count")
-  isOpen        Boolean  @default(true) @map("is_open")
+  id              BigInt   @id @default(autoincrement())
+  publicId        String   @unique @default(cuid()) @map("public_id")
+  ownerId         BigInt   @map("owner_id")
+  name            String
+  phone           String?
+  address         String
+  addressDetail   String?  @map("address_detail")
+  businessHours   String?  @map("business_hours")
+  description     String?  @db.Text
+  tableCount      Int      @default(0) @map("table_count")
+  isOpen          Boolean  @default(true) @map("is_open")
   acceptedMessage String?  @map("accepted_message") @db.VarChar(500)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   owner  Owner   @relation(fields: [ownerId], references: [id])
   menus  Menu[]
@@ -105,6 +108,7 @@ model Store {
 
 model Menu {
   id          BigInt   @id @default(autoincrement())
+  publicId    String   @unique @default(cuid()) @map("public_id")
   storeId     BigInt   @map("store_id")
   name        String
   price       Int
@@ -124,6 +128,7 @@ model Menu {
 
 model Order {
   id              BigInt      @id @default(autoincrement())
+  publicId        String      @unique @default(cuid()) @map("public_id")
   storeId         BigInt      @map("store_id")
   tableNum        Int         @map("table_num")
   status          OrderStatus @default(PENDING)
@@ -145,6 +150,7 @@ model Order {
 
 model OrderItem {
   id        BigInt   @id @default(autoincrement())
+  publicId  String   @unique @default(cuid()) @map("public_id")
   orderId   BigInt   @map("order_id")
   menuId    BigInt   @map("menu_id")
   menuName  String   @map("menu_name")

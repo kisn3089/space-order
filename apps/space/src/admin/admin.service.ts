@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -37,16 +37,15 @@ export class AdminService {
   }
 
   async remove(id: number) {
-    try {
-      return await this.prismaService.admin.delete({
-        where: { id },
-      });
-    } catch (error) {
-      // Prisma P2025: Record not found
-      if (error.code === 'P2025') {
-        throw new NotFoundException(`Admin with ID ${id} not found`);
-      }
-      throw error;
-    }
+    /**
+     * 전역 catch 이전에 먼저 처리된다.
+     * const admin = await this.prismaService.admin.findUnique({ where: { id } });
+     * if (!admin) {
+     *    throw new NotFoundException(`관리자 ID ${id}를 찾을 수 없습니다.`);
+     * }
+     */
+    return await this.prismaService.admin.delete({
+      where: { id },
+    });
   }
 }

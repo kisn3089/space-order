@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Enable Prisma exception filter globally
+  app.useGlobalFilters(new PrismaExceptionFilter());
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 9090);

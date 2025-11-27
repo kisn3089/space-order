@@ -49,8 +49,6 @@ export class AdminService {
   }
 
   async update(publicId: string, updateAdminDto: UpdateAdminDto) {
-    console.log('updateAdminDto: ', updateAdminDto);
-
     return await this.prismaService.admin.update({
       where: { publicId },
       data: updateAdminDto,

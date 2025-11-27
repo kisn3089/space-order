@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
+import "@spaceorder/ui/globals.css";
+import { NextThemeProviders } from "../../components/theme-providers";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -23,11 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
-      >
-        {children}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+        <NextThemeProviders>{children}</NextThemeProviders>
       </body>
     </html>
   );

@@ -12,7 +12,7 @@ This guide explains how to run the space-order monorepo using Docker and Docker 
 The Docker setup includes three services:
 
 1. **mysql** - MySQL 8.0 database
-2. **space** - NestJS backend API (port 8080)
+2. **orderhub** - NestJS backend API (port 8080)
 3. **order** - Next.js frontend (port 3000)
 
 ## Quick Start
@@ -26,6 +26,7 @@ cp .env.example .env
 ```
 
 Edit `.env` to configure:
+
 - Database credentials
 - Application ports
 - Other environment-specific settings
@@ -40,7 +41,7 @@ docker-compose up -d --build
 docker-compose logs -f
 
 # View logs for specific service
-docker-compose logs -f space
+docker-compose logs -f orderhub
 docker-compose logs -f order
 ```
 
@@ -61,8 +62,8 @@ docker-compose down -v
 After first launch, you may need to initialize Prisma:
 
 ```bash
-# Enter the space container
-docker-compose exec space sh
+# Enter the orderhub container
+docker-compose exec orderhub sh
 
 # Generate Prisma Client
 npx prisma generate
@@ -77,8 +78,8 @@ npx prisma db seed
 ### Create New Prisma Migration
 
 ```bash
-# Edit apps/space/prisma/schema.prisma first, then:
-docker-compose exec space npx prisma migrate dev --name your_migration_name
+# Edit apps/orderhub/prisma/schema.prisma first, then:
+docker-compose exec orderhub npx prisma migrate dev --name your_migration_name
 ```
 
 ### Access MySQL Database
@@ -101,14 +102,15 @@ mysql -h 127.0.0.1 -P 3306 -u spaceuser -p
 
 ### Database Connection Issues
 
-If the space app can't connect to MySQL:
+If the orderhub app can't connect to MySQL:
 
 1. Check if MySQL is healthy:
+
    ```bash
    docker-compose ps
    ```
 
-2. Verify DATABASE_URL in space service environment
+2. Verify DATABASE_URL in orderhub service environment
 
 3. Check MySQL logs:
    ```bash
@@ -119,7 +121,7 @@ If the space app can't connect to MySQL:
 
 ```bash
 # Rebuild specific service
-docker-compose up -d --build space
+docker-compose up -d --build orderhub
 docker-compose up -d --build order
 
 # Rebuild all services
@@ -171,7 +173,7 @@ For production deployment:
 │   │   ├── Dockerfile           # Next.js frontend container
 │   │   ├── .dockerignore
 │   │   └── next.config.js       # (output: 'standalone' enabled)
-│   └── space/
+│   └── orderhub/
 │       ├── Dockerfile           # NestJS backend container
 │       ├── .dockerignore
 │       ├── .env.example
@@ -182,6 +184,6 @@ For production deployment:
 ## Notes
 
 - The Next.js app is built in standalone mode for smaller image size
-- Prisma migrations run automatically on space container startup
+- Prisma migrations run automatically on orderhub container startup
 - MySQL data persists in a Docker volume named `mysql_data`
 - All services communicate through the `space-order-network` bridge network

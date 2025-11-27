@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # MySQL Database for development
+  mysql:
+    image: mysql:8.0
+    container_name: orderhub-dev-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - '${DB_PORT}:3306'
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    networks:
+      - orderhub-dev-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u',
+          'root',
+          '-p$$MYSQL_ROOT_PASSWORD',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+
+  # NestJS Backend (orderhub app) - Development
+  orderhub:
+    image: orderhub-order-backend
+    build:
+      context: ../../
+      dockerfile: apps/orderhub/Dockerfile
+      target: development
+    container_name: orderhub-dev-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_NAME}
+    ports:
+      - '${SERVER_PORT}:8080'
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - orderhub-dev-network
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+    env_file:
+      - .env
+
+networks:
+  orderhub-dev-network:
+    driver: bridge
+
+volumes:
+  mysql_dev_data:
+    driver: local

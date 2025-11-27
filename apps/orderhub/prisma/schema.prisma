@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== Enums ====================
+
+enum AdminRole {
+  /** 
+   * 모든 권한을 소유한 관리자
+   */
+  SUPER
+  /** 
+   * 일부 기능을 write 권한을 소유한 관리자
+   */
+  SUPPORT
+  /** 
+   * Readonly 권한만 소유한 관리자
+   */
+  VIEWER
+}
+
+enum OrderStatus {
+  /** 
+   * 주문을 접수하기 전 상태 @default
+   */
+  PENDING
+  /** 
+   * 주문을 수락한 상태로 조리에 들어가기 직전 상태
+   */
+  ACCEPTED
+  /** 
+   * 조리가 진행 중인 상태
+   */
+  PREPARING
+  /** 
+   * 조리가 완료되어 픽업 및 서빙이 완료된 상태
+   */
+  COMPLETED
+  /** 
+   * 주문이 취소된 상태, 복구할 수 없음, PENDING 상태로 되돌아감
+   */
+  CANCELLED
+}
+
+// ==================== Models ====================
+
+model Admin {
+  id          BigInt    @id @default(autoincrement())
+  publicId       String    @unique @default(cuid()) @map("public_id")
+  email       String    @unique
+  password    String
+  name        String
+  role        AdminRole @default(VIEWER)
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("admin")
+}
+
+model Owner {
+  id             BigInt    @id @default(autoincrement())
+  publicId       String    @unique @default(cuid()) @map("public_id")
+  email          String    @unique
+  password       String
+  name           String
+  phone          String
+  businessNumber String?   @unique @map("business_number")
+  isVerified     Boolean   @default(false) @map("is_verified")
+  isActive       Boolean   @default(true) @map("is_active")
+  lastLoginAt    DateTime? @map("last_login_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  stores Store[]
+
+  @@map("owner")
+}
+
+model Store {
+  id              BigInt   @id @default(autoincrement())
+  publicId        String   @unique @default(cuid()) @map("public_id")
+  ownerId         BigInt   @map("owner_id")
+  name            String
+  phone           String?
+  address         String
+  addressDetail   String?  @map("address_detail")
+  businessHours   String?  @map("business_hours")
+  description     String?  @db.Text
+  tableCount      Int      @default(0) @map("table_count")
+  isOpen          Boolean  @default(true) @map("is_open")
+  acceptedMessage String?  @map("accepted_message") @db.VarChar(500)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  owner  Owner   @relation(fields: [ownerId], references: [id])
+  menus  Menu[]
+  orders Order[]
+
+  @@map("store")
+}
+
+model Menu {
+  id          BigInt   @id @default(autoincrement())
+  publicId    String   @unique @default(cuid()) @map("public_id")
+  storeId     BigInt   @map("store_id")
+  name        String
+  price       Int
+  description String?  @db.VarChar(500)
+  imageUrl    String?  @map("image_url") @db.VarChar(500)
+  category    String?
+  isAvailable Boolean  @default(true) @map("is_available")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  store      Store       @relation(fields: [storeId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("menu")
+}
+
+model Order {
+  id              BigInt      @id @default(autoincrement())
+  publicId        String      @unique @default(cuid()) @map("public_id")
+  storeId         BigInt      @map("store_id")
+  tableNum        Int         @map("table_num")
+  status          OrderStatus @default(PENDING)
+  totalPrice      Int         @default(0) @map("total_price")
+  memo            String?     @db.VarChar(500)
+  cancelledReason String?     @map("cancelled_reason")
+  orderedAt       DateTime    @default(now()) @map("ordered_at")
+  acceptedAt      DateTime?   @map("accepted_at")
+  completedAt     DateTime?   @map("completed_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  store      Store       @relation(fields: [storeId], references: [id])
+  orderItems OrderItem[]
+
+  @@index([storeId, status, completedAt])
+  @@map("order")
+}
+
+model OrderItem {
+  id        BigInt   @id @default(autoincrement())
+  publicId  String   @unique @default(cuid()) @map("public_id")
+  orderId   BigInt   @map("order_id")
+  menuId    BigInt   @map("menu_id")
+  menuName  String   @map("menu_name")
+  price     Int
+  quantity  Int      @default(1)
+  options   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+  menu  Menu  @relation(fields: [menuId], references: [id])
+
+  @@map("order_item")
+}

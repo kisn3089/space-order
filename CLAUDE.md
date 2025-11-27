@@ -10,7 +10,7 @@ This is a Turborepo monorepo named "space-order" using pnpm workspaces. The proj
 
 - **Apps** (in `apps/`):
   - `order`: Next.js 14.2.33 frontend app with Tailwind CSS v4 and React Compiler enabled, runs on default port (3000)
-  - `space`: NestJS 11.0.1 backend application with TypeScript and Jest testing, runs on port 8080
+  - `orderhub`: NestJS 11.0.1 backend application with TypeScript and Jest testing, runs on port 8080
 
 - **Shared Packages** (in `packages/`):
   - `@share/ui`: React 19.2.0 component library exported via `./src/*.tsx` pattern (button, card, code)
@@ -31,9 +31,9 @@ pnpm dev
 
 # Run specific apps
 pnpm dev:order    # Run order app only
-pnpm dev:space    # Run space (NestJS) app in watch mode
+pnpm dev:orderhub    # Run orderhub (NestJS) app in watch mode
 pnpm dev --filter=order
-pnpm dev --filter=space
+pnpm dev --filter=orderhub
 ```
 
 ### Building
@@ -44,7 +44,7 @@ pnpm build
 
 # Build specific app
 pnpm build --filter=order
-pnpm build --filter=space
+pnpm build --filter=orderhub
 ```
 
 ### Linting
@@ -83,20 +83,20 @@ cd packages/ui
 pnpm generate:component
 ```
 
-### Testing (space app)
+### Testing (orderhub app)
 
 ```bash
 # Run unit tests
-pnpm --filter=space test
+pnpm --filter=orderhub test
 
 # Run tests in watch mode
-pnpm --filter=space test:watch
+pnpm --filter=orderhub test:watch
 
 # Run E2E tests
-pnpm --filter=space test:e2e
+pnpm --filter=orderhub test:e2e
 
 # Generate coverage report
-pnpm --filter=space test:cov
+pnpm --filter=orderhub test:cov
 ```
 
 ## Turborepo Configuration
@@ -106,7 +106,7 @@ The `turbo.json` configures task dependencies:
 - `build` task depends on `^build` (builds dependencies first), includes `.env*` files, outputs to `.next/**` and `dist/**`
 - `lint` and `check-types` depend on completing these tasks in dependencies first
 - `dev` task has caching disabled and is persistent
-- `start:dev` task (for space app) has caching disabled and is persistent
+- `start:dev` task (for orderhub app) has caching disabled and is persistent
 
 ## Key Technical Details
 
@@ -122,7 +122,7 @@ The `turbo.json` configures task dependencies:
 - ESM module (`"type": "module"`)
 - Imports components from `@share/ui` workspace package
 
-### space App (NestJS Backend)
+### orderhub App (NestJS Backend)
 
 - Uses NestJS 11.0.1 with Express platform
 - TypeScript with decorators and metadata reflection enabled
@@ -151,20 +151,20 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
 2. Run dev mode:
    - All apps: `pnpm dev`
    - Frontend only: `pnpm dev:order`
-   - Backend only: `pnpm dev:space`
+   - Backend only: `pnpm dev:orderhub`
    - Or use `--filter` for granular control
 3. Type check before committing: `pnpm check-types`
 4. Lint code: `pnpm lint`
 5. Format code: `pnpm format`
-6. Run tests (space app): `pnpm --filter=space test`
+6. Run tests (orderhub app): `pnpm --filter=orderhub test`
 
 ## Important Notes
 
 - The **order** app uses React Compiler (experimental), which may affect how you write React components
-- The **space** app runs on port 8080 (ensure `.env` is configured)
+- The **orderhub** app runs on port 8080 (ensure `.env` is configured)
 - `@share/ui` uses React 19.2.0, while order app uses React 18.3.1
 - Always run commands from the repository root unless working with package-specific scripts
 - Turbo caches build outputs for faster rebuilds
-- The order app uses ESM (`"type": "module"`), while space app uses CommonJS
+- The order app uses ESM (`"type": "module"`), while orderhub app uses CommonJS
 - ESLint 9 FlatConfig format is used across all packages
 - Use `--max-warnings 0` for strict linting in shared packages

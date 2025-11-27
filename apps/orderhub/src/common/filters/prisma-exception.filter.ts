@@ -17,8 +17,10 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     switch (exception.code) {
       case 'P2002': {
         // Unique constraint violation
-        const targetFields = exception.meta?.target as string;
-        const fieldName = targetFields;
+        const targetFields = exception.meta?.target as string | string[];
+        const fieldName = Array.isArray(targetFields)
+          ? targetFields.join(', ')
+          : targetFields;
 
         const fieldNameKorean = this.translateFieldName(fieldName);
         response.status(HttpStatus.CONFLICT).json({
@@ -75,8 +77,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
   }
 
   private extractIdFromUrl(url: string): string | null {
-    // URL에서 ID 추출 (예: /admin/123 -> 123)
-    const match = url.match(/\/(\d+)$/);
+    // CUID 형식 추출 (소문자 영숫자, 일반적으로 25자)
+    const match = url.match(/\/([a-z0-9]{20,})(?:[/?]|$)/);
     return match ? match[1] : null;
   }
 

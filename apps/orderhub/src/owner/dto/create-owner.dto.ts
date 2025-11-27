@@ -27,7 +27,7 @@ export class CreateOwnerDto {
   @IsNotEmpty()
   name: string;
 
-  @IsPhoneNumber()
+  @IsPhoneNumber('KR')
   phone: string;
 
   @IsString()
@@ -35,7 +35,7 @@ export class CreateOwnerDto {
   businessNumber: string;
 
   @IsBoolean()
-  isVerified: boolean;
+  isVerified?: boolean;
 
   @IsBoolean()
   @IsOptional()

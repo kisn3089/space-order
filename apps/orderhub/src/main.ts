@@ -9,6 +9,14 @@ BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 
+/**
+ * Bootstraps and starts the NestJS application with global validation and Prisma exception handling.
+ *
+ * Sets up a global validation pipe that whitelists DTO properties, forbids non-whitelisted properties,
+ * transforms payloads to DTO instances, and converts validation errors into BadRequestExceptions.
+ * Applies the Prisma exception filter globally, reads the `PORT` configuration (defaulting to 9090),
+ * starts the HTTP server on that port, and logs the application URL to the console.
+ */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

@@ -1,14 +1,21 @@
 import * as bcrypt from 'bcrypt';
 
 /**
- * 비밀번호 암호화
+ * Hashes a plaintext password using bcrypt.
+ *
+ * @param value - The plaintext password to hash
+ * @returns The bcrypt hash of `value`
  */
 export async function encryptPassword(value: string): Promise<string> {
   return await bcrypt.hash(value, 10);
 }
 
 /**
- * 로그인 시 비밀번호 검증
+ * Verify whether a plaintext password matches a bcrypt hash.
+ *
+ * @param plainPassword - The plaintext password to verify
+ * @param hashedPassword - The bcrypt hashed password to compare against
+ * @returns `true` if `plainPassword` matches `hashedPassword`, `false` otherwise
  */
 export async function comparePassword(
   plainPassword: string,

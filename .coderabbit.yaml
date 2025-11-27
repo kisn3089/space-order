@@ -12,9 +12,9 @@ reviews:
   profile: chill
   request_changes_workflow: true
   high_level_summary: true
-  high_level_summary_placeholder: '/summary'
+  high_level_summary_placeholder: "/summary"
   high_level_summary_in_walkthrough: false
-  auto_title_placeholder: '/title'
+  auto_title_placeholder: "/title"
   auto_title_instructions: |
     Max length: 72
     Format: `kind: Begin with capitalized infinitive verb, use English, no period`
@@ -33,7 +33,25 @@ reviews:
   auto_apply_labels: true
   suggested_reviewers: true
   poem: true
-  labeling_instructions: []
+  labeling_instructions:
+    - label: feat
+      instructions: 새로운 기능 추가나 기존 기능 개선 관련 PR
+    - label: bug
+      instructions: 버그 수정 관련 PR
+    - label: docs
+      instructions: 문서화 변경 관련 PR
+    - label: fix
+      instructions: 버그 수정 관련 PR
+    - label: hotfix
+      instructions: 긴급한 버그 수정 관련 PR
+    - label: refactor
+      instructions: 코드 리팩토링 관련 PR
+    - label: order
+      instructions: apps/order 관련 PR
+    - label: orderdesk
+      instructions: apps/orderdesk 관련 PR
+    - label: orderhub
+      instructions: apps/orderhub 관련 PR
   path_filters: []
   path_instructions:
     - path: "**/*"

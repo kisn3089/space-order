@@ -85,22 +85,22 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@share/lintconfig':
+      "@share/lintconfig":
         specifier: workspace:*
         version: link:../../packages/lintconfig
-      '@share/tsconfig':
+      "@share/tsconfig":
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@tailwindcss/postcss':
+      "@tailwindcss/postcss":
         specifier: ^4
         version: 4.1.17
-      '@types/node':
+      "@types/node":
         specifier: ^20
         version: 20.19.25
-      '@types/react':
+      "@types/react":
         specifier: ^19
         version: 19.2.2
-      '@types/react-dom':
+      "@types/react-dom":
         specifier: ^19
         version: 19.2.2(@types/react@19.2.2)
       babel-plugin-react-compiler:
@@ -1779,8 +1779,11 @@ packages:
   '@types/bcrypt@6.0.0':
     resolution: {integrity: sha512-/oJGukuH3D2+D+3H4JWLaAsJ/ji86dhRidzZ/Od7H/i8g+aCmvkeCc6Ni/f9uxGLSQVCRZkX2/lqEFG2BvWtlQ==}
 
-  '@types/body-parser@1.19.6':
-    resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
+  "@types/bcrypt@6.0.0":
+    resolution:
+      {
+        integrity: sha512-/oJGukuH3D2+D+3H4JWLaAsJ/ji86dhRidzZ/Od7H/i8g+aCmvkeCc6Ni/f9uxGLSQVCRZkX2/lqEFG2BvWtlQ==,
+      }
 
   "@types/body-parser@1.19.6":
     resolution:
@@ -8209,7 +8212,7 @@ snapshots:
     dependencies:
       '@types/node': 22.15.3
 
-  '@types/body-parser@1.19.6':
+  "@types/bcrypt@6.0.0":
     dependencies:
       "@types/node": 22.15.3
 

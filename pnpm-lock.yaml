@@ -24,7 +24,7 @@ importers:
 
   apps/order:
     dependencies:
-      '@share/ui':
+      '@spaceorder/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       next:
@@ -37,10 +37,10 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@share/lintconfig':
+      '@spaceorder/lintconfig':
         specifier: workspace:*
         version: link:../../packages/lintconfig
-      '@share/tsconfig':
+      '@spaceorder/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/postcss':
@@ -73,7 +73,7 @@ importers:
 
   apps/orderdesk:
     dependencies:
-      '@share/ui':
+      '@spaceorder/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       next:
@@ -86,10 +86,10 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@share/lintconfig':
+      '@spaceorder/lintconfig':
         specifier: workspace:*
         version: link:../../packages/lintconfig
-      '@share/tsconfig':
+      '@spaceorder/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/postcss':
@@ -282,10 +282,10 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
     devDependencies:
-      '@share/lintconfig':
+      '@spaceorder/lintconfig':
         specifier: workspace:*
         version: link:../lintconfig
-      '@share/tsconfig':
+      '@spaceorder/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':

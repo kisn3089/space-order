@@ -1,5 +1,5 @@
 {
-  "name": "@share/lintconfig",
+  "name": "@spaceorder/lintconfig",
   "version": "0.0.0",
   "type": "module",
   "private": true,

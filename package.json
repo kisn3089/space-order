@@ -10,9 +10,13 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "dev:order": "turbo run dev --filter=order",
+    "dev:order": "turbo run dev --filter=@spaceorder/order",
     "prod:order": "docker-compose -f apps/order/docker-compose.prod.yml -d",
-    "dev:orderhub": "docker-compose -f apps/orderhub/docker-compose.yml"
+    "dev:orderdesk": "turbo run dev --filter=@spaceorder/orderdesk",
+    "dev:orderhub": "docker-compose -f apps/orderhub/docker-compose.yml",
+    "build:order": "turbo run build --filter=@spaceorder/order",
+    "build:orderdesk": "turbo run build --filter=@spaceorder/orderdesk",
+    "build:orderhub": "docker-compose -f apps/orderhub/docker-compose.yml"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

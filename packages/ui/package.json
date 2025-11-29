@@ -8,7 +8,7 @@
     "./lib/*": "./src/lib/*.ts",
     "./postcss.config": "./postcss.config.mjs",
     "./components/*": "./src/components/*.tsx",
-    "./*": "./src/*.tsx"
+    "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

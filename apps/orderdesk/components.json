@@ -14,7 +14,7 @@
     "components": "@/components",
     "utils": "@spaceorder/ui/lib/utils",
     "ui": "@spaceorder/ui/components",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
+    "lib": "@spaceorder/ui/lib",
+    "hooks": "@spaceorder/ui/hooks"
   }
 }

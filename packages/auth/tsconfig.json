@@ -1,0 +1,12 @@
+{
+  "extends": "@spaceorder/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@spaceorder/ui/*": ["./src/*"]
+    }
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}

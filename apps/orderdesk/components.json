@@ -16,5 +16,8 @@
     "ui": "@spaceorder/ui/components",
     "lib": "@spaceorder/ui/lib",
     "hooks": "@spaceorder/ui/hooks"
+  },
+  "registries": {
+    "@animate-ui": "https://animate-ui.com/r/{name}.json"
   }
 }

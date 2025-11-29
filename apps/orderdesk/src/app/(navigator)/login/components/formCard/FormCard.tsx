@@ -1,6 +1,10 @@
 "use client";
 
-import { useAuth } from "@spaceorder/auth/hooks/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  LoginFormSchema,
+  loginFormSchema,
+} from "@spaceorder/auth/lib/zod/loginForm/LoginFormSchema";
 import { Button } from "@spaceorder/ui/components/button";
 import {
   Card,
@@ -11,20 +15,32 @@ import {
 } from "@spaceorder/ui/components/card";
 import { Input } from "@spaceorder/ui/components/input";
 import { Label } from "@spaceorder/ui/components/label";
+import { useForm } from "react-hook-form";
 
 export default function FormCard() {
-  const [count, setCount] = useAuth();
-  console.log("count: ", count);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormSchema>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: LoginFormSchema) => {
+    console.log(data);
+    // 여기서 로그인 API 호출
+  };
 
   return (
     <Card className="w-full max-w-md min-w-sm">
       <CardHeader>
         <CardTitle className="flex justify-center font-bold">LOGO</CardTitle>
       </CardHeader>
-      <form
-        onSubmit={(e: React.FormEvent) => {
-          e.preventDefault();
-        }}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
@@ -33,14 +49,22 @@ export default function FormCard() {
                 id="email"
                 type="email"
                 placeholder="m@example.com"
-                required
+                {...register("email")}
               />
+              {errors.email && (
+                <p className="text-xs text-red-600">{errors.email.message}</p>
+              )}
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
               </div>
-              <Input id="password" type="password" required />
+              <Input id="password" type="password" {...register("password")} />
+              {errors.password && (
+                <p className="text-xs text-red-600">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>

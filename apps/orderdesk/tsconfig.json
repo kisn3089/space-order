@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@spaceorder/ui/*": ["../../packages/ui/src/*"]
+      "@spaceorder/ui/*": ["../../packages/ui/src/*"],
+      "@spaceorder/auth/*": ["../../packages/auth/src/*"]
     },
     "plugins": [
       {

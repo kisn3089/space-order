@@ -14,17 +14,14 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@spaceorder/tsconfig": "workspace:*",
     "@spaceorder/lintconfig": "workspace:*",
-    "typescript": "^5",
+    "@spaceorder/tsconfig": "workspace:*",
     "@types/node": "^20",
     "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react-dom": "^19",
+    "typescript": "^5"
   },
   "exports": {
-    "./hooks/*": "./src/hooks/*.ts",
-    "./components/*": "./src/components/*.tsx",
-    "./lib/*": "./src/lib/*.ts",
-    "./utils/*": "./src/utils/*.ts"
+    "./*": "./src/*"
   }
 }

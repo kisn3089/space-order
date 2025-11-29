@@ -2,8 +2,6 @@ import {
   Tabs,
   TabsContent,
   TabsContents,
-  TabsList,
-  TabsTrigger,
 } from "@spaceorder/ui/components/animate-ui/components/animate/tabs";
 import { Button } from "@spaceorder/ui/components/button";
 import {
@@ -16,15 +14,36 @@ import {
 } from "@spaceorder/ui/components/card";
 import { Input } from "@spaceorder/ui/components/input";
 import { Label } from "@spaceorder/ui/components/label";
+import TabList from "./TabList";
+import { CardField } from "./TabContent";
+
+{
+  /* <CardTitle>Account</CardTitle>
+          <CardDescription>
+            Make changes to your account here. Click save when you&apos;re done.
+          </CardDescription> */
+}
+
+const loginTabFields: CardField[] = [
+  {
+    id: "email",
+    label: "이메일",
+    value: "",
+    defaultValue: "example@example.com",
+  },
+  {
+    id: "password",
+    label: "비밀번호",
+    value: "",
+    defaultValue: "",
+  },
+];
 
 export default function MotionTabs() {
   return (
     <div className="w-md">
       <Tabs>
-        <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="password">Password</TabsTrigger>
-        </TabsList>
+        <TabList />
         <TabsContents>
           <TabsContent value="account">
             <Card>
@@ -74,10 +93,6 @@ export default function MotionTabs() {
               </CardFooter>
             </Card>
           </TabsContent>
-          {/* <TabsContent value="account">
-            Make changes to your account here.
-          </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent> */}
         </TabsContents>
       </Tabs>
     </div>

@@ -323,7 +323,7 @@ function TabsContent({
     <Component
       role="tabpanel"
       data-slot="tabs-content"
-      inert={!isActive}
+      {...(!isActive && { inert: "true" as any })}
       style={{ overflow: "hidden", ...style }}
       initial={{ filter: "blur(0px)" }}
       animate={{ filter: isActive ? "blur(0px)" : "blur(4px)" }}

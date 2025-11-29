@@ -10,5 +10,9 @@ export default function LoginLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <section className="antialiased">{children}</section>;
+  return (
+    <section className="antialiased min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center">
+      {children}
+    </section>
+  );
 }

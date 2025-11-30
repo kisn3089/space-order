@@ -1,7 +1,7 @@
 import FormCard from "./components/formCard/FormCard";
 import MotionTabs from "./components/motionTabs/MotionTabs";
 
-export default function LoginPage() {
+export default function SignInPage() {
   return (
     <div className="flex flex-col items-center justify-center gap-8">
       {/* <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">

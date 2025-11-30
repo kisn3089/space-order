@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "login to use web services",
 };
 
-export default function LoginLayout({
+export default function SignInLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

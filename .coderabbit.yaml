@@ -52,6 +52,10 @@ reviews:
       instructions: apps/orderdesk 관련 PR
     - label: orderhub
       instructions: apps/orderhub 관련 PR
+    - label: packages
+      instructions: packages 관련 PR
+    - label: ui
+      instructions: ui 관련 PR
   path_filters: []
   path_instructions:
     - path: "**/*"

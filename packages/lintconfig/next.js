@@ -18,13 +18,13 @@ export const nextJsConfig = [
   js.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
+  // globalIgnores([
+  //   // Default ignores of eslint-config-next:
+  //   ".next/**",
+  //   "out/**",
+  //   "build/**",
+  //   "next-env.d.ts",
+  // ]),
   {
     ...pluginReact.configs.flat.recommended,
     languageOptions: {
@@ -52,6 +52,7 @@ export const nextJsConfig = [
       ...pluginReactHooks.configs.recommended.rules,
       // React scope no longer necessary with new JSX transform.
       "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
     },
   },
 ];

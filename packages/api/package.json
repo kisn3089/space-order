@@ -1,0 +1,19 @@
+{
+  "name": "@spaceorder/api",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "react": "18.3.1"
+  },
+  "devDependencies": {
+    "@spaceorder/lintconfig": "workspace:*",
+    "@spaceorder/tsconfig": "workspace:*",
+    "@spaceorder/auth": "workspace:*",
+    "@types/node": "^20",
+    "typescript": "^5"
+  },
+  "exports": {
+    "./*": "./src/*"
+  }
+}

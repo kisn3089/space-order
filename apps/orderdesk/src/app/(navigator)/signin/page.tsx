@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle } from "@spaceorder/ui/components/card";
 import FormCard from "./components/formCard/FormCard";
+// import AdminInfo from "./components/server/Admins";
 // import MotionTabs from "./components/motionTabs/MotionTabs";
 
 export default function SignInPage() {
@@ -12,6 +13,8 @@ export default function SignInPage() {
           </CardTitle>
         </CardHeader>
         <FormCard />
+        {/* <AdminInfo>
+        </AdminInfo> */}
       </Card>
     </div>
   );

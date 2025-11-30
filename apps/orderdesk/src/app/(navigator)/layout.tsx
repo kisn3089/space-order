@@ -1,4 +1,4 @@
-import { ToggleTheme } from "@/src/components/theme/ToggleTheme";
+import { ToggleTheme } from "@/components/theme/ToggleTheme";
 
 export default function NavigatorLayout({
   children,

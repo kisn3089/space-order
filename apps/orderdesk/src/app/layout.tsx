@@ -23,11 +23,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const aa = http;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+        {/* <TanstackProvider> */}
         <NextThemeProviders>{children}</NextThemeProviders>
+        {/* </TanstackProvider> */}
       </body>
     </html>
   );

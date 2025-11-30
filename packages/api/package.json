@@ -4,13 +4,16 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "@tanstack/react-query": "^5.90.11",
+    "axios": "^1.13.2",
     "react": "18.3.1"
   },
   "devDependencies": {
+    "@spaceorder/auth": "workspace:*",
     "@spaceorder/lintconfig": "workspace:*",
     "@spaceorder/tsconfig": "workspace:*",
-    "@spaceorder/auth": "workspace:*",
     "@types/node": "^20",
+    "@types/react": "^19",
     "typescript": "^5"
   },
   "exports": {

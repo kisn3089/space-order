@@ -5,7 +5,8 @@
     "paths": {
       "@/*": ["./*"],
       "@spaceorder/ui/*": ["../../packages/ui/src/*"],
-      "@spaceorder/auth/*": ["../../packages/auth/src/*"]
+      "@spaceorder/auth/*": ["../../packages/auth/src/*"],
+      "@spaceorder/api/*": ["../../packages/api/src/*"]
     },
     "plugins": [
       {

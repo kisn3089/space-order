@@ -1,5 +1,5 @@
 {
-  "extends": "@spaceorder/tsconfig/nextjs.json",
+  "extends": "@spaceorder/tsconfig/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
     "baseUrl": ".",

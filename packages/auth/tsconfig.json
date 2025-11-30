@@ -1,10 +1,10 @@
 {
-  "extends": "@spaceorder/tsconfig/nextjs.json",
+  "extends": "@spaceorder/tsconfig/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@spaceorder/ui/*": ["./src/*"]
+      "@spaceorder/auth/*": ["./src/*"]
     }
   },
   "include": ["."],

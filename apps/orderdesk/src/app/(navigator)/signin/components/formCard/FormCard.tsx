@@ -13,9 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@spaceorder/ui/components/card";
-import { Input } from "@spaceorder/ui/components/input";
-import { Label } from "@spaceorder/ui/components/label";
 import { useForm } from "react-hook-form";
+import SignInField from "../signInField/SignInField";
 
 export default function FormCard() {
   const {
@@ -37,51 +36,29 @@ export default function FormCard() {
 
   return (
     <Card className="w-full max-w-md min-w-sm">
-      <CardHeader>
-        <CardTitle className="flex justify-center font-bold">LOGO</CardTitle>
+      <CardHeader className="p-8">
+        <CardTitle className="flex justify-center font-bold">
+          SPACEORDER
+        </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                className={
-                  errors.email
-                    ? "border-red-600 focus-visible:ring-red-600"
-                    : ""
-                }
-                {...register("email")}
-                aria-invalid={errors.email ? true : false}
-              />
-              <p
-                className={`${errors.email ? `visible` : `invisible`} min-h-4 text-xs text-red-600`}>
-                {errors.email?.message}
-              </p>
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                className={
-                  errors.password
-                    ? "border-red-600 focus-visible:ring-red-600"
-                    : ""
-                }
-                {...register("password")}
-                aria-invalid={errors.password ? true : false}
-              />
-              <p
-                className={`${errors.password ? `visible` : `invisible`} min-h-4 text-xs text-red-600`}>
-                {errors.password?.message}
-              </p>
-            </div>
+            <SignInField
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="m@example.com"
+              errorMessage={errors.email && errors.email?.message}
+              register={register}
+            />
+            <SignInField
+              id="password"
+              label="Password"
+              type="password"
+              errorMessage={errors.password && errors.password?.message}
+              register={register}
+            />
           </div>
         </CardContent>
         <CardFooter className="flex-col gap-2">

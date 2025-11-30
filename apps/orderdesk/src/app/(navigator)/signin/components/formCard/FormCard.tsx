@@ -6,16 +6,12 @@ import {
   loginFormSchema,
 } from "@spaceorder/auth/lib/zod/loginForm/LoginFormSchema";
 import { Button } from "@spaceorder/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@spaceorder/ui/components/card";
+import { CardContent, CardFooter } from "@spaceorder/ui/components/card";
 import { useForm } from "react-hook-form";
 import SignInField from "../signInField/SignInField";
 import Link from "next/link";
+import { Checkbox } from "@spaceorder/ui/components/checkbox";
+import { Label } from "@spaceorder/ui/components/label";
 
 export default function FormCard() {
   const {
@@ -36,43 +32,42 @@ export default function FormCard() {
   };
 
   return (
-    <Card className="w-full max-w-md min-w-sm">
-      <CardHeader className="p-8">
-        <CardTitle className="flex justify-center font-bold">
-          SPACEORDER
-        </CardTitle>
-      </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent>
-          <div className="flex flex-col gap-2">
-            <SignInField
-              id="email"
-              label="Email"
-              type="email"
-              placeholder="m@example.com"
-              errorMessage={errors.email && errors.email?.message}
-              register={register}
-            />
-            <SignInField
-              id="password"
-              label="Password"
-              type="password"
-              errorMessage={errors.password && errors.password?.message}
-              register={register}
-            />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <CardContent>
+        <div className="flex flex-col gap-2">
+          <SignInField
+            id="email"
+            label="Email"
+            type="email"
+            placeholder="m@example.com"
+            errorMessage={errors.email && errors.email?.message}
+            register={register}
+          />
+          <SignInField
+            id="password"
+            label="Password"
+            type="password"
+            errorMessage={errors.password && errors.password?.message}
+            register={register}
+          />
+        </div>
+      </CardContent>
+      <CardFooter className="flex-col gap-2">
+        <Button type="submit" className="w-full font-bold">
+          로그인
+        </Button>
+        <div className="flex justify-between w-full">
+          <div className="flex items-center gap-2">
+            <Checkbox name="isAdmin" id="isAdmin" defaultChecked={false} />
+            <Label htmlFor="isAdmin">관리자 로그인</Label>
           </div>
-        </CardContent>
-        <CardFooter className="flex-col gap-2">
-          <Button type="submit" className="w-full font-bold">
-            로그인
-          </Button>
           <Link
             href="#"
             className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
             비밀번호를 잊으셨나요?
           </Link>
-        </CardFooter>
-      </form>
-    </Card>
+        </div>
+      </CardFooter>
+    </form>
   );
 }

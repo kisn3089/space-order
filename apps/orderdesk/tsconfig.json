@@ -3,10 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./src/*"],
       "@spaceorder/ui/*": ["../../packages/ui/src/*"],
       "@spaceorder/auth/*": ["../../packages/auth/src/*"],
-      "@spaceorder/api/*": ["../../packages/api/src/*"]
+      "@spaceorder/api/*": ["../../packages/api/src/*"],
+      "@spaceorder/orderdesk/*": ["../../packages/orderdesk/src/*"]
     },
     "plugins": [
       {

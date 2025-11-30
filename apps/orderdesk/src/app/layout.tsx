@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "@spaceorder/ui/globals.css";
-import { NextThemeProviders } from "../../components/theme-providers";
+import TanstackProvider from "@spaceorder/api/core/TanstackProvider";
+import { NextThemeProviders } from "@/components/theme/theme-providers";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -23,14 +24,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const aa = http;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
-        {/* <TanstackProvider> */}
-        <NextThemeProviders>{children}</NextThemeProviders>
-        {/* </TanstackProvider> */}
+        <TanstackProvider>
+          <NextThemeProviders>{children}</NextThemeProviders>
+        </TanstackProvider>
       </body>
     </html>
   );

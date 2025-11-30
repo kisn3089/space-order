@@ -15,6 +15,7 @@ import {
 } from "@spaceorder/ui/components/card";
 import { useForm } from "react-hook-form";
 import SignInField from "../signInField/SignInField";
+import Link from "next/link";
 
 export default function FormCard() {
   const {
@@ -65,11 +66,11 @@ export default function FormCard() {
           <Button type="submit" className="w-full font-bold">
             로그인
           </Button>
-          <a
+          <Link
             href="#"
             className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
             비밀번호를 잊으셨나요?
-          </a>
+          </Link>
         </CardFooter>
       </form>
     </Card>

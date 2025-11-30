@@ -1,7 +1,7 @@
 import { Button } from "@spaceorder/ui/components/button";
 import Image from "next/image";
 import { ArrowUpIcon } from "lucide-react";
-import { ToggleTheme } from "../../components/ToggleTheme";
+import { ToggleTheme } from "@/components/ToggleTheme";
 
 export default function Home() {
   return (

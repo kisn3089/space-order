@@ -18,7 +18,7 @@ export default function SidebarLayout({
           {children}
         </main>
       </SidebarProvider>
-      {children}
+      {/* {children} */}
     </section>
   );
 }

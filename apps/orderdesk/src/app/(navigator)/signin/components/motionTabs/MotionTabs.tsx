@@ -15,7 +15,7 @@ import {
 import { Input } from "@spaceorder/ui/components/input";
 import { Label } from "@spaceorder/ui/components/label";
 import TabList from "./TabList";
-import { CardField } from "./TabContent";
+// import { CardField } from "./TabContent";
 
 {
   /* <CardTitle>Account</CardTitle>
@@ -24,20 +24,20 @@ import { CardField } from "./TabContent";
           </CardDescription> */
 }
 
-const loginTabFields: CardField[] = [
-  {
-    id: "email",
-    label: "이메일",
-    value: "",
-    defaultValue: "example@example.com",
-  },
-  {
-    id: "password",
-    label: "비밀번호",
-    value: "",
-    defaultValue: "",
-  },
-];
+// const loginTabFields: CardField[] = [
+//   {
+//     id: "email",
+//     label: "이메일",
+//     value: "",
+//     defaultValue: "example@example.com",
+//   },
+//   {
+//     id: "password",
+//     label: "비밀번호",
+//     value: "",
+//     defaultValue: "",
+//   },
+// ];
 
 export default function MotionTabs() {
   return (

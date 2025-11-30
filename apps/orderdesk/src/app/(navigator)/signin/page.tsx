@@ -1,5 +1,5 @@
 import FormCard from "./components/formCard/FormCard";
-import MotionTabs from "./components/motionTabs/MotionTabs";
+// import MotionTabs from "./components/motionTabs/MotionTabs";
 
 export default function SignInPage() {
   return (

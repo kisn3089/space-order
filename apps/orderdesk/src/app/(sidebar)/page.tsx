@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "@spaceorder/ui/components/sidebar";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import Link from "next/link";
 
 const items = [
   {
@@ -49,10 +50,10 @@ export function NavSidebar() {
               {items.slice(0, 2).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -66,10 +67,10 @@ export function NavSidebar() {
               {items.slice(2).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

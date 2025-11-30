@@ -99,7 +99,7 @@ function Tabs({
   return (
     <TabsProvider
       value={{
-        activeValue: (value ?? activeValue) as string,
+        activeValue: value ?? activeValue ?? "",
         handleValueChange,
         registerTrigger,
       }}>

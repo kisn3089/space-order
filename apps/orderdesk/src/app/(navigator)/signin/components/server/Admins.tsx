@@ -14,7 +14,7 @@ export default async function Admins({
 
   await queryClient.prefetchQuery({
     queryKey: ["admins"],
-    queryFn: httpAdmin.getAdminList,
+    queryFn: httpAdmin.findAll,
   });
 
   return (

@@ -12,7 +12,7 @@ import SignInField from "../signInField/SignInField";
 import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
-// import { getAdminListQuery } from "@spaceorder/api/core/admin/adminQuery";
+// import { adminQuery } from "@spaceorder/api/core/admin/adminQuery";
 
 export default function FormCard() {
   const {
@@ -27,7 +27,10 @@ export default function FormCard() {
     },
   });
 
-  // const { data } = getAdminListQuery();
+  // const { data } = adminQuery.findAll();
+  // const { data } = adminQuery.findOne({
+  //   publicId: "cmig43icq0000lb19tmkdklyv",
+  // });
   // console.log("admins: ", data);
 
   const onSubmit = (data: LoginFormSchema) => {

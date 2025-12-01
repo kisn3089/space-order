@@ -1,8 +1,13 @@
 import { http } from "../http";
 
-async function getAdminList() {
+async function findAll() {
   const response = await http.get("/admin");
   return response.data;
 }
 
-export const httpAdmin = { getAdminList };
+async function findOne(publicId: string) {
+  const response = await http.get(`/admin/${publicId}`);
+  return response.data;
+}
+
+export const httpAdmin = { findAll, findOne };

@@ -1,6 +1,6 @@
 import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { httpAdmin } from "@spaceorder/api/core/admin/httpAdmin";
-import { Admin } from "@spaceorder/orderhub/types";
+import { Admin } from "@spaceorder/db/client";
 
 type GetAdminListQuery = Omit<UseQueryOptions<Admin[]>, "queryFn" | "select">;
 export const getAdminListQuery = (queryOptions?: GetAdminListQuery) => {

@@ -4,11 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 
-// BigInt를 JSON으로 직렬화할 수 있도록 설정
-BigInt.prototype.toJSON = function () {
-  return this.toString();
-};
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({

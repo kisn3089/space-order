@@ -9,7 +9,7 @@ import { OwnerModule } from 'src/owner/owner.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['.env'],
     }),
     AdminModule,
     OwnerModule,

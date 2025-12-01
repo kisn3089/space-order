@@ -10,9 +10,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@spaceorder/api": "workspace:*",
+    "@spaceorder/db": "workspace:*",
     "@spaceorder/ui": "workspace:*",
     "@spaceorder/auth": "workspace:*",
-    "@spaceorder/api": "workspace:*",
     "next": "14.2.33",
     "next-themes": "^0.4.6",
     "react": "18.3.1",

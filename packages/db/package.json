@@ -4,11 +4,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio",
-    "prisma:reset": "prisma migrate reset",
-    "build": "tsc -b",
+    "prisma:generate": "dotenv -e ../../apps/orderhub/.env -- prisma generate",
+    "prisma:migrate": "dotenv -e ../../apps/orderhub/.env -- prisma migrate dev",
+    "prisma:studio": "dotenv -e ../../apps/orderhub/.env -- prisma studio",
+    "prisma:reset": "dotenv -e ../../apps/orderhub/.env -- prisma migrate reset",
+    "build": "pnpm prisma:generate && tsc -b",
     "lint": "eslint \"src/**/*.ts\" --fix"
   },
   "dependencies": {
@@ -17,12 +17,11 @@
   "devDependencies": {
     "@spaceorder/lintconfig": "workspace:*",
     "@spaceorder/tsconfig": "workspace:*",
+    "dotenv-cli": "^11.0.0",
     "prisma": "^6.19.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
     "typescript": "^5"
   },
   "exports": {
-    "./*": "./src/*"
+    "./client": "./src/client.ts"
   }
 }

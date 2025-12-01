@@ -13,6 +13,7 @@ This is a Turborepo monorepo named "space-order" using pnpm workspaces. The proj
   - `orderhub`: NestJS 11.0.1 backend application with TypeScript and Jest testing, runs on port 8080
 
 - **Shared Packages** (in `packages/`):
+  - `@spaceorder/db`: Centralized Prisma schema and database types (SSOT for database)
   - `@share/ui`: React 19.2.0 component library exported via `./src/*.tsx` pattern (button, card, code)
   - `@share/lintconfig`: Shared ESLint 9 FlatConfig configurations (base, next, react-internal)
   - `@share/tsconfig`: Shared TypeScript configurations (base, nextjs, react-library)
@@ -137,6 +138,12 @@ The `turbo.json` configures task dependencies:
 
 ### Shared Packages
 
+- `@spaceorder/db`: Centralized database package with Prisma schema and types
+  - Prisma schema: `packages/db/prisma/schema.prisma`
+  - Environment config: `packages/db/.env` (DATABASE_URL and DB settings)
+  - Import PrismaClient: `import { PrismaClient } from '@spaceorder/db/client'`
+  - Import types: `import { Admin, Order } from '@spaceorder/db'`
+  - Prisma commands: `pnpm --filter=@spaceorder/db prisma:generate|migrate|studio`
 - `@share/ui`: Exports components as `./src/*.tsx` (e.g., `@share/ui/button`). Uses React 19.2.0
 - `@share/lintconfig`: ESLint 9 FlatConfig files - import via `@share/lintconfig/base`, `/next`, or `/react-internal`
 - `@share/tsconfig`: TypeScript configurations - extend `@share/tsconfig/base.json`, `/nextjs.json`, or `/react-library.json`
@@ -161,7 +168,10 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
 ## Important Notes
 
 - The **order** app uses React Compiler (experimental), which may affect how you write React components
-- The **orderhub** app runs on port 8080 (ensure `.env` is configured)
+- The **orderhub** app runs on port 8080 (configured in `apps/orderhub/.env`)
+- **Database configuration** is centralized in `packages/db/.env` (SSOT)
+  - Apps load DB env vars from `packages/db/.env` via ConfigModule
+  - App-specific env vars (like SERVER_PORT) remain in app's `.env`
 - `@share/ui` uses React 19.2.0, while order app uses React 18.3.1
 - Always run commands from the repository root unless working with package-specific scripts
 - Turbo caches build outputs for faster rebuilds

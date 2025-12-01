@@ -82,6 +82,9 @@ importers:
       '@spaceorder/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@spaceorder/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@spaceorder/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -158,9 +161,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^11.0.1
         version: 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)
-      '@prisma/client':
-        specifier: ^6.19.0
-        version: 6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2)
+      '@spaceorder/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -228,9 +231,6 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.6.2
-      prisma:
-        specifier: ^6.19.0
-        version: 6.19.0(typescript@5.9.2)
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
@@ -258,6 +258,12 @@ importers:
 
   packages/api:
     dependencies:
+      '@spaceorder/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@spaceorder/db':
+        specifier: workspace:*
+        version: link:../db
       '@tanstack/react-query':
         specifier: ^5.90.11
         version: 5.90.11(react@18.3.1)
@@ -268,15 +274,9 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
     devDependencies:
-      '@spaceorder/auth':
-        specifier: workspace:*
-        version: link:../auth
       '@spaceorder/lintconfig':
         specifier: workspace:*
         version: link:../lintconfig
-      '@spaceorder/orderhub':
-        specifier: workspace:*
-        version: link:../../apps/orderhub
       '@spaceorder/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -327,12 +327,9 @@ importers:
       '@spaceorder/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
-      '@types/node':
-        specifier: ^20
-        version: 20.19.25
-      '@types/react':
-        specifier: ^19
-        version: 19.2.2
+      dotenv-cli:
+        specifier: ^11.0.0
+        version: 11.0.0
       prisma:
         specifier: ^6.19.0
         version: 6.19.0(typescript@5.9.2)

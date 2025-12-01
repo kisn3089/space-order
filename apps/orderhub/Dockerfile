@@ -11,13 +11,15 @@ WORKDIR /app
 # Copy root package files for monorepo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/orderhub/package.json ./apps/orderhub/package.json
+COPY packages/db/package.json ./packages/db/package.json
 
 # Install dependencies with pnpm
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
-# Copy prisma schema and generate client
-COPY apps/orderhub/prisma ./apps/orderhub/prisma
-RUN cd apps/orderhub && pnpm exec prisma generate
+# Copy prisma schema and .env, then generate client
+COPY packages/db/prisma ./packages/db/prisma
+COPY apps/orderhub/.env ./apps/orderhub/.env
+RUN cd packages/db && pnpm run prisma:generate
 
 # Development stage
 FROM deps AS development
@@ -56,12 +58,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
 # Copy necessary files
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/apps/orderhub/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/package.json ./
-
-# Copy Prisma schema if it exists
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
 
 USER nestjs
 

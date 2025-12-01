@@ -12,8 +12,7 @@ import SignInField from "../signInField/SignInField";
 import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
-import { useQuery } from "@tanstack/react-query";
-import { httpAdmin } from "@spaceorder/api/core/admin";
+// import { getAdminListQuery } from "@spaceorder/api/core/admin/adminQuery";
 
 export default function FormCard() {
   const {
@@ -28,13 +27,8 @@ export default function FormCard() {
     },
   });
 
-  const admins = useQuery({
-    queryKey: ["admins"],
-    queryFn: httpAdmin.admins,
-    select: (data) => data,
-  });
-
-  console.log("admins: ", admins.data);
+  // const { data } = getAdminListQuery();
+  // console.log("admins: ", data);
 
   const onSubmit = (data: LoginFormSchema) => {
     console.log(data);

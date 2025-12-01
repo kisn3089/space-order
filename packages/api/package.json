@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@spaceorder/auth": "workspace:*",
+    "@spaceorder/orderhub": "workspace:*",
     "@spaceorder/lintconfig": "workspace:*",
     "@spaceorder/tsconfig": "workspace:*",
     "@types/node": "^20",

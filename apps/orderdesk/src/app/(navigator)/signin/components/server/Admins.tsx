@@ -1,20 +1,20 @@
+import { httpAdmin } from "@spaceorder/api/core/admin/httpAdmin";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { httpAdmin } from "@spaceorder/api/core/admin";
 
-export default async function AdminInfo({
+export default async function Admins({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: ["admins"],
-    queryFn: httpAdmin.admins,
+    queryFn: httpAdmin.getAdminList,
   });
 
   return (

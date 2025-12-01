@@ -1,0 +1,28 @@
+{
+  "name": "@spaceorder/db",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:reset": "prisma migrate reset",
+    "build": "tsc -b",
+    "lint": "eslint \"src/**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0"
+  },
+  "devDependencies": {
+    "@spaceorder/lintconfig": "workspace:*",
+    "@spaceorder/tsconfig": "workspace:*",
+    "prisma": "^6.19.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "typescript": "^5"
+  },
+  "exports": {
+    "./*": "./src/*"
+  }
+}

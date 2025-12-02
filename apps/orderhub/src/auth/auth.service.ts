@@ -1,28 +1,58 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { LoginDto } from './dto/signin.dto';
 import { AdminService } from '../admin/admin.service';
 import { comparePassword } from '@spaceorder/orderhub/utils/lib/crypt';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import { TokenPayload } from './token-payload.interface';
+import { Admin } from '@spaceorder/db/client';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async login(loginDto: LoginDto) {
+  login(admin: Admin, response: Response) {
+    const expiresAccessTime = new Date();
+    expiresAccessTime.setMilliseconds(
+      expiresAccessTime.getTime() +
+        parseInt(
+          this.configService.getOrThrow<string>(
+            'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+          ),
+        ),
+    );
+
+    const tokenPayload: TokenPayload = { userId: admin.publicId.toString() };
+    const accessToken = this.jwtService.sign(tokenPayload, {
+      secret: this.configService.getOrThrow<string>('JWT_ACCESS_TOKEN_SECRET'),
+      expiresIn: `${parseInt(
+        this.configService.getOrThrow<string>('JWT_ACCESS_TOKEN_EXPIRATION_MS'),
+      )}ms`,
+    });
+
+    response.cookie('Authentication', accessToken, {
+      httpOnly: true,
+      expires: expiresAccessTime,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+    });
+    return {
+      accessToken: accessToken,
+      expiresAt: expiresAccessTime,
+    };
+  }
+
+  async verifyUser(email: string, password: string) {
     try {
-      const { email, password } = loginDto;
       const admin = await this.adminService.findByEmail(email);
-      if (!admin.isActive) {
-        throw new UnauthorizedException('관리자 계정이 비활성화 상태입니다.');
-      }
-      console.log('admin: ', admin);
       const authenticated = await comparePassword(password, admin.password);
-      console.log('authenticated: ', authenticated);
-      if (!authenticated) {
-        throw new UnauthorizedException(
-          '이메일 또는 비밀번호가 올바르지 않습니다.',
-        );
-      }
-      await this.adminService.updateLastSignin(admin.publicId);
+      if (!authenticated) throw new Error();
+
+      return admin;
     } catch {
       throw new UnauthorizedException(
         '이메일 또는 비밀번호가 올바르지 않습니다.',

@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from 'src/admin/admin.module';
 import { OwnerModule } from 'src/owner/owner.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { OwnerModule } from 'src/owner/owner.module';
     }),
     AdminModule,
     OwnerModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

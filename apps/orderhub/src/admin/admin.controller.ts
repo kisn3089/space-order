@@ -7,10 +7,14 @@ import {
   Param,
   Delete,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentAdmin } from '../auth/current-admin.decorator';
+import { Admin } from '@spaceorder/db/client';
 
 @Controller('admin')
 export class AdminController {
@@ -18,25 +22,26 @@ export class AdminController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createAdminDto: CreateAdminDto) {
+  async create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
 
   @Get()
   @HttpCode(200)
-  findAll() {
+  @UseGuards(JwtAuthGuard)
+  async findAll() {
     return this.adminService.findAll();
   }
 
-  @Get(':publicId')
   @HttpCode(200)
-  findOne(@Param('publicId') publicId: string) {
+  @Get(':publicId')
+  async findOne(@Param('publicId') publicId: string) {
     return this.adminService.findOne(publicId);
   }
 
   @Patch(':publicId')
   @HttpCode(200)
-  update(
+  async update(
     @Param('publicId') publicId: string,
     @Body() updateAdminDto: UpdateAdminDto,
   ) {

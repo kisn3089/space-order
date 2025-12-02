@@ -1,17 +1,17 @@
-"use client";
+"use client"
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   LoginFormSchema,
   loginFormSchema,
-} from "@spaceorder/auth/lib/zod/loginForm/LoginFormSchema";
-import { Button } from "@spaceorder/ui/components/button";
-import { CardContent, CardFooter } from "@spaceorder/ui/components/card";
-import { useForm } from "react-hook-form";
-import SignInField from "../signInField/SignInField";
-import Link from "next/link";
-import { Checkbox } from "@spaceorder/ui/components/checkbox";
-import { Label } from "@spaceorder/ui/components/label";
+} from "@spaceorder/auth/lib/zod/loginForm/LoginFormSchema"
+import { Button } from "@spaceorder/ui/components/button"
+import { CardContent, CardFooter } from "@spaceorder/ui/components/card"
+import { useForm } from "react-hook-form"
+import SignInField from "../signInField/SignInField"
+import Link from "next/link"
+import { Checkbox } from "@spaceorder/ui/components/checkbox"
+import { Label } from "@spaceorder/ui/components/label"
 // import { adminQuery } from "@spaceorder/api/core/admin/adminQuery";
 
 export default function FormCard() {
@@ -25,7 +25,7 @@ export default function FormCard() {
       email: "",
       password: "",
     },
-  });
+  })
 
   // const { data } = adminQuery.findAll();
   // const { data } = adminQuery.findOne({
@@ -34,9 +34,9 @@ export default function FormCard() {
   // console.log("admins: ", data);
 
   const onSubmit = (data: LoginFormSchema) => {
-    console.log(data);
+    console.log(data)
     // 여기서 로그인 API 호출
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -76,5 +76,5 @@ export default function FormCard() {
         </div>
       </CardFooter>
     </form>
-  );
+  )
 }

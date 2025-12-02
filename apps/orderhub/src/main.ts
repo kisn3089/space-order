@@ -3,6 +3,7 @@ import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,8 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(cookieParser());
 
   // Enable Prisma exception filter globally
   app.useGlobalFilters(new PrismaExceptionFilter());

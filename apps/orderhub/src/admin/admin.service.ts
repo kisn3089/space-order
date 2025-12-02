@@ -48,6 +48,18 @@ export class AdminService {
     return admin;
   }
 
+  async findByEmail(email: string) {
+    const admin = await this.prismaService.admin.findUnique({
+      where: { email },
+    });
+
+    if (!admin) {
+      throw new NotFoundException(`존재하지 않는 관리자입니다.`);
+    }
+
+    return admin;
+  }
+
   async update(publicId: string, updateAdminDto: UpdateAdminDto) {
     return await this.prismaService.admin.update({
       where: { publicId },
@@ -69,6 +81,17 @@ export class AdminService {
      */
     return await this.prismaService.admin.delete({
       where: { publicId },
+    });
+  }
+
+  async updateLastSignin(publicId: string) {
+    return await this.prismaService.admin.update({
+      where: { publicId },
+      data: { lastLoginAt: new Date() },
+      omit: {
+        id: true,
+        password: true,
+      },
     });
   }
 }

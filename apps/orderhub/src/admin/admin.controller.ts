@@ -13,8 +13,8 @@ import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentAdmin } from '../auth/current-admin.decorator';
-import { Admin } from '@spaceorder/db/client';
+// import { CurrentAdmin } from '../auth/current-admin.decorator';
+// import { Admin } from '@spaceorder/db/client';
 
 @Controller('admin')
 export class AdminController {

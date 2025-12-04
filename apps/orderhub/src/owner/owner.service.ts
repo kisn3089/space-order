@@ -2,36 +2,37 @@ import { Injectable } from '@nestjs/common';
 import { CreateOwnerDto } from './dto/create-owner.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { encryptPassword } from '@spaceorder/auth/utils/lib/crypt';
+// import { encryptPassword } from '@spaceorder/auth/utils/lib/crypt';
 
 @Injectable()
 export class OwnerService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createOwnerDto: CreateOwnerDto) {
-    const hashedPassword = await encryptPassword(createOwnerDto.password);
+    // const hashedPassword = await encryptPassword(createOwnerDto.password);
 
-    const owner = await this.prismaService.owner.create({
-      data: {
-        ...createOwnerDto,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        publicId: true, // 외부 노출용
-        email: true,
-        name: true,
-        phone: true,
-        businessNumber: true,
-        isVerified: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-        // password는 제외
-      },
-    });
+    // const owner = await this.prismaService.owner.create({
+    //   data: {
+    //     ...createOwnerDto,
+    //     password: hashedPassword,
+    //   },
+    //   select: {
+    //     id: true,
+    //     publicId: true, // 외부 노출용
+    //     email: true,
+    //     name: true,
+    //     phone: true,
+    //     businessNumber: true,
+    //     isVerified: true,
+    //     isActive: true,
+    //     createdAt: true,
+    //     updatedAt: true,
+    //     // password는 제외
+    //   },
+    // });
 
-    return owner;
+    // return owner;
+    return null;
   }
 
   async findAll() {

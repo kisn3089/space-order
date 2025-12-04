@@ -20,10 +20,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@spaceorder/orderhub/*": ["./*"],
-      "@spaceorder/auth/*": ["../../packages/auth/src/*"]
-    }
+    "noFallthroughCasesInSwitch": false
   }
 }

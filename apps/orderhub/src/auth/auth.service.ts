@@ -5,8 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { TokenPayload } from './token-payload.interface';
 import { Admin } from '@spaceorder/db/client';
-import { comparePassword } from '@spaceorder/auth/utils/lib/crypt';
-
+import { comparePassword } from 'utils/lib/crypt';
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,7 +14,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  login(admin: Admin, response: Response) {
+  signin(admin: Admin, response: Response) {
+    console.log('admin: ', admin);
+
     const expiresAccessTime = new Date();
     expiresAccessTime.setMilliseconds(
       expiresAccessTime.getTime() +

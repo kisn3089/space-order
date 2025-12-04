@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-  LoginFormSchema,
-  loginFormSchema,
-} from "@spaceorder/auth/lib/zod/loginForm/LoginFormSchema"
+  SigninFormSchema,
+  signinFormSchema,
+} from "@spaceorder/auth/lib/zod/signinForm/SigninFormSchema"
 import { Button } from "@spaceorder/ui/components/button"
 import { CardContent, CardFooter } from "@spaceorder/ui/components/card"
 import { useForm } from "react-hook-form"
@@ -19,8 +19,8 @@ export default function FormCard() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormSchema>({
-    resolver: zodResolver(loginFormSchema),
+  } = useForm<SigninFormSchema>({
+    resolver: zodResolver(signinFormSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -33,7 +33,7 @@ export default function FormCard() {
   // });
   // console.log("admins: ", data);
 
-  const onSubmit = (data: LoginFormSchema) => {
+  const onSubmit = (data: SigninFormSchema) => {
     console.log(data)
     // 여기서 로그인 API 호출
   }

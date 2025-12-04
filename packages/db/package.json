@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "@spaceorder/auth": "workspace:*",
-    "@prisma/client": "^6.19.0"
+    "@prisma/client": "^6.19.0",
+    "bcrypt": "^6.0.0"
   },
   "devDependencies": {
     "@spaceorder/lintconfig": "workspace:*",
@@ -25,7 +26,8 @@
     "dotenv-cli": "^11.0.0",
     "prisma": "^6.19.0",
     "tsx": "^4.7.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@types/bcrypt": "^6.0.0"
   },
   "exports": {
     "./client": "./src/client.ts"

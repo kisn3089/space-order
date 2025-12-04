@@ -2,7 +2,7 @@ import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentAdmin } from './current-admin.decorator';
-import { LoginDto } from './dto/signin.dto';
+import { SigninDto } from './dto/signin.dto';
 import type { Admin } from '@spaceorder/db/client';
 import type { Response } from 'express';
 
@@ -11,29 +11,30 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
-   * Passport LocalStrategy 사용 방식
+   * Passport LocalStrategy 사용 방식 + DTO 검증
    */
-  @Post('admin/login')
+  @Post('admin/signin')
   @UseGuards(LocalAuthGuard)
   loginWithGuard(
+    // @Body() signinDto: SigninDto,
     @CurrentAdmin() admin: Admin,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.login(admin, response);
+    return this.authService.signin(admin, response);
   }
 
   /**
    * DTO 검증 + 직접 구현 방식 (추천)
    */
-  @Post('admin/login-v2')
-  async loginWithDto(
-    @Body() loginDto: LoginDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const admin = await this.authService.verifyUser(
-      loginDto.email,
-      loginDto.password,
-    );
-    return this.authService.login(admin, response);
-  }
+  // @Post('admin/signin-v2')
+  // async loginWithDto(
+  //   @Body() signinDto: SigninDto,
+  //   @Res({ passthrough: true }) response: Response,
+  // ) {
+  //   const admin = await this.authService.verifyUser(
+  //     signinDto.email,
+  //     signinDto.password,
+  //   );
+  //   return this.authService.signin(admin, response);
+  // }
 }

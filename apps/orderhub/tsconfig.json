@@ -22,7 +22,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@spaceorder/orderhub/*": ["./*"]
+      "@spaceorder/orderhub/*": ["./*"],
+      "@spaceorder/auth/*": ["../../packages/auth/src/*"]
     }
   }
 }

@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AdminService } from '../admin/admin.service';
-import { comparePassword } from '@spaceorder/orderhub/utils/lib/crypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { TokenPayload } from './token-payload.interface';
 import { Admin } from '@spaceorder/db/client';
+import { comparePassword } from '@spaceorder/auth/utils/lib/crypt';
 
 @Injectable()
 export class AuthService {

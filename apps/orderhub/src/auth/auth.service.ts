@@ -14,7 +14,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  signin(admin: Admin, response: Response) {
+  signIn(admin: Admin, response: Response) {
     console.log('admin: ', admin);
 
     const expiresAccessTime = new Date();

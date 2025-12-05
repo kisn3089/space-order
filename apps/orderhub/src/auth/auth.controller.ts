@@ -2,7 +2,7 @@ import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentAdmin } from './current-admin.decorator';
-import { SigninDto } from './dto/signin.dto';
+// import { SigninDto } from './dto/signin.dto';
 import type { Admin } from '@spaceorder/db/client';
 import type { Response } from 'express';
 
@@ -15,12 +15,12 @@ export class AuthController {
    */
   @Post('admin/signin')
   @UseGuards(LocalAuthGuard)
-  loginWithGuard(
+  signIn(
     // @Body() signinDto: SigninDto,
     @CurrentAdmin() admin: Admin,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.signin(admin, response);
+    return this.authService.signIn(admin, response);
   }
 
   /**

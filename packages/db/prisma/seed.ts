@@ -1,17 +1,17 @@
-import { PrismaClient, AdminRole } from "@prisma/client"
-import * as bcrypt from "bcrypt"
+import { PrismaClient, AdminRole } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function encryptPassword(value: string): Promise<string> {
-  return await bcrypt.hash(value, 10)
+  return await bcrypt.hash(value, 10);
 }
 
 async function main() {
-  console.log("🌱 Starting database seeding...")
+  console.log("🌱 Starting database seeding...");
   // ==================== Admin 데이터 ====================
-  console.log("📝 Creating admins...")
-  const adminPassword = await encryptPassword("qwer1234!")
+  console.log("📝 Creating admins...");
+  const adminPassword = await encryptPassword("qwer1234!");
   const superAdmin = await prisma.admin.upsert({
     where: { email: "super@test.com" },
     update: {}, // 이미 있으면 변경하지 않음
@@ -22,7 +22,7 @@ async function main() {
       role: AdminRole.SUPER,
       isActive: true,
     },
-  })
+  });
   const supportAdmin = await prisma.admin.upsert({
     where: { email: "support@test.com" },
     update: {},
@@ -33,7 +33,7 @@ async function main() {
       role: AdminRole.SUPPORT,
       isActive: true,
     },
-  })
+  });
   const viewerAdmin = await prisma.admin.upsert({
     where: { email: "viewer@test.com" },
     update: {},
@@ -44,15 +44,15 @@ async function main() {
       role: AdminRole.VIEWER,
       isActive: true,
     },
-  })
+  });
   console.log("✅ Admins created:", {
     super: superAdmin.email,
     support: supportAdmin.email,
     viewer: viewerAdmin.email,
-  })
+  });
   // ==================== Owner 데이터 ====================
-  console.log("📝 Creating owners...")
-  const ownerPassword = await encryptPassword("qwer1234!")
+  console.log("📝 Creating owners...");
+  const ownerPassword = await encryptPassword("qwer1234!");
   const owner1 = await prisma.owner.upsert({
     where: { email: "owner@test.com" },
     update: {},
@@ -65,10 +65,10 @@ async function main() {
       isVerified: true,
       isActive: true,
     },
-  })
-  console.log("✅ Owners created:", { owner1: owner1.email })
+  });
+  console.log("✅ Owners created:", { owner1: owner1.email });
   // ==================== Store 데이터 ====================
-  console.log("📝 Creating stores...")
+  console.log("📝 Creating stores...");
   const store1 = await prisma.store.upsert({
     where: { publicId: "seed-store-cafe-1" },
     update: {},
@@ -84,10 +84,10 @@ async function main() {
       tableCount: 10,
       isOpen: true,
     },
-  })
-  console.log("✅ Stores created:", { store1: store1.name })
+  });
+  console.log("✅ Stores created:", { store1: store1.name });
   // ==================== Menu 데이터 ====================
-  console.log("📝 Creating menus...")
+  console.log("📝 Creating menus...");
   // Store1 메뉴 (카페)
   await prisma.menu.createMany({
     data: [
@@ -139,30 +139,30 @@ async function main() {
       },
     ],
     skipDuplicates: true, // 중복 무시
-  })
-  console.log("✅ Menus created")
-  console.log("\n🎉 Seeding completed successfully!")
-  console.log("\n📋 Test Accounts:")
-  console.log("┌─────────────────────────────────────────────────────┐")
-  console.log("│ Admin Accounts                                       │")
-  console.log("├─────────────────────────────────────────────────────┤")
-  console.log("│ Super Admin: super@spaceorder.com / Admin123!       │")
-  console.log("│ Support:     support@spaceorder.com / Admin123!     │")
-  console.log("│ Viewer:      viewer@spaceorder.com / Admin123!      │")
-  console.log("├─────────────────────────────────────────────────────┤")
-  console.log("│ Owner Accounts                                       │")
-  console.log("├─────────────────────────────────────────────────────┤")
-  console.log("│ Owner 1:     owner1@example.com / Owner123!         │")
-  console.log("│ Owner 2:     owner2@example.com / Owner123!         │")
-  console.log("└─────────────────────────────────────────────────────┘")
+  });
+  console.log("✅ Menus created");
+  console.log("\n🎉 Seeding completed successfully!");
+  console.log("\n📋 Test Accounts:");
+  console.log("┌─────────────────────────────────────────────────────┐");
+  console.log("│ Admin Accounts                                       │");
+  console.log("├─────────────────────────────────────────────────────┤");
+  console.log("│ Super Admin: super@spaceorder.com / qwer1234!       │");
+  console.log("│ Support:     support@spaceorder.com / qwer1234!     │");
+  console.log("│ Viewer:      viewer@spaceorder.com / qwer1234!      │");
+  console.log("├─────────────────────────────────────────────────────┤");
+  console.log("│ Owner Accounts                                       │");
+  console.log("├─────────────────────────────────────────────────────┤");
+  console.log("│ Owner 1:     owner1@example.com / qwer1234!         │");
+  console.log("│ Owner 2:     owner2@example.com / qwer1234!         │");
+  console.log("└─────────────────────────────────────────────────────┘");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:")
-    console.error(e)
+    console.error("❌ Seeding failed:");
+    console.error(e);
     // process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

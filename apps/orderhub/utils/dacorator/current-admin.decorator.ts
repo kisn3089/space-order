@@ -5,6 +5,8 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  * 이후 사용할 controller method parameter로 주입하는 커스텀 데코레이터
  */
 const getCurrentAdminByContext = (context: ExecutionContext) => {
+  console.log('qqqqqqqqqq: ', context.switchToHttp().getRequest().user);
+
   return context.switchToHttp().getRequest().user;
 };
 

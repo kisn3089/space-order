@@ -3,7 +3,7 @@ import { AdminService } from '../admin/admin.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { TokenPayload } from './token-payload.interface';
+import { TokenPayload } from '../../utils/jwt/token-payload.interface';
 import { Admin } from '@spaceorder/db/client';
 import { comparePassword } from 'utils/lib/crypt';
 @Injectable()

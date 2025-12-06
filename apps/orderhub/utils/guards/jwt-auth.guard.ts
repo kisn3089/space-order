@@ -32,29 +32,21 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param status - HTTP 상태 코드 (선택사항)
    */
   handleRequest<User = JwtUser>(err: any, user: any, info: JwtErrorInfo): User {
-    // 1. 에러가 발생한 경우 (Strategy에서 던진 예외)
-    console.log('err: ', err);
-    console.log('user: ', user);
-    console.log('info: ', info);
+    // 1. 오류 시 로깅
+    if (err || !user) {
+      // [TODO:] 로깅 서비스로 변경 필요
+      console.warn('error: ', err?.message);
+      console.warn('info: ', info?.name);
+      console.warn('timestamp: ', new Date().toISOString());
+    }
+
+    // 2. 에러가 발생한 경우 (Strategy에서 던진 예외)
     if (err) throw err;
 
-    // 2. user가 없는 경우 (토큰 검증 실패)
+    // 3. user가 없는 경우 (토큰 검증 실패)
     if (!user) {
-      // info 객체에서 에러 타입 확인
-      if (info?.name === 'TokenExpiredError') {
-        throw new UnauthorizedException(
-          '토큰이 만료되었습니다. 다시 로그인해주세요.',
-        );
-      }
-      if (info?.name === 'Error') {
-        throw new UnauthorizedException('유효하지 않은 토큰입니다.');
-      }
-      // if (info?.name === 'NotBeforeError') {
-      //   throw new UnauthorizedException('토큰이 아직 활성화되지 않았습니다.');
-      // }
-
-      // 기타 경우 (토큰 없음 등)
-      throw new UnauthorizedException('인증이 필요합니다.');
+      // 인증 실패 시 단일된 메시지를 반환하여 보안 강화
+      throw new UnauthorizedException('Invalid Credentials');
     }
 
     return user;

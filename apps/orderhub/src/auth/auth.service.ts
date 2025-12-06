@@ -5,7 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { TokenPayload } from '../../utils/jwt/token-payload.interface';
 import { Admin } from '@spaceorder/db/client';
-import { comparePassword } from 'utils/lib/crypt';
+import { comparePassword, encryptPassword } from 'utils/lib/crypt';
+import { responseCookie } from 'utils/cookies';
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,35 +15,65 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  signIn(admin: Admin, response: Response) {
-    console.log('admin: ', admin);
-
-    const expiresAccessTime = new Date();
-    expiresAccessTime.setMilliseconds(
-      expiresAccessTime.getTime() +
-        parseInt(
-          this.configService.getOrThrow<string>(
-            'JWT_ACCESS_TOKEN_EXPIRATION_MS',
-          ),
-        ),
+  private makeToken(expirationConfigName: string) {
+    const expiresTimes = parseInt(
+      this.configService.getOrThrow<string>(expirationConfigName),
     );
+    return {
+      jwt: (tokenPayload: TokenPayload, jwtConfigName: string) => {
+        const accessToken = this.jwtService.sign(tokenPayload, {
+          secret: this.configService.getOrThrow<string>(jwtConfigName),
+          expiresIn: `${expiresTimes}ms`,
+        });
+        return accessToken;
+      },
+      expriresTime: () => {
+        const expiresAccessTime = new Date();
+        expiresAccessTime.setMilliseconds(
+          expiresAccessTime.getTime() + expiresTimes,
+        );
+        return expiresAccessTime;
+      },
+    };
+  }
+
+  async signIn(admin: Admin, response: Response) {
+    const expiresAccessTime = this.makeToken(
+      'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+    ).expriresTime();
 
     const tokenPayload: TokenPayload = { userId: admin.publicId.toString() };
-    const accessToken = this.jwtService.sign(tokenPayload, {
-      secret: this.configService.getOrThrow<string>('JWT_ACCESS_TOKEN_SECRET'),
-      expiresIn: `${parseInt(
-        this.configService.getOrThrow<string>('JWT_ACCESS_TOKEN_EXPIRATION_MS'),
-      )}ms`,
-    });
+    const accessToken = this.makeToken('JWT_ACCESS_TOKEN_EXPIRATION_MS').jwt(
+      tokenPayload,
+      'JWT_ACCESS_TOKEN_SECRET',
+    );
 
-    response.cookie('Authentication', accessToken, {
-      httpOnly: true,
+    const expiresRefreshToken = this.makeToken(
+      'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+    ).expriresTime();
+
+    const refreshToken = this.makeToken('JWT_REFRESH_TOKEN_EXPIRATION_MS').jwt(
+      tokenPayload,
+      'JWT_REFRESH_TOKEN_SECRET',
+    );
+
+    await this.adminService.updateRefreshToken(
+      admin.publicId,
+      await encryptPassword(refreshToken),
+    );
+
+    responseCookie.set(response, 'Authentication', accessToken, {
       expires: expiresAccessTime,
       secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
     });
+
+    responseCookie.set(response, 'Authentication', accessToken, {
+      expires: expiresRefreshToken,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+    });
+
     return {
-      accessToken: accessToken,
+      accessToken,
       expiresAt: expiresAccessTime,
     };
   }
@@ -58,6 +89,23 @@ export class AuthService {
       throw new UnauthorizedException(
         '이메일 또는 비밀번호가 올바르지 않습니다.',
       );
+    }
+  }
+
+  async veryfyUserRefreshToekn(refreshToken: string, publicId: string) {
+    try {
+      const user = await this.adminService.findOne(publicId);
+      if (user.refreshToken === null) throw new UnauthorizedException();
+
+      const authenticated = await comparePassword(
+        refreshToken,
+        user.refreshToken,
+      );
+
+      if (!authenticated) throw new UnauthorizedException();
+      return user;
+    } catch {
+      throw new UnauthorizedException('Refresh token is not valid');
     }
   }
 }

@@ -50,16 +50,17 @@ enum OrderStatus {
 // ==================== Models ====================
 
 model Admin {
-  id          BigInt    @id @default(autoincrement())
-  publicId       String    @unique @default(cuid()) @map("public_id")
-  email       String    @unique
-  password    String
-  name        String
-  role        AdminRole @default(VIEWER)
-  isActive    Boolean   @default(true)
-  lastLoginAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           BigInt    @id @default(autoincrement())
+  publicId     String    @unique @default(cuid()) @map("public_id")
+  email        String    @unique
+  password     String
+  name         String
+  role         AdminRole @default(VIEWER)
+  isActive     Boolean   @default(true)
+  refreshToken String?   @map("refresh_token")
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("admin")
 }

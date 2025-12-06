@@ -8,7 +8,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  // 왜 여기는 private readonly
   constructor(
     configService: ConfigService,
     private readonly adminService: AdminService,
@@ -21,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: TokenPayload) {
-    return this.adminService.findOne(payload.userId);
+  async validate(payload: TokenPayload) {
+    return await this.adminService.findOne(payload.userId);
   }
 }

@@ -71,6 +71,17 @@ export class AdminService {
     });
   }
 
+  async updateRefreshToken(publicId: string, refreshToken: string) {
+    return await this.prismaService.admin.update({
+      where: { publicId },
+      data: { refreshToken },
+      omit: {
+        id: true,
+        password: true,
+      },
+    });
+  }
+
   async remove(publicId: string) {
     /**
      * 전역 catch 이전에 먼저 처리된다.
@@ -84,6 +95,7 @@ export class AdminService {
     });
   }
 
+  // [TODO:] 로그인 시 동작 안함
   async updateLastSignin(publicId: string) {
     return await this.prismaService.admin.update({
       where: { publicId },

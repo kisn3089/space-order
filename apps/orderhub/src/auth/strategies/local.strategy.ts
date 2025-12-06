@@ -12,7 +12,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
       usernameField: 'email',
-      // passReqToCallback: true,
     });
   }
 
@@ -22,6 +21,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * passReqToCallback: true로 인해 첫 번째 인자로 request 객체를 받음
    */
   async validate(email: string, password: string) {
-    return this.authService.verifyUser(email, password);
+    return await this.authService.verifyUser(email, password);
   }
 }

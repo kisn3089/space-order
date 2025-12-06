@@ -62,6 +62,8 @@ export class AuthService {
       await encryptPassword(refreshToken),
     );
 
+    await this.adminService.updateLastSignIn(admin.publicId);
+
     responseCookie.set(response, 'Authentication', accessToken, {
       expires: expiresAccessTime,
       secure: this.configService.get<string>('NODE_ENV') === 'production',

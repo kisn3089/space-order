@@ -95,8 +95,7 @@ export class AdminService {
     });
   }
 
-  // [TODO:] 로그인 시 동작 안함
-  async updateLastSignin(publicId: string) {
+  async updateLastSignIn(publicId: string) {
     return await this.prismaService.admin.update({
       where: { publicId },
       data: { lastLoginAt: new Date() },

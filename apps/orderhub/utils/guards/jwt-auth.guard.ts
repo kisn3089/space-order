@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Admin } from '@spaceorder/db/client';
+import { Owner } from '@spaceorder/db/client';
 
 /**
  * JWT 에러 정보 타입
@@ -15,7 +15,7 @@ interface JwtErrorInfo {
  * JWT 인증 후 반환되는 사용자 타입
  * id, password 필드는 제외됨
  */
-type JwtUser = Omit<Admin, 'id' | 'password'>;
+type JwtUser = Omit<Owner, 'id' | 'password'>;
 
 /**
  * JWT 토큰 검증을 위한 Guard

@@ -62,8 +62,6 @@ async function main() {
       name: "홍길동",
       phone: "010-1234-5678",
       businessNumber: "123-45-67890",
-      isVerified: true,
-      isActive: true,
     },
   });
   console.log("✅ Owners created:", { owner1: owner1.email });

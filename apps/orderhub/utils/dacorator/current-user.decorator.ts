@@ -8,7 +8,7 @@ const getCurrentAdminByContext = (context: ExecutionContext) => {
   return context.switchToHttp().getRequest().user;
 };
 
-export const CurrentAdmin = createParamDecorator(
+export const CurrentUser = createParamDecorator(
   (_data: unknown, context: ExecutionContext) =>
     getCurrentAdminByContext(context),
 );

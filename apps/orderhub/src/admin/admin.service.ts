@@ -15,34 +15,21 @@ export class AdminService {
         ...createAdminDto,
         password: hashedPassword,
       },
-      omit: {
-        id: true,
-        password: true,
-      },
     });
     return createdAdmin;
   }
 
   async findAll() {
-    return await this.prismaService.admin.findMany({
-      omit: {
-        id: true,
-        password: true,
-      },
-    });
+    return await this.prismaService.admin.findMany({});
   }
 
   async findOne(publicId: string) {
     const admin = await this.prismaService.admin.findUnique({
       where: { publicId },
-      omit: {
-        id: true,
-        password: true,
-      },
     });
 
     if (!admin) {
-      throw new NotFoundException(`존재하지 않는 관리자입니다.`);
+      throw new NotFoundException(`Not Found Admin`);
     }
 
     return admin;
@@ -54,7 +41,7 @@ export class AdminService {
     });
 
     if (!admin) {
-      throw new NotFoundException(`존재하지 않는 관리자입니다.`);
+      throw new NotFoundException(`Not Found Admin`);
     }
 
     return admin;
@@ -64,10 +51,6 @@ export class AdminService {
     return await this.prismaService.admin.update({
       where: { publicId },
       data: updateAdminDto,
-      omit: {
-        id: true,
-        password: true,
-      },
     });
   }
 
@@ -78,6 +61,7 @@ export class AdminService {
       omit: {
         id: true,
         password: true,
+        refreshToken: true,
       },
     });
   }
@@ -102,6 +86,7 @@ export class AdminService {
       omit: {
         id: true,
         password: true,
+        refreshToken: true,
       },
     });
   }

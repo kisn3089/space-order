@@ -1,8 +1,6 @@
 import {
-  IsBoolean,
   IsEmail,
   IsNotEmpty,
-  IsOptional,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
@@ -33,11 +31,4 @@ export class CreateOwnerDto {
   @IsString()
   @IsNotEmpty()
   businessNumber: string;
-
-  @IsBoolean()
-  isVerified?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  isActive?: boolean;
 }

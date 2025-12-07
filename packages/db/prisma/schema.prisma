@@ -73,8 +73,8 @@ model Owner {
   name           String
   phone          String
   businessNumber String?   @unique @map("business_number")
-  isVerified     Boolean   @default(false) @map("is_verified")
-  isActive       Boolean   @default(true) @map("is_active")
+  isActive       Boolean   @default(false) @map("is_active")
+  refreshToken   String?   @map("refresh_token")
   lastLoginAt    DateTime? @map("last_login_at")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
@@ -95,7 +95,7 @@ model Store {
   businessHours   String?  @map("business_hours")
   description     String?  @db.Text
   tableCount      Int      @default(0) @map("table_count")
-  isOpen          Boolean  @default(true) @map("is_open")
+  isOpen          Boolean  @default(false) @map("is_open")
   acceptedMessage String?  @map("accepted_message") @db.VarChar(500)
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")

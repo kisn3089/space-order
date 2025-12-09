@@ -1,17 +1,15 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  SigninFormSchema,
-  signinFormSchema,
-} from "@spaceorder/auth/lib/zod/signinForm/SigninFormSchema"
-import { Button } from "@spaceorder/ui/components/button"
-import { CardContent, CardFooter } from "@spaceorder/ui/components/card"
-import { useForm } from "react-hook-form"
-import SignInField from "../signInField/SignInField"
-import Link from "next/link"
-import { Checkbox } from "@spaceorder/ui/components/checkbox"
-import { Label } from "@spaceorder/ui/components/label"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@spaceorder/ui/components/button";
+import { CardContent, CardFooter } from "@spaceorder/ui/components/card";
+import { useForm } from "react-hook-form";
+import SignInField from "../signInField/SignInField";
+import Link from "next/link";
+import { Checkbox } from "@spaceorder/ui/components/checkbox";
+import { Label } from "@spaceorder/ui/components/label";
+import { authMutate } from "@spaceorder/api";
+import { signInFormSchema, SignInFormSchema } from "@spaceorder/auth";
 // import { adminQuery } from "@spaceorder/api/core/admin/adminQuery";
 
 export default function FormCard() {
@@ -19,13 +17,15 @@ export default function FormCard() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SigninFormSchema>({
-    resolver: zodResolver(signinFormSchema),
+  } = useForm<SignInFormSchema>({
+    resolver: zodResolver(signInFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-  })
+  });
+
+  const signInMutation = authMutate.useSignIn();
 
   // const { data } = adminQuery.findAll();
   // const { data } = adminQuery.findOne({
@@ -33,10 +33,20 @@ export default function FormCard() {
   // });
   // console.log("admins: ", data);
 
-  const onSubmit = (data: SigninFormSchema) => {
-    console.log(data)
+  const onSubmit = async (data: SignInFormSchema) => {
+    console.log(data);
+    try {
+      const response = await signInMutation.mutateAsync({
+        email: data.email,
+        password: data.password,
+      });
+      console.log("signin response: ", response);
+    } catch (error) {
+      console.log("catch error: ", error);
+    }
+
     // 여기서 로그인 API 호출
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -70,11 +80,12 @@ export default function FormCard() {
           </div>
           <Link
             href="#"
-            className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+          >
             비밀번호를 잊으셨나요?
           </Link>
         </div>
       </CardFooter>
     </form>
-  )
+  );
 }

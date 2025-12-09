@@ -1,10 +1,11 @@
 {
   "name": "@spaceorder/auth",
   "version": "0.1.0",
-  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "private": true,
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc",
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
@@ -17,8 +18,5 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "typescript": "^5"
-  },
-  "exports": {
-    "./*": "./src/*"
   }
 }

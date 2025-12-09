@@ -13,6 +13,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/orderhub/package.json ./apps/orderhub/package.json
 COPY packages/db/package.json ./packages/db/package.json
 COPY packages/auth/package.json ./packages/auth/package.json
+COPY packages/api/package.json ./packages/api/package.json
 
 # Install dependencies with pnpm
 RUN corepack enable pnpm && pnpm i --frozen-lockfile

@@ -27,7 +27,7 @@ Install the package as a workspace dependency:
 ### Import PrismaClient
 
 ```typescript
-import { PrismaClient } from '@spaceorder/db/client';
+import { PrismaClient } from "@spaceorder/db";
 
 const prisma = new PrismaClient();
 ```
@@ -35,7 +35,7 @@ const prisma = new PrismaClient();
 ### Import Types
 
 ```typescript
-import { Admin, AdminRole, Order, OrderStatus } from '@spaceorder/db';
+import { Admin, AdminRole, Order, OrderStatus } from "@spaceorder/db";
 ```
 
 ## Development
@@ -110,11 +110,12 @@ Apps load database environment variables from this centralized `.env` file:
 // apps/orderhub/src/app/app.module.ts
 ConfigModule.forRoot({
   isGlobal: true,
-  envFilePath: ['.env', '../../packages/db/.env'], // Loads from both files
-})
+  envFilePath: [".env", "../../packages/db/.env"], // Loads from both files
+});
 ```
 
 This SSOT approach ensures:
+
 - ✅ All apps use the same database configuration
 - ✅ No duplicate DATABASE_URL in multiple `.env` files
 - ✅ Easy to manage database credentials in one place

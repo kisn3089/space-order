@@ -1,11 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { signInFormSchema } from '@spaceorder/auth';
+import { createZodDto } from 'nestjs-zod';
 
-export class SignInDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
-  @IsNotEmpty()
-  @IsString()
-  password: string;
-}
+export class SignInDto extends createZodDto(signInFormSchema) {}

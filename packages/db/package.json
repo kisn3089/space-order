@@ -1,7 +1,8 @@
 {
   "name": "@spaceorder/db",
   "version": "0.1.0",
-  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "private": true,
   "scripts": {
     "prisma:generate": "dotenv -e ../../apps/orderhub/.env -- prisma generate",
@@ -28,8 +29,5 @@
     "tsx": "^4.7.0",
     "typescript": "^5",
     "@types/bcrypt": "^6.0.0"
-  },
-  "exports": {
-    "./client": "./src/client.ts"
   }
 }

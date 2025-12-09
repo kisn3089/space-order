@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Owner } from '@spaceorder/db/client';
+import { Owner } from '@spaceorder/db';
 
 /**
  * JWT 에러 정보 타입

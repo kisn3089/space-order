@@ -3,10 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { TokenPayload } from '../../utils/jwt/token-payload.interface';
-import { Owner } from '@spaceorder/db/client';
+import { Owner } from '@spaceorder/db';
 import { comparePassword, encryptPassword } from 'utils/lib/crypt';
 import { responseCookie } from 'utils/cookies';
 import { OwnerService } from 'src/owner/owner.service';
+import { SignInRequest, SignInResponse } from '@spaceorder/api';
 @Injectable()
 export class AuthService {
   constructor(
@@ -37,7 +38,7 @@ export class AuthService {
     };
   }
 
-  async signIn(owner: Owner, response: Response) {
+  async signIn(owner: Owner, response: Response): Promise<SignInResponse> {
     const expiresAccessTime = this.makeToken(
       'JWT_ACCESS_TOKEN_EXPIRATION_MS',
     ).expriresTime();
@@ -80,8 +81,10 @@ export class AuthService {
     };
   }
 
-  async verifyUser(email: string, password: string) {
+  async verifyUser({ email, password }: SignInRequest): Promise<Owner> {
     try {
+      console.log('Verifying user with email:', email, password);
+
       const owner = await this.ownerService.findByEmail(email);
       const authenticated = await comparePassword(password, owner.password);
       if (!authenticated) throw new Error();
@@ -94,7 +97,10 @@ export class AuthService {
     }
   }
 
-  async veryfyUserRefreshToekn(refreshToken: string, publicId: string) {
+  async veryfyUserRefreshToekn(
+    refreshToken: string,
+    publicId: string,
+  ): Promise<Owner> {
     try {
       const owner = await this.ownerService.findOne(publicId);
       if (owner.refreshToken === null) throw new UnauthorizedException();

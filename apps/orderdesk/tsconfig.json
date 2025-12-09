@@ -3,17 +3,29 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@spaceorder/ui/*": ["../../packages/ui/src/*"],
-      "@spaceorder/auth/*": ["../../packages/auth/src/*"],
-      "@spaceorder/api/*": ["../../packages/api/src/*"],
-      "@spaceorder/orderdesk/*": ["../../packages/orderdesk/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@spaceorder/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@spaceorder/auth/*": [
+        "../../packages/auth/src/*"
+      ],
+      "@spaceorder/api/*": [
+        "../../packages/api/src/*"
+      ],
+      "@spaceorder/orderdesk/*": [
+        "../../packages/orderdesk/src/*"
+      ]
     },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "incremental": true,
+    "resolveJsonModule": true
   },
   "include": [
     "next-env.d.ts",
@@ -22,5 +34,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

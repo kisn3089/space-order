@@ -1,4 +1,4 @@
-import { Admin, AdminRole } from '@spaceorder/db/client';
+import { Admin, AdminRole } from '@spaceorder/db';
 import { Exclude, Expose } from 'class-transformer';
 
 export class AdminResponseDto {

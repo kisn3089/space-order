@@ -179,6 +179,7 @@ The `turbo.json` configures task dependencies:
 **Purpose:** Centralized Prisma schema and database types for all apps
 
 **Structure:**
+
 ```
 packages/db/
 ├── prisma/
@@ -194,19 +195,22 @@ packages/db/
 ```
 
 **Environment Variables (in `apps/orderhub/.env`):**
+
 - `DATABASE_URL`: MySQL connection string
 - `DB_ROOT_PASSWORD`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
 
 **Usage:**
+
 ```typescript
 // Import PrismaClient
-import { PrismaClient } from '@spaceorder/db/client';
+import { PrismaClient } from "@spaceorder/db";
 
 // Import types
-import type { Admin, AdminRole, Order, OrderStatus } from '@spaceorder/db/client';
+import type { Admin, AdminRole, Order, OrderStatus } from "@spaceorder/db";
 ```
 
 **Package.json Scripts:**
+
 - All scripts use `dotenv -e ../../apps/orderhub/.env` to load environment variables
 - `prisma:generate`: Generate Prisma Client
 - `prisma:migrate`: Run migrations
@@ -214,6 +218,7 @@ import type { Admin, AdminRole, Order, OrderStatus } from '@spaceorder/db/client
 - `build`: Generate client + TypeScript build
 
 **Exports:**
+
 ```json
 {
   "exports": {
@@ -223,6 +228,7 @@ import type { Admin, AdminRole, Order, OrderStatus } from '@spaceorder/db/client
 ```
 
 **Dependencies:**
+
 - `dependencies`: `@prisma/client`
 - `devDependencies`: `prisma`, `dotenv-cli`, `typescript`
 
@@ -231,6 +237,7 @@ import type { Admin, AdminRole, Order, OrderStatus } from '@spaceorder/db/client
 **Purpose:** Frontend API client with React Query hooks and HTTP utilities
 
 **Structure:**
+
 ```
 packages/api/
 └── src/
@@ -242,21 +249,24 @@ packages/api/
 ```
 
 **Usage:**
+
 ```typescript
 // Import API hooks
-import { getAdminListQuery } from '@spaceorder/api/core/admin/adminQuery';
+import { getAdminListQuery } from "@spaceorder/api/core/admin/adminQuery";
 
 // Use in component
 const { data: admins } = getAdminListQuery();
 ```
 
 **Dependencies:**
+
 - `@spaceorder/db`: For TypeScript types (Admin, Order, etc.)
 - `@tanstack/react-query`: React Query hooks
 - `axios`: HTTP client
 - `react`: React library
 
 **Exports:**
+
 ```json
 {
   "exports": {
@@ -270,6 +280,7 @@ const { data: admins } = getAdminListQuery();
 **Purpose:** Authentication utilities and types
 
 **Dependencies:**
+
 - Workspace packages for shared types
 
 #### `@spaceorder/ui`
@@ -296,6 +307,7 @@ const { data: admins } = getAdminListQuery();
 Apps use `workspace:*` protocol to reference local packages. Changes to shared packages affect consuming apps during development.
 
 **Key dependency relationships:**
+
 - `orderhub` → `@spaceorder/db`
 - `orderdesk` → `@spaceorder/api`, `@spaceorder/db`, `@spaceorder/ui`
 - `@spaceorder/api` → `@spaceorder/db`
@@ -303,11 +315,13 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
 ## Development Workflow
 
 1. **Initial Setup:**
+
    ```bash
    pnpm install
    ```
 
 2. **Database Setup:**
+
    ```bash
    # Configure database in apps/orderhub/.env
    # Then generate Prisma Client
@@ -318,6 +332,7 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
    ```
 
 3. **Run Development:**
+
    ```bash
    # Run all apps
    pnpm dev
@@ -329,6 +344,7 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
    ```
 
 4. **Before Committing:**
+
    ```bash
    pnpm check-types
    pnpm lint
@@ -343,37 +359,43 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
 ## Important Notes
 
 ### General
+
 - **Always run commands from the repository root** unless working with package-specific scripts
 - Use `--filter=<package-name>` for package-specific operations
 - Turbo caches build outputs for faster rebuilds
 
 ### Database (SSOT Strategy)
+
 - **All database configuration is in `apps/orderhub/.env`**
 - `@spaceorder/db` is the Single Source of Truth for:
   - Prisma schema (`packages/db/prisma/schema.prisma`)
   - Database types (Admin, Order, Menu, etc.)
   - Prisma Client configuration
-- Apps import types from `@spaceorder/db/client`
+- Apps import types from `@spaceorder/db`
 - Never duplicate DATABASE_URL across multiple `.env` files
 - Always run `prisma:generate` after schema changes
 
 ### Frontend Apps
+
 - `order` and `orderdesk` use React Compiler (experimental)
 - `@spaceorder/ui` uses React 19.2.0, while apps use React 18.3.1
 - Both use ESM (`"type": "module"`)
 - Tailwind CSS v4 with PostCSS
 
 ### Backend App (orderhub)
+
 - Uses CommonJS (no `"type": "module"`)
 - Port 8080 configured in `apps/orderhub/.env`
 - Docker support for containerized deployment
 - BigInt serialization configured in `src/main.ts`
 
 ### ESLint
+
 - ESLint 9 FlatConfig format across all packages
 - Use `--max-warnings 0` for strict linting in shared packages
 
 ### Docker (orderhub)
+
 - Multi-stage Dockerfile in `apps/orderhub/Dockerfile`
 - Stages: base, deps, development, builder, runner
 - Requires `packages/db/prisma` and `apps/orderhub/.env` for build
@@ -382,6 +404,7 @@ Apps use `workspace:*` protocol to reference local packages. Changes to shared p
 ## Environment Variables
 
 ### apps/orderhub/.env
+
 ```env
 SERVER_PORT=8080
 DB_ROOT_PASSWORD=***
@@ -393,20 +416,26 @@ DATABASE_URL="mysql://user:pass@localhost:3306/dbname"
 ```
 
 ### Frontend apps (.env)
+
 App-specific configuration only (no database credentials)
 
 ## Common Issues & Solutions
 
 ### Issue: Prisma Client not generated
+
 **Solution:** Run `pnpm --filter=@spaceorder/db prisma:generate`
 
 ### Issue: Type import not working from @spaceorder/db
+
 **Solution:**
+
 1. Ensure `@spaceorder/db` is in `dependencies` (not `devDependencies`)
-2. Import from `@spaceorder/db/client`: `import { Admin } from '@spaceorder/db/client'`
+2. Import from `@spaceorder/db`: `import { Admin } from '@spaceorder/db'`
 
 ### Issue: Docker build fails on prisma generate
+
 **Solution:** Ensure both `packages/db/prisma` and `apps/orderhub/.env` are copied in Dockerfile
 
 ### Issue: Module resolution errors
+
 **Solution:** Run `pnpm install` at root to sync workspace dependencies

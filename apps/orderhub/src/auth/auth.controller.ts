@@ -5,12 +5,17 @@ import { CurrentUser } from '../../utils/dacorator/current-user.decorator';
 import type { Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'utils/guards/jwt-refresh-auth.guard';
+import { ZodResponse } from 'nestjs-zod';
+import { SignInDto } from './dto/signin.dto';
 // import { SignInDto } from './dto/signin.dto';
-import { createZodDto, ZodResponse } from 'nestjs-zod';
-import z from 'zod';
-import { SignInFormSchema, signInFormSchema } from '@spaceorder/auth';
+// import { createZodDto, ZodResponse } from 'nestjs-zod';
+// import z from 'zod';
+// import {
+//   SignInFormSchema,
+//   signInFormSchema,
+// } from '@spaceorder/auth/schemas/signIn.schema';
 
-class PostDto extends createZodDto(signInFormSchema) {}
+// class PostDto extends createZodDto(signInFormSchema) {}
 // type A = SignInFormSchema;
 
 @Controller('auth')
@@ -18,7 +23,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signin')
-  // @ZodResponse({ type: SignInDto })
+  @ZodResponse({ type: SignInDto })
   @UseGuards(LocalAuthGuard)
   signIn(
     // @Body() signInDto: SignInDto,

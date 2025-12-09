@@ -9,7 +9,10 @@ import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
 import { authMutate } from "@spaceorder/api";
-import { signInFormSchema, SignInFormSchema } from "@spaceorder/auth";
+import {
+  signInFormSchema,
+  SignInFormSchema,
+} from "@spaceorder/auth/schemas/signIn.schema";
 // import { adminQuery } from "@spaceorder/api/core/admin/adminQuery";
 
 export default function FormCard() {

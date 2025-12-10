@@ -1,22 +1,20 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../utils/guards/local-auth.guard';
-import { CurrentUser } from '../utils/dacorator/current-user.decorator';
+import { CurrentUser } from '../dacorators/current-user.decorator';
 import type { Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
-import { SignInDto } from './dto/signin.dto';
-import { ZodResponse } from 'nestjs-zod';
+import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
+import { signInFormSchema } from '@spaceorder/auth';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signin')
-  @ZodResponse({ type: SignInDto })
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(ZodValidationGuard({ body: signInFormSchema }), LocalAuthGuard)
   signIn(
-    @Body() signInDto: SignInDto,
     @CurrentUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ) {

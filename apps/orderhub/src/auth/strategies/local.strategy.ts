@@ -22,8 +22,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * passport-local의 validate는 개별 파라미터로 받음 (객체 구조 분해 X)
    */
   async validate(email: string, password: string): Promise<Owner> {
-    console.log('Validating user with email:', email, password);
-
     return await this.authService.verifyUser({ email, password });
   }
 }

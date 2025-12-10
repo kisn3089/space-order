@@ -83,8 +83,6 @@ export class AuthService {
 
   async verifyUser({ email, password }: SignInRequest): Promise<Owner> {
     try {
-      console.log('Verifying user with email:', email, password);
-
       const owner = await this.ownerService.findByEmail(email);
       const authenticated = await comparePassword(password, owner.password);
       if (!authenticated) throw new Error();

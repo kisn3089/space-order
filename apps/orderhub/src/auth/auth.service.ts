@@ -28,20 +28,14 @@ export class AuthService {
         });
         return accessToken;
       },
-      expriresTime: () => {
-        const expiresAccessTime = new Date();
-        expiresAccessTime.setMilliseconds(
-          expiresAccessTime.getTime() + expiresTimes,
-        );
-        return expiresAccessTime;
-      },
+      expiresTime: () => new Date(Date.now() + expiresTimes),
     };
   }
 
   async signIn(owner: Owner, response: Response): Promise<SignInResponse> {
     const expiresAccessTime = this.makeToken(
       'JWT_ACCESS_TOKEN_EXPIRATION_MS',
-    ).expriresTime();
+    ).expiresTime();
 
     const tokenPayload: TokenPayload = { userId: owner.publicId.toString() };
     const accessToken = this.makeToken('JWT_ACCESS_TOKEN_EXPIRATION_MS').jwt(
@@ -51,7 +45,7 @@ export class AuthService {
 
     const expiresRefreshToken = this.makeToken(
       'JWT_REFRESH_TOKEN_EXPIRATION_MS',
-    ).expriresTime();
+    ).expiresTime();
 
     const refreshToken = this.makeToken('JWT_REFRESH_TOKEN_EXPIRATION_MS').jwt(
       tokenPayload,

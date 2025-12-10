@@ -70,14 +70,16 @@ export default function FormCard() {
         <Button type="submit" className="w-full font-bold">
           로그인
         </Button>
-        <div className="flex justify-between w-full">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex  gap-2">
             <Checkbox name="isAdmin" id="isAdmin" defaultChecked={false} />
-            <Label htmlFor="isAdmin">관리자 로그인</Label>
+            <Label htmlFor="isAdmin" className="text-xs">
+              관리자 로그인
+            </Label>
           </div>
           <Link
             href="#"
-            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+            className="ml-auto inline-block text-xs underline-offset-4 hover:underline"
           >
             비밀번호를 잊으셨나요?
           </Link>

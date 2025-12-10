@@ -144,9 +144,9 @@ async function main() {
   console.log("┌─────────────────────────────────────────────────────┐");
   console.log("│ Admin Accounts                                       │");
   console.log("├─────────────────────────────────────────────────────┤");
-  console.log("│ Super Admin: super@spaceorder.com / qwer1234!       │");
-  console.log("│ Support:     support@spaceorder.com / qwer1234!     │");
-  console.log("│ Viewer:      viewer@spaceorder.com / qwer1234!      │");
+  console.log("│ Super Admin: super@test.com / qwer1234!       │");
+  console.log("│ Support:     support@test.com / qwer1234!     │");
+  console.log("│ Viewer:      viewer@test.com / qwer1234!      │");
   console.log("├─────────────────────────────────────────────────────┤");
   console.log("│ Owner Accounts                                       │");
   console.log("├─────────────────────────────────────────────────────┤");

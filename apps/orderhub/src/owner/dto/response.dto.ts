@@ -18,9 +18,6 @@ export class OwnerResponseDto {
   businessNumber: string;
 
   @Expose()
-  isVerified: boolean;
-
-  @Expose()
   isActive: boolean;
 
   @Expose()

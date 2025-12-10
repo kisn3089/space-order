@@ -5,7 +5,6 @@ import { AxiosError } from "axios";
 import { httpAuth } from "@spaceorder/api";
 import { RequireCookieOptions } from "@spaceorder/auth/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { redirect } from "next/navigation";
 
 export default async function signInAction(formData: FormData) {
   try {

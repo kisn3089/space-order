@@ -35,6 +35,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     // 1. 오류 시 로깅
     if (err || !user) {
       // [TODO:] 로깅 서비스로 변경 필요
+      console.warn('user: ', user);
       console.warn('error: ', err?.message);
       console.warn('info: ', info?.name);
       console.warn('timestamp: ', new Date().toISOString());

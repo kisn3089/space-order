@@ -8,17 +8,19 @@ import SignInField from "../signInField/SignInField";
 import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
-import { authMutate } from "@spaceorder/api";
 import {
   signInFormSchema,
   SignInFormSchema,
 } from "@spaceorder/auth/schemas/signIn.schema";
-// import { adminQuery } from "@spaceorder/api/core/admin/adminQuery";
+import signInAction from "../../actions/signInAction";
+import { useRouter } from "next/navigation";
 
 export default function FormCard() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<SignInFormSchema>({
     resolver: zodResolver(signInFormSchema),
@@ -28,27 +30,19 @@ export default function FormCard() {
     },
   });
 
-  const signInMutation = authMutate.useSignIn();
+  const onSubmit = async ({ email, password }: SignInFormSchema) => {
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    const result = await signInAction(formData);
 
-  // const { data } = adminQuery.findAll();
-  // const { data } = adminQuery.findOne({
-  //   publicId: "cmig43icq0000lb19tmkdklyv",
-  // });
-  // console.log("admins: ", data);
-
-  const onSubmit = async (data: SignInFormSchema) => {
-    console.log(data);
-    try {
-      const response = await signInMutation.mutateAsync({
-        email: data.email,
-        password: data.password,
-      });
-      console.log("signin response: ", response);
-    } catch (error) {
-      console.log("catch error: ", error);
+    if (!result.success) {
+      console.log("client fail", result);
+      setError("password", { message: result.error?.message });
+      return;
     }
 
-    // 여기서 로그인 API 호출
+    router.replace("/orders");
   };
 
   return (

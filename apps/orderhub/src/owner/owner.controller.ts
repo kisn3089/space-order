@@ -15,7 +15,7 @@ import { OwnerService } from './owner.service';
 import { CreateOwnerDto } from './dto/create-owner.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
 import { OwnerResponseDto } from './dto/response.dto';
-import { JwtAuthGuard } from 'utils/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 
 @Controller('owner')
 @UseInterceptors(ClassSerializerInterceptor)

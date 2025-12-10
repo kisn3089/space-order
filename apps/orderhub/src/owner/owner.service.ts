@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOwnerDto } from './dto/create-owner.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { encryptPassword } from 'utils/lib/crypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { encryptPassword } from 'src/utils/lib/crypt';
 
 @Injectable()
 export class OwnerService {

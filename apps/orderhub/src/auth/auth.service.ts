@@ -2,11 +2,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { TokenPayload } from '../../utils/jwt/token-payload.interface';
+import { TokenPayload } from '../utils/jwt/token-payload.interface';
 import { Owner } from '@spaceorder/db';
-import { comparePassword, encryptPassword } from 'utils/lib/crypt';
-import { responseCookie } from 'utils/cookies';
-import { OwnerService } from 'src/owner/owner.service';
+import { comparePassword, encryptPassword } from 'src/utils/lib/crypt';
+import { responseCookie } from 'src/utils/cookies';
+import { OwnerService } from '../owner/owner.service';
 import { SignInRequest, SignInResponse } from '@spaceorder/api';
 @Injectable()
 export class AuthService {

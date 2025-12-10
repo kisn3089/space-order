@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { encryptPassword } from 'utils/lib/crypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { encryptPassword } from 'src/utils/lib/crypt';
 
 @Injectable()
 export class AdminService {

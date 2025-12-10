@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { encryptPassword } from 'utils/lib/crypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { encryptPassword } from 'src/utils/lib/crypt';
 
 @Injectable()
 export class AdminService {
@@ -15,34 +15,33 @@ export class AdminService {
         ...createAdminDto,
         password: hashedPassword,
       },
-      omit: {
-        id: true,
-        password: true,
-      },
     });
     return createdAdmin;
   }
 
   async findAll() {
-    return await this.prismaService.admin.findMany({
-      omit: {
-        id: true,
-        password: true,
-      },
-    });
+    return await this.prismaService.admin.findMany({});
   }
 
   async findOne(publicId: string) {
     const admin = await this.prismaService.admin.findUnique({
       where: { publicId },
-      omit: {
-        id: true,
-        password: true,
-      },
     });
 
     if (!admin) {
-      throw new NotFoundException(`존재하지 않는 관리자입니다.`);
+      throw new NotFoundException(`Not Found Admin`);
+    }
+
+    return admin;
+  }
+
+  async findByEmail(email: string) {
+    const admin = await this.prismaService.admin.findUnique({
+      where: { email },
+    });
+
+    if (!admin) {
+      throw new NotFoundException(`Not Found Admin`);
     }
 
     return admin;
@@ -52,9 +51,17 @@ export class AdminService {
     return await this.prismaService.admin.update({
       where: { publicId },
       data: updateAdminDto,
+    });
+  }
+
+  async updateRefreshToken(publicId: string, refreshToken: string) {
+    return await this.prismaService.admin.update({
+      where: { publicId },
+      data: { refreshToken },
       omit: {
         id: true,
         password: true,
+        refreshToken: true,
       },
     });
   }
@@ -69,6 +76,18 @@ export class AdminService {
      */
     return await this.prismaService.admin.delete({
       where: { publicId },
+    });
+  }
+
+  async updateLastSignIn(publicId: string) {
+    return await this.prismaService.admin.update({
+      where: { publicId },
+      data: { lastLoginAt: new Date() },
+      omit: {
+        id: true,
+        password: true,
+        refreshToken: true,
+      },
     });
   }
 }

@@ -4,7 +4,7 @@ import {
   ArgumentsHost,
   HttpStatus,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@spaceorder/db';
 import { Request, Response } from 'express';
 
 @Catch(Prisma.PrismaClientKnownRequestError)

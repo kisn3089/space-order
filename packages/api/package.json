@@ -1,0 +1,25 @@
+{
+  "name": "@spaceorder/api",
+  "version": "0.1.0",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc-watch --noClear"
+  },
+  "dependencies": {
+    "@spaceorder/db": "workspace:*",
+    "@spaceorder/auth": "workspace:*",
+    "@tanstack/react-query": "^5.90.11",
+    "axios": "^1.13.2",
+    "react": "18.3.1"
+  },
+  "devDependencies": {
+    "@spaceorder/lintconfig": "workspace:*",
+    "@spaceorder/tsconfig": "workspace:*",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "typescript": "^5"
+  }
+}

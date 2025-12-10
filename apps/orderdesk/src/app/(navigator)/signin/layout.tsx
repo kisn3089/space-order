@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "login",
-  description: "login to use web services",
+  title: "SignIn",
+  description: "signin to use web services",
 };
 
 export default function SignInLayout({

@@ -16,7 +16,7 @@
     "dev:orderhub": "docker-compose -f apps/orderhub/docker-compose.yml",
     "build:order": "turbo run build --filter=@spaceorder/order",
     "build:orderdesk": "turbo run build --filter=@spaceorder/orderdesk",
-    "build:orderhub": "docker-compose -f apps/orderhub/docker-compose.yml"
+    "build:orderhub": "turbo run build --filter=@spaceorder/orderhub"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOwnerDto } from './dto/create-owner.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { encryptPassword } from 'utils/lib/crypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { encryptPassword } from 'src/utils/lib/crypt';
 
 @Injectable()
 export class OwnerService {
@@ -10,78 +10,58 @@ export class OwnerService {
 
   async create(createOwnerDto: CreateOwnerDto) {
     const hashedPassword = await encryptPassword(createOwnerDto.password);
-
-    const owner = await this.prismaService.owner.create({
+    const createdOwner = await this.prismaService.owner.create({
       data: {
         ...createOwnerDto,
         password: hashedPassword,
       },
-      select: {
-        id: true,
-        publicId: true, // 외부 노출용
-        email: true,
-        name: true,
-        phone: true,
-        businessNumber: true,
-        isVerified: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-        // password는 제외
-      },
     });
+
+    return createdOwner;
+  }
+
+  async findAll() {
+    return await this.prismaService.owner.findMany({});
+  }
+
+  async findOne(publicId: string) {
+    const owner = await this.prismaService.owner.findUnique({
+      where: { publicId },
+    });
+
+    if (!owner) {
+      throw new NotFoundException(`Not Found Owner`);
+    }
 
     return owner;
   }
 
-  async findAll() {
-    return await this.prismaService.owner.findMany({
-      select: {
-        id: true,
-        publicId: true,
-        email: true,
-        name: true,
-        phone: true,
-        businessNumber: true,
-        isVerified: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+  async findByEmail(email: string) {
+    const owner = await this.prismaService.owner.findUnique({
+      where: { email },
     });
-  }
 
-  async findOne(publicId: string) {
-    return await this.prismaService.owner.findUnique({
-      where: { publicId },
-      select: {
-        publicId: true,
-        email: true,
-        name: true,
-        phone: true,
-        businessNumber: true,
-        isVerified: true,
-        isActive: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    if (!owner) {
+      throw new NotFoundException(`Not Found Owner`);
+    }
+    return owner;
   }
 
   async update(publicId: string, updateOwnerDto: UpdateOwnerDto) {
     return await this.prismaService.owner.update({
       where: { publicId },
       data: updateOwnerDto,
-      select: {
-        publicId: true,
-        email: true,
-        name: true,
-        phone: true,
-        businessNumber: true,
-        isVerified: true,
-        isActive: true,
-        updatedAt: true,
+    });
+  }
+
+  async updateRefreshToken(publicId: string, refreshToken: string) {
+    return await this.prismaService.owner.update({
+      where: { publicId },
+      data: { refreshToken },
+      omit: {
+        id: true,
+        password: true,
+        refreshToken: true,
       },
     });
   }
@@ -89,6 +69,18 @@ export class OwnerService {
   async remove(publicId: string) {
     return await this.prismaService.owner.delete({
       where: { publicId },
+    });
+  }
+
+  async updateLastSignIn(publicId: string) {
+    return await this.prismaService.owner.update({
+      where: { publicId },
+      data: { lastLoginAt: new Date() },
+      omit: {
+        id: true,
+        password: true,
+        refreshToken: true,
+      },
     });
   }
 }

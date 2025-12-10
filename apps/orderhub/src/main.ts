@@ -1,16 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app/app.module';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
-
-// BigInt를 JSON으로 직렬화할 수 있도록 설정
-BigInt.prototype.toJSON = function () {
-  return this.toString();
-};
+import cookieParser from 'cookie-parser';
+import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    // allowedHeaders: 'Content-Type, Authorization',
+  });
 
   // Enable validation globally
   app.useGlobalPipes(
@@ -23,6 +25,8 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(cookieParser());
 
   // Enable Prisma exception filter globally
   app.useGlobalFilters(new PrismaExceptionFilter());

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle } from "@spaceorder/ui/components/card";
-import { UserInfo } from "../sign-in/components/UserInfo";
+import { UserInfo } from "../signin/components/UserInfo";
 
 export default function OrdersPage() {
   return (

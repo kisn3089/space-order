@@ -2,23 +2,29 @@
 
 import { cookies } from "next/headers";
 import { AxiosError } from "axios";
-import { httpAuth } from "@spaceorder/api";
+import { httpAuth, SignInResponse } from "@spaceorder/api";
 import { RequireCookieOptions } from "@spaceorder/auth/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-export default async function signInAction(formData: FormData) {
+type ActionResponse =
+  | {
+      success: true;
+      data: SignInResponse;
+    }
+  | {
+      success: false;
+      error: {
+        message: string;
+        statusCode?: number;
+      };
+    };
+
+export default async function signInAction(
+  formData: FormData
+): Promise<ActionResponse> {
   try {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    if (!email || !password) {
-      return {
-        success: false,
-        error: {
-          message: "이메일과 비밀번호를 입력해주세요.",
-        },
-      };
-    }
 
     const response = await httpAuth.signIn({ email, password });
     const cookieStore = cookies();
@@ -60,23 +66,16 @@ export default async function signInAction(formData: FormData) {
       data: response.data,
     };
   } catch (error) {
-    if (error instanceof AxiosError) {
-      return {
-        success: false,
-        error: {
-          message:
-            error.response?.data?.message ||
-            "이메일 또는 비밀번호가 올바르지 않습니다.",
-          statusCode: error.response?.status,
-        },
-      };
-    }
-
-    return {
+    const errorResponse: ActionResponse = {
       success: false,
-      error: {
-        message: "로그인 시 서버 오류가 발생했습니다.",
-      },
+      error: { message: "로그인 시 서버 오류가 발생했습니다." },
     };
+    if (error instanceof AxiosError) {
+      errorResponse["error"].message =
+        error.response?.data?.message ||
+        "이메일 또는 비밀번호가 올바르지 않습니다.";
+      return errorResponse;
+    }
+    return errorResponse;
   }
 }

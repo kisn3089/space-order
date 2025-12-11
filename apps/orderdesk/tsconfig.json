@@ -3,21 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@spaceorder/ui/*": [
-        "../../packages/ui/src/*"
-      ],
-      "@spaceorder/auth/*": [
-        "../../packages/auth/src/*"
-      ],
-      "@spaceorder/api/*": [
-        "../../packages/api/src/*"
-      ],
-      "@spaceorder/orderdesk/*": [
-        "../../packages/orderdesk/src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@spaceorder/ui/*": ["../../packages/ui/src/*"],
+      "@spaceorder/auth/*": ["../../packages/auth/src/*"],
+      "@spaceorder/api/*": ["../../packages/api/src/*"],
+      "@spaceorder/orderdesk/*": ["../../packages/orderdesk/src/*"]
     },
     "plugins": [
       {
@@ -32,9 +22,8 @@
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../../packages/api/core/axios/http.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

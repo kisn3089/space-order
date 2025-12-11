@@ -312,9 +312,6 @@ importers:
 
   packages/api:
     dependencies:
-      '@spaceorder/auth':
-        specifier: workspace:*
-        version: link:../auth
       '@spaceorder/db':
         specifier: workspace:*
         version: link:../db
@@ -346,6 +343,9 @@ importers:
 
   packages/auth:
     dependencies:
+      '@spaceorder/api':
+        specifier: workspace:*
+        version: link:../api
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -374,9 +374,6 @@ importers:
       '@prisma/client':
         specifier: ^6.19.0
         version: 6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2)
-      '@spaceorder/auth':
-        specifier: workspace:*
-        version: link:../auth
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0

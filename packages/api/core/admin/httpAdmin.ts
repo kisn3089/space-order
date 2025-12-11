@@ -1,4 +1,4 @@
-import { http } from "../http";
+import { http } from "../axios/http";
 
 // async function create() {
 //   const response = await http.post("/admin", {

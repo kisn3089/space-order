@@ -1,4 +1,4 @@
-import { http } from "../http";
+import { http } from "../axios/http";
 import { SignInRequest, SignInResponse } from "./auth.type";
 import { AxiosResponse } from "axios";
 

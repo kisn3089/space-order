@@ -2,29 +2,109 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@spaceorder/ui/components/sidebar";
-import { NavSidebar } from "./page";
-import axiosInterceptor from "@/lib/axios/interceptor";
+import AuthGuard from "@/providers/AuthGuard";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@spaceorder/ui/components/sidebar";
+import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import Link from "next/link";
+import UserName from "../components/UserName";
 
-// [TODO:] 커밋 전에 반드시 제거!!
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbWl2anFrdjgwMDAzdWRvdzFkaHZzcjNmIiwiaWF0IjoxNzY1NDQyNTIwLCJleHAiOjE3NjU0NDYxMjB9.XJAndec0oow-kxg2s16fPvkXmtTOJlXu0jRsTHjwPwk";
+const items = [
+  {
+    title: "Home",
+    url: "#",
+    icon: Home,
+  },
+  {
+    title: "Inbox",
+    url: "#",
+    icon: Inbox,
+  },
+  {
+    title: "Calendar",
+    url: "#",
+    icon: Calendar,
+  },
+  {
+    title: "Search",
+    url: "#",
+    icon: Search,
+  },
+  {
+    title: "Settings",
+    url: "#",
+    icon: Settings,
+  },
+];
 
 export default function SidebarLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  axiosInterceptor(token);
   return (
     <section className="antialiased">
-      <SidebarProvider>
-        <NavSidebar />
-        <main>
-          <SidebarTrigger />
-          {children}
-        </main>
-      </SidebarProvider>
-      {/* {children} */}
+      <UserName />
+      <AuthGuard>
+        <SidebarProvider>
+          <NavSidebar />
+          <main>
+            <SidebarTrigger />
+            {children}
+          </main>
+        </SidebarProvider>
+      </AuthGuard>
     </section>
+  );
+}
+
+function NavSidebar() {
+  return (
+    <Sidebar>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.slice(0, 2).map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Two</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.slice(2).map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 }

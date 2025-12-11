@@ -1,4 +1,5 @@
 import { ToggleTheme } from "@/components/theme/ToggleTheme";
+import UserName from "./components/UserName";
 
 export default function NavigatorLayout({
   children,
@@ -10,7 +11,7 @@ export default function NavigatorLayout({
       <nav className="flex justify-between px-6 items-center w-screen h-16">
         <div className="font-bold text-lg">HANCO</div>
         <div className="flex flex-row items-center gap-4">
-          <h3>User</h3>
+          <UserName />
           <ToggleTheme />
         </div>
       </nav>

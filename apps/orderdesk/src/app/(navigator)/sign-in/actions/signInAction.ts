@@ -40,7 +40,7 @@ export default async function signInAction(formData: FormData) {
           path: "/",
           expires: undefined,
         };
-        if (name && value) {
+        if (name === "Refresh" && value) {
           attributes.forEach((attr) => {
             const [key, val] = attr.trim().split("=");
             const lowerKey = key.toLowerCase();

@@ -59,10 +59,10 @@ export class AuthService {
 
     await this.ownerService.updateLastSignIn(owner.publicId);
 
-    responseCookie.set(response, 'Authentication', accessToken, {
-      expires: expiresAccessTime,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-    });
+    // responseCookie.set(response, 'Authentication', accessToken, {
+    //   expires: expiresAccessTime,
+    //   secure: this.configService.get<string>('NODE_ENV') === 'production',
+    // });
 
     responseCookie.set(response, 'Refresh', refreshToken, {
       expires: expiresRefreshToken,

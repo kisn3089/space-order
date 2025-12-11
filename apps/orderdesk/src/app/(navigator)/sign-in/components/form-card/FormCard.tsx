@@ -4,16 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@spaceorder/ui/components/button";
 import { CardContent, CardFooter } from "@spaceorder/ui/components/card";
 import { useForm } from "react-hook-form";
-import SignInField from "../signInField/SignInField";
+import SignInField from "../sign-in-field/SignInField";
 import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
-import {
-  signInFormSchema,
-  SignInFormSchema,
-} from "@spaceorder/auth/schemas/signIn.schema";
+import { signInFormSchema } from "@spaceorder/auth/schemas/signIn.schema";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
+import { SignInRequest } from "@spaceorder/api";
 
 export default function FormCard() {
   const router = useRouter();
@@ -22,7 +20,7 @@ export default function FormCard() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<SignInFormSchema>({
+  } = useForm<SignInRequest>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
       email: "",
@@ -30,7 +28,7 @@ export default function FormCard() {
     },
   });
 
-  const onSubmit = async ({ email, password }: SignInFormSchema) => {
+  const onSubmit = async ({ email, password }: SignInRequest) => {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);

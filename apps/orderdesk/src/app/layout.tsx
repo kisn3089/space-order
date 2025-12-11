@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "@spaceorder/ui/globals.css";
 import { NextThemeProviders } from "@/components/theme/ThemeProviders";
-import TanstackProvider from "@spaceorder/api/core/providers/TanstackProvider";
+import TanstackProvider from "@spaceorder/api/core/TanstackProvider";
+import AuthenticationProvider from "../providers/AuthenticationProvider";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -29,9 +30,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <TanstackProvider>
-          <NextThemeProviders>{children}</NextThemeProviders>
-        </TanstackProvider>
+        <AuthenticationProvider>
+          <TanstackProvider>
+            <NextThemeProviders>{children}</NextThemeProviders>
+          </TanstackProvider>
+        </AuthenticationProvider>
       </body>
     </html>
   );

@@ -3,11 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { TokenPayload } from '../utils/jwt/token-payload.interface';
-import { Owner } from '@spaceorder/db';
+import { Owner, PlainOwner } from '@spaceorder/db';
 import { comparePassword, encryptPassword } from 'src/utils/lib/crypt';
 import { responseCookie } from 'src/utils/cookies';
 import { OwnerService } from '../owner/owner.service';
 import { SignInRequest, SignInResponse } from '@spaceorder/api';
+import { OwnerResponseDto } from 'src/owner/dto/response.dto';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 @Injectable()
 export class AuthService {
   constructor(
@@ -52,22 +54,29 @@ export class AuthService {
       'JWT_REFRESH_TOKEN_SECRET',
     );
 
-    await this.ownerService.updateRefreshToken(
-      owner.publicId,
-      await encryptPassword(refreshToken),
-    );
-
-    await this.ownerService.updateLastSignIn(owner.publicId);
+    await this.ownerService.update(owner.publicId, {
+      lastLoginAt: new Date(),
+      refreshToken: await encryptPassword(refreshToken),
+    });
 
     responseCookie.set(response, 'Refresh', refreshToken, {
       expires: expiresRefreshToken,
       secure: this.configService.get<string>('NODE_ENV') === 'production',
     });
 
-    return {
-      accessToken,
-      expiresAt: expiresAccessTime,
+    const ownerUser = await this.ownerService.findByEmail(owner.email);
+
+    const ownerDto = new OwnerResponseDto(ownerUser);
+    const plainOwner = instanceToPlain(ownerDto, {
+      excludeExtraneousValues: true,
+    }) as PlainOwner;
+
+    const userWithToken = {
+      owner: plainOwner,
+      auth: { accessToken, expiresAt: expiresAccessTime },
     };
+
+    return userWithToken;
   }
 
   async verifyUser({ email, password }: SignInRequest): Promise<Owner> {

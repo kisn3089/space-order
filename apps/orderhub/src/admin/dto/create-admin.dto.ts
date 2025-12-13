@@ -8,6 +8,7 @@ import {
   IsOptional,
 } from 'class-validator';
 
+// Role은 배열로 관리 필요 (migration needs) - seed.ts 파일 수정 필요
 enum AdminRole {
   SUPER = 'SUPER',
   SUPPORT = 'SUPPORT',

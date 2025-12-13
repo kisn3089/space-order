@@ -9,7 +9,7 @@ import { http } from "./http";
 // instance가 계속 생긴다?
 export default function axiosInterceptor(token: string) {
   function requestInterceptor(request: InternalAxiosRequestConfig) {
-    if (!request.headers.Authorization) {
+    if (!request.headers.Authorization && token) {
       request.headers.Authorization = `Bearer ${token}`;
     }
     // console.log("[Request]", {

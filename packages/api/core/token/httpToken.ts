@@ -2,13 +2,13 @@ import { http } from "../axios/http";
 import { AccessToken, SignInRequest, SignInResponse } from "./token.type";
 import { AxiosResponse } from "axios";
 
-const prefix = "/auth";
+const prefix = "/token";
 
-async function signIn({
+async function createAccessToken({
   email,
   password,
 }: SignInRequest): Promise<AxiosResponse<SignInResponse>> {
-  return await http.post<SignInResponse>(`${prefix}/signin`, {
+  return await http.post<SignInResponse>(`${prefix}`, {
     email,
     password,
   });
@@ -28,4 +28,4 @@ async function refreshAccessToken({
   );
 }
 
-export const httpToken = { signIn, refreshAccessToken };
+export const httpToken = { createAccessToken, refreshAccessToken };

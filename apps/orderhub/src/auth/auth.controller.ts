@@ -27,7 +27,7 @@ export class AuthController {
     @CurrentUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.signIn(owner, response);
+    return this.authService.refreshAccessToken(owner, response);
   }
 
   // @Post('admin/signin')

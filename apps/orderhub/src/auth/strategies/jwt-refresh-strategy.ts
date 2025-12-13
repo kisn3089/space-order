@@ -28,9 +28,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
     const refreshToken: string | null | undefined = request.cookies?.Refresh;
 
     if (!refreshToken) return null;
-    return await this.authService.veryfyUserRefreshToekn(
+    return await this.authService.verifyOwnerRefreshToken(
       refreshToken,
-      payload.userId,
+      payload.sub,
     );
   }
 }

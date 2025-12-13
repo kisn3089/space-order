@@ -1,22 +1,19 @@
 "use server";
 
-import { httpToken } from "@spaceorder/api";
+import { AccessToken, httpMe, httpToken } from "@spaceorder/api";
+import { PlainOwner } from "@spaceorder/db";
 import { cookies } from "next/headers";
 
 type RefreshAccessTokenResponse =
   | {
       hasRefreshToken: false;
-      token: {
-        accessToken: null;
-        expiresAt: null;
-      };
+      authInfo: null;
+      userInfo: null;
     }
   | {
       hasRefreshToken: true;
-      token: {
-        accessToken: string;
-        expiresAt: Date;
-      };
+      authInfo: AccessToken;
+      userInfo: PlainOwner;
     };
 /**
  * Server Action: Refresh Token으로 새로운 Access Token 발급
@@ -27,10 +24,8 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
 
   const emptyResponse: RefreshAccessTokenResponse = {
     hasRefreshToken: false,
-    token: {
-      accessToken: null,
-      expiresAt: null,
-    },
+    authInfo: null,
+    userInfo: null,
   };
 
   if (!refreshToken?.value) {
@@ -38,14 +33,18 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
   }
 
   try {
-    const resultRefreshAccessToken = await httpToken.refreshAccessToken({
+    const accessTokenByRefreshToken = await httpToken.refreshAccessToken({
       cookie: refreshToken.value,
     });
-    // [TODO:] 받은 토큰으로 사용자 정보 조회 /me
+
+    const userInfoByAccessToken = await httpMe.me(
+      accessTokenByRefreshToken.data.accessToken
+    );
 
     return {
       hasRefreshToken: true,
-      token: resultRefreshAccessToken.data,
+      authInfo: accessTokenByRefreshToken.data,
+      userInfo: userInfoByAccessToken.data,
     };
   } catch (error) {
     console.error("Token reissuance error:", error);

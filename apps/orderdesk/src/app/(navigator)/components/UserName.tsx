@@ -1,19 +1,22 @@
 "use client";
 
 import { useUserInfo } from "@/providers/UserInfoProvider";
-import { meQuery } from "@spaceorder/api";
+import { meQuery, ownersQuery } from "@spaceorder/api";
 import { useState } from "react";
 
-const accessToken = "";
+const expriedAccessToekn = "";
 export default function UserName() {
   const [cnt, setCnt] = useState(0);
   // const { userInfo } = useUserInfo();
-  const { data, refetch, error } = meQuery.findMe({
+  const { data, refetch, error, isSuccess } = meQuery.findMe({
     queryOptions: {
       queryKey: [`${cnt}-me`],
     },
-    accessToken,
+    accessToken: expriedAccessToekn,
   });
+
+  // const { data: ownersData } = ownersQuery.findAll({ enabled: isSuccess });
+  // console.log("ownersData: ", ownersData);
 
   const click = async () => {
     setCnt((prev) => prev + 1);

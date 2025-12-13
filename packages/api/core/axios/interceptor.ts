@@ -56,15 +56,31 @@ export default function axiosInterceptor(token: string) {
   async function responseErrorInterceptor(
     error: AxiosError<AxiosCustomError, AxiosRequestConfig>
   ) {
+    // [TODO:] refresh 만료 시 재로그인 유도 필요
     if (
       error instanceof AxiosError &&
       error.response?.status === 419 &&
       error.config
     ) {
-      const newAccessToken = await httpToken.refreshAccessToken();
-      error.config.headers["Authorization"] =
-        `Bearer ${newAccessToken?.data.accessToken}`;
-      return http(error.config);
+      try {
+        const newAccessToken = await httpToken.refreshAccessToken();
+
+        if (!newAccessToken?.data?.accessToken) {
+          return Promise.reject(error);
+        }
+
+        const newToken = `Bearer ${newAccessToken.data.accessToken}`;
+
+        // axios instance의 기본 헤더 업데이트 (이후 모든 요청에 적용)
+        http.defaults.headers.common["Authorization"] = newToken;
+
+        // 현재 실패한 요청도 새 토큰으로 재시도
+        error.config.headers["Authorization"] = newToken;
+
+        return http(error.config);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
     }
     // console.error("[Response Error]", {
     //   status: error.response?.status,
@@ -73,7 +89,7 @@ export default function axiosInterceptor(token: string) {
     //   message: error.message,
     //   data: error.response?.data,
     // });
-    return error;
+    return Promise.reject(error);
   }
 
   http.interceptors.request.use(requestInterceptor, requestErrorInterceptor);

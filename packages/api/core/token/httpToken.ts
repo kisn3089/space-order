@@ -1,6 +1,6 @@
+import { AxiosResponse } from "axios";
 import { http } from "../axios/http";
 import { AccessToken, SignInRequest, SignInResponse } from "./token.type";
-import { AxiosResponse } from "axios";
 
 const prefix = "/token";
 
@@ -8,24 +8,17 @@ async function createAccessToken({
   email,
   password,
 }: SignInRequest): Promise<AxiosResponse<SignInResponse>> {
-  return await http.post<SignInResponse>(`${prefix}`, {
+  const response = await http.post<SignInResponse>(`${prefix}`, {
     email,
     password,
   });
+  return response;
 }
 
-type RefreshAccessTokenHeaders = { cookie: string };
-async function refreshAccessToken({
-  cookie,
-}: RefreshAccessTokenHeaders): Promise<AxiosResponse<AccessToken>> {
-  const refreshHeader = `Refresh=${cookie}`;
-  return await http.post<AccessToken>(
-    `${prefix}/refresh`,
-    {},
-    {
-      headers: { Cookie: refreshHeader },
-    }
-  );
+async function refreshAccessToken(): Promise<AxiosResponse<AccessToken>> {
+  // withCredentials: true로 인해 브라우저가 자동으로 HttpOnly 쿠키(Refresh)를 전송
+  const response = await http.post<AccessToken>(`${prefix}/refresh`);
+  return response;
 }
 
 export const httpToken = { createAccessToken, refreshAccessToken };

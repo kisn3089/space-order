@@ -1,5 +1,17 @@
-import { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { http } from "./http";
+import { httpToken } from "../token";
+
+type AxiosCustomError = {
+  errorCode: number;
+  message: string;
+  status: number;
+};
 
 // [TODO:] 추후 CORS 설정 필요
 //  headers: {
@@ -18,7 +30,7 @@ export default function axiosInterceptor(token: string) {
     //   baseURL: request.baseURL,
     //   params: request.params,
     //   data: request.data,
-    //   headers: request.headers,
+    //   headers: request.headers.Authorization,
     // });
     return request;
   }
@@ -41,15 +53,27 @@ export default function axiosInterceptor(token: string) {
     return response;
   }
 
-  function responseErrorInterceptor(error: any) {
-    console.error("[Response Error]", {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      url: error.config?.url,
-      message: error.message,
-      data: error.response?.data,
-    });
-    return Promise.reject(error);
+  async function responseErrorInterceptor(
+    error: AxiosError<AxiosCustomError, AxiosRequestConfig>
+  ) {
+    if (
+      error instanceof AxiosError &&
+      error.response?.status === 419 &&
+      error.config
+    ) {
+      const newAccessToken = await httpToken.refreshAccessToken();
+      error.config.headers["Authorization"] =
+        `Bearer ${newAccessToken?.data.accessToken}`;
+      return http(error.config);
+    }
+    // console.error("[Response Error]", {
+    //   status: error.response?.status,
+    //   statusText: error.response?.statusText,
+    //   url: error.config?.url,
+    //   message: error.message,
+    //   data: error.response?.data,
+    // });
+    return error;
   }
 
   http.interceptors.request.use(requestInterceptor, requestErrorInterceptor);

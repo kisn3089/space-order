@@ -15,14 +15,14 @@ export default function AuthGuard({ children }: React.PropsWithChildren) {
       const refreshedAccessToken = await RefreshAccessToken();
       if (refreshedAccessToken.hasRefreshToken) {
         setAuthInfo(refreshedAccessToken.authInfo);
-        setUserInfo(refreshedAccessToken.userInfo);
 
-        // 여기서 userInfo도 저장해야 함
+        setUserInfo(refreshedAccessToken.userInfo);
       }
     })();
 
-    axiosInterceptor(authInfo.accessToken);
-  }, []); // authInfo가 필요할까? interceptor response로 refresh되면 되지 않을까?
+    console.log("refreshedAccessToken.authInfo: ");
+    axiosInterceptor(authInfo.accessToken); // 여러번 생성된다, 변경 필요
+  }, [authInfo.accessToken]);
 
   if (!authInfo.accessToken || !userInfo.publicId) return null;
 

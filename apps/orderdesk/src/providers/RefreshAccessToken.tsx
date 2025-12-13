@@ -38,13 +38,13 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
     });
 
     const userInfoByAccessToken = await httpMe.me(
-      accessTokenByRefreshToken.data.accessToken
+      accessTokenByRefreshToken.accessToken
     );
 
     return {
       hasRefreshToken: true,
-      authInfo: accessTokenByRefreshToken.data,
-      userInfo: userInfoByAccessToken.data,
+      authInfo: accessTokenByRefreshToken,
+      userInfo: userInfoByAccessToken,
     };
   } catch (error) {
     console.error("Token reissuance error:", error);

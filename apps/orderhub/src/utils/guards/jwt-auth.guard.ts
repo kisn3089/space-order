@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Owner } from '@spaceorder/db';
 
@@ -39,6 +43,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       console.warn('error: ', err?.message);
       console.warn('info: ', info?.name);
       console.warn('timestamp: ', new Date().toISOString());
+    }
+
+    if (info?.name === 'TokenExpiredError') {
+      throw new HttpException('Invalid Credentials', 419);
     }
 
     // 2. 에러가 발생한 경우 (Strategy에서 던진 예외)

@@ -1,15 +1,15 @@
 import { PlainOwner } from "@spaceorder/db";
-import { AxiosResponse } from "axios";
 import { http } from "../axios";
 
 const prefix = "/me";
 
-async function me(accessToken: string): Promise<AxiosResponse<PlainOwner>> {
-  return await http.get<PlainOwner>(`${prefix}`, {
+async function me(accessToken: string): Promise<PlainOwner> {
+  const response = await http.get<PlainOwner>(`${prefix}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
+  return response.data;
 }
 
 export const httpMe = { me };

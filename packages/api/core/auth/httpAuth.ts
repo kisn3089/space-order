@@ -1,19 +1,31 @@
 import { http } from "../axios/http";
-import { SignInRequest, SignInResponse } from "./auth.type";
+import { AccessToken, SignInRequest, SignInResponse } from "./auth.type";
 import { AxiosResponse } from "axios";
+
+const prefix = "/auth";
 
 async function signIn({
   email,
   password,
 }: SignInRequest): Promise<AxiosResponse<SignInResponse>> {
-  const response = await http.post<SignInResponse>("/auth/signin", {
+  return await http.post<SignInResponse>(`${prefix}/signin`, {
     email,
     password,
   });
-
-  return response;
 }
 
-// [TODO:] refreshToken 구현 추가
+type RefreshAccessTokenHeaders = { cookie: string };
+async function refreshAccessToken({
+  cookie,
+}: RefreshAccessTokenHeaders): Promise<AxiosResponse<AccessToken>> {
+  const refreshHeader = `Refresh=${cookie}`;
+  return await http.post<AccessToken>(
+    `${prefix}/refresh`,
+    {},
+    {
+      headers: { Cookie: refreshHeader },
+    }
+  );
+}
 
-export const httpAuth = { signIn };
+export const httpAuth = { signIn, refreshAccessToken };

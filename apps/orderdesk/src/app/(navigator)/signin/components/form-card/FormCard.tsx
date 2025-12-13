@@ -40,7 +40,6 @@ export default function FormCard() {
     const result = await signInAction(formData);
 
     if (!result.success) {
-      console.log("client fail", result);
       setError("password", { message: result.error?.message });
       return;
     }

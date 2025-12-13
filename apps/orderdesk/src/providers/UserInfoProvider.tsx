@@ -11,6 +11,7 @@ const defaultUser: UserInfo = {
   name: "",
   isActive: false,
   phone: "",
+  role: "owner",
   // [TODO:] roles: [], responsibility: owner 추가
   // auth: { accessToken: "", expiresAt: new Date() },
 };

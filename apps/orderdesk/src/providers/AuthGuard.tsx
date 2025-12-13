@@ -3,27 +3,24 @@
 import axiosInterceptor from "@spaceorder/api/core/axios/interceptor";
 import { useAuthInfo } from "./AuthenticationProvider";
 import React from "react";
-import { TokenReIssuance } from "./TokenReIssuance";
+import { RefreshAccessToken } from "./RefreshAccessToken";
 
 export default function AuthGuard({ children }: React.PropsWithChildren) {
-  const { authInfo } = useAuthInfo();
+  const { authInfo, setAuthInfo } = useAuthInfo();
 
   React.useEffect(() => {
-    console.log("create interceptor count");
-
     (async () => {
-      const aa = await TokenReIssuance();
-      console.log("aa: ", aa);
+      const refreshedAccessToken = await RefreshAccessToken();
+      if (refreshedAccessToken.hasRefreshToken) {
+        setAuthInfo(refreshedAccessToken.token);
+        // 여기서 userInfo도 저장해야 함
+      }
     })();
-    axiosInterceptor(authInfo.accessToken);
-  }, [authInfo.accessToken]);
 
-  // const cookie = cookieStore.get("Refresh");
-  // console.log("cookie: ", cookie);
+    axiosInterceptor(authInfo.accessToken);
+  }, []); // authInfo가 필요할까? interceptor response로 refresh되면 되지 않을까?
 
   if (!authInfo.accessToken) return null;
-
-  console.log("auth guard pass: ", authInfo);
 
   return <>{children}</>;
 }

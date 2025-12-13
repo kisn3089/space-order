@@ -8,10 +8,17 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh-strategy';
 import { OwnerModule } from '../owner/owner.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { GenerateToken } from 'src/utils/jwt/token-config';
 
 @Module({
   imports: [AdminModule, OwnerModule, PassportModule, JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    GenerateToken,
+  ],
 })
 export class AuthModule {}

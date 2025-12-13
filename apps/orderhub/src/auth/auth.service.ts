@@ -1,85 +1,62 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { TokenPayload } from '../utils/jwt/token-payload.interface';
 import { Owner, PlainOwner } from '@spaceorder/db';
 import { comparePassword, encryptPassword } from 'src/utils/lib/crypt';
-import { responseCookie } from 'src/utils/cookies';
 import { OwnerService } from '../owner/owner.service';
-import { SignInRequest, SignInResponse } from '@spaceorder/api';
+import { AccessToken, SignInRequest, SignInResponse } from '@spaceorder/api';
 import { OwnerResponseDto } from 'src/owner/dto/response.dto';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { instanceToPlain } from 'class-transformer';
+import { GenerateToken } from 'src/utils/jwt/token-config';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly ownerService: OwnerService,
-    private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
+    private readonly generateToken: GenerateToken,
   ) {}
 
-  private makeToken(expirationConfigName: string) {
-    const expiresTimes = parseInt(
-      this.configService.getOrThrow<string>(expirationConfigName),
-    );
-    return {
-      jwt: (tokenPayload: TokenPayload, jwtConfigName: string) => {
-        const accessToken = this.jwtService.sign(tokenPayload, {
-          secret: this.configService.getOrThrow<string>(jwtConfigName),
-          expiresIn: `${expiresTimes}ms`,
-        });
-        return accessToken;
-      },
-      expiresTime: () => new Date(Date.now() + expiresTimes),
-    };
-  }
-
   async signIn(owner: Owner, response: Response): Promise<SignInResponse> {
-    const expiresAccessTime = this.makeToken(
-      'JWT_ACCESS_TOKEN_EXPIRATION_MS',
-    ).expiresTime();
-
-    const tokenPayload: TokenPayload = { userId: owner.publicId.toString() };
-    const accessToken = this.makeToken('JWT_ACCESS_TOKEN_EXPIRATION_MS').jwt(
-      tokenPayload,
-      'JWT_ACCESS_TOKEN_SECRET',
-    );
-
-    const expiresRefreshToken = this.makeToken(
-      'JWT_REFRESH_TOKEN_EXPIRATION_MS',
-    ).expiresTime();
-
-    const refreshToken = this.makeToken('JWT_REFRESH_TOKEN_EXPIRATION_MS').jwt(
-      tokenPayload,
-      'JWT_REFRESH_TOKEN_SECRET',
-    );
+    const { accessToken, expiresAt, refreshToken, tokenPayload } =
+      this.generateToken.generateToken(owner, response);
 
     await this.ownerService.update(owner.publicId, {
       lastLoginAt: new Date(),
       refreshToken: await encryptPassword(refreshToken),
     });
 
-    responseCookie.set(response, 'Refresh', refreshToken, {
-      expires: expiresRefreshToken,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-    });
-
     const ownerUser = await this.ownerService.findByEmail(owner.email);
-
     const ownerDto = new OwnerResponseDto(ownerUser);
-    const plainOwner = instanceToPlain(ownerDto, {
-      excludeExtraneousValues: true,
-    }) as PlainOwner;
+    const plainOwner = {
+      ...instanceToPlain(ownerDto, {
+        excludeExtraneousValues: true,
+      }),
+      role: tokenPayload.role,
+    } as PlainOwner;
 
-    const userWithToken = {
+    const ownerWithToken = {
       owner: plainOwner,
-      auth: { accessToken, expiresAt: expiresAccessTime },
+      auth: { accessToken, expiresAt },
     };
 
-    return userWithToken;
+    return ownerWithToken;
   }
 
-  async verifyUser({ email, password }: SignInRequest): Promise<Owner> {
+  async refreshAccessToken(
+    owner: Owner,
+    response: Response,
+  ): Promise<AccessToken> {
+    const { accessToken, expiresAt, refreshToken } =
+      this.generateToken.generateToken(owner, response);
+
+    await this.ownerService.update(owner.publicId, {
+      lastLoginAt: new Date(),
+      refreshToken: await encryptPassword(refreshToken),
+    });
+
+    return { accessToken, expiresAt };
+  }
+
+  async verifyOwner({ email, password }: SignInRequest): Promise<Owner> {
     try {
       const owner = await this.ownerService.findByEmail(email);
       const authenticated = await comparePassword(password, owner.password);
@@ -93,7 +70,7 @@ export class AuthService {
     }
   }
 
-  async veryfyUserRefreshToekn(
+  async verifyOwnerRefreshToken(
     refreshToken: string,
     publicId: string,
   ): Promise<Owner> {

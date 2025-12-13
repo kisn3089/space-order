@@ -1,6 +1,6 @@
 "use server";
 
-import { httpAuth } from "@spaceorder/api";
+import { httpToken } from "@spaceorder/api";
 import { cookies } from "next/headers";
 
 type RefreshAccessTokenResponse =
@@ -38,7 +38,7 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
   }
 
   try {
-    const resultRefreshAccessToken = await httpAuth.refreshAccessToken({
+    const resultRefreshAccessToken = await httpToken.refreshAccessToken({
       cookie: refreshToken.value,
     });
     // [TODO:] 받은 토큰으로 사용자 정보 조회 /me

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { AuthService } from '../auth.service';
+import { TokenService } from '../token.service';
 import { Owner } from '@spaceorder/db';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * email과 password를 검증하는 메서드 [default: username, password]
    * passReqToCallback: true로 설정하면 validate 메서드에 request 객체가 전달됨
    */
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly tokenService: TokenService) {
     super({
       usernameField: 'email',
     });
@@ -22,6 +22,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * passport-local의 validate는 개별 파라미터로 받음 (객체 구조 분해 X)
    */
   async validate(email: string, password: string): Promise<Owner> {
-    return await this.authService.verifyOwner({ email, password });
+    return await this.tokenService.verifyOwner({ email, password });
   }
 }

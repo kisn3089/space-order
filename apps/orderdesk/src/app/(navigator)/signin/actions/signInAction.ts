@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { AxiosError } from "axios";
-import { httpAuth, SignInResponse } from "@spaceorder/api";
+import { httpToken, SignInResponse } from "@spaceorder/api";
 import { RequireCookieOptions } from "@spaceorder/auth/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
@@ -26,7 +26,7 @@ export default async function signInAction(
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const response = await httpAuth.signIn({ email, password });
+    const response = await httpToken.signIn({ email, password });
     const cookieStore = cookies();
     const setCookieHeader = response.headers["set-cookie"];
 

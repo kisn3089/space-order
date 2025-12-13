@@ -7,23 +7,20 @@ import { AccessToken, SignInRequest, SignInResponse } from '@spaceorder/api';
 import { OwnerResponseDto } from 'src/owner/dto/response.dto';
 import { instanceToPlain } from 'class-transformer';
 import { GenerateToken } from 'src/utils/jwt/token-config';
+import { TokenPayload } from 'src/utils/jwt/token-payload.interface';
 
 @Injectable()
-export class AuthService {
+export class TokenService {
   constructor(
     private readonly ownerService: OwnerService,
     private readonly generateToken: GenerateToken,
   ) {}
 
-  async signIn(owner: Owner, response: Response): Promise<SignInResponse> {
-    const { accessToken, expiresAt, refreshToken, tokenPayload } =
-      this.generateToken.generateToken(owner, response);
-
-    await this.ownerService.update(owner.publicId, {
-      lastLoginAt: new Date(),
-      refreshToken: await encryptPassword(refreshToken),
-    });
-
+  private async getUserInfo(
+    owner: Owner,
+    tokenPayload: TokenPayload,
+  ): Promise<PlainOwner> {
+    // 추후 tokenPayload에 담긴 role로 admin/owner 구분
     const ownerUser = await this.ownerService.findByEmail(owner.email);
     const ownerDto = new OwnerResponseDto(ownerUser);
     const plainOwner = {
@@ -33,18 +30,10 @@ export class AuthService {
       role: tokenPayload.role,
     } as PlainOwner;
 
-    const ownerWithToken = {
-      owner: plainOwner,
-      auth: { accessToken, expiresAt },
-    };
-
-    return ownerWithToken;
+    return plainOwner;
   }
 
-  async refreshAccessToken(
-    owner: Owner,
-    response: Response,
-  ): Promise<AccessToken> {
+  async create(owner: Owner, response: Response): Promise<AccessToken> {
     const { accessToken, expiresAt, refreshToken } =
       this.generateToken.generateToken(owner, response);
 
@@ -54,6 +43,26 @@ export class AuthService {
     });
 
     return { accessToken, expiresAt };
+  }
+
+  async createWithUserInfo(
+    owner: Owner,
+    response: Response,
+  ): Promise<SignInResponse> {
+    const { accessToken, expiresAt, refreshToken, tokenPayload } =
+      this.generateToken.generateToken(owner, response);
+
+    await this.ownerService.update(owner.publicId, {
+      lastLoginAt: new Date(),
+      refreshToken: await encryptPassword(refreshToken),
+    });
+
+    const plainOwner = await this.getUserInfo(owner, tokenPayload);
+
+    return {
+      owner: plainOwner,
+      auth: { accessToken, expiresAt },
+    };
   }
 
   async verifyOwner({ email, password }: SignInRequest): Promise<Owner> {

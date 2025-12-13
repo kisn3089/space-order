@@ -1,5 +1,5 @@
 import { http } from "../axios/http";
-import { AccessToken, SignInRequest, SignInResponse } from "./auth.type";
+import { AccessToken, SignInRequest, SignInResponse } from "./token.type";
 import { AxiosResponse } from "axios";
 
 const prefix = "/auth";
@@ -28,4 +28,4 @@ async function refreshAccessToken({
   );
 }
 
-export const httpAuth = { signIn, refreshAccessToken };
+export const httpToken = { signIn, refreshAccessToken };

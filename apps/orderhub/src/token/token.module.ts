@@ -6,19 +6,19 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh-strategy';
 import { OwnerModule } from '../owner/owner.module';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { TokenController } from './token.controller';
+import { TokenService } from './token.service';
 import { GenerateToken } from 'src/utils/jwt/token-config';
 
 @Module({
   imports: [AdminModule, OwnerModule, PassportModule, JwtModule],
-  controllers: [AuthController],
+  controllers: [TokenController],
   providers: [
-    AuthService,
+    TokenService,
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,
     GenerateToken,
   ],
 })
-export class AuthModule {}
+export class TokenModule {}

@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from '../auth/auth.module';
+import { TokenModule } from '../token/token.module';
 import { AdminModule } from '../admin/admin.module';
 import { OwnerModule } from '../owner/owner.module';
+import { MeModule } from 'src/me/me.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { OwnerModule } from '../owner/owner.module';
     }),
     AdminModule,
     OwnerModule,
-    AuthModule,
+    TokenModule,
+    MeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import { SignInRequest } from "./auth.type";
-import { httpAuth } from "./httpAuth";
+import { SignInRequest } from "./token.type";
+import { httpToken } from "./httpToken";
 
 function useSignIn() {
   return useMutation({
     mutationFn: async ({ email, password }: SignInRequest) => {
-      return await httpAuth.signIn({ email, password });
+      return await httpToken.signIn({ email, password });
     },
   });
 }

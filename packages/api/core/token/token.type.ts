@@ -1,5 +1,3 @@
-import { PlainOwner } from "@spaceorder/db";
-
 export type AccessToken = {
   accessToken: string;
   expiresAt: Date;
@@ -8,11 +6,6 @@ export type AccessToken = {
 export type SignInRequest = {
   email: string;
   password: string;
-};
-
-export type SignInResponse = {
-  owner: PlainOwner;
-  auth: AccessToken;
 };
 
 export type SignInErrorResponse = {

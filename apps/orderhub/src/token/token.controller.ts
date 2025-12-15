@@ -18,7 +18,7 @@ export class TokenController {
     @CurrentUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.tokenService.createWithUserInfo(owner, response);
+    return this.tokenService.create(owner, response);
   }
 
   @Post('refresh')

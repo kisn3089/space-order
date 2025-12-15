@@ -2,14 +2,13 @@
 
 import { cookies } from "next/headers";
 import { AxiosError } from "axios";
-import { httpToken, SignInResponse } from "@spaceorder/api";
-import { RequireCookieOptions } from "@spaceorder/auth/utils";
+import { AccessToken, httpToken } from "@spaceorder/api";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 type ActionResponse =
   | {
       success: true;
-      data: SignInResponse;
+      data: AccessToken;
     }
   | {
       success: false;
@@ -26,9 +25,12 @@ export default async function signInAction(
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const response = await httpToken.createAccessToken({ email, password });
+    const createdAccessToken = await httpToken.createAccessToken({
+      email,
+      password,
+    });
     const cookieStore = cookies();
-    const setCookieHeader = response.headers["set-cookie"];
+    const setCookieHeader = createdAccessToken.headers["set-cookie"];
 
     if (setCookieHeader) {
       const cookies = Array.isArray(setCookieHeader)
@@ -37,12 +39,9 @@ export default async function signInAction(
       cookies.forEach((cookieString) => {
         const [nameValue, ...attributes] = cookieString.split(";");
         const [name, value] = nameValue.trim().split("=");
-        const responseCookieOptions: RequireCookieOptions & ResponseCookie = {
+        const responseCookieOptions: ResponseCookie = {
           name,
           value,
-          httpOnly: true,
-          secure: true,
-          sameSite: "lax",
           path: "/",
           expires: undefined,
         };
@@ -63,7 +62,7 @@ export default async function signInAction(
     console.log("success signIn: ", email);
     return {
       success: true,
-      data: response.data,
+      data: createdAccessToken.data,
     };
   } catch (error) {
     const errorResponse: ActionResponse = {

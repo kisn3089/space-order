@@ -1,14 +1,9 @@
 "use server";
 
-import { AccessToken, httpMe, httpToken } from "@spaceorder/api";
-import { PlainOwner } from "@spaceorder/db";
+import { AccessToken, httpToken } from "@spaceorder/api";
 import { cookies } from "next/headers";
 
-type RefreshAccessTokenResponse = {
-  hasRefreshToken: true;
-  authInfo: AccessToken;
-  userInfo: PlainOwner;
-};
+type RefreshAccessTokenResponse = AccessToken;
 
 /**
  * Server Action: Refresh Token으로 새로운 Access Token 발급
@@ -18,7 +13,7 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
   const cookieStore = cookies();
   const refreshToken = cookieStore.get("Refresh");
 
-  // middleware에서 이미 체크하지만, 안전하게 한 번 더 검사하고 오류 노출해야 함
+  // middleware에서 이미 체크하지만, 안전하게 한 번 더 검사하는 로직으로 오류 시 오류 노출해야 함
   if (!refreshToken?.value) {
     throw new Error("No Refresh Token");
   }
@@ -28,13 +23,5 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
     refreshToken.value
   );
 
-  const userInfoByAccessToken = await httpMe.me(
-    accessTokenByRefreshToken.data.accessToken
-  );
-
-  return {
-    hasRefreshToken: true,
-    authInfo: accessTokenByRefreshToken.data,
-    userInfo: userInfoByAccessToken,
-  };
+  return accessTokenByRefreshToken.data;
 }

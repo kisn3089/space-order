@@ -14,8 +14,8 @@ export default function AuthGuard({ children }: React.PropsWithChildren) {
       try {
         // 새로고침 시 access token 재발급
         const refreshedAccessToken = await RefreshAccessToken();
-        setAuthInfo(refreshedAccessToken.authInfo);
-        insertAuthorizationHeader(refreshedAccessToken.authInfo.accessToken);
+        setAuthInfo(refreshedAccessToken);
+        insertAuthorizationHeader(refreshedAccessToken.accessToken);
       } catch {
         logout();
       }

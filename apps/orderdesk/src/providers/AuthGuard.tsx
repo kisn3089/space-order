@@ -17,6 +17,7 @@ export default function AuthGuard({ children }: React.PropsWithChildren) {
         setAuthInfo(refreshedAccessToken);
         insertAuthorizationHeader(refreshedAccessToken.accessToken);
       } catch {
+        console.error("[AuthGuard] Failed to refresh access token");
         logout();
       }
     })();

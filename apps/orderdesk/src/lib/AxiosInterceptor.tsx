@@ -53,7 +53,10 @@ export default function AxiosInterceptor({
         }
       }
 
-      if (error.response?.status === 403) {
+      if (
+        error.response?.status === 403 &&
+        !error.config.url?.includes("/token/refresh")
+      ) {
         logout();
       }
     }

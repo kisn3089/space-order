@@ -1,13 +1,6 @@
 import { PlainOwner } from "@spaceorder/db";
 import { http } from "../axios/http";
 
-// async function create() {
-//   const response = await http.post("/admin", {
-
-//   });
-//   return response.data;
-// }
-
 async function findAll(): Promise<PlainOwner[]> {
   const response = await http.get<PlainOwner[]>("/owners");
   return response.data;

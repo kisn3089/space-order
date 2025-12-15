@@ -15,6 +15,7 @@ import {
 } from "@spaceorder/ui/components/sidebar";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import Link from "next/link";
+import SidebarFetch from "../components/SidebarFetch";
 
 const items = [
   {
@@ -56,6 +57,7 @@ export default function SidebarLayout({
           <NavSidebar />
           <main>
             <SidebarTrigger />
+            <SidebarFetch />
             {children}
           </main>
         </SidebarProvider>

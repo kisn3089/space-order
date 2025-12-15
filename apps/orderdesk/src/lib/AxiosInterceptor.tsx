@@ -7,7 +7,6 @@ import {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 type AxiosCustomError = {
@@ -21,8 +20,7 @@ export default function AxiosInterceptor({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const router = useRouter();
-  const { setAuthInfo, clear } = useAuthInfo();
+  const { setAuthInfo, logout } = useAuthInfo();
 
   function requestInterceptor(request: InternalAxiosRequestConfig) {
     return request;
@@ -56,8 +54,7 @@ export default function AxiosInterceptor({
       }
 
       if (error.response?.status === 403) {
-        clear();
-        router.replace("/signin");
+        logout();
       }
     }
     return Promise.reject(error);

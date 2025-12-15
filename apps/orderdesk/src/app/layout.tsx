@@ -30,11 +30,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <AuthenticationProvider>
-          <TanstackProvider>
+        <TanstackProvider>
+          <AuthenticationProvider>
             <NextThemeProviders>{children}</NextThemeProviders>
-          </TanstackProvider>
-        </AuthenticationProvider>
+          </AuthenticationProvider>
+        </TanstackProvider>
       </body>
     </html>
   );

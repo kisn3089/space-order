@@ -1,6 +1,8 @@
 "use client";
 
 import { AccessToken } from "@spaceorder/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 type AuthInfo = AccessToken;
@@ -12,12 +14,12 @@ const defaultAuth: AuthInfo = {
 type AuthInfoContextType = {
   authInfo: AuthInfo;
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo>>;
-  clear: () => void;
+  logout: () => void;
 };
 const authInfoInitialValue: AuthInfoContextType = {
   authInfo: defaultAuth,
   setAuthInfo: () => {},
-  clear: () => {},
+  logout: () => {},
 };
 
 const AuthInfoContext =
@@ -26,14 +28,17 @@ const AuthInfoContext =
 export default function AuthenticationProvider({
   children,
 }: React.PropsWithChildren) {
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const [authInfo, setAuthInfo] = React.useState<AuthInfo>(defaultAuth);
-  const clear = () => {
-    // queryClient.clear()
+  const logout = () => {
+    queryClient.clear();
     setAuthInfo(defaultAuth);
+    router.push("/signin");
   };
 
   return (
-    <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, clear }}>
+    <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, logout }}>
       {children}
     </AuthInfoContext.Provider>
   );

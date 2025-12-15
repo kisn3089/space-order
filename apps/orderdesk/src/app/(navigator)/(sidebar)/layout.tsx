@@ -16,6 +16,7 @@ import {
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import Link from "next/link";
 import SidebarFetch from "../components/SidebarFetch";
+import { cookies } from "next/headers";
 
 const items = [
   {
@@ -45,15 +46,18 @@ const items = [
   },
 ];
 
-export default function SidebarLayout({
+export default async function SidebarLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+  // cookies().get('sidebar_state')?.value
   return (
     <section className="antialiased">
       <AuthGuard>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>
           <NavSidebar />
           <main>
             <SidebarTrigger />

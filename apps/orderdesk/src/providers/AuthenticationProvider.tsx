@@ -31,11 +31,12 @@ export default function AuthenticationProvider({
   const queryClient = useQueryClient();
   const router = useRouter();
   const [authInfo, setAuthInfo] = React.useState<AuthInfo>(defaultAuth);
-  const logout = () => {
+
+  const logout = React.useCallback(() => {
     queryClient.clear();
     setAuthInfo(defaultAuth);
     router.push("/signin");
-  };
+  }, []);
 
   return (
     <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, logout }}>

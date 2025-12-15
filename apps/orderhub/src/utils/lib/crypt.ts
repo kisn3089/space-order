@@ -16,12 +16,3 @@ export async function comparePassword(
 ): Promise<boolean> {
   return await bcrypt.compare(plainPassword, hashedPassword);
 }
-
-/**
- * 이메일로 Admin 찾기 (로그인용)
- */
-//   async findByEmail(email: string) {
-//     return await this.prismaService.admin.findUnique({
-//       where: { email },
-//     });
-//   }

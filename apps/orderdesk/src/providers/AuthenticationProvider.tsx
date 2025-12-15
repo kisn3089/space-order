@@ -1,7 +1,6 @@
 "use client";
 
 import { AccessToken } from "@spaceorder/api";
-import UserInfoProvider from "./UserInfoProvider";
 import React from "react";
 
 type AuthInfo = AccessToken;
@@ -13,10 +12,12 @@ const defaultAuth: AuthInfo = {
 type AuthInfoContextType = {
   authInfo: AuthInfo;
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo>>;
+  clear: () => void;
 };
 const authInfoInitialValue: AuthInfoContextType = {
   authInfo: defaultAuth,
   setAuthInfo: () => {},
+  clear: () => {},
 };
 
 const AuthInfoContext =
@@ -26,10 +27,14 @@ export default function AuthenticationProvider({
   children,
 }: React.PropsWithChildren) {
   const [authInfo, setAuthInfo] = React.useState<AuthInfo>(defaultAuth);
+  const clear = () => {
+    // queryClient.clear()
+    setAuthInfo(defaultAuth);
+  };
 
   return (
-    <AuthInfoContext.Provider value={{ authInfo, setAuthInfo }}>
-      <UserInfoProvider>{children}</UserInfoProvider>
+    <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, clear }}>
+      {children}
     </AuthInfoContext.Provider>
   );
 }

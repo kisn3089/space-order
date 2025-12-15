@@ -6,6 +6,7 @@ import {
   Type,
   BadRequestException,
 } from '@nestjs/common';
+import { responseMessage } from 'src/common/constants/response-message';
 import { ZodSchema } from 'zod';
 
 interface Schemas {
@@ -26,7 +27,7 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
 
         if (!bodyResult.success) {
           throw new BadRequestException({
-            message: 'Invalid request body',
+            message: responseMessage('invalidBody'),
             errors: bodyResult.error.errors,
           });
         }
@@ -38,7 +39,7 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
 
         if (!paramsResult.success) {
           throw new BadRequestException({
-            message: 'Invalid request params',
+            message: responseMessage('invalidParams'),
             errors: paramsResult.error.errors,
           });
         }
@@ -49,7 +50,7 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
         const queryResult = schemas.query.safeParse(query);
         if (!queryResult.success) {
           throw new BadRequestException({
-            message: 'Invalid request query',
+            message: responseMessage('invalidQuery'),
             errors: queryResult.error.errors,
           });
         }

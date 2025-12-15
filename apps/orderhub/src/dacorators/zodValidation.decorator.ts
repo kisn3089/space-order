@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   HttpException,
 } from '@nestjs/common';
+import { responseMessage } from 'src/common/constants/response-message';
 import { ZodSchema } from 'zod';
 
 interface Schemas {
@@ -20,7 +21,7 @@ export const ZodValidation = (schemas: Schemas) => {
       const bodyResult = schemas.body.safeParse(body);
 
       if (!bodyResult.success) {
-        throw new HttpException('Invalid request body', 400);
+        throw new HttpException(responseMessage('invalidBody'), 400);
       }
       return body;
     }
@@ -29,7 +30,7 @@ export const ZodValidation = (schemas: Schemas) => {
       const paramsResult = schemas.params.safeParse(params);
 
       if (!paramsResult.success) {
-        throw new HttpException('Invalid request params', 400);
+        throw new HttpException(responseMessage('invalidParams'), 400);
       }
       return params;
     }
@@ -37,7 +38,7 @@ export const ZodValidation = (schemas: Schemas) => {
     if (schemas?.query && query) {
       const queryResult = schemas.query.safeParse(query);
       if (!queryResult.success) {
-        throw new HttpException('Invalid request query', 400);
+        throw new HttpException(responseMessage('invalidQuery'), 400);
       }
       return query;
     }

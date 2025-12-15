@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@spaceorder/db": "workspace:*",
-    "@spaceorder/auth": "workspace:*",
     "@tanstack/react-query": "^5.90.11",
     "axios": "^1.13.2",
     "react": "18.3.1"

@@ -17,7 +17,6 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@spaceorder/auth": "workspace:*",
     "@prisma/client": "^6.19.0",
     "bcrypt": "^6.0.0"
   },

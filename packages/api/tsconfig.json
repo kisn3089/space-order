@@ -5,6 +5,6 @@
     "baseUrl": ".",
     "paths": { "@spaceorder/api/*": ["./*"] }
   },
-  "include": ["."],
+  "include": [".", "core/axios/http.ts"],
   "exclude": ["node_modules", "dist"]
 }

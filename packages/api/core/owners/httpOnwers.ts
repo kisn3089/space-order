@@ -1,19 +1,13 @@
-import { http } from "../http";
+import { PlainOwner } from "@spaceorder/db";
+import { http } from "../axios/http";
 
-// async function create() {
-//   const response = await http.post("/admin", {
-
-//   });
-//   return response.data;
-// }
-
-async function findAll() {
-  const response = await http.get("/owners");
+async function findAll(): Promise<PlainOwner[]> {
+  const response = await http.get<PlainOwner[]>("/owners");
   return response.data;
 }
 
-async function findOne(publicId: string) {
-  const response = await http.get(`/owners/${publicId}`);
+async function findOne(publicId: string): Promise<PlainOwner> {
+  const response = await http.get<PlainOwner>(`/owners/${publicId}`);
   return response.data;
 }
 

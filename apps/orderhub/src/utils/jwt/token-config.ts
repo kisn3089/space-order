@@ -58,7 +58,6 @@ export class GenerateToken {
 
     responseCookie.set(response, 'Refresh', refreshToken, {
       expires: expiresRefreshToken,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
     });
 
     return { accessToken, expiresAt, refreshToken, tokenPayload };

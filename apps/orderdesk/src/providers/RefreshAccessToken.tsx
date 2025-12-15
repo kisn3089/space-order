@@ -33,21 +33,21 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
   }
 
   try {
-    const accessTokenByRefreshToken = await httpToken.refreshAccessToken({
-      cookie: refreshToken.value,
-    });
+    const accessTokenByRefreshToken = await httpToken.refreshAccessToken(
+      refreshToken.value
+    );
 
     const userInfoByAccessToken = await httpMe.me(
-      accessTokenByRefreshToken.accessToken
+      accessTokenByRefreshToken.data.accessToken
     );
 
     return {
       hasRefreshToken: true,
-      authInfo: accessTokenByRefreshToken,
+      authInfo: accessTokenByRefreshToken.data,
       userInfo: userInfoByAccessToken,
     };
   } catch (error) {
-    console.error("Token reissuance error:", error);
+    console.error("Token RefreshAccessToken error:", error);
     return emptyResponse;
   }
 }

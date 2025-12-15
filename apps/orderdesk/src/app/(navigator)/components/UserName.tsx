@@ -1,30 +1,19 @@
 "use client";
 
-import { useUserInfo } from "@/providers/UserInfoProvider";
-import { meQuery, ownersQuery } from "@spaceorder/api";
-import { useState } from "react";
+import { useAuthInfo } from "@/providers/AuthenticationProvider";
+import { meQuery } from "@spaceorder/api";
 
-const expriedAccessToekn = "";
 export default function UserName() {
-  const [cnt, setCnt] = useState(0);
-  // const { userInfo } = useUserInfo();
-  const { data, refetch, error, isSuccess } = meQuery.findMe({
-    queryOptions: {
-      queryKey: [`${cnt}-me`],
-    },
-    accessToken: expriedAccessToekn,
+  const { authInfo } = useAuthInfo();
+  const isReadyFetch = Boolean(authInfo.accessToken);
+
+  const { data, isSuccess } = meQuery.findMe({
+    enabled: isReadyFetch,
   });
 
-  // const { data: ownersData } = ownersQuery.findAll({ enabled: isSuccess });
-  // console.log("ownersData: ", ownersData);
+  if (!isReadyFetch || !isSuccess) {
+    return null;
+  }
 
-  const click = async () => {
-    setCnt((prev) => prev + 1);
-    await refetch();
-  };
-
-  console.log("data: ", data);
-  console.log("error: ", error);
-
-  return <h3 onClick={click}>{data?.name ?? "User"}</h3>;
+  return <h3>{data.name}</h3>;
 }

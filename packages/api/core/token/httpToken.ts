@@ -15,9 +15,20 @@ async function createAccessToken({
   return response;
 }
 
-async function refreshAccessToken(): Promise<AxiosResponse<AccessToken>> {
-  // withCredentials: true로 인해 브라우저가 자동으로 HttpOnly 쿠키(Refresh)를 전송
-  const response = await http.post<AccessToken>(`${prefix}/refresh`);
+async function refreshAccessToken(
+  refreshToken?: string
+): Promise<AxiosResponse<AccessToken>> {
+  const response = await http.post<AccessToken>(
+    `${prefix}/refresh`,
+    {},
+    refreshToken
+      ? {
+          headers: {
+            Cookie: `Refresh=${refreshToken}`,
+          },
+        }
+      : {}
+  );
   return response;
 }
 

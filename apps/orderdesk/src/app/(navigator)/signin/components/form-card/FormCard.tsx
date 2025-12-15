@@ -11,12 +11,10 @@ import { Label } from "@spaceorder/ui/components/label";
 import { signInFormSchema } from "@spaceorder/auth/schemas/signIn.schema";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
-import { SignInRequest } from "@spaceorder/api";
-import { useUserInfo } from "@/providers/UserInfoProvider";
+import { insertAuthorizationHeader, SignInRequest } from "@spaceorder/api";
 import { useAuthInfo } from "@/providers/AuthenticationProvider";
 
 export default function FormCard() {
-  const { setUserInfo } = useUserInfo();
   const { setAuthInfo } = useAuthInfo();
 
   const router = useRouter();
@@ -37,15 +35,14 @@ export default function FormCard() {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
-    const result = await signInAction(formData);
+    const signInResult = await signInAction(formData);
 
-    if (!result.success) {
-      setError("password", { message: result.error?.message });
+    if (!signInResult.success) {
+      setError("password", { message: signInResult.error?.message });
       return;
     }
-    const { auth, owner } = result.data;
-    setUserInfo(owner);
-    setAuthInfo(auth);
+    insertAuthorizationHeader(signInResult.data.accessToken);
+    setAuthInfo(signInResult.data);
 
     router.replace("/orders");
   };

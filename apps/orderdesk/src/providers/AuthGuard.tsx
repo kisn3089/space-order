@@ -1,30 +1,28 @@
 "use client";
 
-import axiosInterceptor from "@spaceorder/api/core/axios/interceptor";
 import { useAuthInfo } from "./AuthenticationProvider";
 import React from "react";
 import { RefreshAccessToken } from "./RefreshAccessToken";
-import { useUserInfo } from "./UserInfoProvider";
+import AxiosInterceptor from "@/lib/AxiosInterceptor";
+import { insertAuthorizationHeader } from "@spaceorder/api";
 
 export default function AuthGuard({ children }: React.PropsWithChildren) {
   const { authInfo, setAuthInfo } = useAuthInfo();
-  const { userInfo, setUserInfo } = useUserInfo();
 
   React.useEffect(() => {
     (async () => {
+      // 새로고침 시 access token 재발급
       const refreshedAccessToken = await RefreshAccessToken();
       if (refreshedAccessToken.hasRefreshToken) {
         setAuthInfo(refreshedAccessToken.authInfo);
-
-        setUserInfo(refreshedAccessToken.userInfo);
+        insertAuthorizationHeader(refreshedAccessToken.authInfo.accessToken);
       }
     })();
+  }, []);
 
-    console.log("refreshedAccessToken.authInfo: ");
-    axiosInterceptor(authInfo.accessToken); // 여러번 생성된다, 변경 필요
-  }, [authInfo.accessToken]);
+  if (!authInfo.accessToken) {
+    return null;
+  }
 
-  if (!authInfo.accessToken || !userInfo.publicId) return null;
-
-  return <>{children}</>;
+  return <AxiosInterceptor>{children}</AxiosInterceptor>;
 }

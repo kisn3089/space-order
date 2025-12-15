@@ -15,7 +15,6 @@ import {
 } from "@spaceorder/ui/components/sidebar";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import Link from "next/link";
-import UserName from "../components/UserName";
 
 const items = [
   {
@@ -52,7 +51,6 @@ export default function SidebarLayout({
 }>) {
   return (
     <section className="antialiased">
-      <UserName />
       <AuthGuard>
         <SidebarProvider>
           <NavSidebar />

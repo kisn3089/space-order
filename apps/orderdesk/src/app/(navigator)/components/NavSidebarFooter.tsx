@@ -4,9 +4,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@spaceorder/ui/components/sidebar";
-import UserInfoDropdown from "./UserInfoDropdown";
+import UserInfoDropdown from "../(sidebar)/components/UserInfoDropdown";
 import { CircleUser } from "lucide-react";
-import UserName from "./UserName";
+import UserName from "../(sidebar)/components/UserName";
 
 export default function NavSidebarFooter() {
   return (
@@ -14,7 +14,7 @@ export default function NavSidebarFooter() {
       <SidebarMenu>
         <SidebarMenuItem key={"userName"}>
           <UserInfoDropdown>
-            <SidebarMenuButton>
+            <SidebarMenuButton variant={"outline"}>
               <CircleUser />
               <UserName />
             </SidebarMenuButton>

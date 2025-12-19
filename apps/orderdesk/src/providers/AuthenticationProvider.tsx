@@ -36,6 +36,7 @@ export default function AuthenticationProvider({
     queryClient.clear();
     setAuthInfo(defaultAuth);
     router.push("/signin");
+    // 쿠키 지우는 서버 액션 필요
   }, []);
 
   return (

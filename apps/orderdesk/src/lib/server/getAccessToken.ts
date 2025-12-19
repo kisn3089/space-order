@@ -2,6 +2,7 @@ import { httpToken } from "@spaceorder/api";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
+// 현재 사용하지 않는다. 참조 0 지울 고려 필요
 /**
  * 서버 컴포넌트에서 access token을 가져오는 함수
  * React cache를 사용하여 동일한 렌더링 사이클에서 한 번만 토큰을 발급받음

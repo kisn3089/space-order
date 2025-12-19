@@ -13,10 +13,9 @@ export default function NavigatorLayout({
         <div className="font-bold text-lg">ACCEPTOR</div>
         <div className="flex flex-row items-center gap-4">
           <ToggleTheme />
-          <div className="h-4">
+          {/* <div className="h-4">
             <Separator orientation="vertical" />
-          </div>
-          <UserName />
+          </div> */}
         </div>
       </nav>
       {children}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuthInfo } from "@/providers/AuthenticationProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,18 +13,16 @@ import {
 import { PropsWithChildren } from "react";
 
 export default function UserInfoDropdown({ children }: PropsWithChildren) {
+  const { logout } = useAuthInfo();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuContent className="min-w-42  " align="start">
+        <DropdownMenuLabel>내 정보</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Keyboard shortcuts
-            <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Log out
+          <DropdownMenuItem onClick={logout}>
+            로그아웃
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>

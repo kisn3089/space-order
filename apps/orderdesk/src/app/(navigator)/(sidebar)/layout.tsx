@@ -14,37 +14,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@spaceorder/ui/components/sidebar";
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+
 import Link from "next/link";
 import { cookies } from "next/headers";
-
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+import NavSidebarFooter from "../components/NavSidebarFooter";
+import { sidebarList } from "@/shared/config/sidebarList";
 
 export default function SidebarLayout({
   children,
@@ -74,15 +48,17 @@ function NavSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="whitespace-nowrap">
+            주문 관리
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+              {sidebarList.map((sidebarElement) => (
+                <SidebarMenuItem key={sidebarElement.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                    <Link href={sidebarElement.url}>
+                      <sidebarElement.icon />
+                      <span>{sidebarElement.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -91,6 +67,7 @@ function NavSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <NavSidebarFooter />
     </Sidebar>
   );
 }

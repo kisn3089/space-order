@@ -11,8 +11,8 @@ export default function NavigatorLayout({
       <nav className="flex justify-between px-6 items-center w-screen h-16">
         <div className="font-bold text-lg">HANCO</div>
         <div className="flex flex-row items-center gap-4">
-          <UserName />
           <ToggleTheme />
+          <UserName />
         </div>
       </nav>
       {children}

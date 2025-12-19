@@ -1,4 +1,6 @@
 import {
+  SidebarGroupLabel,
+  SidebarHeader,
   SidebarProvider,
   SidebarTrigger,
 } from "@spaceorder/ui/components/sidebar";
@@ -8,14 +10,13 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@spaceorder/ui/components/sidebar";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import Link from "next/link";
-import SidebarFetch from "../components/SidebarFetch";
+// import SidebarFetch from "../components/SidebarFetch";
 import { cookies } from "next/headers";
 
 const items = [
@@ -46,24 +47,23 @@ const items = [
   },
 ];
 
-export default async function SidebarLayout({
+export default function SidebarLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-  // cookies().get('sidebar_state')?.value
+
+  {
+    /* <SidebarFetch /> */
+  }
   return (
     <section className="antialiased">
       <AuthGuard>
         <SidebarProvider defaultOpen={defaultOpen}>
           <NavSidebar />
-          <main>
-            <SidebarTrigger />
-            <SidebarFetch />
-            {children}
-          </main>
+          <main className="w-full">{children}</main>
         </SidebarProvider>
       </AuthGuard>
     </section>
@@ -72,30 +72,16 @@ export default async function SidebarLayout({
 
 function NavSidebar() {
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon" variant="inset">
+      <SidebarHeader>
+        <SidebarTrigger />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.slice(0, 2).map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Two</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.slice(2).map((item) => (
+              {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>

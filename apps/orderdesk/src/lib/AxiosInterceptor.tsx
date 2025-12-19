@@ -20,7 +20,7 @@ export default function AxiosInterceptor({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { setAuthInfo, logout } = useAuthInfo();
+  const { setAuthInfo, signOut } = useAuthInfo();
 
   function requestInterceptor(request: InternalAxiosRequestConfig) {
     return request;
@@ -57,7 +57,7 @@ export default function AxiosInterceptor({
         error.response?.status === 403 &&
         !error.config.url?.includes("/token/refresh")
       ) {
-        logout();
+        signOut();
       }
     }
     return Promise.reject(error);

@@ -7,7 +7,7 @@ import AxiosInterceptor from "@/lib/AxiosInterceptor";
 import { insertAuthorizationHeader } from "@spaceorder/api";
 
 export default function AuthGuard({ children }: React.PropsWithChildren) {
-  const { authInfo, setAuthInfo, logout } = useAuthInfo();
+  const { authInfo, setAuthInfo, signOut } = useAuthInfo();
 
   React.useEffect(() => {
     (async () => {
@@ -18,7 +18,7 @@ export default function AuthGuard({ children }: React.PropsWithChildren) {
         insertAuthorizationHeader(refreshedAccessToken.accessToken);
       } catch {
         console.error("[AuthGuard] Failed to refresh access token");
-        logout();
+        signOut();
       }
     })();
   }, []);

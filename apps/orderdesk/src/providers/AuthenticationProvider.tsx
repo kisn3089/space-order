@@ -1,5 +1,6 @@
 "use client";
 
+import clearCookie from "@/app/common/servers/cookies";
 import { AccessToken } from "@spaceorder/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -14,12 +15,12 @@ const defaultAuth: AuthInfo = {
 type AuthInfoContextType = {
   authInfo: AuthInfo;
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo>>;
-  logout: () => void;
+  signOut: () => void;
 };
 const authInfoInitialValue: AuthInfoContextType = {
   authInfo: defaultAuth,
   setAuthInfo: () => {},
-  logout: () => {},
+  signOut: () => {},
 };
 
 const AuthInfoContext =
@@ -32,15 +33,15 @@ export default function AuthenticationProvider({
   const router = useRouter();
   const [authInfo, setAuthInfo] = React.useState<AuthInfo>(defaultAuth);
 
-  const logout = React.useCallback(() => {
-    queryClient.clear();
+  const signOut = React.useCallback(async () => {
     setAuthInfo(defaultAuth);
+    queryClient.clear();
+    await clearCookie("Refresh");
     router.push("/signin");
-    // 쿠키 지우는 서버 액션 필요
   }, []);
 
   return (
-    <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, logout }}>
+    <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, signOut }}>
       {children}
     </AuthInfoContext.Provider>
   );

@@ -13,7 +13,7 @@ import {
 import { PropsWithChildren } from "react";
 
 export default function UserInfoDropdown({ children }: PropsWithChildren) {
-  const { logout } = useAuthInfo();
+  const { signOut } = useAuthInfo();
 
   return (
     <DropdownMenu>
@@ -21,7 +21,7 @@ export default function UserInfoDropdown({ children }: PropsWithChildren) {
       <DropdownMenuContent className="min-w-42  " align="start">
         <DropdownMenuLabel>내 정보</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={logout}>
+          <DropdownMenuItem onClick={signOut}>
             로그아웃
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>

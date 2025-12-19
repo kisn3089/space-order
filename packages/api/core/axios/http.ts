@@ -11,6 +11,6 @@ export const http = axios.create({
   withCredentials: true,
 });
 
-export function insertAuthorizationHeader(token: string) {
+export function updateAxiosAuthorizationHeader(token: string) {
   http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 }

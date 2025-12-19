@@ -16,7 +16,6 @@ import {
 } from "@spaceorder/ui/components/sidebar";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import Link from "next/link";
-// import SidebarFetch from "../components/SidebarFetch";
 import { cookies } from "next/headers";
 
 const items = [
@@ -55,9 +54,6 @@ export default function SidebarLayout({
   const cookieStore = cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
-  {
-    /* <SidebarFetch /> */
-  }
   return (
     <section className="antialiased">
       <AuthGuard>

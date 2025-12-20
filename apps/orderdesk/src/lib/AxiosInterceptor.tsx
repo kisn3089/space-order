@@ -1,7 +1,11 @@
 "use client";
 
 import { useAuthInfo } from "@/providers/AuthenticationProvider";
-import { http, httpToken, insertAuthorizationHeader } from "@spaceorder/api";
+import {
+  http,
+  httpToken,
+  updateAxiosAuthorizationHeader,
+} from "@spaceorder/api";
 import {
   AxiosError,
   AxiosRequestConfig,
@@ -20,7 +24,7 @@ export default function AxiosInterceptor({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { setAuthInfo, logout } = useAuthInfo();
+  const { setAuthInfo, signOut } = useAuthInfo();
 
   function requestInterceptor(request: InternalAxiosRequestConfig) {
     return request;
@@ -42,7 +46,7 @@ export default function AxiosInterceptor({
             accessToken: newAccessToken.data.accessToken,
             expiresAt: newAccessToken.data.expiresAt,
           });
-          insertAuthorizationHeader(newAccessToken.data.accessToken);
+          updateAxiosAuthorizationHeader(newAccessToken.data.accessToken);
 
           // 현재 실패한 요청 새 토큰으로 재시도
           error.config.headers["Authorization"] =
@@ -57,7 +61,7 @@ export default function AxiosInterceptor({
         error.response?.status === 403 &&
         !error.config.url?.includes("/token/refresh")
       ) {
-        logout();
+        signOut();
       }
     }
     return Promise.reject(error);

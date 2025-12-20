@@ -1,5 +1,4 @@
 import { ToggleTheme } from "@/components/theme/ToggleTheme";
-import UserName from "./components/UserName";
 
 export default function NavigatorLayout({
   children,
@@ -8,10 +7,9 @@ export default function NavigatorLayout({
 }>) {
   return (
     <section className="antialiased">
-      <nav className="flex justify-between px-6 items-center w-screen h-16">
-        <div className="font-bold text-lg">HANCO</div>
+      <nav className="flex justify-between px-6 items-center w-screen h-14 bg-edge-background">
+        <div className="font-bold text-lg">ACCEPTOR</div>
         <div className="flex flex-row items-center gap-4">
-          <UserName />
           <ToggleTheme />
         </div>
       </nav>

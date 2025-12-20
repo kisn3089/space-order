@@ -11,7 +11,7 @@ import { Label } from "@spaceorder/ui/components/label";
 import { signInFormSchema } from "@spaceorder/auth/schemas/signIn.schema";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
-import { insertAuthorizationHeader, SignInRequest } from "@spaceorder/api";
+import { updateAxiosAuthorizationHeader, SignInRequest } from "@spaceorder/api";
 import { useAuthInfo } from "@/providers/AuthenticationProvider";
 
 export default function FormCard() {
@@ -41,7 +41,7 @@ export default function FormCard() {
       setError("password", { message: signInResult.error?.message });
       return;
     }
-    insertAuthorizationHeader(signInResult.data.accessToken);
+    updateAxiosAuthorizationHeader(signInResult.data.accessToken);
     setAuthInfo(signInResult.data);
 
     router.replace("/orders");

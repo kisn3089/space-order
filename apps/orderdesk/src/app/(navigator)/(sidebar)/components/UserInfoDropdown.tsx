@@ -18,7 +18,7 @@ export default function UserInfoDropdown({ children }: PropsWithChildren) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-42  " align="start">
+      <DropdownMenuContent className="min-w-42" align="start">
         <DropdownMenuLabel>내 정보</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={signOut}>

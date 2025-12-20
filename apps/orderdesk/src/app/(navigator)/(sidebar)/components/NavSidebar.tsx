@@ -4,6 +4,7 @@ import { sidebarList } from "@/shared/config/sidebarList";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -13,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@spaceorder/ui/components/sidebar";
-import NavSidebarFooter from "../../components/NavSidebarFooter";
+import UserNameDropDown from "../../components/UserNameDropDown";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -49,7 +50,15 @@ export default function NavSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <NavSidebarFooter />
+      <SidebarFooter>
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem key={"userName"}>
+              <UserNameDropDown />
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarFooter>
     </Sidebar>
   );
 }

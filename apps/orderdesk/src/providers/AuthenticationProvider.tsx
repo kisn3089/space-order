@@ -15,12 +15,12 @@ const defaultAuth: AuthInfo = {
 type AuthInfoContextType = {
   authInfo: AuthInfo;
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo>>;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 };
 const authInfoInitialValue: AuthInfoContextType = {
   authInfo: defaultAuth,
   setAuthInfo: () => {},
-  signOut: () => {},
+  signOut: async () => {},
 };
 
 const AuthInfoContext =
@@ -38,7 +38,7 @@ export default function AuthenticationProvider({
     queryClient.clear();
     await clearCookie("Refresh");
     router.push("/signin");
-  }, []);
+  }, [queryClient, router]);
 
   return (
     <AuthInfoContext.Provider value={{ authInfo, setAuthInfo, signOut }}>

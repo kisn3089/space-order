@@ -154,9 +154,12 @@ model OrderItem {
   publicId  String   @unique @default(cuid()) @map("public_id")
   orderId   BigInt   @map("order_id")
   menuId    BigInt   @map("menu_id")
+  // munuName 필드는 필요없다.
   menuName  String   @map("menu_name")
+  // price 필드는 필요없다. munu에서 참조하면 된다.
   price     Int
   quantity  Int      @default(1)
+  // options 필드는 메뉴에 있어야 한다. 그리고 custom_options으로 변경되어야 한다.
   options   Json?
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -165,3 +168,4 @@ model OrderItem {
 
   @@map("order_item")
 }
+// TABLE 테이블이 필요할듯? 세션 관리와 테이블 active 상태 관리 위해

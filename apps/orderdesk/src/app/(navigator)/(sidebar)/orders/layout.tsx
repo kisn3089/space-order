@@ -11,8 +11,7 @@ export default function OrdersLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <section className="antialiased flex flex-col justify-center items-center">
-      {/* <section className="antialiased min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center"> */}
+    <section className="antialiased h-full grid place-items-center gap-2 grid-cols-[2fr_1fr] px-6">
       {children}
     </section>
   );

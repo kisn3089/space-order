@@ -5,14 +5,28 @@ export const orderData = [
     totalPrice: 14300,
     orderItem: [
       {
+        id: "1111111",
         name: "아이스 아메리카노",
         price: 4500,
         quantity: 2,
       },
       {
+        id: "2222222",
         name: "아이스 카페라떼",
         price: 5300,
         quantity: 1,
+      },
+      {
+        id: "3333333",
+        name: "핫 아메리카노",
+        price: 4500,
+        quantity: 2,
+      },
+      {
+        id: "4444444",
+        name: "바닐라 라떼",
+        price: 4200,
+        quantity: 2,
       },
     ],
   },
@@ -23,16 +37,19 @@ export const orderData = [
     memo: "덜 맵게 해주세요.",
     orderItem: [
       {
+        id: "5555555",
         name: "해산물 토마토 파스타",
         price: 15000,
         quantity: 1,
       },
       {
+        id: "6666666",
         name: "크림 파스타",
         price: 13000,
         quantity: 1,
       },
       {
+        id: "7777777",
         name: "봉골레 파스타",
         price: 14000,
         quantity: 1,
@@ -46,11 +63,13 @@ export const orderData = [
     memo: "반찬 조금만 주세요.\n양념 많이 주세요.",
     orderItem: [
       {
+        id: "8888888",
         name: "보리밥 정식",
         price: 15000,
         quantity: 2,
       },
       {
+        id: "9999999",
         name: "암꽃게 정식",
         price: 32000,
         quantity: 1,
@@ -64,16 +83,19 @@ export const orderData = [
     memo: "하나는 맵게 해주세요.",
     orderItem: [
       {
+        id: "10101010",
         name: "회 덮밥",
         price: 18000,
         quantity: 2,
       },
       {
+        id: "11111111",
         name: "차슈 라멘",
         price: 11000,
         quantity: 3,
       },
       {
+        id: "12121212",
         name: "야키토리 꼬치 세트",
         price: 24000,
         quantity: 1,

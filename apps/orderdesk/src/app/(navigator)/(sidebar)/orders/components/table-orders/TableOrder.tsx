@@ -15,7 +15,8 @@ type Order = {
   orderItem: OrderItem[];
 };
 
-type OrderItem = {
+export type OrderItem = {
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -28,7 +29,7 @@ export default function TableOrder({
   memo,
 }: Order) {
   return (
-    <Card className="w-full flex flex-col">
+    <Card className="w-full flex flex-col cursor-pointer hover:bg-accent">
       <CardHeader className="p-4">
         <CardTitle>{tableNum}</CardTitle>
         {memo && (

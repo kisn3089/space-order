@@ -1,4 +1,4 @@
-import TableOrderDetail from "./components/table-orders/TableOrderDetail";
+import TableOrderDetail from "./components/table-detail/TableOrderDetail";
 import TableOrders from "./components/table-orders/TableOrders";
 
 export default function OrdersPage() {

@@ -29,7 +29,7 @@ export const columns: ColumnDef<OrderItem>[] = [
             <Button
               variant="outline"
               size="sm"
-              className="size-7"
+              className="size-7 font-semibold"
               onClick={(e) => {
                 e.stopPropagation();
                 // 수량 감소 핸들러
@@ -41,18 +41,32 @@ export const columns: ColumnDef<OrderItem>[] = [
           )}
           <span>{row.getValue("quantity")}</span>
           {isSelected && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="size-7"
-              onClick={(e) => {
-                e.stopPropagation();
-                // 수량 증가 핸들러
-                console.log("Increase quantity:", row.original);
-              }}
-            >
-              +
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="size-7 font-semibold"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // 수량 증가 핸들러
+                  console.log("Increase quantity:", row.original);
+                }}
+              >
+                +
+              </Button>
+              {/* <Button
+                variant="destructive"
+                size="sm"
+                className="font-semibold"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // 수량 증가 핸들러
+                  console.log("Increase quantity:", row.original);
+                }}
+              >
+                삭제
+              </Button> */}
+            </>
           )}
         </div>
       );
@@ -64,39 +78,38 @@ export const columns: ColumnDef<OrderItem>[] = [
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price"));
       const formatted = new Intl.NumberFormat("ko-KR", {
-        style: "currency",
         currency: "KRW",
       }).format(amount);
 
       return <div className="text-right w-full">{formatted}</div>;
     },
   },
-  //   {
-  //     id: "actions",
-  //     cell: ({ row }) => {
-  //       const payment = row.original;
+  // {
+  //   id: "actions",
+  //   cell: ({ row }) => {
+  //     const payment = row.original;
 
-  //       return (
-  //         <DropdownMenu>
-  //           <DropdownMenuTrigger asChild>
-  //             <Button variant="ghost" className="h-8 w-8 p-0">
-  //               <span className="sr-only">Open menu</span>
-  //               <MoreHorizontal className="h-4 w-4" />
-  //             </Button>
-  //           </DropdownMenuTrigger>
-  //           <DropdownMenuContent align="end">
-  //             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-  //             <DropdownMenuItem
-  //               onClick={() => navigator.clipboard.writeText(payment.id)}
-  //             >
-  //               Copy payment ID
-  //             </DropdownMenuItem>
-  //             <DropdownMenuSeparator />
-  //             <DropdownMenuItem>View customer</DropdownMenuItem>
-  //             <DropdownMenuItem>View payment details</DropdownMenuItem>
-  //           </DropdownMenuContent>
-  //         </DropdownMenu>
-  //       );
-  //     },
+  //     return (
+  //       <DropdownMenu>
+  //         <DropdownMenuTrigger asChild>
+  //           <Button variant="ghost" className="h-8 w-8 p-0">
+  //             <span className="sr-only">Open menu</span>
+  //             <MoreHorizontal className="h-4 w-4" />
+  //           </Button>
+  //         </DropdownMenuTrigger>
+  //         <DropdownMenuContent align="end">
+  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+  //           <DropdownMenuItem
+  //             onClick={() => navigator.clipboard.writeText(payment.id)}
+  //           >
+  //             Copy payment ID
+  //           </DropdownMenuItem>
+  //           <DropdownMenuSeparator />
+  //           <DropdownMenuItem>View customer</DropdownMenuItem>
+  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
+  //         </DropdownMenuContent>
+  //       </DropdownMenu>
+  //     );
   //   },
+  // },
 ];

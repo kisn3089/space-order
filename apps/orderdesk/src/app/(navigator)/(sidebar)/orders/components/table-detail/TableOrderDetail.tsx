@@ -6,6 +6,7 @@ import { columns } from "./columns";
 import { Button } from "@spaceorder/ui/components/button";
 import useUpdateTableData from "../../hooks/useUpdateTableData";
 import { transCurrencyFormat } from "@spaceorder/api";
+import { AlertDialogDemo } from "../payment-dialog/PaymentDialog";
 
 export default function TableOrderDetail() {
   const { orderItems, remove, update } = useUpdateTableData();
@@ -37,10 +38,12 @@ export default function TableOrderDetail() {
         >
           할인
         </Button>
-        <Button
-          onClick={payment}
-          className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider"
-        >{`${transCurrencyFormat(totalPrice)}원 결제`}</Button>
+        <AlertDialogDemo>
+          <Button
+            onClick={payment}
+            className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider"
+          >{`${transCurrencyFormat(totalPrice)}원 결제`}</Button>
+        </AlertDialogDemo>
       </footer>
     </div>
   );

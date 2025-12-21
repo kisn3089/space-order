@@ -121,6 +121,13 @@ model Menu {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  // MVP 기능은 아니기 때문에 일단 보류
+  // switchMenu ice_americano 선택 시 상세 페이지에서 변경 가능한 메뉴(예시: 스타벅스) hot_americano 등으로 변경할 수 있도록 menu 선택지 제공
+  // requiredOptions Json?   @map("required_options")
+  // customOptions Json?   @map("custom_options")
+  // required_options Json 필요 예) 사이즈: [스몰, 라지], 구분: [ice, hot] 필수 요소에는 사업자가 메뉴 생성 시 기본값 설정하도록 해야 한다.
+  // custom_options Json 필요 예) 얼음: ["적게", "많이"]
+
   store      Store       @relation(fields: [storeId], references: [id])
   orderItems OrderItem[]
 

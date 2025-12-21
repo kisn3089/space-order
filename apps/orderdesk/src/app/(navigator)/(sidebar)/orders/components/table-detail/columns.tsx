@@ -1,28 +1,42 @@
 "use client";
 
 import { Button } from "@spaceorder/ui/components/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@spaceorder/ui/components/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { OrderItem } from "../table-orders/TableOrder";
+import { OrderItem } from "../table-orders/orderData";
 
 export const columns: ColumnDef<OrderItem>[] = [
   {
     accessorKey: "name",
     header: "메뉴명",
+    cell: ({ row }) => {
+      // 필수 옵션과 추가 옵션을 합쳐서 표시
+      const requiredOptions = row.original?.requiredOptions;
+      const customOptions = row.original?.customOptions;
+      const combinedOptions = { ...requiredOptions, ...customOptions };
+
+      return (
+        <div className="flex flex-col gap-2">
+          {row.original.name}
+          {combinedOptions && (
+            <div className="text-sm text-muted-foreground whitespace-pre-line">
+              {Object.entries(combinedOptions)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("\n")}
+            </div>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "quantity",
     header: () => <div className="text-center w-full">수량</div>,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const isSelected = row.getIsSelected();
+      const meta = table.options.meta as {
+        onUpdateQuantity?: (itemId: string, delta: number) => void;
+      };
+
       return (
         <div className="flex items-center justify-center gap-2 w-full">
           {isSelected && (
@@ -32,8 +46,7 @@ export const columns: ColumnDef<OrderItem>[] = [
               className="size-7 font-semibold"
               onClick={(e) => {
                 e.stopPropagation();
-                // 수량 감소 핸들러
-                console.log("Decrease quantity:", row.original);
+                meta?.onUpdateQuantity?.(row.original.id, -1);
               }}
             >
               -
@@ -41,32 +54,17 @@ export const columns: ColumnDef<OrderItem>[] = [
           )}
           <span>{row.getValue("quantity")}</span>
           {isSelected && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                className="size-7 font-semibold"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // 수량 증가 핸들러
-                  console.log("Increase quantity:", row.original);
-                }}
-              >
-                +
-              </Button>
-              {/* <Button
-                variant="destructive"
-                size="sm"
-                className="font-semibold"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // 수량 증가 핸들러
-                  console.log("Increase quantity:", row.original);
-                }}
-              >
-                삭제
-              </Button> */}
-            </>
+            <Button
+              variant="outline"
+              size="sm"
+              className="size-7 font-semibold"
+              onClick={(e) => {
+                e.stopPropagation();
+                meta?.onUpdateQuantity?.(row.original.id, 1);
+              }}
+            >
+              +
+            </Button>
           )}
         </div>
       );
@@ -75,41 +73,36 @@ export const columns: ColumnDef<OrderItem>[] = [
   {
     accessorKey: "price",
     header: () => <div className="text-right w-full">가격</div>,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const amount = parseFloat(row.getValue("price"));
       const formatted = new Intl.NumberFormat("ko-KR", {
         currency: "KRW",
       }).format(amount);
 
-      return <div className="text-right w-full">{formatted}</div>;
+      const isSelected = row.getIsSelected();
+      const meta = table.options.meta as {
+        onDeleteItem?: (itemId: string) => void;
+      };
+
+      const deleteMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        meta?.onDeleteItem?.(row.original.id);
+      };
+
+      return (
+        <div className="text-right w-full">
+          {formatted}
+          {isSelected && (
+            <Button
+              onClick={deleteMenu}
+              className="h-8"
+              variant={"destructive"}
+            >
+              삭제
+            </Button>
+          )}
+        </div>
+      );
     },
   },
-  // {
-  //   id: "actions",
-  //   cell: ({ row }) => {
-  //     const payment = row.original;
-
-  //     return (
-  //       <DropdownMenu>
-  //         <DropdownMenuTrigger asChild>
-  //           <Button variant="ghost" className="h-8 w-8 p-0">
-  //             <span className="sr-only">Open menu</span>
-  //             <MoreHorizontal className="h-4 w-4" />
-  //           </Button>
-  //         </DropdownMenuTrigger>
-  //         <DropdownMenuContent align="end">
-  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-  //           <DropdownMenuItem
-  //             onClick={() => navigator.clipboard.writeText(payment.id)}
-  //           >
-  //             Copy payment ID
-  //           </DropdownMenuItem>
-  //           <DropdownMenuSeparator />
-  //           <DropdownMenuItem>View customer</DropdownMenuItem>
-  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
-  //         </DropdownMenuContent>
-  //       </DropdownMenu>
-  //     );
-  //   },
-  // },
 ];

@@ -1,22 +1,35 @@
+"use client";
+
+import { useMemo } from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { OrderItem } from "../table-orders/TableOrder";
-import { orderData } from "../table-orders/orderData";
 import { Button } from "@spaceorder/ui/components/button";
-
-const data = orderData[0];
-const orderItems: OrderItem[] = data.orderItem;
-
-// utils 분리 필요
-const transCurrencyFormat = (price: number) =>
-  new Intl.NumberFormat("ko-KR", {
-    currency: "KRW",
-  }).format(price);
+import useUpdateTableData from "../../hooks/useUpdateTableData";
+import { transCurrencyFormat } from "@spaceorder/api";
 
 export default function TableOrderDetail() {
+  const { orderItems, remove, update } = useUpdateTableData();
+
+  // 총 가격 계산
+  const totalPrice = useMemo(() => {
+    return orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+  }, [orderItems]);
+
+  const payment = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("결제할 데이터: ", orderItems);
+  };
+
   return (
-    <div className="overflow-hidden rounded-md border w-full h-full flex flex-col justify-between">
-      <DataTable columns={columns} data={orderItems} />
+    <div className="overflow-hidden rounded-md border w-full h-full flex flex-col justify-between shadow-sm">
+      <DataTable
+        columns={columns}
+        data={orderItems}
+        onUpdateQuantity={update}
+        onDeleteItem={remove}
+      />
       <footer className="flex flex-col gap-2 p-2">
         <Button
           className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider"
@@ -24,7 +37,10 @@ export default function TableOrderDetail() {
         >
           할인
         </Button>
-        <Button className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider">{`${transCurrencyFormat(data.totalPrice)}원 결제`}</Button>
+        <Button
+          onClick={payment}
+          className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider"
+        >{`${transCurrencyFormat(totalPrice)}원 결제`}</Button>
       </footer>
     </div>
   );

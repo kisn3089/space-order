@@ -6,21 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@spaceorder/ui/components/card";
-
-type Order = {
-  id: number;
-  tableNum: number;
-  totalPrice: number;
-  memo?: string;
-  orderItem: OrderItem[];
-};
-
-export type OrderItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
+import { Order } from "./orderData";
 
 export default function TableOrder({
   tableNum,
@@ -38,7 +24,7 @@ export default function TableOrder({
       </CardHeader>
       <CardContent className="flex-1 p-4 font-semibold flex flex-col justify-center">
         {orderItem.map((order) => (
-          <p key={order.name}>{`${order.name}: ${order.quantity}개`}</p>
+          <p key={`${order.name}`}>{`${order.name}: ${order.quantity}개`}</p>
         ))}
       </CardContent>
       <CardFooter className="flex justify-end p-2">

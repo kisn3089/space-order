@@ -20,13 +20,17 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onUpdateQuantity?: (itemId: string, delta: number) => void;
+  onDeleteItem?: (itemId: string) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onUpdateQuantity,
+  onDeleteItem,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const table = useReactTable({
     data,
@@ -37,6 +41,10 @@ export function DataTable<TData, TValue>({
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
+    meta: {
+      onUpdateQuantity,
+      onDeleteItem,
+    },
   });
 
   return (
@@ -87,10 +95,7 @@ export function DataTable<TData, TValue>({
                   key={cell.id}
                   className="flex items-center font-semibold text-base overflow-hidden"
                 >
-                  <>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    {/* {row.getIsSelected() && <div>Hello</div>} */}
-                  </>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
             </TableRow>

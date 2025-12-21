@@ -1,26 +1,52 @@
-export const orderData = [
+export type Order = {
+  id: number;
+  tableNum: number;
+  totalPrice: number;
+  memo?: string;
+  orderItem: OrderItem[];
+};
+
+export type OrderItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  requiredOptions?: Record<string, string>;
+  customOptions?: Record<string, string>;
+};
+
+export const orderData: Order[] = [
   {
     id: 1,
     tableNum: 1,
     totalPrice: 14300,
     orderItem: [
       {
-        id: "1111111",
+        id: "ice_americano",
         name: "아이스 아메리카노",
         price: 4500,
         quantity: 2,
+        requiredOptions: {
+          사이즈: "라지",
+        },
+        customOptions: {
+          얼음: "적게",
+        },
       },
       {
-        id: "2222222",
+        id: "latte",
         name: "아이스 카페라떼",
         price: 5300,
         quantity: 1,
       },
       {
-        id: "3333333",
+        id: "hot_americano",
         name: "핫 아메리카노",
         price: 4500,
         quantity: 2,
+        // customOptions: {
+        //   카페인: "연하게",
+        // },
       },
       {
         id: "4444444",

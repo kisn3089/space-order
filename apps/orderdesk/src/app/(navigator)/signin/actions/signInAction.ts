@@ -69,10 +69,14 @@ export default async function signInAction(
       success: false,
       error: { message: "로그인 시 서버 오류가 발생했습니다." },
     };
+
     if (error instanceof AxiosError) {
-      errorResponse["error"].message =
-        error.response?.data?.message ||
-        "이메일 또는 비밀번호가 올바르지 않습니다.";
+      if (error.response?.data?.statusCode === 401) {
+        errorResponse["error"].message =
+          error.response?.data?.message ||
+          "이메일 또는 비밀번호가 올바르지 않습니다.";
+        return errorResponse;
+      }
       return errorResponse;
     }
     return errorResponse;

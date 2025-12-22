@@ -21,14 +21,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onUpdateQuantity?: (itemId: string, delta: number) => void;
-  onDeleteItem?: (itemId: string) => void;
+  onRemoveItem?: (itemId: string) => void;
 }
 
-export function DataTable<TData, TValue>({
+export function OrderTable<TData, TValue>({
   columns,
   data,
   onUpdateQuantity,
-  onDeleteItem,
+  onRemoveItem,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
@@ -43,12 +43,17 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     meta: {
       onUpdateQuantity,
-      onDeleteItem,
+      onRemoveItem: Object.assign(onRemoveItem || {}, { setRowSelection }),
     },
   });
 
+  const clearSelection = () => {
+    if (Object.keys(rowSelection).length === 0) return;
+    setRowSelection({});
+  };
+
   return (
-    <Table>
+    <Table className="h-full" onClick={clearSelection}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow
@@ -79,7 +84,9 @@ export function DataTable<TData, TValue>({
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
-              onClick={() => {
+              onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
+                // 상위 table 태그의 clearSelection 이벤트 방지
+                e.stopPropagation();
                 // 이미 선택된 row를 클릭하면 해제, 아니면 단일 선택
                 if (row.getIsSelected()) {
                   row.toggleSelected(false);

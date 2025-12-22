@@ -81,12 +81,17 @@ export const columns: ColumnDef<OrderItem>[] = [
 
       const isSelected = row.getIsSelected();
       const meta = table.options.meta as {
-        onDeleteItem?: (itemId: string) => void;
+        onRemoveItem?: {
+          (itemId: string): void;
+          setRowSelection: (selection: Record<string, boolean>) => void;
+        };
       };
 
-      const deleteMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+      const removeMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        meta?.onDeleteItem?.(row.original.id);
+        meta?.onRemoveItem?.(row.original.id);
+        // 삭제 후 선택 상태 초기화
+        meta?.onRemoveItem?.setRowSelection({});
       };
 
       return (
@@ -94,7 +99,7 @@ export const columns: ColumnDef<OrderItem>[] = [
           {formatted}
           {isSelected && (
             <Button
-              onClick={deleteMenu}
+              onClick={removeMenu}
               className="h-8"
               variant={"destructive"}
             >

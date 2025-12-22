@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable } from "./data-table";
+import { OrderTable } from "./OrderTable";
 import { columns } from "./columns";
 import { Button } from "@spaceorder/ui/components/button";
 import useUpdateTableData from "../../hooks/useUpdateTableData";
@@ -52,11 +52,11 @@ export default function TableOrderDetail() {
 
   return (
     <div className="overflow-hidden rounded-md border w-full h-full flex flex-col justify-between shadow-sm">
-      <DataTable
+      <OrderTable
         columns={columns}
         data={orderItems}
         onUpdateQuantity={update}
-        onDeleteItem={remove}
+        onRemoveItem={remove}
       />
       <footer className="flex flex-col gap-2 p-2">
         <Button

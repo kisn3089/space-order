@@ -8,6 +8,7 @@ import useUpdateTableData from "../../hooks/useUpdateTableData";
 import {
   HealthCheckResponse,
   httpMe,
+  reduceTotalPrice,
   transCurrencyFormat,
 } from "@spaceorder/api";
 import { AlertDialogWrapper } from "@spaceorder/ui/components/alert-dialog/AlertDialogWrapper";
@@ -23,10 +24,7 @@ export default function TableOrderDetail() {
 
   // 총 가격 계산
   const totalPrice = useMemo(() => {
-    return orderItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    return reduceTotalPrice(orderItems, (item) => item.price * item.quantity);
   }, [orderItems]);
 
   const transformedTotalPrice = transCurrencyFormat(totalPrice);

@@ -95,7 +95,7 @@ export function OrderTable<TData, TValue>({
                   row.toggleSelected(true);
                 }
               }}
-              className="grid grid-cols-[2fr_1.5fr_1fr] cursor-pointer min-h-16"
+              className="grid grid-cols-[2fr_1fr_1fr] cursor-pointer min-h-16"
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell

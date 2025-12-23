@@ -3,6 +3,7 @@
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { OrderItem } from "../table-orders/orderData";
+import { Badge } from "@spaceorder/ui/components/badge";
 
 export const columns: ColumnDef<OrderItem>[] = [
   {
@@ -16,14 +17,18 @@ export const columns: ColumnDef<OrderItem>[] = [
 
       return (
         <div className="flex flex-col gap-2">
-          {row.original.name}
-          {combinedOptions && (
-            <div className="text-sm text-muted-foreground whitespace-pre-line">
-              {Object.entries(combinedOptions)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join("\n")}
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-1 flex-wrap">
+              {combinedOptions && (
+                <>
+                  {Object.entries(combinedOptions).map(([key, value]) => (
+                    <Badge key={key}>{`${key}: ${value}`}</Badge>
+                  ))}
+                </>
+              )}
             </div>
-          )}
+            {row.original.name}
+          </div>
         </div>
       );
     },

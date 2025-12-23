@@ -19,7 +19,7 @@ export default function TableOrder({
       <CardHeader className="p-4">
         <CardTitle>{tableNum}</CardTitle>
         {memo && (
-          <CardDescription className="whitespace-pre">{`요청 사항: ${memo}`}</CardDescription>
+          <CardDescription className="whitespace-pre-line">{`요청 사항: ${memo}`}</CardDescription>
         )}
       </CardHeader>
       <CardContent className="flex-1 p-4 font-semibold flex flex-col justify-center">

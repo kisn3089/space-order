@@ -31,6 +31,7 @@ export const orderData: Order[] = [
         },
         customOptions: {
           얼음: "적게",
+          // 카페인: "연하게",
         },
       },
       {

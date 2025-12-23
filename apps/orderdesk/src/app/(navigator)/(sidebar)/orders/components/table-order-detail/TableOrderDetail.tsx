@@ -59,12 +59,17 @@ export default function TableOrderDetail() {
         onRemoveItem={remove}
       />
       <footer className="flex flex-col gap-2 p-2">
-        <Button
-          className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider"
-          variant={"secondary"}
-        >
-          할인
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider"
+            variant={"secondary"}
+          >
+            할인
+          </Button>
+          <Button className="h-[clamp(4rem,6vw,6rem)] font-bold text-xl tracking-wider">
+            메뉴 추가
+          </Button>
+        </div>
         <AlertDialogWrapper
           title="결제 처리 하시겠습니까?"
           description="해당 테이블의 주문 내역이 초기화됩니다."

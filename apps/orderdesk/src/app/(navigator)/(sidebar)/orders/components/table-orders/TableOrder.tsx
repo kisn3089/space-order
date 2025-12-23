@@ -6,16 +6,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@spaceorder/ui/components/card";
-import { Order } from "./orderData";
+import { TTableOrder } from "./orderData";
+import { useTableOrderContext } from "../../store/useTableOrderContext";
 
-export default function TableOrder({
-  tableNum,
-  orderItem,
-  totalPrice,
-  memo,
-}: Order) {
+export default function TableOrder({ order }: { order: TTableOrder }) {
+  const [_, setTableOrderState] = useTableOrderContext();
+  const { id, tableNum, orderItem, totalPrice, memo } = order;
+
   return (
-    <Card className="w-full flex flex-col cursor-pointer hover:bg-accent">
+    <Card
+      onClick={() => setTableOrderState(order)}
+      className="w-full flex flex-col cursor-pointer hover:bg-accent"
+    >
       <CardHeader className="p-4">
         <CardTitle>{tableNum}</CardTitle>
         {memo && (

@@ -2,10 +2,10 @@
 
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { OrderItem } from "../table-orders/orderData";
+import { TTableOrderItem } from "../table-orders/orderData";
 import { Badge } from "@spaceorder/ui/components/badge";
 
-export const columns: ColumnDef<OrderItem>[] = [
+export const columns: ColumnDef<TTableOrderItem>[] = [
   {
     accessorKey: "name",
     header: "메뉴명",
@@ -88,7 +88,7 @@ export const columns: ColumnDef<OrderItem>[] = [
       const meta = table.options.meta as {
         onRemoveItem?: {
           (itemId: string): void;
-          setRowSelection: (selection: Record<string, boolean>) => void;
+          setSelectedRow: (selection: Record<string, boolean>) => void;
         };
       };
 
@@ -96,7 +96,7 @@ export const columns: ColumnDef<OrderItem>[] = [
         e.stopPropagation();
         meta?.onRemoveItem?.(row.original.id);
         // 삭제 후 선택 상태 초기화
-        meta?.onRemoveItem?.setRowSelection({});
+        meta?.onRemoveItem?.setSelectedRow({});
       };
 
       return (

@@ -30,30 +30,39 @@ export function OrderTable<TData, TValue>({
   onUpdateQuantity,
   onRemoveItem,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [selectedRow, setSelectedRow] = useState<Record<string, boolean>>({});
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
-      rowSelection,
+      rowSelection: selectedRow,
     },
     enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: setSelectedRow,
     meta: {
       onUpdateQuantity,
-      onRemoveItem: Object.assign(onRemoveItem || {}, { setRowSelection }),
+      onRemoveItem: Object.assign(onRemoveItem || {}, { setSelectedRow }),
     },
   });
 
-  const clearSelection = () => {
-    if (Object.keys(rowSelection).length === 0) return;
-    setRowSelection({});
+  const applyChanges = () => {
+    const selectedRowKeys = Object.keys(selectedRow);
+    if (selectedRowKeys.length === 0) return;
+
+    // console.log(
+    //   "rowSelection: ",
+    //   data[selectedRowKeys[0] as unknown as number]
+    // );
+
+    setSelectedRow({});
+    // 변경점 포착해야 함
+    console.log("테이블 변경점 포착! API 쏴야 함!");
   };
 
   return (
-    <Table className="h-full" onClick={clearSelection}>
+    <Table className="h-full" onClick={applyChanges}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow
@@ -90,6 +99,7 @@ export function OrderTable<TData, TValue>({
                 // 이미 선택된 row를 클릭하면 해제, 아니면 단일 선택
                 if (row.getIsSelected()) {
                   row.toggleSelected(false);
+                  applyChanges();
                 } else {
                   table.resetRowSelection();
                   row.toggleSelected(true);
@@ -111,7 +121,7 @@ export function OrderTable<TData, TValue>({
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">
               No results.
-              {/* 변경 */}
+              {/* MVP 이후 변경 필요 */}
             </TableCell>
           </TableRow>
         )}

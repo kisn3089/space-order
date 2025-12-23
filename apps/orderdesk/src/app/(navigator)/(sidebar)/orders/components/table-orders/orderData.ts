@@ -1,12 +1,12 @@
-export type Order = {
+export type TTableOrder = {
   id: number;
   tableNum: number;
   totalPrice: number;
   memo?: string;
-  orderItem: OrderItem[];
+  orderItem: TTableOrderItem[];
 };
 
-export type OrderItem = {
+export type TTableOrderItem = {
   id: string;
   name: string;
   price: number;
@@ -15,9 +15,9 @@ export type OrderItem = {
   customOptions?: Record<string, string>;
 };
 
-export const orderData: Order[] = [
+export const orderData: TTableOrder[] = [
   {
-    id: 1,
+    id: 111111,
     tableNum: 1,
     totalPrice: 14300,
     orderItem: [
@@ -58,7 +58,7 @@ export const orderData: Order[] = [
     ],
   },
   {
-    id: 2,
+    id: 222222,
     tableNum: 2,
     totalPrice: 14300,
     memo: "덜 맵게 해주세요.",
@@ -84,7 +84,7 @@ export const orderData: Order[] = [
     ],
   },
   {
-    id: 3,
+    id: 333333,
     tableNum: 3,
     totalPrice: 14300,
     memo: "반찬 조금만 주세요.\n양념 많이 주세요.",

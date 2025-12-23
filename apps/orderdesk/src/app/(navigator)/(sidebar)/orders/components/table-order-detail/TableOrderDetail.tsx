@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { OrderTable } from "./OrderTable";
 import { columns } from "./columns";
 import { Button } from "@spaceorder/ui/components/button";
-import useUpdateTableData from "../../hooks/useUpdateTableData";
+import useUpdateTableOrder from "../../hooks/useUpdateTableOrder";
 import {
   HealthCheckResponse,
   httpMe,
@@ -20,11 +20,18 @@ import {
 import { Spinner } from "@spaceorder/ui/components/spinner";
 
 export default function TableOrderDetail() {
-  const { orderItems, remove, update } = useUpdateTableData();
+  const {
+    tableOrderState: orderItems,
+    removeById,
+    update,
+  } = useUpdateTableOrder();
 
   // 총 가격 계산
   const totalPrice = useMemo(() => {
-    return reduceTotalPrice(orderItems, (item) => item.price * item.quantity);
+    return reduceTotalPrice(
+      orderItems.orderItem,
+      (item) => item.price * item.quantity
+    );
   }, [orderItems]);
 
   const transformedTotalPrice = transCurrencyFormat(totalPrice);
@@ -54,9 +61,9 @@ export default function TableOrderDetail() {
     <div className="overflow-hidden rounded-md border w-full h-full flex flex-col justify-between shadow-sm">
       <OrderTable
         columns={columns}
-        data={orderItems}
+        data={orderItems.orderItem}
         onUpdateQuantity={update}
-        onRemoveItem={remove}
+        onRemoveItem={removeById}
       />
       <footer className="flex flex-col gap-2 p-2">
         <div className="grid grid-cols-2 gap-2">

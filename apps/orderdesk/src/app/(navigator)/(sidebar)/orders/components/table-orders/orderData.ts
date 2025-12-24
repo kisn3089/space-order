@@ -25,13 +25,22 @@ export const orderData: TTableOrder[] = [
         id: "ice_americano",
         name: "아이스 아메리카노",
         price: 4500,
-        quantity: 2,
+        quantity: 1,
         requiredOptions: {
           사이즈: "라지",
         },
         customOptions: {
           얼음: "적게",
           // 카페인: "연하게",
+        },
+      },
+      {
+        id: "ice_americano",
+        name: "아이스 아메리카노",
+        price: 4500,
+        quantity: 2,
+        requiredOptions: {
+          사이즈: "라지",
         },
       },
       {

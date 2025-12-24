@@ -19,14 +19,6 @@ export default function useUpdateTableOrder() {
     });
   };
 
-  // prevOrderItems.map((prevOrder) => {
-  //         if (prevOrder.id === selectedOrderId) {
-  //           const newQuantity = Math.max(1, prevOrder.quantity + delta); // 최소 1개
-  //           return { ...prevOrder, quantity: newQuantity };
-  //         }
-  //         return prevOrder;
-  //       })
-
   // 메뉴 삭제 핸들러
   const removeById = (selectedOrderId: string) => {
     setTableOrderState((prevOrderItems) => {
@@ -36,8 +28,6 @@ export default function useUpdateTableOrder() {
       return { ...prevOrderItems, orderItem: updatedOrderItems };
     });
   };
-
-  // prevOrderItems.filter((item) => item.id !== selectedOrderId)
 
   return { tableOrderState, update, removeById };
 }

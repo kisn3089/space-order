@@ -87,14 +87,14 @@ export const columns: ColumnDef<TTableOrderItem>[] = [
       const isSelected = row.getIsSelected();
       const meta = table.options.meta as {
         onRemoveItem?: {
-          (itemId: string): void;
+          remove: (itemId: string) => void;
           setSelectedRow: (selection: Record<string, boolean>) => void;
         };
       };
 
       const removeMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        meta?.onRemoveItem?.(row.original.id);
+        meta?.onRemoveItem?.remove?.(row.original.id);
         // 삭제 후 선택 상태 초기화
         meta?.onRemoveItem?.setSelectedRow({});
       };

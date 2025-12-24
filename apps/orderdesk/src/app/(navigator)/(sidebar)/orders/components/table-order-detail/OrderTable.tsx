@@ -43,7 +43,10 @@ export function OrderTable<TData, TValue>({
     onRowSelectionChange: setSelectedRow,
     meta: {
       onUpdateQuantity,
-      onRemoveItem: Object.assign(onRemoveItem || {}, { setSelectedRow }),
+      onRemoveItem: {
+        remove: onRemoveItem,
+        setSelectedRow,
+      },
     },
   });
 
@@ -51,14 +54,8 @@ export function OrderTable<TData, TValue>({
     const selectedRowKeys = Object.keys(selectedRow);
     if (selectedRowKeys.length === 0) return;
 
-    // console.log(
-    //   "rowSelection: ",
-    //   data[selectedRowKeys[0] as unknown as number]
-    // );
-
     setSelectedRow({});
-    // 변경점 포착해야 함
-    console.log("테이블 변경점 포착! API 쏴야 함!");
+    // TODO: 테이블 변경점 포착 시 API 호출 로직을 여기에 추가해야 함
   };
 
   return (
@@ -66,7 +63,7 @@ export function OrderTable<TData, TValue>({
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow
-            className="grid grid-cols-[2fr_1.5fr_1fr]"
+            className="grid grid-cols-[2fr_1fr_1fr]"
             key={headerGroup.id}
           >
             {headerGroup.headers.map((header) => {

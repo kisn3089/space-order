@@ -11,7 +11,7 @@ type CancellableAsyncReturn<TArgs extends any[], TReturn> = {
   abort: () => void;
 };
 
-export default function useCancellableAsync<TArgs extends any[], TReturn>(
+export function useCancellableAsync<TArgs extends any[], TReturn>(
   promiseFunction: AsyncFunction<TArgs, TReturn>
 ): CancellableAsyncReturn<TArgs, TReturn> {
   const [isPending, startTransition] = React.useTransition();
@@ -20,7 +20,10 @@ export default function useCancellableAsync<TArgs extends any[], TReturn>(
   // 컴포넌트 언마운트 시 정보 유실 방지
   React.useEffect(() => {
     if (isPending) {
-      window.onbeforeunload = () => "";
+      window.onbeforeunload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        return "";
+      };
     } else {
       window.onbeforeunload = null;
     }
@@ -29,7 +32,7 @@ export default function useCancellableAsync<TArgs extends any[], TReturn>(
   // 컴포넌트 언마운트 시 요청 취소
   React.useEffect(() => {
     return () => {
-      abort();
+      abortControllerRef.current?.abort();
     };
   }, []);
 
@@ -52,8 +55,8 @@ export default function useCancellableAsync<TArgs extends any[], TReturn>(
           );
           resolve(result);
         } catch (error) {
-          if (error instanceof Error &&
-              (error.name === "AbortError" || error.name === "CanceledError")) {
+          // abort로 비동기 호출 취소 시에도 오류를 잡고 싶다면 error.name === "AbortError" 추가해야 함
+          if (error instanceof Error && error.name === "CanceledError") {
             console.warn("작업이 취소되었습니다.");
             resolve(undefined);
           } else {

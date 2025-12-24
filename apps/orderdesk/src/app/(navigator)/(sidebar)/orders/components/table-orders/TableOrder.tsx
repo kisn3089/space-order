@@ -10,8 +10,8 @@ import { TTableOrder } from "./orderData";
 import { useTableOrderContext } from "../../store/useTableOrderContext";
 
 export default function TableOrder({ order }: { order: TTableOrder }) {
-  const [_, setTableOrderState] = useTableOrderContext();
-  const { id, tableNum, orderItem, totalPrice, memo } = order;
+  const [, setTableOrderState] = useTableOrderContext();
+  const { tableNum, orderItem, totalPrice, memo } = order;
 
   return (
     <Card

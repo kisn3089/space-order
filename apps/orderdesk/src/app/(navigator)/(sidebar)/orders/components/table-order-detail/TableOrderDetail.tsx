@@ -12,7 +12,7 @@ import {
   transCurrencyFormat,
 } from "@spaceorder/api";
 import { AlertDialogWrapper } from "@spaceorder/ui/components/alert-dialog/AlertDialogWrapper";
-import useCancellableAsync from "@spaceorder/api/hooks/useCancellableAsync";
+import { useCancellableAsync } from "@spaceorder/api/hooks/useCancellableAsync";
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -42,13 +42,7 @@ export default function TableOrderDetail() {
   ) => {
     // AlertDialog 닫힘 방지
     e.preventDefault();
-    // const result: HealthCheckResponse = await httpMe.healthCheck({ signal });
-    const result = {
-      status: "ok",
-      timestamp: new Date().toISOString(),
-    };
-
-    console.log("result: ", result);
+    const result: HealthCheckResponse = await httpMe.healthCheck({ signal });
     return result;
   };
 

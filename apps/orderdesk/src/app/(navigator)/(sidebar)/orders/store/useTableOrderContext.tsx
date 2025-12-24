@@ -11,7 +11,7 @@ const defaultTableOrder: TTableOrder = {
   orderItem: [],
 };
 
-const TalbeOrderContext = React.createContext<
+const TableOrderContext = React.createContext<
   [TTableOrder, React.Dispatch<React.SetStateAction<TTableOrder>>]
 >([defaultTableOrder, () => {}]);
 
@@ -26,12 +26,12 @@ export default function TableOrderProvider({
     React.useState<TTableOrder>(defaultTableOrder);
 
   return (
-    <TalbeOrderContext.Provider value={[tableOrderState, setTableOrderState]}>
+    <TableOrderContext.Provider value={[tableOrderState, setTableOrderState]}>
       {children}
-    </TalbeOrderContext.Provider>
+    </TableOrderContext.Provider>
   );
 }
 
 export function useTableOrderContext() {
-  return React.useContext(TalbeOrderContext);
+  return React.useContext(TableOrderContext);
 }

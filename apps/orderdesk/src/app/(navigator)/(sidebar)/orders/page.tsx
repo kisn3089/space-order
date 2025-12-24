@@ -1,15 +1,15 @@
-import { Card, CardHeader, CardTitle } from "@spaceorder/ui/components/card";
+"use client";
+
+import React from "react";
+import TableOrderDetail from "./components/table-order-detail/TableOrderDetail";
+import TableOrders from "./components/table-orders/TableOrders";
+import TableOrderProvider from "./store/useTableOrderContext";
 
 export default function OrdersPage() {
   return (
-    <div className="flex flex-col items-center justify-center gap-8">
-      <Card className="w-full max-w-md min-w-sm">
-        <CardHeader className="p-8">
-          <CardTitle className="flex justify-center font-bold">
-            ORDERS PAGE!
-          </CardTitle>
-        </CardHeader>
-      </Card>
-    </div>
+    <TableOrderProvider>
+      <TableOrders />
+      <TableOrderDetail />
+    </TableOrderProvider>
   );
 }

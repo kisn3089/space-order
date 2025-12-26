@@ -2,6 +2,7 @@
 
 import clearCookie from "@/app/common/servers/cookies";
 import { AccessToken } from "@spaceorder/api";
+import { COOKIE_TABLE } from "@spaceorder/db";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -36,7 +37,7 @@ export default function AuthenticationProvider({
   const signOut = React.useCallback(async () => {
     setAuthInfo(defaultAuth);
     queryClient.clear();
-    await clearCookie("Refresh");
+    await clearCookie(COOKIE_TABLE.REFRESH);
     router.push("/signin");
   }, [queryClient, router]);
 

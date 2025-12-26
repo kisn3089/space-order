@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { AxiosError } from "axios";
 import { AccessToken, httpToken } from "@spaceorder/api";
+import { COOKIE_TABLE } from "@spaceorder/db";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 type ActionResponse =
@@ -45,7 +46,7 @@ export default async function signInAction(
           path: "/",
           expires: undefined,
         };
-        if (name === "Refresh" && value) {
+        if (name === COOKIE_TABLE.REFRESH && value) {
           attributes.forEach((attr) => {
             const [key, val] = attr.trim().split("=");
             const lowerKey = key.toLowerCase();

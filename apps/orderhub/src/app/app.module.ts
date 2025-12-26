@@ -8,6 +8,8 @@ import { OwnerModule } from '../owner/owner.module';
 import { MeModule } from 'src/me/me.module';
 import { TableModule } from 'src/table/table.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { TableSessionModule } from 'src/table-session/tableSession.module';
+import { StoreModule } from 'src/store/store.module';
 
 @Module({
   imports: [
@@ -19,8 +21,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     AdminModule,
     OwnerModule,
     TokenModule,
+    StoreModule,
     MeModule,
     TableModule,
+    TableSessionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

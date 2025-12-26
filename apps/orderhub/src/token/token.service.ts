@@ -17,10 +17,10 @@ export class TokenService {
     const { accessToken, expiresAt, refreshToken } =
       this.generateToken.generateToken(owner, response);
 
-    await this.ownerService.update(owner.publicId, {
-      lastLoginAt: new Date(),
-      refreshToken: await encryptPassword(refreshToken),
-    });
+    await this.ownerService.updateSignInInfo(
+      owner.publicId,
+      await encryptPassword(refreshToken),
+    );
 
     return { accessToken, expiresAt };
   }
@@ -44,7 +44,7 @@ export class TokenService {
     publicId: string,
   ): Promise<Owner> {
     try {
-      const owner = await this.ownerService.findOne(publicId);
+      const owner = await this.ownerService.findUnique(publicId);
       if (owner.refreshToken === null) throw new UnauthorizedException();
 
       const authenticated = await comparePassword(

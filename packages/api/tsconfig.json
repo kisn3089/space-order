@@ -1,10 +1,8 @@
 {
   "extends": "@spaceorder/tsconfig/react-library.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": { "@spaceorder/api/*": ["./*"] }
+    "outDir": "dist"
   },
-  "include": [".", "core/axios/http.ts"],
+  "include": [".", "core/axios/http.ts", "../db/constants"],
   "exclude": ["node_modules", "dist"]
 }

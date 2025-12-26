@@ -1,6 +1,6 @@
 import { QueryOptions, useQuery } from "@tanstack/react-query";
-import { httpAdmin } from "core/admin/httpAdmin";
 import { Admin } from "@spaceorder/db";
+import { httpAdmin } from "./httpAdmin";
 
 const findAll = (queryOptions?: QueryOptions<Admin[]>) => {
   const { queryKey = ["admins"], ...restOptions } = queryOptions ?? {};

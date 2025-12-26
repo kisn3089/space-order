@@ -1,34 +1,66 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  // Patch,
+  Param,
+  // Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+// import { UpdateOrderDto } from './dto/update-order.dto';
+import { TableSessionGuard } from 'src/utils/guards/table-session.guard';
+import type { TableSession } from '@spaceorder/db';
 
-@Controller('order')
+interface RequestWithTableSession {
+  tableSession: TableSession;
+}
+
+@Controller('stores/:storeId/tables/:tableId')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  /**
+   * 쿠키의 table session 토큰값을 검증하는 Guard 적용
+   */
+  @Post('order')
+  @UseGuards(TableSessionGuard)
+  async create(
+    @Param('storeId') storePublicId: string,
+    @Param('tableId') tablePublicId: string,
+    @Req() request: RequestWithTableSession,
+    @Body() createOrderDto: CreateOrderDto,
+  ) {
+    const sessionToken = request.tableSession.sessionToken; // 토큰 값 추출
+    return await this.orderService.create(
+      storePublicId,
+      tablePublicId,
+      sessionToken,
+      createOrderDto,
+    );
   }
 
-  @Get()
-  findAll() {
-    return this.orderService.findAll();
+  @Get('orders')
+  async findAll(
+    @Param('storeId') storePublicId: string,
+    @Param('tableId') tablePublicId: string,
+  ) {
+    return await this.orderService.findAll(storePublicId, tablePublicId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
-  }
+  // @Patch('order/:id')
+  // async update(
+  //   @Param('id') id: string,
+  //   @Body() updateOrderDto: UpdateOrderDto,
+  // ) {
+  //   return await this.orderService.update(+id, updateOrderDto);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
-  }
+  // @Delete('order/:id')
+  // async remove(@Param('id') id: string) {
+  //   return await this.orderService.remove(+id);
+  // }
 }

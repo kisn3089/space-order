@@ -203,7 +203,7 @@ The `turbo.json` configures task dependencies:
   - Cookie-based refresh token handling
   - Admin and Owner login endpoints
   - Current user decorator (`@CurrentUser()`)
-  - Auth guards (Local, JWT, JWT Refresh)
+  - Auth guards (Local, JWT, JWT refresh)
 - **Main entry point**: `src/main.ts`
 - **Build output**: `apps/orderhub/dist/`
 - **Scripts**: `start:dev` (nodemon watch mode), `start:debug`, `start:prod`
@@ -408,7 +408,7 @@ packages/ui/
 
 - React 18.3.1 (matches frontend apps)
 - Tailwind CSS v4.1.11 with PostCSS
-- Radix UI components (@radix-ui/react-*)
+- Radix UI components (@radix-ui/react-\*)
 - Animation support with motion (12.23.24)
 - Utility libraries:
   - class-variance-authority (0.7.1): Component variants

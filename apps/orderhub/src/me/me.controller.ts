@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/dacorators/current-user.decorator';
-import { OwnerResponseDto } from 'src/owner/dto/response.dto';
+import { OwnerResponseDto } from 'src/owner/dto/response-owner.dto';
 import type { Owner } from '@spaceorder/db';
 
 @Controller('me')

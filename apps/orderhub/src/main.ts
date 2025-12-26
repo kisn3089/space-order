@@ -5,6 +5,11 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
 
+// BigInt serialization for JSON responses
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({

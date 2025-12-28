@@ -10,6 +10,7 @@ import { TableModule } from 'src/table/table.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { TableSessionModule } from 'src/table-session/tableSession.module';
 import { StoreModule } from 'src/store/store.module';
+import { OrderModule } from 'src/order/order.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StoreModule } from 'src/store/store.module';
     OwnerModule,
     TokenModule,
     StoreModule,
+    OrderModule,
     MeModule,
     TableModule,
     TableSessionModule,

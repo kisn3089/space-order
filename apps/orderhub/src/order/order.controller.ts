@@ -19,14 +19,12 @@ interface RequestWithTableSession {
   tableSession: TableSession;
 }
 
-@Controller('stores/:storeId/tables/:tableId')
+@Controller('stores/:storeId/tables/:tableId/order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  /**
-   * 쿠키의 table session 토큰값을 검증하는 Guard 적용
-   */
-  @Post('order')
+  /** 쿠키의 table session 토큰값을 검증하는 Guard 적용 */
+  @Post()
   @UseGuards(TableSessionGuard)
   async create(
     @Param('storeId') storePublicId: string,
@@ -43,12 +41,15 @@ export class OrderController {
     );
   }
 
-  @Get('orders')
-  async findAll(
+  @Get()
+  async retrieveOrderList(
     @Param('storeId') storePublicId: string,
     @Param('tableId') tablePublicId: string,
   ) {
-    return await this.orderService.findAll(storePublicId, tablePublicId);
+    return await this.orderService.retrieveOrderList(
+      storePublicId,
+      tablePublicId,
+    );
   }
 
   // @Patch('order/:id')

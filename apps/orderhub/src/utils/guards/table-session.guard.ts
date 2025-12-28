@@ -14,16 +14,19 @@ export class TableSessionGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const sessionToken: string = request.cookies[COOKIE_TABLE.TABLE_SESSION];
+    const ExtractedSessionTokenInCookie: string =
+      request.cookies[COOKIE_TABLE.TABLE_SESSION];
 
-    if (!sessionToken) {
+    if (!ExtractedSessionTokenInCookie) {
       throw new HttpException(responseMessage('missingTableSession'), 401);
     }
 
-    const tableSession: TableSession =
-      await this.tableSessionService.validateSession(sessionToken);
+    const validatedSessionToken: TableSession =
+      await this.tableSessionService.validateSessionToken(
+        ExtractedSessionTokenInCookie,
+      );
 
-    request.tableSession = tableSession;
+    request.tableSession = validatedSessionToken;
 
     return true;
   }

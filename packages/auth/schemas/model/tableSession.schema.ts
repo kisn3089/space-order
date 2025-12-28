@@ -17,7 +17,11 @@ const OrdersSchema = z.object({
   // orderItems 필요할지에 대한 판단 필요
 });
 
-export const closeTableSessionSchema = z.object({
+// export const closeTableSessionSchema = z.object({
+//   status: z.literal(TableSessionStatus.CLOSED),
+// });
+
+export const updatePaymentSessionSchema = z.object({
   totalAmount: z.number().min(0, "총 금액은 0 이상이어야 합니다."),
   paidAmount: z.number().min(0, "지불 금액은 0 이상이어야 합니다."),
   orders: OrdersSchema.array().nonempty("주문 항목은 하나 이상이어야 합니다."),

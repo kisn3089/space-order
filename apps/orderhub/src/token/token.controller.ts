@@ -14,19 +14,19 @@ export class TokenController {
 
   @Post()
   @UseGuards(ZodValidationGuard({ body: signInFormSchema }), LocalAuthGuard)
-  signIn(
+  createTokenBySignIn(
     @CurrentUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.tokenService.create(owner, response);
+    return this.tokenService.createToken(owner, response);
   }
 
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
-  refreshToken(
+  createTokenByRefreshToken(
     @CurrentUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.tokenService.create(owner, response);
+    return this.tokenService.createToken(owner, response);
   }
 }

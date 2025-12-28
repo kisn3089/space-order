@@ -2,14 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { encryptPassword } from 'src/utils/lib/crypt';
+import { encrypt } from 'src/utils/lib/crypt';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createAdminDto: CreateAdminDto) {
-    const hashedPassword = await encryptPassword(createAdminDto.password);
+    const hashedPassword = await encrypt(createAdminDto.password);
     const createdAdmin = await this.prismaService.admin.create({
       data: {
         ...createAdminDto,

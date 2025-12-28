@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 /**
  * 비밀번호 암호화
  */
-export async function encryptPassword(value: string): Promise<string> {
+export async function encrypt(value: string): Promise<string> {
   return await bcrypt.hash(value, 10);
 }
 

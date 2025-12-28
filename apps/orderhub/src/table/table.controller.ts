@@ -35,11 +35,11 @@ export class TableController {
   @Post()
   @HttpCode(201)
   @UseGuards(ZodValidationGuard({ params: storeParamsSchema }))
-  async create(
+  async createTable(
     @Param('storeId') storePublicId: string,
     @Body() createTableDto: CreateTableDto,
   ) {
-    const createdTable = await this.tableService.create(
+    const createdTable = await this.tableService.createTable(
       storePublicId,
       createTableDto,
     );
@@ -48,16 +48,18 @@ export class TableController {
 
   @Get()
   @UseGuards(ZodValidationGuard({ params: storeParamsSchema }))
-  async findAllTables(@Param('storeId') storePublicId: string) {
-    const foundTables = await this.tableService.findAll(storePublicId);
-    return foundTables.map((table) => new TableResponseDto(table));
+  async retrieveTableList(@Param('storeId') storePublicId: string) {
+    const retrievedTableList =
+      await this.tableService.retrieveTableList(storePublicId);
+    return retrievedTableList.map((table) => new TableResponseDto(table));
   }
 
   @Get(':tableId')
   @UseGuards(ZodValidationGuard({ params: storeAndTableParamsSchema }))
-  async findUniqueTable(@Param('tableId') tablePublicId: string) {
-    const foundTable = await this.tableService.findUnique(tablePublicId);
-    return new TableResponseDto(foundTable);
+  async retrieveTableById(@Param('tableId') tablePublicId: string) {
+    const retrievedTable =
+      await this.tableService.retrieveTableById(tablePublicId);
+    return new TableResponseDto(retrievedTable);
   }
 
   @Patch(':tableId')
@@ -71,7 +73,7 @@ export class TableController {
     @Param('tableId') tablePublicId: string,
     @Body() updateTableDto: UpdateTableDto,
   ) {
-    const updatedTable = await this.tableService.update(
+    const updatedTable = await this.tableService.updateTable(
       tablePublicId,
       updateTableDto,
     );
@@ -82,6 +84,6 @@ export class TableController {
   @HttpCode(204)
   @UseGuards(ZodValidationGuard({ params: storeAndTableParamsSchema }))
   async deleteTable(@Param('tableId') tablePublicId: string) {
-    await this.tableService.delete(tablePublicId);
+    await this.tableService.deleteTable(tablePublicId);
   }
 }

@@ -3,19 +3,23 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { responseMessage } from 'src/common/constants/response-message';
 import { createId } from '@paralleldrive/cuid2';
 import { CreateTableDto, UpdateTableDto } from './table.controller';
+import type { Table } from '@spaceorder/db';
 
 @Injectable()
 export class TableService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(storePublicId: string, createTableDto: CreateTableDto) {
-    const createdTablePublicId = createId();
-    const qrCode = `/stores/${storePublicId}/tables/${createdTablePublicId}/session`;
+  async createTable(
+    storePublicId: string,
+    createTableDto: CreateTableDto,
+  ): Promise<Table> {
+    const tablePublicId = createId();
+    const qrCode = `/stores/${storePublicId}/tables/${tablePublicId}/session`;
 
     const createdTable = await this.prismaService.table.create({
       data: {
         ...createTableDto,
-        publicId: createdTablePublicId,
+        publicId: tablePublicId,
         qrCode,
         seats: createTableDto.seats ?? 4,
         isActive: true,
@@ -31,33 +35,36 @@ export class TableService {
     return createdTable;
   }
 
-  async findAll(storePublicId: string) {
-    const foundTables = await this.prismaService.table.findMany({
+  async retrieveTableList(storePublicId: string): Promise<Table[]> {
+    const retrievedTableList = await this.prismaService.table.findMany({
       where: { store: { publicId: storePublicId } },
     });
 
-    if (!foundTables) {
+    if (!retrievedTableList) {
       console.warn('Failed to find tables');
       throw new HttpException(responseMessage('notFoundThat'), 404);
     }
 
-    return foundTables;
+    return retrievedTableList;
   }
 
-  async findUnique(tablePublicId: string) {
-    const findRequestedTable = await this.prismaService.table.findUnique({
+  async retrieveTableById(tablePublicId: string): Promise<Table> {
+    const retrievedTable = await this.prismaService.table.findUnique({
       where: { publicId: tablePublicId },
     });
 
-    if (!findRequestedTable) {
+    if (!retrievedTable) {
       console.warn('Failed to find table');
       throw new HttpException(responseMessage('notFoundThat'), 404);
     }
 
-    return findRequestedTable;
+    return retrievedTable;
   }
 
-  async update(tablePublicId: string, updateTableDto: UpdateTableDto) {
+  async updateTable(
+    tablePublicId: string,
+    updateTableDto: UpdateTableDto,
+  ): Promise<Table> {
     const updatedTable = await this.prismaService.table.update({
       where: { publicId: tablePublicId },
       data: { ...updateTableDto },
@@ -71,7 +78,7 @@ export class TableService {
     return updatedTable;
   }
 
-  async delete(tablePublicId: string) {
+  async deleteTable(tablePublicId: string): Promise<Table> {
     const deletedTable = await this.prismaService.table.delete({
       where: { publicId: tablePublicId },
     });

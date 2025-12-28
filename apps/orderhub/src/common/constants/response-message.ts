@@ -4,6 +4,10 @@ const RESPONSE_MESSAGE = {
   invalidBody: 'Invalid request body',
   invalidParams: 'Invalid request params',
   invalidQuery: 'Invalid request query',
+  invalidTableSession: 'Invalid or inactive table session',
+  missingTableSession: 'Missing table session',
+  expiredTableSession: 'Session expired',
+  notFoundThat: 'Not found resource',
 } as const;
 
 type ResponseMessageKey = keyof typeof RESPONSE_MESSAGE;

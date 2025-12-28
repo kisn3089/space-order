@@ -5,6 +5,11 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
 
+// BigInt serialization for JSON responses
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -17,8 +22,6 @@ async function bootstrap() {
   // Enable validation globally
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strip properties that don't have decorators
-      forbidNonWhitelisted: true, // Throw error if non-whitelisted properties exist
       transform: true, // Automatically transform payloads to DTO instances
       exceptionFactory(errors) {
         return new BadRequestException(errors);

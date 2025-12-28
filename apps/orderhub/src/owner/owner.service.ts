@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateOwnerDto } from './dto/create-owner.dto';
-import { UpdateOwnerDto } from './dto/update-owner.dto';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { encryptPassword } from 'src/utils/lib/crypt';
+import { CreateOwnerDto, UpdateOwnerDto } from './owner.controller';
+import { responseMessage } from 'src/common/constants/response-message';
 
 @Injectable()
 export class OwnerService {
@@ -17,70 +17,98 @@ export class OwnerService {
       },
     });
 
+    if (!createdOwner) {
+      console.warn('Failed to create owner');
+      throw new BadRequestException(responseMessage('invalidBody'));
+    }
+
     return createdOwner;
   }
 
   async findAll() {
-    return await this.prismaService.owner.findMany({});
-  }
+    const foundOwners = await this.prismaService.owner.findMany({});
 
-  async findOne(publicId: string) {
-    const owner = await this.prismaService.owner.findUnique({
-      where: { publicId },
-    });
-
-    if (!owner) {
-      throw new NotFoundException(`Not Found Owner`);
+    if (!foundOwners) {
+      console.warn('Failed to find owners');
+      throw new HttpException(responseMessage('notFoundThat'), 404);
     }
 
-    return owner;
+    return foundOwners;
+  }
+
+  async findUnique(ownerPublicId: string) {
+    const foundOwner = await this.prismaService.owner.findUnique({
+      where: { publicId: ownerPublicId },
+    });
+
+    if (!foundOwner) {
+      console.warn('Failed to find owners');
+      throw new HttpException(responseMessage('notFoundThat'), 404);
+    }
+
+    return foundOwner;
   }
 
   async findByEmail(email: string) {
-    const owner = await this.prismaService.owner.findUnique({
+    const foundOwner = await this.prismaService.owner.findUnique({
       where: { email },
     });
 
-    if (!owner) {
-      throw new NotFoundException(`Not Found Owner`);
+    if (!foundOwner) {
+      console.warn('Failed to findByEmail to owner');
+      throw new HttpException(responseMessage('notFoundThat'), 404);
     }
-    return owner;
+
+    return foundOwner;
   }
 
-  async update(publicId: string, updateOwnerDto: UpdateOwnerDto) {
-    return await this.prismaService.owner.update({
-      where: { publicId },
-      data: updateOwnerDto,
+  async update(ownerPublicId: string, updateOwnerDto: UpdateOwnerDto) {
+    const updatedOwner = await this.prismaService.owner.update({
+      where: { publicId: ownerPublicId },
+      data: { ...updateOwnerDto },
     });
+
+    if (!updatedOwner) {
+      console.warn('Failed to update owner');
+      throw new BadRequestException(responseMessage('invalidBody'));
+    }
+
+    return updatedOwner;
   }
 
-  async updateRefreshToken(publicId: string, refreshToken: string) {
-    return await this.prismaService.owner.update({
-      where: { publicId },
-      data: { refreshToken },
-      omit: {
-        id: true,
-        password: true,
-        refreshToken: true,
-      },
+  async delete(ownerPublicId: string) {
+    const deletedOwner = await this.prismaService.owner.delete({
+      where: { publicId: ownerPublicId },
     });
+
+    if (!deletedOwner) {
+      console.warn('Failed to delete owner');
+      throw new HttpException(responseMessage('notFoundThat'), 404);
+    }
+
+    return deletedOwner;
   }
 
-  async remove(publicId: string) {
-    return await this.prismaService.owner.delete({
-      where: { publicId },
+  /**
+   * @description
+   * Updates the lastLoginAt timestamp and stores the hashed refresh token.
+   * @param ownerPublicId - The public ID of the owner to update
+   * @param refreshToken - The hashed refresh token to store
+   * @returns Updated Owner entity without sensitive fields (id, password, refreshToken)
+   * @throws {BadRequestException} When the owner is not found or update fails
+   * @see {@link tokenService.create}
+   */
+  async updateSignInInfo(ownerPublicId: string, refreshToken: string) {
+    const updatedOwnerSignInInfo = await this.prismaService.owner.update({
+      where: { publicId: ownerPublicId },
+      data: { lastLoginAt: new Date(), refreshToken },
     });
-  }
 
-  async updateLastSignIn(publicId: string) {
-    return await this.prismaService.owner.update({
-      where: { publicId },
-      data: { lastLoginAt: new Date() },
-      omit: {
-        id: true,
-        password: true,
-        refreshToken: true,
-      },
-    });
+    if (!updatedOwnerSignInInfo) {
+      console.warn('Failed to update owner signIn info');
+      throw new BadRequestException(responseMessage('invalidBody'));
+    }
+
+    return updatedOwnerSignInInfo;
   }
 }

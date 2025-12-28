@@ -1,6 +1,6 @@
 import { ExecutionContext, HttpException, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { PlainOwner } from '@spaceorder/db';
+import { PlainOwner, COOKIE_TABLE } from '@spaceorder/db';
 import { JwtErrorInfo } from './jwt-auth.guard';
 import { responseMessage } from 'src/common/constants/response-message';
 import { Response } from 'express';
@@ -26,7 +26,7 @@ export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
 
     if (!user) {
       const response = context.switchToHttp().getResponse<Response>();
-      response.clearCookie('Refresh');
+      response.clearCookie(COOKIE_TABLE.REFRESH as string);
       throw new HttpException(responseMessage('forbidden'), 403);
     }
 

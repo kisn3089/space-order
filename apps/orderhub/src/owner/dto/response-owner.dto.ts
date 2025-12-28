@@ -1,4 +1,4 @@
-import { Owner } from '@spaceorder/db';
+import type { Owner } from '@spaceorder/db';
 import { Exclude, Expose } from 'class-transformer';
 
 export class OwnerResponseDto {

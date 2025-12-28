@@ -5,6 +5,7 @@ import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { TokenPayload } from 'src/utils/jwt/token-payload.interface';
 import { TokenService } from '../token.service';
+import { COOKIE_TABLE } from '@spaceorder/db';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -17,7 +18,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => request.cookies?.Refresh,
+        (request: Request) => request.cookies?.[COOKIE_TABLE.REFRESH],
       ]),
       secretOrKey: configService.getOrThrow<string>('JWT_REFRESH_TOKEN_SECRET'),
       passReqToCallback: true,
@@ -25,7 +26,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(request: Request, payload: TokenPayload) {
-    const refreshToken: string | null | undefined = request.cookies?.Refresh;
+    const refreshToken: string | null | undefined =
+      request.cookies?.[COOKIE_TABLE.REFRESH];
 
     if (!refreshToken) return null;
     return await this.tokenService.verifyOwnerRefreshToken(

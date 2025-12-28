@@ -12,19 +12,28 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OwnerService } from './owner.service';
-import { CreateOwnerDto } from './dto/create-owner.dto';
-import { UpdateOwnerDto } from './dto/update-owner.dto';
-import { OwnerResponseDto } from './dto/response.dto';
+import { OwnerResponseDto } from './dto/response-owner.dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
+import { createZodDto } from 'nestjs-zod';
+import {
+  createOwnerSchema,
+  ownerParamsSchema,
+  updateOwnerSchema,
+} from '@spaceorder/auth';
+import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
+
+export class CreateOwnerDto extends createZodDto(createOwnerSchema) {}
+export class UpdateOwnerDto extends createZodDto(updateOwnerSchema) {}
 
 @Controller('owners')
+@UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class OwnerController {
   constructor(private readonly ownerService: OwnerService) {}
 
   @Post()
   @HttpCode(201)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(ZodValidationGuard({ body: createOwnerSchema }))
   async create(@Body() createOwnerDto: CreateOwnerDto) {
     const createdOwner = await this.ownerService.create(createOwnerDto);
     return new OwnerResponseDto(createdOwner);
@@ -32,38 +41,39 @@ export class OwnerController {
 
   @Get()
   @HttpCode(200)
-  @UseGuards(JwtAuthGuard)
   async findAll() {
     const owners = await this.ownerService.findAll();
     return owners.map((owner) => new OwnerResponseDto(owner));
   }
 
-  @Get(':publicId')
+  @Get(':ownerId')
   @HttpCode(200)
-  @UseGuards(JwtAuthGuard)
-  async findOne(@Param('publicId') publicId: string) {
-    const ownerByPublicId = await this.ownerService.findOne(publicId);
+  @UseGuards(ZodValidationGuard({ params: ownerParamsSchema }))
+  async findOne(@Param('ownerId') ownerPublicId: string) {
+    const ownerByPublicId = await this.ownerService.findUnique(ownerPublicId);
     return new OwnerResponseDto(ownerByPublicId);
   }
 
-  @Patch(':publicId')
+  @Patch(':ownerId')
   @HttpCode(200)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(
+    ZodValidationGuard({ params: ownerParamsSchema, body: updateOwnerSchema }),
+  )
   async update(
-    @Param('publicId') publicId: string,
+    @Param('ownerId') ownerPublicId: string,
     @Body() updateOwnerDto: UpdateOwnerDto,
   ) {
     const updatedOwner = await this.ownerService.update(
-      publicId,
+      ownerPublicId,
       updateOwnerDto,
     );
     return new OwnerResponseDto(updatedOwner);
   }
 
-  @Delete(':publicId')
+  @Delete(':ownerId')
   @HttpCode(204)
-  @UseGuards(JwtAuthGuard)
-  async remove(@Param('publicId') publicId: string) {
-    await this.ownerService.remove(publicId);
+  @UseGuards(ZodValidationGuard({ params: ownerParamsSchema }))
+  async delete(@Param('ownerId') ownerPublicId: string) {
+    await this.ownerService.delete(ownerPublicId);
   }
 }

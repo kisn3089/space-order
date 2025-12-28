@@ -1,12 +1,13 @@
+import { COOKIE_TABLE } from '@spaceorder/db';
 import { CookieOptions, Response } from 'express';
 
 function set(
   response: Response,
-  name: string,
+  name: (typeof COOKIE_TABLE)[keyof typeof COOKIE_TABLE],
   value: string,
   cookieOptions: Omit<CookieOptions, 'httpOnly' | 'sameSite' | 'secure'>,
 ): Response<any, Record<string, any>> {
-  return response.cookie(name, value, {
+  return response.cookie(name as string, value, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -16,10 +17,10 @@ function set(
 
 function remove(
   response: Response,
-  name: string,
+  name: (typeof COOKIE_TABLE)[keyof typeof COOKIE_TABLE],
   cookieOptions: Omit<CookieOptions, 'httpOnly' | 'sameSite' | 'secure'>,
 ): Response<any, Record<string, any>> {
-  return response.clearCookie(name, {
+  return response.clearCookie(name as string, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

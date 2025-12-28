@@ -4,7 +4,7 @@ import { TokenPayload } from './token-payload.interface';
 import { responseCookie } from '../cookies';
 import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
-import { Admin, Owner } from '@spaceorder/db';
+import { Admin, Owner, COOKIE_TABLE } from '@spaceorder/db';
 
 @Injectable()
 export class GenerateToken {
@@ -56,7 +56,7 @@ export class GenerateToken {
       'JWT_REFRESH_TOKEN_EXPIRATION_MS',
     ).jwt(tokenPayload, 'JWT_REFRESH_TOKEN_SECRET');
 
-    responseCookie.set(response, 'Refresh', refreshToken, {
+    responseCookie.set(response, COOKIE_TABLE.REFRESH, refreshToken, {
       expires: expiresRefreshToken,
     });
 

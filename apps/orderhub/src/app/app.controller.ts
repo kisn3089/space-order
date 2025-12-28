@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  healthCheck(): { status: string; timestamp: string } {
-    return this.appService.healthCheck();
+  async healthCheck(): Promise<{ status: string; timestamp: string }> {
+    return await this.appService.healthCheck();
   }
 }

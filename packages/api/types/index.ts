@@ -1,1 +1,1 @@
-export * from "./queryOptions.type";
+export type * from "./queryOptions.type";

@@ -1,6 +1,7 @@
 import { AxiosResponse } from "axios";
 import { http } from "../axios/http";
 import { AccessToken, SignInRequest } from "./token.type";
+import { COOKIE_TABLE } from "@spaceorder/db";
 
 const prefix = "/token";
 
@@ -24,7 +25,7 @@ async function refreshAccessToken(
     refreshToken
       ? {
           headers: {
-            Cookie: `Refresh=${refreshToken}`,
+            Cookie: `${COOKIE_TABLE.REFRESH}=${refreshToken}`,
           },
         }
       : {}

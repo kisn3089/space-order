@@ -68,10 +68,10 @@ async function main() {
   // ==================== Store 데이터 ====================
   console.log("📝 Creating stores...");
   const store1 = await prisma.store.upsert({
-    where: { publicId: "seed-store-cafe-1" },
+    where: { publicId: "ytwmuk763jytydobq32yq06e" },
     update: {},
     create: {
-      publicId: "seed-store-cafe-1",
+      publicId: "ytwmuk763jytydobq32yq06e",
       ownerId: owner1.id,
       name: "스페이스 카페",
       address: "서울시 강남구 테헤란로 123",
@@ -97,6 +97,10 @@ async function main() {
         category: "커피",
         isAvailable: true,
         sortOrder: 1,
+        imageUrl:
+          "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        requiredOptions: { 사이즈: ["톨", "그란데", "벤티"] },
+        customOptions: { 얼음: ["없음", "적게", "많이"] },
         // 추후 커스텀 컬럼 필요함 예) 얼음 적게, 많이, 없음 등
       },
       {
@@ -107,6 +111,8 @@ async function main() {
         category: "커피",
         isAvailable: true,
         sortOrder: 2,
+        imageUrl:
+          "https://images.unsplash.com/photo-1729364983489-d4d569978fd7?q=80&w=1296&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         storeId: store1.id,
@@ -116,6 +122,8 @@ async function main() {
         category: "커피",
         isAvailable: true,
         sortOrder: 3,
+        imageUrl:
+          "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         storeId: store1.id,
@@ -125,6 +133,8 @@ async function main() {
         category: "베이커리",
         isAvailable: true,
         sortOrder: 4,
+        imageUrl:
+          "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2148&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
       {
         storeId: store1.id,
@@ -134,6 +144,8 @@ async function main() {
         category: "디저트",
         isAvailable: true,
         sortOrder: 5,
+        imageUrl:
+          "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       },
     ],
     skipDuplicates: true, // 중복 무시

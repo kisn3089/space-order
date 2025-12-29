@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   TableSession,
   Prisma,
@@ -6,7 +6,6 @@ import {
   TableSessionStatus,
 } from '@spaceorder/db';
 import { randomBytes } from 'crypto';
-import { responseMessage } from 'src/common/constants/response-message';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 type Tx = Omit<
@@ -69,7 +68,6 @@ export class TableSessionService {
     const retrievedActivedSession =
       await this.retrieveActivedSessionById(tablePublicId);
 
-    // 만료 시간이 지나지 않았다면 활성화된 세션 반환
     if (retrievedActivedSession) {
       if (
         retrievedActivedSession.expiresAt &&
@@ -77,8 +75,7 @@ export class TableSessionService {
       ) {
         return retrievedActivedSession;
       }
-      // 만료된 세션은 종료 처리
-      await this.txableUpdatesTableSession().setDeactivateSession(
+      await this.txableUpdatesTableSession().setSessionDeactivate(
         retrievedActivedSession.publicId,
       );
     }
@@ -88,64 +85,55 @@ export class TableSessionService {
       tablePublicId,
     );
 
-    if (!createdTableSession) {
-      console.warn('Failed to create table session');
-      throw new BadRequestException(responseMessage('invalidBody'));
-    }
-
     return createdTableSession;
   }
 
   async validateSessionToken(sessionToken: string): Promise<TableSession> {
-    const session = await this.prismaService.tableSession.findUnique({
+    const session = await this.prismaService.tableSession.findUniqueOrThrow({
       where: { sessionToken },
     });
-
-    if (!session) {
-      throw new HttpException(responseMessage('invalidTableSession'), 401);
-    }
-
-    if (
-      session.expiresAt < new Date() ||
-      session.status !== TableSessionStatus.ACTIVE
-    ) {
-      // 세션 만료 처리
-      await this.txableUpdatesTableSession().setDeactivateSession(
-        session.publicId,
-      );
-      throw new HttpException(responseMessage('expiredTableSession'), 440);
-    }
 
     return session;
   }
 
-  async updateDeactivateSession(
+  async updateSessionDeactivate(
     tableSessionPublicId: string,
   ): Promise<TableSession> {
-    return await this.txableUpdatesTableSession().setDeactivateSession(
+    return await this.txableUpdatesTableSession().setSessionDeactivate(
       tableSessionPublicId,
     );
   }
 
-  async updateActivateSession(
+  async updateSessionActivate(
     tableSessionPublicId: string,
   ): Promise<TableSession> {
-    return await this.txableUpdatesTableSession().setActivateSession(
-      tableSessionPublicId,
-    );
+    const retrievedSession =
+      await this.retrieveTableSessionBy(tableSessionPublicId);
+
+    console.log('tableSessionPublicId: ', tableSessionPublicId);
+    console.log('retrievedSession: ', retrievedSession);
+    // 정상적으로 tableSessionPublicId가 넘어옴
+
+    return await this.prismaService.tableSession.update({
+      where: { publicId: tableSessionPublicId },
+      data: { status: TableSessionStatus.ACTIVE, closedAt: null },
+    });
+    // return await this.txableUpdatesTableSession().setSessionActivate(
+    //   tableSessionPublicId,
+    // );
   }
 
   private txableUpdatesTableSession(tx?: Tx) {
     const service = tx ?? this.prismaService;
 
-    const setActivateSession = async (tableSessionPublicId: string) => {
+    const setSessionActivate = async (tableSessionPublicId: string) => {
       return await service.tableSession.update({
         where: { publicId: tableSessionPublicId },
         data: { status: TableSessionStatus.ACTIVE, closedAt: null },
       });
     };
 
-    const setDeactivateSession = async (tableSessionPublicId: string) => {
+    const setSessionDeactivate = async (tableSessionPublicId: string) => {
       return await service.tableSession.update({
         where: { publicId: tableSessionPublicId },
         data: {
@@ -155,14 +143,14 @@ export class TableSessionService {
       });
     };
 
-    const setPendingStatus = async (tableSessionPublicId: string) => {
+    const setStatusPending = async (tableSessionPublicId: string) => {
       return await service.tableSession.update({
         where: { publicId: tableSessionPublicId },
         data: { status: TableSessionStatus.PAYMENT_PENDING },
       });
     };
 
-    const setFinishSessionByPayment = async (
+    const setSessionFinishByPayment = async (
       tableSessionPublicId: string,
       paidAmount: number,
       totalAmount: number,
@@ -179,10 +167,10 @@ export class TableSessionService {
     };
 
     return {
-      setActivateSession,
-      setDeactivateSession,
-      setPendingStatus,
-      setFinishSessionByPayment,
+      setSessionActivate,
+      setSessionDeactivate,
+      setStatusPending,
+      setSessionFinishByPayment,
     };
   }
 
@@ -196,23 +184,23 @@ export class TableSessionService {
         const result: Awaited<ReturnType<typeof func>> = await func(tx);
         results.push(result);
 
-        if (!result) {
-          throw new Error(
-            'Transaction Pipe Error: 함수에서 값을 반환하지 않았습니다.',
-          );
-        }
+        // if (!result) {
+        //   throw new Error(
+        //     'Transaction Pipe Error: 함수에서 값을 반환하지 않았습니다.',
+        //   );
+        // }
       }
     });
     return results;
   }
 
-  async txUpdatePaymentSession(
+  async txUpdateSessionFinishByPayment(
     tableSessionPublicId: string,
     paidAmount: number,
     totalAmount: number,
   ) {
     const setPendingStatus = async (tx: Tx): Promise<TableSession> => {
-      return await this.txableUpdatesTableSession(tx).setPendingStatus(
+      return await this.txableUpdatesTableSession(tx).setStatusPending(
         tableSessionPublicId,
       );
     };
@@ -227,7 +215,7 @@ export class TableSessionService {
     };
 
     const setFinishSessionByPayment = async (tx: Tx): Promise<TableSession> => {
-      return await this.txableUpdatesTableSession(tx).setFinishSessionByPayment(
+      return await this.txableUpdatesTableSession(tx).setSessionFinishByPayment(
         tableSessionPublicId,
         paidAmount,
         totalAmount,
@@ -255,11 +243,12 @@ export class TableSessionService {
         where: { table: { publicId: tablePublicId } },
       });
 
-    if (!retrievedTableSessionList) {
-      console.warn('Failed to find table sessions');
-      throw new HttpException(responseMessage('notFoundThat'), 404);
-    }
-
     return retrievedTableSessionList;
+  }
+
+  async retrieveTableSessionBy(sessionToken: string) {
+    return await this.prismaService.tableSession.findUniqueOrThrow({
+      where: { sessionToken },
+    });
   }
 }

@@ -111,7 +111,6 @@ model Table {
 
   // 한 매장에서 테이블 번호는 유일해야 함
   @@unique([storeId, tableNumber])
-  @@index([storeId, isActive])
   @@map("table")
 }
 
@@ -199,9 +198,8 @@ model Order {
   tableSession TableSession? @relation(fields: [tableSessionId], references: [id])
   orderItems   OrderItem[]
 
-  @@index([storeId, status, completedAt])
   @@index([tableSessionId])
-  @@index([tableId])
+  @@index([storeId, status, completedAt])
   @@map("order")
 }
 
@@ -267,10 +265,8 @@ model TableSession {
   table           Table              @relation(fields: [tableId], references: [id])
   orders          Order[]
 
-   // 한 테이블에서 동시에 하나의 ACTIVE 세션만 존재
-  @@unique([storeId, tableId, status])
+  @@index([tableId, activatedAt])
   @@index([sessionToken])
-  @@index([storeId, tableId, status])
-  @@index([tableId])
+  @@index([storeId, status])
   @@map("table_session")
 }

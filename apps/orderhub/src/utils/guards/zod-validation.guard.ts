@@ -4,10 +4,14 @@ import {
   Injectable,
   mixin,
   Type,
-  BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
-import { responseMessage } from 'src/common/constants/response-message';
-import { ZodSchema } from 'zod';
+import {
+  ExceptionContentKeys,
+  exceptionContentsIs,
+} from 'src/common/constants/response-message';
+import { ZodError, ZodSchema } from 'zod';
 
 interface Schemas {
   body?: ZodSchema;
@@ -22,42 +26,55 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
       const request = context.switchToHttp().getRequest();
       const { body, params, query } = request;
 
-      if (schemas?.body && body) {
-        const bodyResult = schemas.body.safeParse(body);
-
-        if (!bodyResult.success) {
-          throw new BadRequestException({
-            message: responseMessage('invalidBody'),
-            errors: bodyResult.error.errors,
-          });
-        }
-        request.body = bodyResult.data;
-      }
-
       if (schemas?.params && params) {
-        const paramsResult = schemas.params.safeParse(params);
-
-        if (!paramsResult.success) {
-          throw new BadRequestException({
-            message: responseMessage('invalidParams'),
-            errors: paramsResult.error.errors,
-          });
-        }
-        request.params = paramsResult.data;
+        const parsedParams = this.tryParseSchema(
+          schemas.params,
+          params,
+          'ZOD_PARAMS_FAILED',
+        );
+        request.params = parsedParams;
       }
 
       if (schemas?.query && query) {
-        const queryResult = schemas.query.safeParse(query);
-        if (!queryResult.success) {
-          throw new BadRequestException({
-            message: responseMessage('invalidQuery'),
-            errors: queryResult.error.errors,
-          });
-        }
-        request.query = queryResult.data;
+        const queryResult = this.tryParseSchema(
+          schemas.query,
+          query,
+          'ZOD_QUERY_FAILED',
+        );
+        request.query = queryResult;
       }
 
+      if (schemas?.body && body) {
+        const parsedPayload = this.tryParseSchema(
+          schemas.body,
+          body,
+          'ZOD_PAYLOAD_FAILED',
+        );
+        request.body = parsedPayload;
+      }
       return true;
+    }
+
+    private tryParseSchema<T>(
+      schema: ZodSchema<T>,
+      data: unknown,
+      exceptionError: ExceptionContentKeys,
+    ) {
+      try {
+        return schema.parse(data);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          throw new HttpException(
+            {
+              ...exceptionContentsIs(exceptionError),
+              details: error.errors,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        console.warn('zod-validator exception: ', error);
+        throw new Error();
+      }
     }
   }
 

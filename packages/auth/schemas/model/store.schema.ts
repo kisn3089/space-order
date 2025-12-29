@@ -1,5 +1,8 @@
 import z from "zod";
+import { commonSchema } from "../common";
 
-export const storeParamsSchema = z.object({
-  storeId: z.string().cuid2("유효하지 않은 매장 ID입니다."),
-});
+export const storeParamsSchema = z
+  .object({
+    storeId: commonSchema.cuid2("Store"),
+  })
+  .strict();

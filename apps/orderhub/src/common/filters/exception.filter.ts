@@ -214,7 +214,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     [HttpStatus.REQUEST_TIMEOUT]: 'Request Timeout', // 408
     [HttpStatus.CONFLICT]: 'Conflict', // 409
     419: 'Authentication Timeout',
-    440: 'Expired Table Session',
   } as const;
 
   private isHttpErrorStatus(

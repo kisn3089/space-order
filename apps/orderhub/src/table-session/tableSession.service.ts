@@ -28,14 +28,10 @@ export class TableSessionService {
     // Generate 32 bytes of cryptographically secure random data
     const buffer = randomBytes(32);
     // Convert to base64url encoding (URL-safe, no padding)
-    return buffer
-      .toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
+    return buffer.toString('base64url');
   }
 
-  private async retrieveActivedSessionById(tablePublicId: string) {
+  private async retrieveActivatedSessionById(tablePublicId: string) {
     return await this.prismaService.tableSession.findFirst({
       where: {
         table: { publicId: tablePublicId },
@@ -61,22 +57,22 @@ export class TableSessionService {
     });
   }
 
-  async createOrRetrieveActivedTableSession(
+  async createOrRetrieveActivatedTableSession(
     storePublicId: string,
     tablePublicId: string,
   ): Promise<TableSession> {
-    const retrievedActivedSession =
-      await this.retrieveActivedSessionById(tablePublicId);
+    const retrievedActivatedSession =
+      await this.retrieveActivatedSessionById(tablePublicId);
 
-    if (retrievedActivedSession) {
+    if (retrievedActivatedSession) {
       if (
-        retrievedActivedSession.expiresAt &&
-        retrievedActivedSession.expiresAt >= new Date()
+        retrievedActivatedSession.expiresAt &&
+        retrievedActivatedSession.expiresAt >= new Date()
       ) {
-        return retrievedActivedSession;
+        return retrievedActivatedSession;
       }
       await this.txableUpdatesTableSession().setSessionDeactivate(
-        retrievedActivedSession.publicId,
+        retrievedActivatedSession.publicId,
       );
     }
 
@@ -107,13 +103,6 @@ export class TableSessionService {
   async updateSessionActivate(
     tableSessionPublicId: string,
   ): Promise<TableSession> {
-    const retrievedSession =
-      await this.retrieveTableSessionBy(tableSessionPublicId);
-
-    console.log('tableSessionPublicId: ', tableSessionPublicId);
-    console.log('retrievedSession: ', retrievedSession);
-    // 정상적으로 tableSessionPublicId가 넘어옴
-
     return await this.prismaService.tableSession.update({
       where: { publicId: tableSessionPublicId },
       data: { status: TableSessionStatus.ACTIVE, closedAt: null },
@@ -205,15 +194,6 @@ export class TableSessionService {
       );
     };
 
-    const wait = async (): Promise<void> => {
-      return await new Promise((resolve) =>
-        setTimeout(() => {
-          console.log('외부 결제 완료');
-          resolve();
-        }, 2000),
-      );
-    };
-
     const setFinishSessionByPayment = async (tx: Tx): Promise<TableSession> => {
       return await this.txableUpdatesTableSession(tx).setSessionFinishByPayment(
         tableSessionPublicId,
@@ -224,7 +204,6 @@ export class TableSessionService {
 
     const resultTransaction = await this.transactionPipe(
       setPendingStatus,
-      wait,
       setFinishSessionByPayment,
     );
 

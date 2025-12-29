@@ -37,13 +37,13 @@ export class TableSessionController {
 
   @Post()
   @HttpCode(303)
-  async createOrRetrieveActivedTableSession(
+  async createOrRetrieveActivatedTableSession(
     @Param('storeId') storePublicId: string,
     @Param('tableId') tablePublicId: string,
     @Res({ passthrough: true }) response: Response,
   ) {
     const retrievedOrCreatedSession =
-      await this.tableSessionService.createOrRetrieveActivedTableSession(
+      await this.tableSessionService.createOrRetrieveActivatedTableSession(
         storePublicId,
         tablePublicId,
       );
@@ -55,6 +55,12 @@ export class TableSessionController {
       {
         expires: retrievedOrCreatedSession.expiresAt,
       },
+    );
+
+    // TODO: 새션 생성을 주문할 때 하도록 방안 모색
+    response.header(
+      'Location',
+      `/stores/${storePublicId}/tables/${tablePublicId}/order`,
     );
 
     /** client에서 replace로 처리하여 뒤로가기 시 세션 재생성 방지 */

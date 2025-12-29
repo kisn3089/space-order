@@ -15,10 +15,10 @@ export class TableSessionGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const ExtractedSessionTokenInCookie: string =
+    const extractedSessionTokenInCookie: string =
       request.cookies[COOKIE_TABLE.TABLE_SESSION];
 
-    if (!ExtractedSessionTokenInCookie) {
+    if (!extractedSessionTokenInCookie) {
       throw new HttpException(
         exceptionContentsIs('MISSING_TABLE_SESSION'),
         HttpStatus.UNAUTHORIZED,
@@ -27,11 +27,11 @@ export class TableSessionGuard implements CanActivate {
 
     const validatedTableSession: TableSession =
       await this.tableSessionService.validateSessionToken(
-        ExtractedSessionTokenInCookie,
+        extractedSessionTokenInCookie,
       );
 
     if (
-      validatedTableSession.expiresAt < new Date() ||
+      validatedTableSession.expiresAt < new Date() &&
       validatedTableSession.status !== TableSessionStatus.ACTIVE
     ) {
       await this.tableSessionService.updateSessionDeactivate(
@@ -39,7 +39,7 @@ export class TableSessionGuard implements CanActivate {
       );
       throw new HttpException(
         exceptionContentsIs('EXPIRED_TABLE_SESSION'),
-        440,
+        HttpStatus.UNAUTHORIZED,
       );
     }
 

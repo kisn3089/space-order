@@ -17,11 +17,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   /**
-   * 이후 validate 메서드가 호출되고 성공 시 반환된 값을 request.user에 저장한다.
-   * 실패한다면 401 unauthorized 에러를 반환한다.
-   * passport-local의 validate는 개별 파라미터로 받음 (객체 구조 분해 X)
+   * validate는 예약어이며 개별 파라미터로 받기 때문에 구조 분해 X, 변수명 변경 X
    */
   async validate(email: string, password: string): Promise<Owner> {
-    return await this.tokenService.verifyOwner({ email, password });
+    return await this.tokenService.validateSignInPayload({ email, password });
   }
 }

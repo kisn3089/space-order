@@ -6,12 +6,6 @@ export class OrderResponseDto {
   publicId: string;
 
   @Expose()
-  storeId: string;
-
-  @Expose()
-  tableId: string;
-
-  @Expose()
   status: OrderStatus;
 
   @Expose()
@@ -43,6 +37,12 @@ export class OrderResponseDto {
 
   @Exclude()
   id: bigint;
+
+  @Exclude()
+  storeId: bigint;
+
+  @Exclude()
+  tableId: bigint;
 
   constructor(partial: Partial<Order>) {
     Object.assign(this, partial);

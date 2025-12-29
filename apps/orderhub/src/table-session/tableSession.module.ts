@@ -5,5 +5,6 @@ import { TableSessionController } from './tableSession.controller';
 @Module({
   controllers: [TableSessionController],
   providers: [TableSessionService],
+  exports: [TableSessionService],
 })
 export class TableSessionModule {}

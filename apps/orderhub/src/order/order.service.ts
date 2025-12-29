@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 // import { UpdateOrderDto } from './dto/update-order.dto';
-import { Order, PrismaClient } from '@spaceorder/db';
+import { Order } from '@spaceorder/db';
 import { TableSessionService } from 'src/table-session/tableSession.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class OrderService {
   constructor(
-    private readonly prismaService: PrismaClient,
+    private readonly prismaService: PrismaService,
     private readonly tableSessionService: TableSessionService,
   ) {}
 
@@ -61,28 +62,31 @@ export class OrderService {
     });
   }
 
-  async findAll(storePublicId: string, tablePublicId: string): Promise<any> {
+  async retrieveOrderList(
+    storePublicId: string,
+    tablePublicId: string,
+  ): Promise<Order[]> {
+    //   include: {
+    //   _count: {
+    //     select: { orders: true }  // 각 세션의 주문 개수
+    //   }
+    // }
     return await this.prismaService.order.findMany({
       where: {
         store: { publicId: storePublicId },
         table: { publicId: tablePublicId },
       },
-      include: {
-        orderItems: {
-          include: {
-            menu: true,
-          },
-        },
-      },
-      orderBy: {
-        orderedAt: 'desc',
-      },
+      include: { orderItems: { include: { menu: true } } },
+      // orderBy: { orderedAt: 'desc' },
     });
   }
 
   async find(sessionToken: string): Promise<any> {
     // 1. 세션 찾기
-    const session = await this.tableSessionService.findBySession(sessionToken);
+    const session =
+      await this.tableSessionService.retrieveTableSessionBySessionToken(
+        sessionToken,
+      );
 
     if (!session) {
       throw new Error('Session not found');
@@ -100,9 +104,9 @@ export class OrderService {
           },
         },
       },
-      orderBy: {
-        orderedAt: 'desc',
-      },
+      // orderBy: {
+      //   orderedAt: 'desc',
+      // },
     });
   }
 

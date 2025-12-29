@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
 
@@ -30,9 +29,6 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
-
-  // Enable Prisma exception filter globally
-  app.useGlobalFilters(new PrismaExceptionFilter());
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 9090);

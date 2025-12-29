@@ -10,6 +10,9 @@ import { TableModule } from 'src/table/table.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { TableSessionModule } from 'src/table-session/tableSession.module';
 import { StoreModule } from 'src/store/store.module';
+import { OrderModule } from 'src/order/order.module';
+import { APP_FILTER } from '@nestjs/core';
+import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
 
 @Module({
   imports: [
@@ -22,11 +25,18 @@ import { StoreModule } from 'src/store/store.module';
     OwnerModule,
     TokenModule,
     StoreModule,
+    OrderModule,
     MeModule,
     TableModule,
     TableSessionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    AppService,
+  ],
 })
 export class AppModule {}

@@ -13,7 +13,7 @@ export class GenerateToken {
     private readonly jwtService: JwtService,
   ) {}
 
-  tokenConfig(expirationConfigName: string) {
+  private createTokenHelper(expirationConfigName: string) {
     const expiresTimes = parseInt(
       this.configService.getOrThrow<string>(expirationConfigName),
     );
@@ -39,20 +39,19 @@ export class GenerateToken {
       aud: this.configService.get('JWT_AUDIENCE'),
       typ: `Bearer`,
     };
-    const expiresAt = this.tokenConfig(
+    const expiresAt = this.createTokenHelper(
       'JWT_ACCESS_TOKEN_EXPIRATION_MS',
     ).expiresAt();
 
-    const accessToken = this.tokenConfig('JWT_ACCESS_TOKEN_EXPIRATION_MS').jwt(
-      tokenPayload,
-      'JWT_ACCESS_TOKEN_SECRET',
-    );
+    const accessToken = this.createTokenHelper(
+      'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+    ).jwt(tokenPayload, 'JWT_ACCESS_TOKEN_SECRET');
 
-    const expiresRefreshToken = this.tokenConfig(
+    const expiresRefreshToken = this.createTokenHelper(
       'JWT_REFRESH_TOKEN_EXPIRATION_MS',
     ).expiresAt();
 
-    const refreshToken = this.tokenConfig(
+    const refreshToken = this.createTokenHelper(
       'JWT_REFRESH_TOKEN_EXPIRATION_MS',
     ).jwt(tokenPayload, 'JWT_REFRESH_TOKEN_SECRET');
 

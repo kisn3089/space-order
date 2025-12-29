@@ -1,11 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Response } from 'express';
-import { Owner, COOKIE_TABLE } from '@spaceorder/db';
-import { comparePassword, encryptPassword } from 'src/utils/lib/crypt';
+import { Owner } from '@spaceorder/db';
+import { comparePlainToEncrypted, encrypt } from 'src/utils/lib/crypt';
 import { OwnerService } from '../owner/owner.service';
 import type { AccessToken, SignInRequest } from '@spaceorder/api';
 import { GenerateToken } from 'src/utils/jwt/token-config';
+import { exceptionContentsIs } from 'src/common/constants/response-message';
 
+/** TODO: admin, owner 분기될 시점에는 인자를 추가로 받아서 처리해야 한다.
+ * ex) user: Owner | Admin
+ */
 @Injectable()
 export class TokenService {
   constructor(
@@ -13,51 +17,68 @@ export class TokenService {
     private readonly generateToken: GenerateToken,
   ) {}
 
-  async create(owner: Owner, response: Response): Promise<AccessToken> {
+  async createToken(owner: Owner, response: Response): Promise<AccessToken> {
     const { accessToken, expiresAt, refreshToken } =
       this.generateToken.generateToken(owner, response);
 
-    await this.ownerService.updateSignInInfo(
+    await this.ownerService.updateRefreshToken(
       owner.publicId,
-      await encryptPassword(refreshToken),
+      await encrypt(refreshToken),
     );
 
     return { accessToken, expiresAt };
   }
 
-  async verifyOwner({ email, password }: SignInRequest): Promise<Owner> {
-    try {
-      const owner = await this.ownerService.findByEmail(email);
-      const authenticated = await comparePassword(password, owner.password);
-      if (!authenticated) throw new Error();
-
-      return owner;
-    } catch {
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 올바르지 않습니다.',
+  async validateSignInPayload({
+    email,
+    password,
+  }: SignInRequest): Promise<Owner> {
+    const owner = await this.ownerService.retrieveOwnerByEmail(email);
+    if (!owner) {
+      throw new HttpException(
+        exceptionContentsIs('SIGNIN_FAILED'),
+        HttpStatus.UNAUTHORIZED,
       );
     }
+
+    const isCorrectPassword = await comparePlainToEncrypted(
+      password,
+      owner.password,
+    );
+
+    if (!isCorrectPassword) {
+      throw new HttpException(
+        exceptionContentsIs('SIGNIN_FAILED'),
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    return owner;
   }
 
-  async verifyOwnerRefreshToken(
+  async validateRefreshToken(
     refreshToken: string,
-    publicId: string,
+    ownerPublicId: string,
   ): Promise<Owner> {
-    try {
-      const owner = await this.ownerService.findUnique(publicId);
-      if (owner.refreshToken === null) throw new UnauthorizedException();
-
-      const authenticated = await comparePassword(
-        refreshToken,
-        owner.refreshToken,
-      );
-
-      if (!authenticated) throw new UnauthorizedException();
-      return owner;
-    } catch {
-      throw new UnauthorizedException(
-        `${COOKIE_TABLE.REFRESH} token is not valid`,
+    const owner = await this.ownerService.retrieveOwnerById(ownerPublicId);
+    if (!owner || owner.refreshToken === null) {
+      throw new HttpException(
+        exceptionContentsIs('REFRESH_FAILED'),
+        HttpStatus.UNAUTHORIZED,
       );
     }
+
+    const authenticated = await comparePlainToEncrypted(
+      refreshToken,
+      owner.refreshToken,
+    );
+
+    if (!authenticated) {
+      throw new HttpException(
+        exceptionContentsIs('REFRESH_FAILED'),
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    return owner;
   }
 }

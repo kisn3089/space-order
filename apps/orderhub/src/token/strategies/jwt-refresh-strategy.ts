@@ -30,7 +30,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
       request.cookies?.[COOKIE_TABLE.REFRESH];
 
     if (!refreshToken) return null;
-    return await this.tokenService.verifyOwnerRefreshToken(
+    return await this.tokenService.validateRefreshToken(
       refreshToken,
       payload.sub,
     );

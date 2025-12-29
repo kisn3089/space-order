@@ -10,13 +10,15 @@ import {
   ClassSerializerInterceptor,
   HttpCode,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
 import {
   createTableSchema,
-  storeAndTableParamsSchema,
+  mergedStoreAndTableParamsSchema,
   storeParamsSchema,
   updateTableSchema,
 } from '@spaceorder/auth';
@@ -34,7 +36,9 @@ export class TableController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(ZodValidationGuard({ params: storeParamsSchema }))
+  @UseGuards(
+    ZodValidationGuard({ params: storeParamsSchema, body: createTableSchema }),
+  )
   async createTable(
     @Param('storeId') storePublicId: string,
     @Body() createTableDto: CreateTableDto,
@@ -55,17 +59,29 @@ export class TableController {
   }
 
   @Get(':tableId')
-  @UseGuards(ZodValidationGuard({ params: storeAndTableParamsSchema }))
+  @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
   async retrieveTableById(@Param('tableId') tablePublicId: string) {
     const retrievedTable =
       await this.tableService.retrieveTableById(tablePublicId);
+
+    if (!retrievedTable) {
+      throw new HttpException(
+        {
+          code: 'TABLE_NOT_FOUND',
+          message: '해당 table를 찾을 수 없습니다.',
+          details: { tableId: tablePublicId },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     return new TableResponseDto(retrievedTable);
   }
 
   @Patch(':tableId')
   @UseGuards(
     ZodValidationGuard({
-      params: storeAndTableParamsSchema,
+      params: mergedStoreAndTableParamsSchema,
       body: updateTableSchema,
     }),
   )
@@ -82,7 +98,7 @@ export class TableController {
 
   @Delete(':tableId')
   @HttpCode(204)
-  @UseGuards(ZodValidationGuard({ params: storeAndTableParamsSchema }))
+  @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
   async deleteTable(@Param('tableId') tablePublicId: string) {
     await this.tableService.deleteTable(tablePublicId);
   }

@@ -1,6 +1,5 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { responseMessage } from 'src/common/constants/response-message';
 import { createId } from '@paralleldrive/cuid2';
 import { CreateTableDto, UpdateTableDto } from './table.controller';
 import type { Table } from '@spaceorder/db';
@@ -27,11 +26,6 @@ export class TableService {
       },
     });
 
-    if (!createdTable) {
-      console.warn('Failed to create table');
-      throw new BadRequestException(responseMessage('invalidBody'));
-    }
-
     return createdTable;
   }
 
@@ -40,23 +34,13 @@ export class TableService {
       where: { store: { publicId: storePublicId } },
     });
 
-    if (!retrievedTableList) {
-      console.warn('Failed to find tables');
-      throw new HttpException(responseMessage('notFoundThat'), 404);
-    }
-
     return retrievedTableList;
   }
 
   async retrieveTableById(tablePublicId: string): Promise<Table> {
-    const retrievedTable = await this.prismaService.table.findUnique({
+    const retrievedTable = await this.prismaService.table.findUniqueOrThrow({
       where: { publicId: tablePublicId },
     });
-
-    if (!retrievedTable) {
-      console.warn('Failed to find table');
-      throw new HttpException(responseMessage('notFoundThat'), 404);
-    }
 
     return retrievedTable;
   }
@@ -70,11 +54,6 @@ export class TableService {
       data: { ...updateTableDto },
     });
 
-    if (!updatedTable) {
-      console.warn('Failed to update table');
-      throw new BadRequestException(responseMessage('invalidBody'));
-    }
-
     return updatedTable;
   }
 
@@ -82,11 +61,6 @@ export class TableService {
     const deletedTable = await this.prismaService.table.delete({
       where: { publicId: tablePublicId },
     });
-
-    if (!deletedTable) {
-      console.warn('Failed to delete table');
-      throw new HttpException(responseMessage('notFoundThat'), 404);
-    }
 
     return deletedTable;
   }

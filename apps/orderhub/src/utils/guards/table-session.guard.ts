@@ -2,10 +2,11 @@ import {
   CanActivate,
   ExecutionContext,
   HttpException,
+  HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { TableSession, COOKIE_TABLE } from '@spaceorder/db';
-import { responseMessage } from 'src/common/constants/response-message';
+import { TableSession, COOKIE_TABLE, TableSessionStatus } from '@spaceorder/db';
+import { exceptionContentsIs } from 'src/common/constants/response-message';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 
 @Injectable()
@@ -18,15 +19,31 @@ export class TableSessionGuard implements CanActivate {
       request.cookies[COOKIE_TABLE.TABLE_SESSION];
 
     if (!ExtractedSessionTokenInCookie) {
-      throw new HttpException(responseMessage('missingTableSession'), 401);
+      throw new HttpException(
+        exceptionContentsIs('MISSING_TABLE_SESSION'),
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
-    const validatedSessionToken: TableSession =
+    const validatedTableSession: TableSession =
       await this.tableSessionService.validateSessionToken(
         ExtractedSessionTokenInCookie,
       );
 
-    request.tableSession = validatedSessionToken;
+    if (
+      validatedTableSession.expiresAt < new Date() ||
+      validatedTableSession.status !== TableSessionStatus.ACTIVE
+    ) {
+      await this.tableSessionService.updateSessionDeactivate(
+        validatedTableSession.publicId,
+      );
+      throw new HttpException(
+        exceptionContentsIs('EXPIRED_TABLE_SESSION'),
+        440,
+      );
+    }
+
+    request.tableSession = validatedTableSession;
 
     return true;
   }

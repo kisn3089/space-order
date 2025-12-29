@@ -58,7 +58,10 @@ export class OwnerController {
   @Patch(':ownerId')
   @HttpCode(200)
   @UseGuards(
-    ZodValidationGuard({ params: ownerParamsSchema, body: updateOwnerSchema }),
+    ZodValidationGuard({
+      params: ownerParamsSchema,
+      body: updateOwnerSchema,
+    }),
   )
   async updateOwner(
     @Param('ownerId') ownerPublicId: string,

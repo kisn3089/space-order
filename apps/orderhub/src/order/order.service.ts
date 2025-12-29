@@ -66,13 +66,18 @@ export class OrderService {
     storePublicId: string,
     tablePublicId: string,
   ): Promise<Order[]> {
+    //   include: {
+    //   _count: {
+    //     select: { orders: true }  // 각 세션의 주문 개수
+    //   }
+    // }
     return await this.prismaService.order.findMany({
       where: {
         store: { publicId: storePublicId },
         table: { publicId: tablePublicId },
       },
       include: { orderItems: { include: { menu: true } } },
-      orderBy: { orderedAt: 'desc' },
+      // orderBy: { orderedAt: 'desc' },
     });
   }
 
@@ -99,9 +104,9 @@ export class OrderService {
           },
         },
       },
-      orderBy: {
-        orderedAt: 'desc',
-      },
+      // orderBy: {
+      //   orderedAt: 'desc',
+      // },
     });
   }
 

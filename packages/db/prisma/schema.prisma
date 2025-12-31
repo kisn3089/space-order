@@ -248,7 +248,7 @@ model TableSession {
   publicId        String             @unique @default(cuid(2)) @map("public_id")
   storeId         BigInt             @map("store_id")
   tableId         BigInt             @map("table_id")
-  status          TableSessionStatus @default(ACTIVE)
+  status          TableSessionStatus @default(WAITING_ORDER)
 
   // 세션 관리
   sessionToken    String             @unique @default(cuid(2)) @map("session_token")

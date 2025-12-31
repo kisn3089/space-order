@@ -60,10 +60,10 @@ export class TableSessionService {
       await this.retrieveActivatedSessionById(tablePublicId);
 
     if (retrievedActivatedSession) {
-      if (this.isExpireSession(retrievedActivatedSession)) {
-        await this.updateSessionDeactivate(retrievedActivatedSession);
+      if (!this.isSessionExpired(retrievedActivatedSession)) {
+        return retrievedActivatedSession;
       }
-      return retrievedActivatedSession;
+      await this.updateSessionDeactivate(retrievedActivatedSession);
     }
 
     const createdTableSession = await this.createSession(
@@ -74,8 +74,8 @@ export class TableSessionService {
     return createdTableSession;
   }
 
-  private isExpireSession(session: TableSession): boolean {
-    return session.expiresAt && session.expiresAt < new Date();
+  private isSessionExpired(session: TableSession): boolean {
+    return session.expiresAt < new Date();
   }
 
   async retrieveSessionBySession(sessionToken: string): Promise<TableSession> {
@@ -86,7 +86,7 @@ export class TableSessionService {
     return session;
   }
 
-  async updateSessiona(
+  async updateSession(
     tableSession: TableSession,
     updateSessionDto: UpdateTableSessionDto,
     response: Response,
@@ -105,22 +105,12 @@ export class TableSessionService {
         return await this.updateSessionExtendExpiresAt(tableSession, response);
 
       case TableSessionStatus.PAYMENT_PENDING:
-        return await this.txUpdateSessionFinishByPayment(tableSession)[1];
-
-      default:
-        throw new HttpException(
-          exceptionContentsIs('INVALID_PAYLOAD_TABLE_SESSION'),
-          HttpStatus.BAD_REQUEST,
-        );
+        return await this.txUpdateSessionFinishByPayment(tableSession);
     }
   }
 
-  private validSessionStatus(status: TableSessionStatus) {
-    const isWaitOrActive = () => {
-      return status === 'ACTIVE' || status === 'WAITING_ORDER';
-    };
-
-    return { isWaitOrActive };
+  private isSessionWaitOrActive(status: TableSessionStatus) {
+    return status === 'ACTIVE' || status === 'WAITING_ORDER';
   }
 
   async updateSessionDeactivate(
@@ -165,7 +155,7 @@ export class TableSessionService {
     tableSession: TableSession,
     response: Response,
   ): Promise<TableSession> {
-    if (!this.validSessionStatus(tableSession.status).isWaitOrActive()) {
+    if (!this.isSessionWaitOrActive(tableSession.status)) {
       throw new HttpException(
         {
           ...exceptionContentsIs('TABLE_SESSION_NOT_ACTIVE'),
@@ -198,7 +188,7 @@ export class TableSessionService {
 
   async txUpdateSessionFinishByPayment(
     tableSession: TableSession,
-  ): Promise<TableSession[]> {
+  ): Promise<TableSession> {
     const setPendingStatus = async (tx: Tx): Promise<TableSession> => {
       return await this.txableUpdateSession(tx).partialUpdate(tableSession, {
         status: TableSessionStatus.PAYMENT_PENDING,
@@ -240,9 +230,8 @@ export class TableSessionService {
       setPendingStatus,
       setFinishSessionByPayment,
     );
-    console.log('resultTransaction: ', resultTransaction);
 
-    return resultTransaction;
+    return resultTransaction[1];
   }
 
   private txableUpdateSession(tx?: Tx) {

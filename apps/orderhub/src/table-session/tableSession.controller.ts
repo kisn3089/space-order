@@ -69,7 +69,7 @@ export class TableSessionController {
     @Body() updateSessionDto: UpdateTableSessionDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const updatedSession = await this.tableSessionService.updateSessiona(
+    const updatedSession = await this.tableSessionService.updateSession(
       tableSession,
       updateSessionDto,
       response,

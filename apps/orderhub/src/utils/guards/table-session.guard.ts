@@ -30,7 +30,7 @@ export class TableSessionGuard implements CanActivate {
         extractedSessionInCookie,
       );
 
-    if (this.isValidStatus(retrievedTableSession)) {
+    if (this.isInvalidStatus(retrievedTableSession)) {
       await this.tableSessionService.updateSessionDeactivate(
         retrievedTableSession,
       );
@@ -45,7 +45,7 @@ export class TableSessionGuard implements CanActivate {
     return true;
   }
 
-  private isValidStatus(session: TableSession): boolean {
+  private isInvalidStatus(session: TableSession): boolean {
     return (
       session.expiresAt < new Date() &&
       !(

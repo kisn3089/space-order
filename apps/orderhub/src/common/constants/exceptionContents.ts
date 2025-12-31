@@ -14,17 +14,27 @@ const EXCEPTION_CONTENTS = {
     code: 'SIGNIN_FAILED',
     message: '이메일 또는 비밀번호가 올바르지 않습니다.',
   },
-  MISSING_TABLE_SESSION: {
-    code: 'MISSING_TABLE_SESSION',
-    message: '테이블 세션이 존재하지 않습니다.',
-  },
-  EXPIRED_TABLE_SESSION: {
-    code: 'EXPIRED_TABLE_SESSION',
-    message: '테이블 세션 값이 만료되었습니다.',
-  },
+  /** ---Table Session--- */
   INVALID_TABLE_SESSION: {
     code: 'INVALID_TABLE_SESSION',
-    message: '테이블 세션 값이 비활성화 혹은 검증되지 않았습니다.',
+    message: '테이블 세션 값이 비어있거나 검증되지 않았습니다.',
+  },
+  INVALID_PAYLOAD_TABLE_SESSION: {
+    code: 'INVALID_PAYLOAD_TABLE_SESSION',
+    message: '업데이트 요청 본문이 올바르지 않습니다.',
+  },
+  TABLE_SESSION_NOT_ACTIVE: {
+    code: 'TABLE_SESSION_NOT_ACTIVE',
+    message: '테이블 세션이 활성화 상태가 아닙니다.',
+  },
+  TABLE_SESSION_ALREADY_ACTIVE: {
+    code: 'TABLE_SESSION_ALREADY_ACTIVE',
+    message: '이미 테이블 세션이 활성화 상태입니다.',
+  },
+  /** ----Order ----- */
+  ORDER_IS_EMPTY: {
+    code: 'ORDER_IS_EMPTY',
+    message: '주문이 비어 있습니다.',
   },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {

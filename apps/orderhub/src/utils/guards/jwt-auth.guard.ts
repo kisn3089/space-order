@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PlainOwner } from '@spaceorder/db';
-import { exceptionContentsIs } from 'src/common/constants/response-message';
+import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 
 export interface JwtErrorInfo {
   name?: 'TokenExpiredError' | 'Error' | 'NotBeforeError';

@@ -5,7 +5,7 @@ import { comparePlainToEncrypted, encrypt } from 'src/utils/lib/crypt';
 import { OwnerService } from '../owner/owner.service';
 import type { AccessToken, SignInRequest } from '@spaceorder/api';
 import { GenerateToken } from 'src/utils/jwt/token-config';
-import { exceptionContentsIs } from 'src/common/constants/response-message';
+import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 
 /** TODO: admin, owner 분기될 시점에는 인자를 추가로 받아서 처리해야 한다.
  * ex) user: Owner | Admin

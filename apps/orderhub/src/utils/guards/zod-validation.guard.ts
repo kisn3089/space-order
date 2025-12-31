@@ -10,7 +10,7 @@ import {
 import {
   ExceptionContentKeys,
   exceptionContentsIs,
-} from 'src/common/constants/response-message';
+} from 'src/common/constants/exceptionContents';
 import { ZodError, ZodSchema } from 'zod';
 
 interface Schemas {

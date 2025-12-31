@@ -18,6 +18,10 @@ export class OrderService {
     sessionToken: string,
     createOrderDto: CreateOrderDto,
   ): Promise<Order> {
+    /**
+     * 1. table-session.guard를 통해서 유효성 검사는 완료된 상태
+     * 2. table-session의 상태를 ACTIVE로 변경해야함
+     */
     const menuPublicIds = createOrderDto.orderItems.map(
       (item) => item.menuPublicId,
     );
@@ -84,7 +88,7 @@ export class OrderService {
   async find(sessionToken: string): Promise<any> {
     // 1. 세션 찾기
     const session =
-      await this.tableSessionService.retrieveTableSessionBySessionToken(
+      await this.tableSessionService.retrieveSessionBySessionToken(
         sessionToken,
       );
 

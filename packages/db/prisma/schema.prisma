@@ -233,7 +233,9 @@ model OrderItem {
  * 기본 세션 시간은 2시간으로 고정하고 연장하는 방식으로 한다.
  */
 enum TableSessionStatus {
-  /** 테이블이 활성화되어 주문 가능한 상태 */
+  /** 세션은 생성되었지만 주문 대기 상태 */
+  WAITING_ORDER
+  /** 테이블이 활성화되어 주문이 가능한 상태 */
   ACTIVE
   /** 결제 대기 중인 상태 */
   PAYMENT_PENDING
@@ -246,7 +248,7 @@ model TableSession {
   publicId        String             @unique @default(cuid(2)) @map("public_id")
   storeId         BigInt             @map("store_id")
   tableId         BigInt             @map("table_id")
-  status          TableSessionStatus @default(ACTIVE)
+  status          TableSessionStatus @default(WAITING_ORDER)
 
   // 세션 관리
   sessionToken    String             @unique @default(cuid(2)) @map("session_token")

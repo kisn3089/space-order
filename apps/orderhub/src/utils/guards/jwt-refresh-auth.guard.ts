@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { PlainOwner, COOKIE_TABLE } from '@spaceorder/db';
 import { JwtErrorInfo } from './jwt-auth.guard';
 import { Response } from 'express';
-import { exceptionContentsIs } from 'src/common/constants/response-message';
+import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 
 @Injectable()
 export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {

@@ -6,6 +6,16 @@ services:
     image: mysql:8.0
     container_name: orderhub-dev-mysql
     restart: unless-stopped
+    command:
+      - --skip-log-bin
+      - --sync_binlog=0
+      - --innodb_flush_log_at_trx_commit=2
+      - --innodb_temp_data_file_path=ibtmp1:64M:autoextend:max:512M
+      # prod.yaml
+      # command:
+      #   - --innodb_flush_log_at_trx_commit=1
+      #   - --sync_binlog=1
+      #   - --binlog_expire_logs_seconds = 604800 # 7 days
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}

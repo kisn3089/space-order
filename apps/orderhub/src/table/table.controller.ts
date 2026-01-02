@@ -10,8 +10,6 @@ import {
   ClassSerializerInterceptor,
   HttpCode,
   UseGuards,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
@@ -22,8 +20,8 @@ import {
   storeParamsSchema,
   updateTableSchema,
 } from '@spaceorder/auth';
-import { TableResponseDto } from './dto/response-table.dto';
 import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
+import { PublicTable } from '@spaceorder/db';
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
 export class UpdateTableDto extends createZodDto(updateTableSchema) {}
@@ -42,40 +40,24 @@ export class TableController {
   async createTable(
     @Param('storeId') storePublicId: string,
     @Body() createTableDto: CreateTableDto,
-  ) {
-    const createdTable = await this.tableService.createTable(
-      storePublicId,
-      createTableDto,
-    );
-    return new TableResponseDto(createdTable);
+  ): Promise<PublicTable> {
+    return await this.tableService.createTable(storePublicId, createTableDto);
   }
 
   @Get()
   @UseGuards(ZodValidationGuard({ params: storeParamsSchema }))
-  async retrieveTableList(@Param('storeId') storePublicId: string) {
-    const retrievedTableList =
-      await this.tableService.retrieveTableList(storePublicId);
-    return retrievedTableList.map((table) => new TableResponseDto(table));
+  async retrieveTableList(
+    @Param('storeId') storePublicId: string,
+  ): Promise<PublicTable[]> {
+    return await this.tableService.getTableList(storePublicId);
   }
 
   @Get(':tableId')
   @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
-  async retrieveTableById(@Param('tableId') tablePublicId: string) {
-    const retrievedTable =
-      await this.tableService.retrieveTableById(tablePublicId);
-
-    if (!retrievedTable) {
-      throw new HttpException(
-        {
-          code: 'TABLE_NOT_FOUND',
-          message: '해당 table를 찾을 수 없습니다.',
-          details: { tableId: tablePublicId },
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return new TableResponseDto(retrievedTable);
+  async retrieveTableById(
+    @Param('tableId') tablePublicId: string,
+  ): Promise<PublicTable> {
+    return await this.tableService.getTableById(tablePublicId);
   }
 
   @Patch(':tableId')
@@ -88,18 +70,14 @@ export class TableController {
   async updateTable(
     @Param('tableId') tablePublicId: string,
     @Body() updateTableDto: UpdateTableDto,
-  ) {
-    const updatedTable = await this.tableService.updateTable(
-      tablePublicId,
-      updateTableDto,
-    );
-    return new TableResponseDto(updatedTable);
+  ): Promise<PublicTable> {
+    return await this.tableService.updateTable(tablePublicId, updateTableDto);
   }
 
   @Delete(':tableId')
   @HttpCode(204)
   @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
-  async deleteTable(@Param('tableId') tablePublicId: string) {
+  async deleteTable(@Param('tableId') tablePublicId: string): Promise<void> {
     await this.tableService.deleteTable(tablePublicId);
   }
 }

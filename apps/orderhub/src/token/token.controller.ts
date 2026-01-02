@@ -7,6 +7,7 @@ import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
 import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
 import { signInFormSchema } from '@spaceorder/auth';
+import { AccessToken } from '@spaceorder/api';
 
 @Controller('token')
 export class TokenController {
@@ -17,7 +18,7 @@ export class TokenController {
   createTokenBySignIn(
     @JwtUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
-  ) {
+  ): Promise<AccessToken> {
     return this.tokenService.createToken(owner, response);
   }
 
@@ -26,7 +27,7 @@ export class TokenController {
   createTokenByRefreshToken(
     @JwtUser() owner: Owner,
     @Res({ passthrough: true }) response: Response,
-  ) {
+  ): Promise<AccessToken> {
     return this.tokenService.createToken(owner, response);
   }
 }

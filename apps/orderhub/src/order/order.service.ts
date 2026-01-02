@@ -1,9 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
-// import { UpdateOrderDto } from './dto/update-order.dto';
-import { Order } from '@spaceorder/db';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Menu,
+  OrderStatus,
+  Prisma,
+  PublicOrder,
+  PublicTableSession,
+  TableSession,
+  TableSessionStatus,
+} from '@spaceorder/db';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateOrderDto, UpdateOrderDto } from './order.controller';
+import { sumFromObjects } from '@spaceorder/auth';
+import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
+import { ExtendedMap } from 'src/utils/helper/extendMap';
+
+type MenuValidationFields = Pick<Menu, 'publicId' | 'name' | 'price'>;
+type CreateOrderItemsWithValidMenuReturn = {
+  totalPriceByServer: number;
+  bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'];
+};
+type CreateOrderReturn = {
+  createdOrder: PublicOrder;
+  updatedTableSession: PublicTableSession;
+};
 
 @Injectable()
 export class OrderService {
@@ -12,117 +32,276 @@ export class OrderService {
     private readonly tableSessionService: TableSessionService,
   ) {}
 
-  async create(
+  async createOrder(
     storePublicId: string,
     tablePublicId: string,
-    sessionToken: string,
+    tableSession: TableSession,
     createOrderDto: CreateOrderDto,
-  ): Promise<Order> {
-    /**
-     * 1. table-session.guard를 통해서 유효성 검사는 완료된 상태
-     * 2. table-session의 상태를 ACTIVE로 변경해야함
-     */
-    const menuPublicIds = createOrderDto.orderItems.map(
-      (item) => item.menuPublicId,
-    );
-    const menus = await this.prismaService.menu.findMany({
-      where: { publicId: { in: menuPublicIds } },
-      select: { publicId: true, name: true, price: true },
-    });
-    const menuMap = new Map(menus.map((menu) => [menu.publicId, menu]));
+  ): Promise<CreateOrderReturn> {
+    return await this.prismaService.$transaction(async (tx) => {
+      const menuPublicIds = createOrderDto.orderItems.map(
+        (item) => item.menuPublicId,
+      );
 
-    // 존재하지 않는 메뉴가 있는지 한 번에 체크
-    if (menus.length !== menuPublicIds.length) {
-      const foundIds = new Set(menus.map((m) => m.publicId));
-      const missingIds = menuPublicIds.filter((id) => !foundIds.has(id));
-      throw new Error(`Menus not found: ${missingIds.join(', ')}`);
-    }
+      // TODO: 추후 메뉴 service로 이전
+      const findMenuList = await tx.menu.findMany({
+        where: { publicId: { in: menuPublicIds } },
+        select: { publicId: true, name: true, price: true },
+      });
 
-    const createdOrderItems = createOrderDto.orderItems.map((item) => {
-      const menu = menuMap.get(item.menuPublicId);
+      const { totalPriceByServer, bulkCreateOrderItems } =
+        this.createOrderItemsWithValidMenu(
+          createOrderDto,
+          findMenuList,
+          menuPublicIds,
+        );
 
-      if (!menu) {
-        throw new Error(`Menu with publicId ${item.menuPublicId} not found`);
-      }
+      const updatedTableSession =
+        await this.tableSessionService.txUpdateSession(
+          tableSession,
+          { status: TableSessionStatus.ACTIVE },
+          tx,
+        );
+
+      const createdOrder = await tx.order.create({
+        data: {
+          store: { connect: { publicId: storePublicId } },
+          table: { connect: { publicId: tablePublicId } },
+          tableSession: { connect: { id: tableSession.id } },
+          orderItems: { create: bulkCreateOrderItems },
+          totalPrice: totalPriceByServer,
+        },
+        include: {
+          orderItems: { omit: { id: true, orderId: true, menuId: true } },
+        },
+        omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+      });
 
       return {
-        menu: { connect: { publicId: item.menuPublicId } },
-        menuName: menu.name,
-        price: menu.price,
-        quantity: item.quantity,
+        createdOrder,
+        updatedTableSession,
       };
-    });
-
-    return await this.prismaService.order.create({
-      data: {
-        store: { connect: { publicId: storePublicId } },
-        table: { connect: { publicId: tablePublicId } },
-        tableSession: { connect: { sessionToken } },
-        orderItems: { create: createdOrderItems },
-      },
-      include: {
-        orderItems: { include: { menu: true } },
-      },
     });
   }
 
-  async retrieveOrderList(
+  private createOrderItemsWithValidMenu(
+    createOrderDto: CreateOrderDto,
+    findMenuList: MenuValidationFields[],
+    menuPublicIds: string[],
+  ): CreateOrderItemsWithValidMenuReturn {
+    const menuMap = new ExtendedMap<string, MenuValidationFields>(
+      findMenuList.map((menu) => [menu.publicId, menu]),
+    );
+    menuMap.setException('MENU_MISMATCH');
+
+    if (findMenuList.length !== menuPublicIds.length) {
+      this.checkInvalidMenuWithException(findMenuList, menuPublicIds);
+    }
+
+    const totalPriceByServer = this.getTotalPriceByServerWithException(
+      createOrderDto,
+      menuMap,
+    );
+
+    const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
+      createOrderDto.orderItems.map((orderItem) => {
+        const menu = menuMap.getOrThrown(orderItem.menuPublicId);
+        return {
+          menu: { connect: { publicId: orderItem.menuPublicId } },
+          menuName: menu.name,
+          price: menu.price,
+          quantity: orderItem.quantity,
+          ...(orderItem.options ? { options: orderItem.options } : {}),
+        };
+      });
+
+    return {
+      totalPriceByServer,
+      bulkCreateOrderItems,
+    };
+  }
+
+  private checkInvalidMenuWithException(
+    findMenuList: Pick<Menu, 'publicId' | 'name' | 'price'>[],
+    menuPublicIds: string[],
+  ): void {
+    const extractedIds = new Set(findMenuList.map((m) => m.publicId));
+    const missingIds = menuPublicIds.filter((id) => !extractedIds.has(id));
+    throw new HttpException(
+      {
+        ...exceptionContentsIs('MENU_MISMATCH'),
+        details: { missingMenuIds: missingIds },
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  private getTotalPriceByServerWithException(
+    createOrderDto: CreateOrderDto,
+    menuMap: ExtendedMap<string, MenuValidationFields>,
+  ): number {
+    const totalPriceByServer = sumFromObjects(
+      createOrderDto.orderItems,
+      (orderItem) => {
+        const menu = menuMap.getOrThrown(orderItem.menuPublicId);
+        return menu.price * orderItem.quantity;
+      },
+    );
+
+    if (
+      createOrderDto.totalPrice &&
+      totalPriceByServer !== createOrderDto.totalPrice
+    ) {
+      const details = {
+        server: totalPriceByServer,
+        client: createOrderDto.totalPrice,
+        diff: Math.abs(createOrderDto.totalPrice - totalPriceByServer),
+      };
+      /** TODO: logger service를 만들어서 로그를 남기도록 변경 필요 */
+      console.warn('Total price mismatch:', details);
+      throw new HttpException(
+        {
+          ...exceptionContentsIs('TOTAL_PRICE_MISMATCH'),
+          details,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return totalPriceByServer;
+  }
+
+  async getOrderList(
     storePublicId: string,
     tablePublicId: string,
-  ): Promise<Order[]> {
-    //   include: {
-    //   _count: {
-    //     select: { orders: true }  // 각 세션의 주문 개수
-    //   }
-    // }
+    tableSession: TableSession,
+  ): Promise<PublicOrder[]> {
     return await this.prismaService.order.findMany({
       where: {
         store: { publicId: storePublicId },
         table: { publicId: tablePublicId },
-      },
-      include: { orderItems: { include: { menu: true } } },
-      // orderBy: { orderedAt: 'desc' },
-    });
-  }
-
-  async find(sessionToken: string): Promise<any> {
-    // 1. 세션 찾기
-    const session =
-      await this.tableSessionService.retrieveSessionBySessionToken(
-        sessionToken,
-      );
-
-    if (!session) {
-      throw new Error('Session not found');
-    }
-
-    // 2. 해당 세션의 모든 주문 조회
-    return await this.prismaService.order.findMany({
-      where: {
-        tableSessionId: session.id,
+        tableSession: { id: tableSession.id },
       },
       include: {
-        orderItems: {
-          include: {
-            menu: true,
-          },
-        },
+        orderItems: { omit: { id: true, orderId: true, menuId: true } },
       },
-      // orderBy: {
-      //   orderedAt: 'desc',
-      // },
+      omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async getOrderById(
+    storePublicId: string,
+    tablePublicId: string,
+    orderPublicId: string,
+    tableSession: TableSession,
+  ): Promise<PublicOrder> {
+    return await this.prismaService.order.findUniqueOrThrow({
+      where: {
+        publicId: orderPublicId,
+        /** Authorization filters: Ensure the order belongs to the specified store, table, and session
+         * This prevents unauthorized access to orders from other stores/tables/sessions
+         */
+        store: { publicId: storePublicId },
+        table: { publicId: tablePublicId },
+        tableSession: { id: tableSession.id },
+      },
+      include: {
+        orderItems: { omit: { id: true, orderId: true, menuId: true } },
+      },
+      omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+    });
   }
 
-  // async update(id: number, updateOrderDto: UpdateOrderDto) {
-  //   return await `This action updates a #${id} order`;
-  // }
+  async updateOrder(
+    storePublicId: string,
+    tablePublicId: string,
+    orderPublicId: string,
+    tableSession: TableSession,
+    updateOrderDto: UpdateOrderDto,
+  ): Promise<PublicOrder> {
+    return await this.prismaService.$transaction(async (tx) => {
+      const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
+      if (!orderItems) {
+        return await tx.order.update({
+          where: {
+            publicId: orderPublicId,
+            store: { publicId: storePublicId },
+            table: { publicId: tablePublicId },
+            tableSession: { id: tableSession.id },
+          },
+          data: restUpdateOrderDto,
+          include: {
+            orderItems: { omit: { id: true, orderId: true, menuId: true } },
+          },
+          omit: {
+            id: true,
+            storeId: true,
+            tableId: true,
+            tableSessionId: true,
+          },
+        });
+      }
+      const menuPublicIds = orderItems.map((item) => item.menuPublicId);
+      const findMenuList = await tx.menu.findMany({
+        where: { publicId: { in: menuPublicIds } },
+        select: { publicId: true, name: true, price: true },
+      });
 
-  // async remove(id: number) {
-  //   return await `This action removes a #${id} order`;
-  // }
+      const { totalPriceByServer, bulkCreateOrderItems } =
+        this.createOrderItemsWithValidMenu(
+          { orderItems, ...restUpdateOrderDto },
+          findMenuList,
+          menuPublicIds,
+        );
+      return tx.order.update({
+        where: {
+          publicId: orderPublicId,
+          store: { publicId: storePublicId },
+          table: { publicId: tablePublicId },
+          tableSession: { id: tableSession.id },
+        },
+        data: {
+          /**
+           *  NOTE: We intentionally delete and recreate all orderItems on update.
+           * - OrderItem IDs and foreign keys (id, orderId, menuId) are not exposed
+           * in the API and are omitted from the response below,
+           * so callers do not depend on stable IDs.
+           * - There are no dependent records that require preserving individual OrderItem IDs.
+           * - totalPrice is recalculated from the updated items, making this a safe snapshot replace.
+           * If future features need per-item history or stable IDs,
+           * this logic must be revised.
+           */
+          orderItems: { deleteMany: {}, create: bulkCreateOrderItems },
+          totalPrice: totalPriceByServer,
+        },
+        include: {
+          orderItems: { omit: { id: true, orderId: true, menuId: true } },
+        },
+        omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+      });
+    });
+  }
+
+  async cancelOrder(
+    storePublicId: string,
+    tablePublicId: string,
+    orderPublicId: string,
+    tableSession: TableSession,
+  ): Promise<PublicOrder> {
+    return await this.prismaService.order.update({
+      where: {
+        publicId: orderPublicId,
+        store: { publicId: storePublicId },
+        table: { publicId: tablePublicId },
+        tableSession: { id: tableSession.id },
+      },
+      data: {
+        status: OrderStatus.CANCELLED,
+      },
+      include: {
+        orderItems: { omit: { id: true, orderId: true, menuId: true } },
+      },
+      omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+    });
+  }
 }

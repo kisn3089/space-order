@@ -1,34 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  // Post,
+  Body,
+  // Patch,
+  Param,
+  // Delete,
+} from '@nestjs/common';
 import { MenuService } from './menu.service';
-import { CreateMenuDto } from './dto/create-menu.dto';
-import { UpdateMenuDto } from './dto/update-menu.dto';
+// import { CreateMenuDto } from './dto/create-menu.dto';
+// import { UpdateMenuDto } from './dto/update-menu.dto';
+import { PublicMenu } from '@spaceorder/db';
 
-@Controller('menu')
+@Controller('stores/:storeId/menus')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
-  @Post()
-  create(@Body() createMenuDto: CreateMenuDto) {
-    return this.menuService.create(createMenuDto);
-  }
+  // MenuResponseDto
+  // @Post()
+  // create(@Body() createMenuDto: CreateMenuDto) {
+  //   return this.menuService.create(createMenuDto);
+  // }
 
   @Get()
-  findAll() {
-    return this.menuService.findAll();
+  async retrieveMenuList(
+    @Param('storeId') storePublicId: string,
+  ): Promise<PublicMenu[]> {
+    return await this.menuService.retrieveMenuList(storePublicId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.menuService.findOne(+id);
-  }
+  // @Get(':menuId')
+  // findOne(@Param('menuId') menuId: string) {
+  //   return this.menuService.findOne(+menuId);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
-    return this.menuService.update(+id, updateMenuDto);
-  }
+  // @Patch(':menuId')
+  // update(
+  //   @Param('menuId') menuId: string,
+  //   @Body() updateMenuDto: UpdateMenuDto,
+  // ) {
+  //   return this.menuService.update(+menuId, updateMenuDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.menuService.remove(+id);
-  }
+  // @Delete(':menuId')
+  // remove(@Param('menuId') menuId: string) {
+  //   return this.menuService.remove(+menuId);
+  // }
 }

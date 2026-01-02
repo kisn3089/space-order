@@ -1,22 +1,18 @@
-import type { Response } from 'express';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   TableSession,
   Prisma,
-  PrismaClient,
   TableSessionStatus,
-  COOKIE_TABLE,
+  Order,
+  PublicTableSession,
 } from '@spaceorder/db';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateTableSessionDto } from './tableSession.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { responseCookie } from 'src/utils/cookies';
+import { sumFromObjects } from '@spaceorder/auth';
+import { Tx } from 'types/tx';
 
-type Tx = Omit<
-  PrismaClient<Prisma.PrismaClientOptions, never>,
-  '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'
->;
 type TransactionPipe<T> = (tx?: Tx) => Promise<T>;
 
 @Injectable()
@@ -27,175 +23,179 @@ export class TableSessionService {
     return buffer.toString('base64url');
   }
 
-  private async retrieveActivatedSessionById(tablePublicId: string) {
-    return await this.prismaService.tableSession.findFirst({
+  private getActivatedSessionById(
+    tablePublicId: string,
+  ): Prisma.TableSessionFindFirstArgs {
+    return {
       where: {
         table: { publicId: tablePublicId },
-        status: TableSessionStatus.ACTIVE,
+        status: {
+          in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
+        },
       },
-    });
+      orderBy: { createdAt: 'desc' },
+      omit: { id: true, tableId: true },
+    };
   }
 
-  private async createSession(
-    storePublicId: string,
-    tablePublicId: string,
-  ): Promise<TableSession> {
+  private createSession(tablePublicId: string): Prisma.TableSessionCreateArgs {
     const sessionToken = this.generateSecureSessionToken();
-    return await this.prismaService.tableSession.create({
+    return {
       data: {
-        store: { connect: { publicId: storePublicId } },
         table: { connect: { publicId: tablePublicId } },
-        status: TableSessionStatus.WAITING_ORDER,
         sessionToken,
         expiresAt: new Date(Date.now() + 20 * 60 * 1000), // 20분 후 만료
       },
-    });
+      omit: { id: true, tableId: true },
+    };
   }
 
-  async createOrRetrieveActivatedSession(
-    storePublicId: string,
+  async findActivatedSessionOrCreate(
     tablePublicId: string,
-  ): Promise<TableSession> {
-    const retrievedActivatedSession =
-      await this.retrieveActivatedSessionById(tablePublicId);
+  ): Promise<PublicTableSession> {
+    return await this.prismaService.$transaction(async (tx) => {
+      const activatedSession = await tx.tableSession.findFirst(
+        this.getActivatedSessionById(tablePublicId),
+      );
 
-    if (retrievedActivatedSession) {
-      if (!this.isSessionExpired(retrievedActivatedSession)) {
-        return retrievedActivatedSession;
+      if (activatedSession) {
+        if (!this.isSessionExpired(activatedSession)) {
+          return activatedSession;
+        }
+        await this.txUpdateSession(
+          activatedSession,
+          { status: TableSessionStatus.CLOSED },
+          tx,
+        );
       }
-      await this.updateSessionDeactivate(retrievedActivatedSession);
-    }
 
-    const createdTableSession = await this.createSession(
-      storePublicId,
-      tablePublicId,
-    );
+      const createdTableSession = await tx.tableSession.create(
+        this.createSession(tablePublicId),
+      );
 
-    return createdTableSession;
+      return createdTableSession;
+    });
   }
 
   private isSessionExpired(session: TableSession): boolean {
     return session.expiresAt < new Date();
   }
 
-  async retrieveSessionBySession(sessionToken: string): Promise<TableSession> {
-    const session = await this.prismaService.tableSession.findUniqueOrThrow({
+  async getSessionBySessionToken(
+    sessionToken: string,
+  ): Promise<PublicTableSession> {
+    return await this.prismaService.tableSession.findUniqueOrThrow({
       where: { sessionToken },
     });
-
-    return session;
   }
 
-  async updateSession(
+  async txUpdateSession(
     tableSession: TableSession,
     updateSessionDto: UpdateTableSessionDto,
-    response: Response,
-  ): Promise<TableSession> {
+    tx?: Tx,
+  ): Promise<PublicTableSession> {
+    const txableService = tx ?? this.prismaService;
+
     switch (updateSessionDto.status) {
       case TableSessionStatus.CLOSED:
-        return await this.updateSessionDeactivate(tableSession);
+        return await txableService.tableSession.update(
+          this.setSessionDeactivate(tableSession),
+        );
 
       case TableSessionStatus.ACTIVE:
-        return await this.updateSessionActivate(tableSession);
+        return await txableService.tableSession.update(
+          this.setSessionActivate(tableSession),
+        );
 
       case 'REACTIVATE':
-        return await this.updateSessionReactivate(tableSession);
+        return await txableService.tableSession.update(
+          this.setSessionReactivate(tableSession),
+        );
 
       case 'EXTEND_EXPIRES_AT':
-        return await this.updateSessionExtendExpiresAt(tableSession, response);
+        return await txableService.tableSession.update(
+          this.setSessionExtendExpiresAt(tableSession),
+        );
 
       case TableSessionStatus.PAYMENT_PENDING:
         return await this.txUpdateSessionFinishByPayment(tableSession);
     }
   }
 
-  private isSessionWaitOrActive(status: TableSessionStatus) {
-    return status === 'ACTIVE' || status === 'WAITING_ORDER';
-  }
-
-  async updateSessionDeactivate(
+  private setSessionDeactivate(
     tableSession: TableSession,
-  ): Promise<TableSession> {
-    return await this.prismaService.tableSession.update({
+  ): Prisma.TableSessionUpdateArgs {
+    return {
       where: { sessionToken: tableSession.sessionToken },
       data: {
         status: TableSessionStatus.CLOSED,
         closedAt: new Date(),
       },
-    });
+      omit: { id: true, tableId: true },
+    };
   }
 
   /** CLOSED 상태인 세션을 다시 ACTIVE 상태로 변경 */
-  async updateSessionReactivate(
+  private setSessionReactivate(
     tableSession: TableSession,
-  ): Promise<TableSession> {
-    return await this.prismaService.tableSession.update({
+  ): Prisma.TableSessionUpdateArgs {
+    return {
       where: { sessionToken: tableSession.sessionToken },
       data: {
         status: TableSessionStatus.ACTIVE,
         closedAt: null,
       },
-    });
+      omit: { id: true, tableId: true },
+    };
   }
 
   /** WAITING_ORDER 상태였다가 주문 시 ACTIVE 상태로 변경 */
-  async updateSessionActivate(
+  private setSessionActivate(
     tableSession: TableSession,
-  ): Promise<TableSession> {
-    return await this.prismaService.tableSession.update({
+  ): Prisma.TableSessionUpdateArgs {
+    return {
       where: { sessionToken: tableSession.sessionToken },
       data: {
         status: TableSessionStatus.ACTIVE,
         expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2시간 후 만료
       },
-    });
+      omit: { id: true, tableId: true },
+    };
   }
 
-  async updateSessionExtendExpiresAt(
+  private setSessionExtendExpiresAt(
     tableSession: TableSession,
-    response: Response,
-  ): Promise<TableSession> {
-    if (!this.isSessionWaitOrActive(tableSession.status)) {
-      throw new HttpException(
-        {
-          ...exceptionContentsIs('TABLE_SESSION_NOT_ACTIVE'),
-          details: { status: tableSession.status },
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const updatedSession = await this.prismaService.tableSession.update({
+  ): Prisma.TableSessionUpdateArgs {
+    return {
       where: {
         sessionToken: tableSession.sessionToken,
+        status: {
+          in: [TableSessionStatus.WAITING_ORDER, TableSessionStatus.ACTIVE],
+        },
       },
       data: {
         expiresAt: new Date(tableSession.expiresAt.getTime() + 60 * 60 * 1000), // 1시간 추가
       },
-    });
-
-    responseCookie.set(
-      response,
-      COOKIE_TABLE.TABLE_SESSION,
-      updatedSession.sessionToken,
-      {
-        expires: updatedSession.expiresAt,
-      },
-    );
-
-    return updatedSession;
+      omit: { id: true, tableId: true },
+    };
   }
 
-  async txUpdateSessionFinishByPayment(
+  private async txUpdateSessionFinishByPayment(
     tableSession: TableSession,
-  ): Promise<TableSession> {
-    const setPendingStatus = async (tx: Tx): Promise<TableSession> => {
-      return await this.txableUpdateSession(tx).partialUpdate(tableSession, {
-        status: TableSessionStatus.PAYMENT_PENDING,
+  ): Promise<PublicTableSession> {
+    const setPendingStatus = async (tx: Tx): Promise<PublicTableSession> => {
+      return await tx.tableSession.update({
+        where: { sessionToken: tableSession.sessionToken },
+        data: {
+          status: TableSessionStatus.PAYMENT_PENDING,
+        },
+        omit: { id: true, tableId: true },
       });
     };
 
-    const setFinishSessionByPayment = async (tx: Tx): Promise<TableSession> => {
+    const setFinishSessionByPayment = async (
+      tx: Tx,
+    ): Promise<PublicTableSession> => {
       // 트랜잭션 내에서 주문 조회
       const sessionOrders = await tx.order.findMany({
         where: { tableSessionId: tableSession.id },
@@ -208,46 +208,33 @@ export class TableSessionService {
             ...exceptionContentsIs('ORDER_IS_EMPTY'),
             details: { orders: sessionOrders },
           },
-          HttpStatus.BAD_REQUEST,
+          HttpStatus.NOT_FOUND,
         );
       }
 
       // 트랜잭션 내에서 총액 계산
-      const calculatedTotalAmount = sessionOrders.reduce<number>(
-        (sum, order) => sum + order.totalPrice,
-        0,
+      const totalAmount = sumFromObjects<Order>(
+        sessionOrders,
+        (order) => order.totalPrice,
       );
 
-      return await this.txableUpdateSession(tx).partialUpdate(tableSession, {
-        totalAmount: calculatedTotalAmount,
-        paidAmount: calculatedTotalAmount, // 전액 결제 가정
-        status: TableSessionStatus.CLOSED,
-        closedAt: new Date(),
+      return await tx.tableSession.update({
+        where: { sessionToken: tableSession.sessionToken },
+        data: {
+          totalAmount: totalAmount,
+          paidAmount: totalAmount, // 전액 결제 가정
+          status: TableSessionStatus.CLOSED,
+          closedAt: new Date(),
+        },
+        omit: { id: true, tableId: true },
       });
     };
 
-    const resultTransaction = await this.transactionPipe<TableSession>(
+    const resultTransaction = await this.transactionPipe<PublicTableSession>(
       setPendingStatus,
       setFinishSessionByPayment,
     );
-
     return resultTransaction[1];
-  }
-
-  private txableUpdateSession(tx?: Tx) {
-    const service = tx ?? this.prismaService;
-
-    const partialUpdate = async (
-      tableSession: TableSession,
-      updateSessionDto: Partial<TableSession>,
-    ) => {
-      return await service.tableSession.update({
-        where: { sessionToken: tableSession.sessionToken },
-        data: updateSessionDto,
-      });
-    };
-
-    return { partialUpdate };
   }
 
   private async transactionPipe<T>(
@@ -260,22 +247,12 @@ export class TableSessionService {
         results.push(result);
       }
     });
-
     return results;
   }
 
-  async retrieveSessionBySessionToken(sessionToken: string) {
-    return await this.prismaService.tableSession.findUniqueOrThrow({
-      where: { sessionToken },
+  async getSessionList(tablePublicId: string) {
+    return await this.prismaService.tableSession.findMany({
+      where: { table: { publicId: tablePublicId } },
     });
-  }
-
-  async retrieveSessionList(tablePublicId: string) {
-    const retrievedTableSessionList =
-      await this.prismaService.tableSession.findMany({
-        where: { table: { publicId: tablePublicId } },
-      });
-
-    return retrievedTableSessionList;
   }
 }

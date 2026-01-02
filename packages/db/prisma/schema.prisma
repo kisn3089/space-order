@@ -81,7 +81,6 @@ model Store {
   tables Table[]
   menus  Menu[]
   orders Order[]
-  tableSessions TableSession[]
 
   @@map("store")
 }
@@ -94,14 +93,23 @@ model Table {
   id          BigInt   @id @default(autoincrement())
   publicId    String   @unique @default(cuid(2)) @map("public_id")
   storeId     BigInt   @map("store_id")
-  tableNumber    Int   @map("table_number") // 테이블 번호 (1, 2, 3...)
-  name        String?  // 테이블 이름 (예: "창가 테이블", "VIP룸")
-  seats       Int      @default(4) // 좌석 수
-  floor       Int?     // 층수 (1층, 2층 등)
-  section     String?  // 구역 (예: "A구역", "야외", "룸")
-  isActive    Boolean  @default(true) @map("is_active") // 사용 가능 여부
-  qrCode      String   @unique @map("qr_code") // QR 코드 URL 또는 데이터
-  description String?  @db.VarChar(500) // 테이블 설명
+  tableNumber    Int   @map("table_number")
+  /** 
+   * 테이블 이름 (예: "창가 테이블", "VIP룸") 
+   */
+  name        String? 
+  seats       Int      @default(4)
+  /** 
+   * 층수 (1층, 2층 등)
+   */
+  floor       Int?     
+  /** 
+   * 구역 (예: "A구역", "야외", "룸") 
+   */
+  section     String?  
+  isActive    Boolean  @default(true) @map("is_active") 
+  qrCode      String   @unique @map("qr_code") 
+  description String?  @db.VarChar(500) 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -109,7 +117,6 @@ model Table {
   orders        Order[]
   tableSessions TableSession[]
 
-  // 한 매장에서 테이블 번호는 유일해야 함
   @@unique([storeId, tableNumber])
   @@map("table")
 }
@@ -125,14 +132,26 @@ model Menu {
   price       Int
   description String?  @db.VarChar(500)
   imageUrl    String   @map("image_url") @db.VarChar(500)
-  category    String?
   isAvailable Boolean  @default(true) @map("is_available")
+  /** 
+    * 메뉴 카테고리 (예: 음료, 디저트, 식사 등)
+    * orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }]
+    */
+  category    String?
+  /**
+    * 메뉴 순서 정렬을 위한 필드
+    * data: { sortOrder: 0 } 최상단 배치
+    */
   sortOrder   Int      @default(0) @map("sort_order")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  // required_options Json 필요 예) 사이즈: [스몰, 라지], 구분: [ice, hot] 필수 요소에는 사업자가 메뉴 생성 시 기본값 설정하도록 해야 한다.
+  /**
+   * required_options Json 필요 예)
+   * 사이즈: [스몰, 라지], 구분: [ice, hot]
+   * 필수 요소에는 사업자가 메뉴 생성 시 기본값 설정하도록 해야 한다.
+   */
   requiredOptions Json?   @map("required_options")
-  // custom_options Json 필요 예) 얼음: ["적게", "많이"]
+  /** custom_options Json 필요 예) 얼음: ["적게", "많이"] */
   customOptions Json?   @map("custom_options")
 
   // MVP 기능은 아니기 때문에 일단 보류
@@ -174,10 +193,10 @@ model Order {
   id              BigInt      @id @default(autoincrement())
   publicId        String      @unique @default(cuid(2)) @map("public_id")
   storeId         BigInt      @map("store_id")
-  tableId         BigInt      @map("table_id")
-  tableSessionId  BigInt      @map("table_session_id")
+  tableId         BigInt     @map("table_id")
+  tableSessionId  BigInt     @map("table_session_id")
   status          OrderStatus @default(PENDING)
-  totalPrice      Int         @default(0) @map("total_price")
+  totalPrice      Int         @map("total_price")
   /*
    * 메뉴마다의 요청사항과 별개로 고객이 남기는 요청사항
    * 예) 해장국 덜 맵게 해주세요.
@@ -187,15 +206,14 @@ model Order {
    * 고객이 주문을 취소한 이유
    */
   cancelledReason String?     @map("cancelled_reason")
-  orderedAt       DateTime    @default(now()) @map("ordered_at")
   acceptedAt      DateTime?   @map("accepted_at")
   completedAt     DateTime?   @map("completed_at")
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  store        Store         @relation(fields: [storeId], references: [id])
-  table        Table         @relation(fields: [tableId], references: [id])
-  tableSession TableSession? @relation(fields: [tableSessionId], references: [id])
+  store        Store         @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  table        Table         @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  tableSession TableSession  @relation(fields: [tableSessionId], references: [id], onDelete: Restrict)
   orderItems   OrderItem[]
 
   @@index([tableSessionId])
@@ -233,42 +251,49 @@ model OrderItem {
  * 기본 세션 시간은 2시간으로 고정하고 연장하는 방식으로 한다.
  */
 enum TableSessionStatus {
-  /** 세션은 생성되었지만 주문 대기 상태 */
+  /** 
+   * 세션은 생성되었지만 주문 대기 상태
+   */
   WAITING_ORDER
-  /** 테이블이 활성화되어 주문이 가능한 상태 */
+  /** 
+   * 테이블이 활성화되어 주문이 가능한 상태 
+   */
   ACTIVE
-  /** 결제 대기 중인 상태 */
+  /** 
+   * 결제 대기 중인 상태
+   */
   PAYMENT_PENDING
-  /** 세션이 종료된 상태 (결제 완료 또는 만료) */
+  /** 
+   * 세션이 종료된 상태 (결제 완료 또는 만료) 
+   */
   CLOSED
 }
 
 model TableSession {
   id              BigInt             @id @default(autoincrement())
   publicId        String             @unique @default(cuid(2)) @map("public_id")
-  storeId         BigInt             @map("store_id")
   tableId         BigInt             @map("table_id")
   status          TableSessionStatus @default(WAITING_ORDER)
 
-  // 세션 관리
+  /** 세션 관리 */
   sessionToken    String             @unique @default(cuid(2)) @map("session_token")
   activatedAt     DateTime           @default(now()) @map("activated_at")
   expiresAt       DateTime           @map("expires_at")
   closedAt        DateTime?          @map("closed_at")
 
-  // 결제 정보
+  /** 결제 정보
+   * 결제를 orderItem 단위로 하는 것을 고려하면 별도의 Payment 모델이 필요하다.
+   */
   totalAmount     Int                @default(0) @map("total_amount")
   paidAmount      Int                @default(0) @map("paid_amount")
 
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @updatedAt @map("updated_at")
 
-  store           Store              @relation(fields: [storeId], references: [id])
   table           Table              @relation(fields: [tableId], references: [id])
   orders          Order[]
 
   @@index([tableId, activatedAt])
   @@index([sessionToken])
-  @@index([storeId, status])
   @@map("table_session")
 }

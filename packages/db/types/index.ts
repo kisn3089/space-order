@@ -1,1 +1,1 @@
-export * from "./owner.type";
+export * from "./publicModel.type";

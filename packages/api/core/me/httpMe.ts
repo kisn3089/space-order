@@ -1,11 +1,11 @@
-import { PlainOwner } from "@spaceorder/db";
+import { PublicOwner } from "@spaceorder/db";
 import { http } from "../axios";
 import { AxiosRequestConfig } from "axios";
 
 const prefix = "/me";
 
-async function me(accessToken?: string): Promise<PlainOwner> {
-  const response = await http.get<PlainOwner>(
+async function me(accessToken?: string): Promise<PublicOwner> {
+  const response = await http.get<PublicOwner>(
     `${prefix}`,
     accessToken
       ? {

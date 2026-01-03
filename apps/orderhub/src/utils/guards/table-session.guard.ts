@@ -26,14 +26,14 @@ export class TableSessionGuard implements CanActivate {
     }
 
     const retrievedTableSession: TableSession =
-      await this.tableSessionService.retrieveSessionBySession(
+      await this.tableSessionService.getSessionBySessionToken(
         extractedSessionInCookie,
       );
 
     if (this.isInvalidStatus(retrievedTableSession)) {
-      await this.tableSessionService.updateSessionDeactivate(
-        retrievedTableSession,
-      );
+      await this.tableSessionService.txUpdateSession(retrievedTableSession, {
+        status: TableSessionStatus.CLOSED,
+      });
       throw new HttpException(
         exceptionContentsIs('INVALID_TABLE_SESSION'),
         HttpStatus.UNAUTHORIZED,
@@ -41,7 +41,6 @@ export class TableSessionGuard implements CanActivate {
     }
 
     request.tableSession = retrievedTableSession;
-
     return true;
   }
 

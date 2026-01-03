@@ -6,6 +6,10 @@ const EXCEPTION_CONTENTS = {
     code: 'UNAUTHORIZED',
     message: '요청을 처리할 권한이 없습니다.',
   },
+  BADREQUEST: {
+    code: 'BADREQUEST',
+    message: '요청이 올바르지 않습니다.',
+  },
   REFRESH_FAILED: {
     code: 'REFRESH_FAILED',
     message: 'Refresh token 값이 비어있거나 올바르지 않습니다.',
@@ -35,6 +39,14 @@ const EXCEPTION_CONTENTS = {
   ORDER_IS_EMPTY: {
     code: 'ORDER_IS_EMPTY',
     message: '주문이 비어 있습니다.',
+  },
+  TOTAL_PRICE_MISMATCH: {
+    code: 'TOTAL_PRICE_MISMATCH',
+    message: '총 금액이 일치하지 않습니다.',
+  },
+  MENU_MISMATCH: {
+    code: 'MENU_MISMATCH',
+    message: '요청한 메뉴가 존재하지 않습니다.',
   },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {

@@ -1,15 +1,15 @@
-import { PlainOwner } from "@spaceorder/db";
+import { PublicOwner } from "@spaceorder/db";
 import { QueryOptions, useQuery } from "@tanstack/react-query";
 import { httpMe } from "./httpMe";
 
 type FindAll = {
-  queryOptions?: QueryOptions<PlainOwner>;
+  queryOptions?: QueryOptions<PublicOwner>;
   enabled?: boolean;
   accessToken?: string;
 };
 const findMe = ({ queryOptions, accessToken, enabled }: FindAll) => {
   const { queryKey = ["me"], ...restOptions } = queryOptions ?? {};
-  return useQuery<PlainOwner>({
+  return useQuery<PublicOwner>({
     queryKey,
     queryFn: () => httpMe.me(accessToken),
     select: (data) => data,

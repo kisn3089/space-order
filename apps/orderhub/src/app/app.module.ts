@@ -13,6 +13,8 @@ import { StoreModule } from 'src/store/store.module';
 import { OrderModule } from 'src/order/order.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
+import { MenuModule } from 'src/menu/menu.module';
+import { OrderItemModule } from 'src/order-item/orderItem.module';
 
 @Module({
   imports: [
@@ -22,10 +24,12 @@ import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
     }),
     PrismaModule, // PrismaModule is Global Module
     AdminModule,
+    MenuModule,
     OwnerModule,
     TokenModule,
     StoreModule,
     OrderModule,
+    OrderItemModule,
     MeModule,
     TableModule,
     TableSessionModule,

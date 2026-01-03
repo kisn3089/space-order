@@ -1,33 +1,61 @@
 import { Injectable } from '@nestjs/common';
-// import { CreateMenuDto } from './dto/create-menu.dto';
-// import { UpdateMenuDto } from './dto/update-menu.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PublicMenu } from '@spaceorder/db';
+import { CreateMenuDto, UpdateMenuDto } from './menu.controller';
 
 @Injectable()
 export class MenuService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  // create(createMenuDto: CreateMenuDto) {
-  //   return 'This action adds a new menu';
-  // }
+  async createMenu(
+    storePublicId: string,
+    createMenuDto: CreateMenuDto,
+  ): Promise<PublicMenu> {
+    return await this.prismaService.menu.create({
+      data: {
+        store: { connect: { publicId: storePublicId } },
+        ...createMenuDto,
+      },
+      omit: { id: true, storeId: true },
+    });
+  }
 
-  async retrieveMenuList(storePublicId: string): Promise<PublicMenu[]> {
+  async getMenuList(storePublicId: string): Promise<PublicMenu[]> {
     return await this.prismaService.menu.findMany({
       where: { store: { publicId: storePublicId } },
       omit: { id: true, storeId: true },
     });
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} menu`;
-  // }
+  async getMenuById(
+    storePublicId: string,
+    menuPublicId: string,
+  ): Promise<PublicMenu> {
+    return await this.prismaService.menu.findUniqueOrThrow({
+      where: { publicId: menuPublicId, store: { publicId: storePublicId } },
+      omit: { id: true, storeId: true },
+    });
+  }
 
-  // update(id: number, updateMenuDto: UpdateMenuDto) {
-  //   return `This action updates a #${id} menu`;
-  // }
+  async updateMenu(
+    storePublicId: string,
+    menuPublicId: string,
+    updateMenuDto: UpdateMenuDto,
+  ): Promise<PublicMenu> {
+    return await this.prismaService.menu.update({
+      where: { publicId: menuPublicId, store: { publicId: storePublicId } },
+      data: updateMenuDto,
+      omit: { id: true, storeId: true },
+    });
+  }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} menu`;
-  // }
+  async deleteMenu(
+    storePublicId: string,
+    menuPublicId: string,
+  ): Promise<PublicMenu> {
+    return await this.prismaService.menu.delete({
+      where: { publicId: menuPublicId, store: { publicId: storePublicId } },
+      omit: { id: true, storeId: true },
+    });
+  }
 }

@@ -3,3 +3,4 @@ export * from "./order.schema";
 export * from "./store.schema";
 export * from "./owner.schema";
 export * from "./tableSession.schema";
+export * from "./menu.schema";

@@ -62,7 +62,7 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
     ) {
       try {
         return schema.parse(data);
-      } catch (error) {
+      } catch (error: unknown) {
         if (error instanceof ZodError) {
           throw new HttpException(
             {
@@ -73,7 +73,7 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
           );
         }
         console.warn('zod-validator exception: ', error);
-        throw new Error();
+        throw new Error(`zod-validator exception ${error as string}`);
       }
     }
   }

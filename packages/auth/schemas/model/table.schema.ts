@@ -1,5 +1,5 @@
 import z from "zod";
-import { storeParamsSchema } from "./store.schema";
+import { storeIdParamsSchema } from "./store.schema";
 import { commonSchema } from "../common";
 
 export const createTableSchema = z
@@ -33,4 +33,4 @@ export const tableParamsSchema = z
   .strict();
 
 export const mergedStoreAndTableParamsSchema =
-  storeParamsSchema.merge(tableParamsSchema);
+  storeIdParamsSchema.merge(tableParamsSchema);

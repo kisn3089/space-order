@@ -1,7 +1,7 @@
 import z from "zod";
 import { commonSchema } from "../common";
 
-export const storeParamsSchema = z
+export const storeIdParamsSchema = z
   .object({
     storeId: commonSchema.cuid2("Store"),
   })

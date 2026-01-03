@@ -58,19 +58,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof HttpException) {
-      const retrievedHttpException = this.findHttpException(
-        exception,
-        request,
-        {
-          path,
-          timestamp,
-        },
-      );
+      const retrievedHttpException = this.findHttpException(exception, {
+        path,
+        timestamp,
+      });
       return response
         .status(retrievedHttpException.status)
         .json(retrievedHttpException);
     }
 
+    console.error('Unknown exception caught:', exception);
     const unknownException: Exception = {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       error: 'Internal Server Error',
@@ -160,7 +157,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
   private findHttpException(
     exception: HttpException,
-    request: Request,
     ctx: { path: string; timestamp: string },
   ): Exception {
     const status = exception.getStatus();

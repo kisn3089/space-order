@@ -24,12 +24,6 @@ import { Client } from 'src/dacorators/client.decorator';
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}
 
-/**
- * 1. JwtAuthGuard와 도메인별 쓰기 권한 검증 데코레이터로 분리
- * 2. controller레이어에 response DTO 사용하여 service 레이어에서는 모든 필드 사용
- * 대신, 다중 조회 메서드에서는 omit 처리(최저화)
- */
-
 @Controller('stores/:storeId/menus')
 @UseGuards(JwtAuthGuard)
 export class MenuController {

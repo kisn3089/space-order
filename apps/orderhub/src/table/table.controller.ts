@@ -44,7 +44,10 @@ export class TableController {
     @Param('storeId') storePublicId: string,
     @Body() createTableDto: CreateTableDto,
   ): Promise<PublicTable> {
-    return await this.tableService.createTable(storePublicId, createTableDto);
+    return await this.tableService.createTable(
+      { storePublicId },
+      createTableDto,
+    );
   }
 
   @Get()
@@ -52,7 +55,7 @@ export class TableController {
   async retrieveTableList(
     @Param('storeId') storePublicId: string,
   ): Promise<PublicTable[]> {
-    return await this.tableService.getTableList(storePublicId);
+    return await this.tableService.getTableList({ storePublicId });
   }
 
   @Get(':tableId')
@@ -60,7 +63,7 @@ export class TableController {
   async retrieveTableById(
     @Param('tableId') tablePublicId: string,
   ): Promise<PublicTable> {
-    return await this.tableService.getTableById(tablePublicId);
+    return await this.tableService.txableGetTableById()({ tablePublicId });
   }
 
   @Patch(':tableId')
@@ -74,13 +77,16 @@ export class TableController {
     @Param('tableId') tablePublicId: string,
     @Body() updateTableDto: UpdateTableDto,
   ): Promise<PublicTable> {
-    return await this.tableService.updateTable(tablePublicId, updateTableDto);
+    return await this.tableService.updateTable(
+      { tablePublicId },
+      updateTableDto,
+    );
   }
 
   @Delete(':tableId')
   @HttpCode(204)
   @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
   async deleteTable(@Param('tableId') tablePublicId: string): Promise<void> {
-    await this.tableService.deleteTable(tablePublicId);
+    await this.tableService.deleteTable({ tablePublicId });
   }
 }

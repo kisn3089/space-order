@@ -17,7 +17,7 @@ import { createZodDto } from 'nestjs-zod';
 import {
   createTableSchema,
   mergedStoreAndTableParamsSchema,
-  storeParamsSchema,
+  storeIdParamsSchema,
   updateTableSchema,
 } from '@spaceorder/auth';
 import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
@@ -35,7 +35,10 @@ export class TableController {
   @Post()
   @HttpCode(201)
   @UseGuards(
-    ZodValidationGuard({ params: storeParamsSchema, body: createTableSchema }),
+    ZodValidationGuard({
+      params: storeIdParamsSchema,
+      body: createTableSchema,
+    }),
   )
   async createTable(
     @Param('storeId') storePublicId: string,
@@ -45,7 +48,7 @@ export class TableController {
   }
 
   @Get()
-  @UseGuards(ZodValidationGuard({ params: storeParamsSchema }))
+  @UseGuards(ZodValidationGuard({ params: storeIdParamsSchema }))
   async retrieveTableList(
     @Param('storeId') storePublicId: string,
   ): Promise<PublicTable[]> {

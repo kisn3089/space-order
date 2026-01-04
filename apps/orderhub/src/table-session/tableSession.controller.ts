@@ -19,8 +19,9 @@ import { responseCookie } from 'src/utils/cookies';
 import { COOKIE_TABLE } from '@spaceorder/db';
 import type { PublicTableSession, TableSession } from '@spaceorder/db';
 import { TableSessionGuard } from 'src/utils/guards/table-session.guard';
-import { Session } from 'src/dacorators/tableSession.decorator';
+import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';
+import { TableSessionResponseDto } from './dto/tableSessionResponse.dto';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionSchema>;
 
@@ -81,7 +82,7 @@ export class TableSessionController {
 
   @Get()
   @HttpCode(200)
-  // @UseGuards(TableSessionGuard)
+  @UseGuards(TableSessionGuard)
   /** TODO: 전체 세션 정보를 볼 필요가 있을까? (개발 이후에 삭제 고려) */
   async getSessionList(
     @Param('tableId') tablePublicId: string,
@@ -91,12 +92,16 @@ export class TableSessionController {
 
   /** TODO: 테스트를 위한 임시 */
   @Get('get')
-  // @UseGuards(TableSessionGuard)
+  @UseGuards(TableSessionGuard)
   async getSessionBySessionToken(
     @Session() tableSession: TableSession,
-  ): Promise<PublicTableSession> {
-    return await this.tableSessionService.getSessionBySessionToken(
-      tableSession.sessionToken,
-    );
+  ): Promise<TableSessionResponseDto> {
+    const findTableSession =
+      await this.tableSessionService.getSessionBySessionToken(
+        tableSession.sessionToken,
+      );
+
+    /** dto가 현재는 여기서만 쓰인다. */
+    return new TableSessionResponseDto(findTableSession);
   }
 }

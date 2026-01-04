@@ -8,14 +8,13 @@ import { Owner, PublicOwner } from '@spaceorder/db';
 export class OwnerService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  private readonly ownerOmit = { id: true, password: true, refreshToken: true };
+
   async createOwner(createOwnerDto: CreateOwnerDto): Promise<PublicOwner> {
     const encryptedPassword = await encrypt(createOwnerDto.password);
     const createdOwner = await this.prismaService.owner.create({
-      data: {
-        ...createOwnerDto,
-        password: encryptedPassword,
-      },
-      omit: { id: true, password: true, refreshToken: true },
+      data: { ...createOwnerDto, password: encryptedPassword },
+      omit: this.ownerOmit,
     });
 
     return createdOwner;
@@ -23,12 +22,12 @@ export class OwnerService {
 
   async getOwnerList(): Promise<PublicOwner[]> {
     return await this.prismaService.owner.findMany({
-      omit: { id: true, password: true, refreshToken: true },
+      omit: this.ownerOmit,
     });
   }
 
   async getOwnerById(ownerPublicId: string): Promise<Owner> {
-    return await this.prismaService.owner.findUniqueOrThrow({
+    return await this.prismaService.owner.findFirstOrThrow({
       where: { publicId: ownerPublicId },
     });
   }
@@ -50,14 +49,14 @@ export class OwnerService {
     return await this.prismaService.owner.update({
       where: { publicId: ownerPublicId },
       data: updateOwnerDto,
-      omit: { id: true, password: true, refreshToken: true },
+      omit: this.ownerOmit,
     });
   }
 
   async deleteOwner(ownerPublicId: string): Promise<PublicOwner> {
     return await this.prismaService.owner.delete({
       where: { publicId: ownerPublicId },
-      omit: { id: true, password: true, refreshToken: true },
+      omit: this.ownerOmit,
     });
   }
 
@@ -68,7 +67,7 @@ export class OwnerService {
     return await this.prismaService.owner.update({
       where: { publicId: ownerPublicId },
       data: { lastLoginAt: new Date(), refreshToken },
-      omit: { id: true, password: true, refreshToken: true },
+      omit: this.ownerOmit,
     });
   }
 }

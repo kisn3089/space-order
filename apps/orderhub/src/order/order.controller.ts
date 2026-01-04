@@ -28,7 +28,7 @@ import {
   updateOrderSchema,
 } from '@spaceorder/auth';
 import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
-import { Session } from 'src/dacorators/tableSession.decorator';
+import { Session } from 'src/decorators/tableSession.decorator';
 import { responseCookie } from 'src/utils/cookies';
 
 export class CreateOrderDto extends createZodDto(createOrderSchema) {}

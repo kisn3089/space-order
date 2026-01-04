@@ -19,7 +19,7 @@ import {
 } from '@spaceorder/auth';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
-import { Client } from 'src/dacorators/client.decorator';
+import { Client } from 'src/decorators/client.decorator';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}

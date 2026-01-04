@@ -34,7 +34,7 @@ export class OwnerService {
 
   /**
    * This method is used for validating owner sign-in
-   * For user-facing endpoints, use @function getSanitizeOwner instead.
+   * For user-facing endpoints, use @class OwnerResponseDto instead.
    */
   async getOwnerByEmail(email: string): Promise<Owner> {
     return await this.prismaService.owner.findUniqueOrThrow({

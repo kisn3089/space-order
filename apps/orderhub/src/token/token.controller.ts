@@ -1,7 +1,7 @@
 import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { TokenService } from './token.service';
-import { LocalAuthGuard } from '../utils/guards/local-auth.guard';
-import { Client } from '../dacorators/client.decorator';
+import { LocalSignInGuard } from '../utils/guards/local-sign-in.guard';
+import { Client } from '../decorators/client.decorator';
 import type { Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
@@ -14,7 +14,7 @@ export class TokenController {
   constructor(private readonly tokenService: TokenService) {}
 
   @Post()
-  @UseGuards(ZodValidationGuard({ body: signInFormSchema }), LocalAuthGuard)
+  @UseGuards(ZodValidationGuard({ body: signInFormSchema }), LocalSignInGuard)
   createTokenBySignIn(
     @Client() owner: Owner,
     @Res({ passthrough: true }) response: Response,

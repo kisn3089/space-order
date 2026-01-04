@@ -14,6 +14,7 @@ import { CreateOrderDto, UpdateOrderDto } from './order.controller';
 import { sumFromObjects } from '@spaceorder/auth';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
+import { Tx } from 'src/utils/helper/transactionPipe';
 
 type MenuValidationFields = Pick<Menu, 'publicId' | 'name' | 'price'>;
 type CreateOrderItemsWithValidMenuReturn = {
@@ -24,6 +25,12 @@ type CreateOrderReturn = {
   createdOrder: PublicOrder;
   updatedTableSession: PublicTableSession;
 };
+type OrderBaseParams = {
+  storePublicId: string;
+  tablePublicId: string;
+  tableSession: TableSession;
+};
+type OrderIdParams = { orderPublicId: string };
 
 @Injectable()
 export class OrderService {
@@ -32,12 +39,23 @@ export class OrderService {
     private readonly tableSessionService: TableSessionService,
   ) {}
 
+  private readonly orderIncludeOrOmit = {
+    include: {
+      orderItems: { omit: { id: true, orderId: true, menuId: true } },
+    },
+    omit: {
+      id: true,
+      storeId: true,
+      tableId: true,
+      tableSessionId: true,
+    },
+  };
+
   async createOrder(
-    storePublicId: string,
-    tablePublicId: string,
-    tableSession: TableSession,
+    params: OrderBaseParams,
     createOrderDto: CreateOrderDto,
   ): Promise<CreateOrderReturn> {
+    const { storePublicId, tablePublicId, tableSession } = params;
     return await this.prismaService.$transaction(async (tx) => {
       const menuPublicIds = createOrderDto.orderItems.map(
         (item) => item.menuPublicId,
@@ -71,10 +89,7 @@ export class OrderService {
           orderItems: { create: bulkCreateOrderItems },
           totalPrice: totalPriceByServer,
         },
-        include: {
-          orderItems: { omit: { id: true, orderId: true, menuId: true } },
-        },
-        omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+        ...this.orderIncludeOrOmit,
       });
 
       return {
@@ -105,7 +120,7 @@ export class OrderService {
 
     const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
       createOrderDto.orderItems.map((orderItem) => {
-        const menu = menuMap.getOrThrown(orderItem.menuPublicId);
+        const menu = menuMap.getOrThrow(orderItem.menuPublicId);
         return {
           menu: { connect: { publicId: orderItem.menuPublicId } },
           menuName: menu.name,
@@ -143,7 +158,7 @@ export class OrderService {
     const totalPriceByServer = sumFromObjects(
       createOrderDto.orderItems,
       (orderItem) => {
-        const menu = menuMap.getOrThrown(orderItem.menuPublicId);
+        const menu = menuMap.getOrThrow(orderItem.menuPublicId);
         return menu.price * orderItem.quantity;
       },
     );
@@ -171,76 +186,54 @@ export class OrderService {
     return totalPriceByServer;
   }
 
-  async getOrderList(
-    storePublicId: string,
-    tablePublicId: string,
-    tableSession: TableSession,
-  ): Promise<PublicOrder[]> {
+  async getOrderList(params: OrderBaseParams): Promise<PublicOrder[]> {
+    const { storePublicId, tablePublicId, tableSession } = params;
     return await this.prismaService.order.findMany({
       where: {
         store: { publicId: storePublicId },
         table: { publicId: tablePublicId },
         tableSession: { id: tableSession.id },
       },
-      include: {
-        orderItems: { omit: { id: true, orderId: true, menuId: true } },
-      },
-      omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+      ...this.orderIncludeOrOmit,
     });
   }
 
-  async getOrderById(
-    storePublicId: string,
-    tablePublicId: string,
-    orderPublicId: string,
-    tableSession: TableSession,
-  ): Promise<PublicOrder> {
-    return await this.prismaService.order.findUniqueOrThrow({
-      where: {
-        publicId: orderPublicId,
-        /** Authorization filters: Ensure the order belongs to the specified store, table, and session
-         * This prevents unauthorized access to orders from other stores/tables/sessions
-         */
-        store: { publicId: storePublicId },
-        table: { publicId: tablePublicId },
-        tableSession: { id: tableSession.id },
-      },
-      include: {
-        orderItems: { omit: { id: true, orderId: true, menuId: true } },
-      },
-      omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
-    });
+  txableGetOrderById(tx?: Tx) {
+    const txableService = tx ?? this.prismaService;
+    return async (
+      params: OrderBaseParams & OrderIdParams,
+    ): Promise<PublicOrder> => {
+      const { storePublicId, tablePublicId, orderPublicId, tableSession } =
+        params;
+      return await txableService.order.findFirstOrThrow({
+        where: {
+          publicId: orderPublicId,
+          store: { publicId: storePublicId },
+          table: { publicId: tablePublicId },
+          tableSession: { id: tableSession.id },
+        },
+        ...this.orderIncludeOrOmit,
+      });
+    };
   }
 
   async updateOrder(
-    storePublicId: string,
-    tablePublicId: string,
-    orderPublicId: string,
-    tableSession: TableSession,
+    params: OrderBaseParams & OrderIdParams,
     updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrder> {
     return await this.prismaService.$transaction(async (tx) => {
+      await this.txableGetOrderById(tx)(params);
+      const { orderPublicId } = params;
+
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
-          where: {
-            publicId: orderPublicId,
-            store: { publicId: storePublicId },
-            table: { publicId: tablePublicId },
-            tableSession: { id: tableSession.id },
-          },
+          where: { publicId: orderPublicId },
           data: restUpdateOrderDto,
-          include: {
-            orderItems: { omit: { id: true, orderId: true, menuId: true } },
-          },
-          omit: {
-            id: true,
-            storeId: true,
-            tableId: true,
-            tableSessionId: true,
-          },
+          ...this.orderIncludeOrOmit,
         });
       }
+
       const menuPublicIds = orderItems.map((item) => item.menuPublicId);
       const findMenuList = await tx.menu.findMany({
         where: { publicId: { in: menuPublicIds } },
@@ -254,12 +247,7 @@ export class OrderService {
           menuPublicIds,
         );
       return tx.order.update({
-        where: {
-          publicId: orderPublicId,
-          store: { publicId: storePublicId },
-          table: { publicId: tablePublicId },
-          tableSession: { id: tableSession.id },
-        },
+        where: { publicId: orderPublicId },
         data: {
           /**
            *  NOTE: We intentionally delete and recreate all orderItems on update.
@@ -274,34 +262,23 @@ export class OrderService {
           orderItems: { deleteMany: {}, create: bulkCreateOrderItems },
           totalPrice: totalPriceByServer,
         },
-        include: {
-          orderItems: { omit: { id: true, orderId: true, menuId: true } },
-        },
-        omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+        ...this.orderIncludeOrOmit,
       });
     });
   }
 
   async cancelOrder(
-    storePublicId: string,
-    tablePublicId: string,
-    orderPublicId: string,
-    tableSession: TableSession,
+    params: OrderBaseParams & OrderIdParams,
   ): Promise<PublicOrder> {
-    return await this.prismaService.order.update({
-      where: {
-        publicId: orderPublicId,
-        store: { publicId: storePublicId },
-        table: { publicId: tablePublicId },
-        tableSession: { id: tableSession.id },
-      },
-      data: {
-        status: OrderStatus.CANCELLED,
-      },
-      include: {
-        orderItems: { omit: { id: true, orderId: true, menuId: true } },
-      },
-      omit: { id: true, storeId: true, tableId: true, tableSessionId: true },
+    return await this.prismaService.$transaction(async (tx) => {
+      await this.txableGetOrderById(tx)(params);
+
+      const { orderPublicId } = params;
+      return await tx.order.update({
+        where: { publicId: orderPublicId },
+        data: { status: OrderStatus.CANCELLED },
+        ...this.orderIncludeOrOmit,
+      });
     });
   }
 }

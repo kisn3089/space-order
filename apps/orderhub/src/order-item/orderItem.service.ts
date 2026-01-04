@@ -17,7 +17,7 @@ export class OrderItemService {
     orderPublicId: string,
     orderItemPublicId: string,
   ): Promise<PublicOrderItem> {
-    return await this.prismaService.orderItem.findUniqueOrThrow({
+    return await this.prismaService.orderItem.findFirstOrThrow({
       where: {
         order: { publicId: orderPublicId },
         publicId: orderItemPublicId,

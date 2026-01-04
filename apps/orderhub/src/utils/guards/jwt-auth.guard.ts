@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { PublicOwner } from '@spaceorder/db';
+import { Owner } from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { getSanitizeOwner } from '../jwt/sanitizer';
 
 export interface JwtErrorInfo {
   name?: 'TokenExpiredError' | 'Error' | 'NotBeforeError';
@@ -19,11 +18,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param context - 실행 컨텍스트
    * @param status - HTTP 상태 코드 (선택사항)
    */
-  handleRequest<TUser = PublicOwner>(
-    err: any,
-    user: any,
-    info: JwtErrorInfo,
-  ): TUser {
+  handleRequest<TUser = Owner>(err: any, user: any, info: JwtErrorInfo): TUser {
     if (err || !user) {
       // [TODO:] 로깅 서비스로 변경 필요
       console.warn('user: ', user);
@@ -45,6 +40,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       );
     }
 
-    return getSanitizeOwner(user) as TUser;
+    return user;
   }
 }

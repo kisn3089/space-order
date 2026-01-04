@@ -1,7 +1,7 @@
 import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { LocalAuthGuard } from '../utils/guards/local-auth.guard';
-import { JwtUser } from '../dacorators/jwtUser.decorator';
+import { Client } from '../dacorators/client.decorator';
 import type { Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
@@ -16,7 +16,7 @@ export class TokenController {
   @Post()
   @UseGuards(ZodValidationGuard({ body: signInFormSchema }), LocalAuthGuard)
   createTokenBySignIn(
-    @JwtUser() owner: Owner,
+    @Client() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ): Promise<AccessToken> {
     return this.tokenService.createToken(owner, response);
@@ -25,7 +25,7 @@ export class TokenController {
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
   createTokenByRefreshToken(
-    @JwtUser() owner: Owner,
+    @Client() owner: Owner,
     @Res({ passthrough: true }) response: Response,
   ): Promise<AccessToken> {
     return this.tokenService.createToken(owner, response);

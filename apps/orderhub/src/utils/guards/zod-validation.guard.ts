@@ -73,7 +73,7 @@ export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
           );
         }
         console.warn('zod-validator exception: ', error);
-        throw new Error(`zod-validator exception ${error as string}`);
+        throw new Error(`zod-validator exception ${JSON.stringify(error)}`);
       }
     }
   }

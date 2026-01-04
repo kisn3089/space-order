@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Response } from 'express';
-import { Owner, Prisma, PublicOwner } from '@spaceorder/db';
+import { Owner, Prisma } from '@spaceorder/db';
 import { comparePlainToEncrypted, encrypt } from 'src/utils/lib/crypt';
 import { OwnerService } from '../owner/owner.service';
 import type { AccessToken, SignInRequest } from '@spaceorder/api';
 import { GenerateToken } from 'src/utils/jwt/token-config';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { getSanitizeOwner } from 'src/utils/jwt/sanitizer';
+import { OwnerResponseDto } from 'src/owner/dto/ownerResponse.dto';
 
 /** TODO: admin, owner 분기될 시점에는 인자를 추가로 받아서 처리해야 한다.
  * ex) user: Owner | Admin
@@ -33,7 +33,7 @@ export class TokenService {
   async validateSignInPayload({
     email,
     password,
-  }: SignInRequest): Promise<PublicOwner | undefined> {
+  }: SignInRequest): Promise<OwnerResponseDto | undefined> {
     try {
       const owner = await this.ownerService.getOwnerByEmail(email);
 
@@ -45,7 +45,7 @@ export class TokenService {
       if (!isCorrectPassword) {
         throw new Error('INVALID PASSWORD');
       }
-      return getSanitizeOwner(owner);
+      return new OwnerResponseDto(owner);
     } catch (error: unknown) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError ||

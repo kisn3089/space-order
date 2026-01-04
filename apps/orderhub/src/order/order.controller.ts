@@ -28,7 +28,7 @@ import {
   updateOrderSchema,
 } from '@spaceorder/auth';
 import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
-import { Session } from 'src/dacorators/tableSession.decorator';
+import { Session } from 'src/decorators/tableSession.decorator';
 import { responseCookie } from 'src/utils/cookies';
 
 export class CreateOrderDto extends createZodDto(createOrderSchema) {}
@@ -36,13 +36,13 @@ export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}
 
 @Controller('stores/:storeId/tables/:tableId/orders')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(TableSessionGuard)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
   @HttpCode(201)
   @UseGuards(
-    TableSessionGuard,
     ZodValidationGuard({
       params: mergedStoreAndTableParamsSchema,
       body: createOrderSchema,
@@ -57,9 +57,11 @@ export class OrderController {
   ): Promise<PublicOrder> {
     const { createdOrder, updatedTableSession } =
       await this.orderService.createOrder(
-        storePublicId,
-        tablePublicId,
-        tableSession,
+        {
+          storePublicId,
+          tablePublicId,
+          tableSession,
+        },
         createOrderDto,
       );
 
@@ -75,46 +77,39 @@ export class OrderController {
 
   @Get()
   @HttpCode(200)
-  @UseGuards(
-    TableSessionGuard,
-    ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }),
-  )
+  @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
   async getOrderList(
     @Session() tableSession: TableSession,
     @Param('storeId') storePublicId: string,
     @Param('tableId') tablePublicId: string,
   ): Promise<PublicOrder[]> {
-    return await this.orderService.getOrderList(
+    return await this.orderService.getOrderList({
       storePublicId,
       tablePublicId,
       tableSession,
-    );
+    });
   }
 
   @Get(':orderId')
   @HttpCode(200)
-  @UseGuards(
-    TableSessionGuard,
-    ZodValidationGuard({ params: orderParamsSchema }),
-  )
+  @UseGuards(ZodValidationGuard({ params: orderParamsSchema }))
   async getOrderById(
     @Session() tableSession: TableSession,
     @Param('storeId') storePublicId: string,
     @Param('tableId') tablePublicId: string,
     @Param('orderId') orderPublicId: string,
   ): Promise<PublicOrder> {
-    return await this.orderService.getOrderById(
+    return await this.orderService.txableGetOrderById()({
       storePublicId,
       tablePublicId,
       orderPublicId,
       tableSession,
-    );
+    });
   }
 
   @Patch(':orderId')
   @HttpCode(200)
   @UseGuards(
-    TableSessionGuard,
     ZodValidationGuard({
       params: orderParamsSchema,
       body: updateOrderSchema,
@@ -128,31 +123,30 @@ export class OrderController {
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrder> {
     return await this.orderService.updateOrder(
-      storePublicId,
-      tablePublicId,
-      orderPublicId,
-      tableSession,
+      {
+        storePublicId,
+        tablePublicId,
+        orderPublicId,
+        tableSession,
+      },
       updateOrderDto,
     );
   }
 
   @Delete(':orderId')
   @HttpCode(200)
-  @UseGuards(
-    TableSessionGuard,
-    ZodValidationGuard({ params: orderParamsSchema }),
-  )
+  @UseGuards(ZodValidationGuard({ params: orderParamsSchema }))
   async cancelOrder(
     @Session() tableSession: TableSession,
     @Param('storeId') storePublicId: string,
     @Param('tableId') tablePublicId: string,
     @Param('orderId') orderPublicId: string,
   ): Promise<PublicOrder> {
-    return await this.orderService.cancelOrder(
+    return await this.orderService.cancelOrder({
       storePublicId,
       tablePublicId,
       orderPublicId,
       tableSession,
-    );
+    });
   }
 }

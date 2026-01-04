@@ -7,8 +7,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { JwtUser } from 'src/dacorators/jwtUser.decorator';
-import type { Owner, PublicOwner } from '@spaceorder/db';
+import { Client } from 'src/decorators/client.decorator';
+import type { Owner } from '@spaceorder/db';
+import { OwnerResponseDto } from 'src/owner/dto/ownerResponse.dto';
 
 @Controller('me')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -16,7 +17,7 @@ export class MeController {
   @Get()
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
-  findMe(@JwtUser() owner: Owner): PublicOwner {
-    return owner;
+  findMe(@Client() owner: Owner): OwnerResponseDto {
+    return new OwnerResponseDto(owner);
   }
 }

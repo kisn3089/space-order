@@ -8,7 +8,7 @@ export class ExtendedMap<K, V> extends Map<K, V> {
   private exceptionContent: ExceptionContentKeys = 'BADREQUEST';
   private exceptionStatus: number = HttpStatus.BAD_REQUEST;
 
-  getOrThrown(key: K): V {
+  getOrThrow(key: K): V {
     const value = this.get(key);
     if (value === undefined) {
       throw new HttpException(

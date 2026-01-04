@@ -52,7 +52,7 @@ export class TableController {
 
   @Get()
   @UseGuards(ZodValidationGuard({ params: storeIdParamsSchema }))
-  async retrieveTableList(
+  async getTableList(
     @Param('storeId') storePublicId: string,
   ): Promise<PublicTable[]> {
     return await this.tableService.getTableList({ storePublicId });
@@ -60,7 +60,7 @@ export class TableController {
 
   @Get(':tableId')
   @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
-  async retrieveTableById(
+  async getTableById(
     @Param('tableId') tablePublicId: string,
   ): Promise<PublicTable> {
     return await this.tableService.txableGetTableById()({ tablePublicId });

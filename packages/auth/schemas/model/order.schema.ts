@@ -41,7 +41,7 @@ const orderItemSchema = z
 export const createOrderSchema = z.object({
   orderItems: orderItemSchema.array(),
   memo: z.string().max(50, "메모는 최대 50자까지 가능합니다.").optional(),
-  totalPrice: z.number().optional(),
+  totalPrice: z.number().min(0, "총 가격은 0 이상이어야 합니다.").optional(),
 });
 
 export const updateOrderSchema = createOrderSchema

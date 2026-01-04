@@ -6,11 +6,10 @@ import {
   Patch,
   Param,
   UseGuards,
-  HttpCode,
   Delete,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
-import { PublicMenu } from '@spaceorder/db';
+import type { Owner, PublicMenu } from '@spaceorder/db';
 import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
 import {
   createMenuSchema,
@@ -20,50 +19,57 @@ import {
 } from '@spaceorder/auth';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
+import { Client } from 'src/dacorators/client.decorator';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}
 
+/**
+ * 1. JwtAuthGuard와 도메인별 쓰기 권한 검증 데코레이터로 분리
+ * 2. controller레이어에 response DTO 사용하여 service 레이어에서는 모든 필드 사용
+ * 대신, 다중 조회 메서드에서는 omit 처리(최저화)
+ */
+
 @Controller('stores/:storeId/menus')
+@UseGuards(JwtAuthGuard)
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
   @Post()
-  @HttpCode(201)
-  @UseGuards(JwtAuthGuard, ZodValidationGuard({ params: storeIdParamsSchema }))
+  @UseGuards(
+    ZodValidationGuard({ params: storeIdParamsSchema, body: createMenuSchema }),
+  )
   async createMenu(
+    @Client() client: Owner,
     @Param('storeId') storePublicId: string,
     @Body() createMenuDto: CreateMenuDto,
   ) {
-    return await this.menuService.createMenu(storePublicId, createMenuDto);
+    return await this.menuService.createMenu({ storePublicId }, createMenuDto);
   }
 
   @Get()
-  @HttpCode(200)
-  @UseGuards(JwtAuthGuard, ZodValidationGuard({ params: storeIdParamsSchema }))
+  @UseGuards(ZodValidationGuard({ params: storeIdParamsSchema }))
   async getMenuList(
+    @Client() client: Owner,
     @Param('storeId') storePublicId: string,
   ): Promise<PublicMenu[]> {
-    return await this.menuService.getMenuList(storePublicId);
+    return await this.menuService.getMenuList(client, { storePublicId });
   }
 
   @Get(':menuId')
-  @HttpCode(200)
-  @UseGuards(
-    JwtAuthGuard,
-    ZodValidationGuard({ params: mergedStoreIdAndMenuIdParamsSchema }),
-  )
-  async findOne(
+  @UseGuards(ZodValidationGuard({ params: mergedStoreIdAndMenuIdParamsSchema }))
+  async getMenuById(
     @Param('storeId') storePublicId: string,
     @Param('menuId') menuPublicId: string,
   ): Promise<PublicMenu> {
-    return await this.menuService.getMenuById(storePublicId, menuPublicId);
+    return await this.menuService.txableGetMenuById()({
+      storePublicId,
+      menuPublicId,
+    });
   }
 
   @Patch(':menuId')
-  @HttpCode(200)
   @UseGuards(
-    JwtAuthGuard,
     ZodValidationGuard({
       params: mergedStoreIdAndMenuIdParamsSchema,
       body: updateMenuSchema,
@@ -75,22 +81,17 @@ export class MenuController {
     @Body() updateMenuDto: UpdateMenuDto,
   ): Promise<PublicMenu> {
     return await this.menuService.updateMenu(
-      storePublicId,
-      menuPublicId,
+      { storePublicId, menuPublicId },
       updateMenuDto,
     );
   }
 
   @Delete(':menuId')
-  @HttpCode(204)
-  @UseGuards(
-    JwtAuthGuard,
-    ZodValidationGuard({ params: mergedStoreIdAndMenuIdParamsSchema }),
-  )
+  @UseGuards(ZodValidationGuard({ params: mergedStoreIdAndMenuIdParamsSchema }))
   async deleteMenu(
     @Param('storeId') storePublicId: string,
     @Param('menuId') menuPublicId: string,
   ): Promise<void> {
-    await this.menuService.deleteMenu(storePublicId, menuPublicId);
+    await this.menuService.deleteMenu({ storePublicId, menuPublicId });
   }
 }

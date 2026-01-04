@@ -15,7 +15,7 @@ export const createMenuSchema = z
       .string()
       .min(1, "메뉴 이름은 필수입니다.")
       .max(30, "메뉴 이름은 최대 30자까지 가능합니다."),
-    price: z.number(),
+    price: z.number().min(0, "메뉴 가격은 0원 이상이어야 합니다."),
     description: z
       .string()
       .max(100, "메뉴 설명은 최대 100자까지 가능합니다.")
@@ -25,7 +25,7 @@ export const createMenuSchema = z
       .string()
       .max(20, "카테고리 이름은 최대 20자까지 가능합니다.")
       .optional(),
-    sortOrder: z.number().optional(),
+    sortOrder: z.number().min(0, "정렬 순서는 0 이상이어야 합니다.").optional(),
     requiredOptions: z.record(z.string(), z.string().array()).optional(),
     customOptions: z
       .record(

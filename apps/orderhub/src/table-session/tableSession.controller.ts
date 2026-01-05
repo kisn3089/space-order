@@ -14,19 +14,20 @@ import {
 } from '@nestjs/common';
 import { TableSessionService } from './tableSession.service';
 import { tableParamsSchema, updateSessionSchema } from '@spaceorder/auth';
-import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
+import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { responseCookie } from 'src/utils/cookies';
 import { COOKIE_TABLE } from '@spaceorder/db';
 import type { PublicTableSession, TableSession } from '@spaceorder/db';
-import { TableSessionGuard } from 'src/utils/guards/table-session.guard';
+import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';
 import { TableSessionResponseDto } from './dto/tableSessionResponse.dto';
+import { SessionPermission } from 'src/utils/guards/model-auth/table-session-permission.guard';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionSchema>;
 
 @Controller('tables/:tableId/session')
-@UseGuards(ZodValidationGuard({ params: tableParamsSchema }))
+@UseGuards(ZodValidation({ params: tableParamsSchema }))
 @UseInterceptors(ClassSerializerInterceptor)
 export class TableSessionController {
   constructor(private readonly tableSessionService: TableSessionService) {}
@@ -55,8 +56,9 @@ export class TableSessionController {
   @Patch()
   @HttpCode(200)
   @UseGuards(
-    TableSessionGuard,
-    ZodValidationGuard({ body: updateSessionSchema }),
+    SessionAuth,
+    ZodValidation({ body: updateSessionSchema }),
+    SessionPermission,
   )
   async partialUpdate(
     @Session() tableSession: TableSession,
@@ -82,7 +84,7 @@ export class TableSessionController {
 
   @Get()
   @HttpCode(200)
-  @UseGuards(TableSessionGuard)
+  @UseGuards(SessionAuth, SessionPermission)
   /** TODO: 전체 세션 정보를 볼 필요가 있을까? (개발 이후에 삭제 고려) */
   async getSessionList(
     @Param('tableId') tablePublicId: string,
@@ -92,7 +94,7 @@ export class TableSessionController {
 
   /** TODO: 테스트를 위한 임시 */
   @Get('get')
-  @UseGuards(TableSessionGuard)
+  @UseGuards(SessionAuth, SessionPermission)
   async getSessionBySessionToken(
     @Session() tableSession: TableSession,
   ): Promise<TableSessionResponseDto> {

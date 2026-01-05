@@ -12,6 +12,7 @@ import { UpdateTableSessionDto } from './tableSession.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { sumFromObjects } from '@spaceorder/auth';
 import { Tx } from 'src/utils/helper/transactionPipe';
+import { IncludingIdTableSession } from 'src/utils/guards/table-session-auth.guard';
 
 @Injectable()
 export class TableSessionService {
@@ -81,9 +82,16 @@ export class TableSessionService {
     return session.expiresAt < new Date();
   }
 
-  async getSessionBySessionToken(sessionToken: string): Promise<TableSession> {
+  async getSessionBySessionToken(
+    sessionToken: string,
+  ): Promise<IncludingIdTableSession> {
     return await this.prismaService.tableSession.findFirstOrThrow({
       where: { sessionToken },
+      include: {
+        table: {
+          include: { store: { select: { publicId: true, id: true } } },
+        },
+      },
     });
   }
 

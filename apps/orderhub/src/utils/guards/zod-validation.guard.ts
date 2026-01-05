@@ -19,7 +19,7 @@ interface Schemas {
   query?: ZodSchema;
 }
 
-export function ZodValidationGuard(schemas: Schemas): Type<CanActivate> {
+export function ZodValidation(schemas: Schemas): Type<CanActivate> {
   @Injectable()
   class ZodValidationGuardMixin implements CanActivate {
     canActivate(context: ExecutionContext): boolean {

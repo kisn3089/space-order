@@ -1,12 +1,4 @@
-import {
-  ClassSerializerInterceptor,
-  Controller,
-  Get,
-  HttpCode,
-  Param,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, UseGuards } from '@nestjs/common';
 import { OrderItemService } from './orderItem.service';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { orderItemParamsSchema, orderIdParamsSchema } from '@spaceorder/auth';
@@ -15,7 +7,6 @@ import { PublicOrderItem } from '@spaceorder/db';
 
 @Controller('orders/:orderId/order-items')
 @UseGuards(JwtAuthGuard)
-@UseInterceptors(ClassSerializerInterceptor)
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
 

@@ -3,10 +3,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { createId } from '@paralleldrive/cuid2';
 import { CreateTableDto, UpdateTableDto } from './table.controller';
 import type { PublicTable } from '@spaceorder/db';
-import { Tx } from 'src/utils/helper/transactionPipe';
 
-type TableBaseParams = { storePublicId: string };
-type TableIdParams = { tablePublicId: string };
+type StoreIdParams = { storeId: string };
+type TableIdParams = { tableId: string };
 
 @Injectable()
 export class TableService {
@@ -15,7 +14,7 @@ export class TableService {
   private readonly tableOmit = { id: true, storeId: true };
 
   async createTable(
-    { storePublicId }: TableBaseParams,
+    { storeId: storePublicId }: StoreIdParams,
     createTableDto: CreateTableDto,
   ): Promise<PublicTable> {
     const tablePublicId = createId();
@@ -36,47 +35,41 @@ export class TableService {
   }
 
   async getTableList({
-    storePublicId,
-  }: TableBaseParams): Promise<PublicTable[]> {
+    storeId: storePublicId,
+  }: StoreIdParams): Promise<PublicTable[]> {
     return await this.prismaService.table.findMany({
       where: { store: { publicId: storePublicId } },
       omit: this.tableOmit,
     });
   }
 
-  txableGetTableById(tx?: Tx) {
-    const txableService = tx ?? this.prismaService;
-    return async ({ tablePublicId }: TableIdParams): Promise<PublicTable> => {
-      return await txableService.table.findFirstOrThrow({
-        where: { publicId: tablePublicId },
-        omit: this.tableOmit,
-      });
-    };
-  }
-
-  async updateTable(
-    { tablePublicId }: TableIdParams,
-    updateTableDto: UpdateTableDto,
-  ): Promise<PublicTable> {
-    return await this.prismaService.$transaction(async (tx) => {
-      await this.txableGetTableById(tx)({ tablePublicId });
-
-      return await tx.table.update({
-        where: { publicId: tablePublicId },
-        data: updateTableDto,
-        omit: this.tableOmit,
-      });
+  async getTableById({
+    storeId: storePublicId,
+    tableId: tablePublicId,
+  }: TableIdParams & StoreIdParams): Promise<PublicTable> {
+    return await this.prismaService.table.findFirstOrThrow({
+      where: { publicId: tablePublicId, store: { publicId: storePublicId } },
+      omit: this.tableOmit,
     });
   }
 
-  async deleteTable({ tablePublicId }: TableIdParams): Promise<PublicTable> {
-    return await this.prismaService.$transaction(async (tx) => {
-      await this.txableGetTableById(tx)({ tablePublicId });
+  async updateTable(
+    { tableId: tablePublicId }: TableIdParams,
+    updateTableDto: UpdateTableDto,
+  ): Promise<PublicTable> {
+    return await this.prismaService.table.update({
+      where: { publicId: tablePublicId },
+      data: updateTableDto,
+      omit: this.tableOmit,
+    });
+  }
 
-      return await tx.table.delete({
-        where: { publicId: tablePublicId },
-        omit: this.tableOmit,
-      });
+  async deleteTable({
+    tableId: tablePublicId,
+  }: TableIdParams): Promise<PublicTable> {
+    return await this.prismaService.table.delete({
+      where: { publicId: tablePublicId },
+      omit: this.tableOmit,
     });
   }
 }

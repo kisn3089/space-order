@@ -6,8 +6,6 @@ import {
   Get,
   Patch,
   Delete,
-  UseInterceptors,
-  ClassSerializerInterceptor,
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
@@ -20,73 +18,79 @@ import {
   storeIdParamsSchema,
   updateTableSchema,
 } from '@spaceorder/auth';
-import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
+import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { PublicTable } from '@spaceorder/db';
+import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
 export class UpdateTableDto extends createZodDto(updateTableSchema) {}
 
 @Controller('stores/:storeId/tables')
 @UseGuards(JwtAuthGuard)
-@UseInterceptors(ClassSerializerInterceptor)
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
   @Post()
   @HttpCode(201)
   @UseGuards(
-    ZodValidationGuard({
+    ZodValidation({
       params: storeIdParamsSchema,
       body: createTableSchema,
     }),
+    TablePermission,
   )
   async createTable(
-    @Param('storeId') storePublicId: string,
+    @Param('storeId') storeId: string,
     @Body() createTableDto: CreateTableDto,
   ): Promise<PublicTable> {
-    return await this.tableService.createTable(
-      { storePublicId },
-      createTableDto,
-    );
+    return await this.tableService.createTable({ storeId }, createTableDto);
   }
 
   @Get()
-  @UseGuards(ZodValidationGuard({ params: storeIdParamsSchema }))
+  @UseGuards(ZodValidation({ params: storeIdParamsSchema }), TablePermission)
   async getTableList(
-    @Param('storeId') storePublicId: string,
+    @Param('storeId') storeId: string,
   ): Promise<PublicTable[]> {
-    return await this.tableService.getTableList({ storePublicId });
+    return await this.tableService.getTableList({ storeId });
   }
 
   @Get(':tableId')
-  @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
+  @UseGuards(
+    ZodValidation({ params: mergedStoreAndTableParamsSchema }),
+    TablePermission,
+  )
   async getTableById(
-    @Param('tableId') tablePublicId: string,
+    @Param('storeId') storeId: string,
+    @Param('tableId') tableId: string,
   ): Promise<PublicTable> {
-    return await this.tableService.txableGetTableById()({ tablePublicId });
+    return await this.tableService.getTableById({
+      storeId,
+      tableId,
+    });
   }
 
   @Patch(':tableId')
   @UseGuards(
-    ZodValidationGuard({
+    ZodValidation({
       params: mergedStoreAndTableParamsSchema,
       body: updateTableSchema,
     }),
+    TablePermission,
   )
   async updateTable(
-    @Param('tableId') tablePublicId: string,
+    @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
   ): Promise<PublicTable> {
-    return await this.tableService.updateTable(
-      { tablePublicId },
-      updateTableDto,
-    );
+    return await this.tableService.updateTable({ tableId }, updateTableDto);
   }
 
   @Delete(':tableId')
   @HttpCode(204)
-  @UseGuards(ZodValidationGuard({ params: mergedStoreAndTableParamsSchema }))
-  async deleteTable(@Param('tableId') tablePublicId: string): Promise<void> {
-    await this.tableService.deleteTable({ tablePublicId });
+  @UseGuards(
+    ZodValidation({ params: mergedStoreAndTableParamsSchema }),
+    TablePermission,
+  )
+  async deleteTable(@Param('tableId') tableId: string): Promise<void> {
+    await this.tableService.deleteTable({ tableId });
   }
 }

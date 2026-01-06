@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Store } from '@spaceorder/db';
 
 @Injectable()
 export class StoreService {
@@ -27,5 +28,14 @@ export class StoreService {
 
   remove(id: number) {
     return `This action removes a #${id} store`;
+  }
+
+  async getOwnerIdByIdInStore(
+    storePublicId: string,
+  ): Promise<Pick<Store, 'ownerId'>> {
+    return await this.prismaService.store.findFirstOrThrow({
+      where: { publicId: storePublicId },
+      select: { ownerId: true },
+    });
   }
 }

@@ -14,7 +14,6 @@ import { CreateOrderDto, UpdateOrderDto } from './order.controller';
 import { sumFromObjects } from '@spaceorder/auth';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
-import { Tx } from 'src/utils/helper/transactionPipe';
 
 type MenuValidationFields = Pick<Menu, 'publicId' | 'name' | 'price'>;
 type CreateOrderItemsWithValidMenuReturn = {
@@ -25,12 +24,12 @@ type CreateOrderReturn = {
   createdOrder: PublicOrder;
   updatedTableSession: PublicTableSession;
 };
-type OrderBaseParams = {
-  storePublicId: string;
-  tablePublicId: string;
+export type BaseOrderParams = {
+  storeId: string;
+  tableId: string;
   tableSession: TableSession;
 };
-type OrderIdParams = { orderPublicId: string };
+export type OrderIdParams = { orderId: string };
 
 @Injectable()
 export class OrderService {
@@ -52,10 +51,14 @@ export class OrderService {
   };
 
   async createOrder(
-    params: OrderBaseParams,
+    params: BaseOrderParams,
     createOrderDto: CreateOrderDto,
   ): Promise<CreateOrderReturn> {
-    const { storePublicId, tablePublicId, tableSession } = params;
+    const {
+      storeId: storePublicId,
+      tableId: tablePublicId,
+      tableSession,
+    } = params;
     return await this.prismaService.$transaction(async (tx) => {
       const menuPublicIds = createOrderDto.orderItems.map(
         (item) => item.menuPublicId,
@@ -186,8 +189,12 @@ export class OrderService {
     return totalPriceByServer;
   }
 
-  async getOrderList(params: OrderBaseParams): Promise<PublicOrder[]> {
-    const { storePublicId, tablePublicId, tableSession } = params;
+  async getOrderList(params: BaseOrderParams): Promise<PublicOrder[]> {
+    const {
+      storeId: storePublicId,
+      tableId: tablePublicId,
+      tableSession,
+    } = params;
     return await this.prismaService.order.findMany({
       where: {
         store: { publicId: storePublicId },
@@ -198,33 +205,25 @@ export class OrderService {
     });
   }
 
-  txableGetOrderById(tx?: Tx) {
-    const txableService = tx ?? this.prismaService;
-    return async (
-      params: OrderBaseParams & OrderIdParams,
-    ): Promise<PublicOrder> => {
-      const { storePublicId, tablePublicId, orderPublicId, tableSession } =
-        params;
-      return await txableService.order.findFirstOrThrow({
-        where: {
-          publicId: orderPublicId,
-          store: { publicId: storePublicId },
-          table: { publicId: tablePublicId },
-          tableSession: { id: tableSession.id },
-        },
-        ...this.orderIncludeOrOmit,
-      });
-    };
+  async getOrderById(
+    params: BaseOrderParams & OrderIdParams,
+  ): Promise<PublicOrder> {
+    return await this.prismaService.order.findFirstOrThrow({
+      where: {
+        publicId: params.orderId,
+        store: { publicId: params.storeId },
+        table: { publicId: params.tableId },
+        tableSession: { id: params.tableSession.id },
+      },
+      ...this.orderIncludeOrOmit,
+    });
   }
 
   async updateOrder(
-    params: OrderBaseParams & OrderIdParams,
+    orderPublicId: string,
     updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrder> {
     return await this.prismaService.$transaction(async (tx) => {
-      await this.txableGetOrderById(tx)(params);
-      const { orderPublicId } = params;
-
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
@@ -267,18 +266,11 @@ export class OrderService {
     });
   }
 
-  async cancelOrder(
-    params: OrderBaseParams & OrderIdParams,
-  ): Promise<PublicOrder> {
-    return await this.prismaService.$transaction(async (tx) => {
-      await this.txableGetOrderById(tx)(params);
-
-      const { orderPublicId } = params;
-      return await tx.order.update({
-        where: { publicId: orderPublicId },
-        data: { status: OrderStatus.CANCELLED },
-        ...this.orderIncludeOrOmit,
-      });
+  async cancelOrder(orderPublicId: string): Promise<PublicOrder> {
+    return await this.prismaService.order.update({
+      where: { publicId: orderPublicId },
+      data: { status: OrderStatus.CANCELLED },
+      ...this.orderIncludeOrOmit,
     });
   }
 }

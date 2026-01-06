@@ -5,7 +5,7 @@ import { Client } from '../decorators/client.decorator';
 import type { Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
-import { ZodValidationGuard } from 'src/utils/guards/zod-validation.guard';
+import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { signInFormSchema } from '@spaceorder/auth';
 import { AccessToken } from '@spaceorder/api';
 
@@ -14,7 +14,7 @@ export class TokenController {
   constructor(private readonly tokenService: TokenService) {}
 
   @Post()
-  @UseGuards(ZodValidationGuard({ body: signInFormSchema }), LocalSignInGuard)
+  @UseGuards(ZodValidation({ body: signInFormSchema }), LocalSignInGuard)
   createTokenBySignIn(
     @Client() owner: Owner,
     @Res({ passthrough: true }) response: Response,

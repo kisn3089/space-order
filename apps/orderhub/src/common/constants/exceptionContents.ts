@@ -10,6 +10,14 @@ const EXCEPTION_CONTENTS = {
     code: 'BADREQUEST',
     message: '요청이 올바르지 않습니다.',
   },
+  FORBIDDEN: {
+    code: 'FORBIDDEN',
+    message: '해당 리소스에 대한 권한이 없습니다.',
+  },
+  NOT_FOUND: {
+    code: 'NOT_FOUND',
+    message: '요청한 리소스를 찾을 수 없습니다.',
+  },
   REFRESH_FAILED: {
     code: 'REFRESH_FAILED',
     message: 'Refresh token 값이 비어있거나 올바르지 않습니다.',

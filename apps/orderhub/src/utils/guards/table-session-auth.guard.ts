@@ -5,12 +5,22 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { TableSession, COOKIE_TABLE, TableSessionStatus } from '@spaceorder/db';
+import {
+  TableSession,
+  COOKIE_TABLE,
+  TableSessionStatus,
+  Table,
+  Store,
+} from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 
+export type IncludingIdTableSession = TableSession & {
+  table: Table & { store: Pick<Store, 'publicId' | 'id'> };
+};
+
 @Injectable()
-export class TableSessionGuard implements CanActivate {
+export class SessionAuth implements CanActivate {
   constructor(private readonly tableSessionService: TableSessionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,13 +35,13 @@ export class TableSessionGuard implements CanActivate {
       );
     }
 
-    const retrievedTableSession: TableSession =
+    const includingIdTableSession: IncludingIdTableSession =
       await this.tableSessionService.getSessionBySessionToken(
         extractedSessionInCookie,
       );
 
-    if (this.isInvalidStatus(retrievedTableSession)) {
-      await this.tableSessionService.txUpdateSession(retrievedTableSession, {
+    if (this.isInvalidStatus(includingIdTableSession)) {
+      await this.tableSessionService.txUpdateSession(includingIdTableSession, {
         status: TableSessionStatus.CLOSED,
       });
       throw new HttpException(
@@ -40,11 +50,11 @@ export class TableSessionGuard implements CanActivate {
       );
     }
 
-    request.tableSession = retrievedTableSession;
+    request.tableSession = includingIdTableSession;
     return true;
   }
 
-  private isInvalidStatus(session: TableSession): boolean {
+  private isInvalidStatus(session: IncludingIdTableSession): boolean {
     return (
       session.expiresAt < new Date() &&
       !(

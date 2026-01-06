@@ -2,10 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Owner, PublicMenu } from '@spaceorder/db';
 import { CreateMenuDto, UpdateMenuDto } from './menu.controller';
-import { Tx } from 'src/utils/helper/transactionPipe';
-
-type MenuBaseParams = { storePublicId: string };
-type MenuIdParams = { menuPublicId: string };
 
 @Injectable()
 export class MenuService {
@@ -13,68 +9,47 @@ export class MenuService {
   private readonly menuOmit = { id: true, storeId: true };
 
   async createMenu(
-    { storePublicId }: MenuBaseParams,
+    storeId: string,
     createMenuDto: CreateMenuDto,
   ): Promise<PublicMenu> {
     return await this.prismaService.menu.create({
       data: {
-        store: { connect: { publicId: storePublicId } },
+        store: { connect: { publicId: storeId } },
         ...createMenuDto,
       },
       omit: this.menuOmit,
     });
   }
 
-  async getMenuList(
-    client: Owner,
-    { storePublicId }: MenuBaseParams,
-  ): Promise<PublicMenu[]> {
+  async getMenuList(client: Owner, storeId: string): Promise<PublicMenu[]> {
     return await this.prismaService.menu.findMany({
-      where: { store: { publicId: storePublicId, owner: { id: client.id } } },
+      where: { store: { publicId: storeId, owner: { id: client.id } } },
       omit: this.menuOmit,
     });
   }
 
-  txableGetMenuById(tx?: Tx) {
-    const txableService = tx ?? this.prismaService;
-    return async ({
-      storePublicId,
-      menuPublicId,
-    }: MenuBaseParams & MenuIdParams): Promise<PublicMenu> => {
-      return await txableService.menu.findFirstOrThrow({
-        where: { publicId: menuPublicId, store: { publicId: storePublicId } },
-        omit: this.menuOmit,
-      });
-    };
-  }
-
-  async updateMenu(
-    { storePublicId, menuPublicId }: MenuBaseParams & MenuIdParams,
-    updateMenuDto: UpdateMenuDto,
-  ): Promise<PublicMenu> {
-    return await this.prismaService.$transaction(async (tx) => {
-      await this.txableGetMenuById(tx)({ storePublicId, menuPublicId });
-
-      const updatedMenu = await tx.menu.update({
-        where: { publicId: menuPublicId },
-        data: updateMenuDto,
-        omit: this.menuOmit,
-      });
-      return updatedMenu;
+  async getMenuById(storeId: string, menuId: string): Promise<PublicMenu> {
+    return await this.prismaService.menu.findFirstOrThrow({
+      where: { publicId: menuId, store: { publicId: storeId } },
+      omit: this.menuOmit,
     });
   }
 
-  async deleteMenu({
-    storePublicId,
-    menuPublicId,
-  }: MenuBaseParams & MenuIdParams): Promise<void> {
-    await this.prismaService.$transaction(async (tx) => {
-      await this.txableGetMenuById(tx)({ storePublicId, menuPublicId });
+  async updateMenu(
+    menuId: string,
+    updateMenuDto: UpdateMenuDto,
+  ): Promise<PublicMenu> {
+    return await this.prismaService.menu.update({
+      where: { publicId: menuId },
+      data: updateMenuDto,
+      omit: this.menuOmit,
+    });
+  }
 
-      await tx.menu.delete({
-        where: { publicId: menuPublicId },
-        omit: this.menuOmit,
-      });
+  async deleteMenu(menuId: string): Promise<void> {
+    await this.prismaService.menu.delete({
+      where: { publicId: menuId },
+      omit: this.menuOmit,
     });
   }
 }

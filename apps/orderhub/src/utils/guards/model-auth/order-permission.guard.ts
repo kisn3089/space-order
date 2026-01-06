@@ -6,18 +6,18 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { BaseOrderParams, OrderIdParams } from 'src/order/order.service';
-import { Order } from '@spaceorder/db';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { OrderService } from 'src/order/order.service';
 import { IncludingIdTableSession } from '../table-session-auth.guard';
+import { PublicOrder } from '@spaceorder/db';
 
 type RequestWithTableSession = Request & {
   tableSession: IncludingIdTableSession;
+  order: PublicOrder | null;
 };
 
 @Injectable()
 export class OrderPermission implements CanActivate {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly orderService: OrderService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context
@@ -27,15 +27,14 @@ export class OrderPermission implements CanActivate {
     const { orderId, storeId, tableId } = request.params;
 
     if (orderId) {
-      const findOrder = await this.getOrderById({
+      const findOrder = await this.orderService.getOrderById({
         orderId,
         storeId,
         tableId,
         tableSession,
       });
-      if (findOrder) {
-        return true;
-      }
+      request.order = findOrder;
+      return true;
     } else {
       if (
         tableSession.table.publicId === tableId &&
@@ -45,18 +44,5 @@ export class OrderPermission implements CanActivate {
       }
     }
     throw new ForbiddenException(exceptionContentsIs('FORBIDDEN'));
-  }
-
-  private async getOrderById(
-    params: BaseOrderParams & OrderIdParams,
-  ): Promise<Order> {
-    return await this.prismaService.order.findFirstOrThrow({
-      where: {
-        publicId: params.orderId,
-        store: { publicId: params.storeId },
-        table: { publicId: params.tableId },
-        tableSession: { id: params.tableSession.id },
-      },
-    });
   }
 }

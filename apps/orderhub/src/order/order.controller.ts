@@ -29,6 +29,7 @@ import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import { responseCookie } from 'src/utils/cookies';
 import { OrderPermission } from 'src/utils/guards/model-auth/order-permission.guard';
+import { CachedOrder } from 'src/decorators/cache/order.cache';
 
 export class CreateOrderDto extends createZodDto(createOrderSchema) {}
 export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}
@@ -92,11 +93,15 @@ export class OrderController {
   @HttpCode(200)
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OrderPermission)
   async getOrderById(
+    @CachedOrder() cachedOrder: PublicOrder | null,
     @Session() tableSession: TableSession,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrder> {
+    if (cachedOrder) {
+      return cachedOrder;
+    }
     return await this.orderService.getOrderById({
       storeId,
       tableId,

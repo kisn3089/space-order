@@ -621,6 +621,33 @@ JWT_REFRESH_TOKEN_EXPIRATION_MS=604800000     # 7 days
 
 App-specific configuration only (no database credentials)
 
+## TypeScript Coding Standards
+
+### Type Safety
+
+- **NEVER use type assertions (`as`)** to solve type errors
+- Type assertions bypass TypeScript's type checking and hide real type issues
+- Instead, use proper type design:
+  - Generic type parameters with default values (`<T = DefaultType>`)
+  - Intersection types (`Type1 & Type2`)
+  - Union types (`Type1 | Type2`)
+  - Conditional types when needed
+  - Proper type narrowing
+
+**Example - Bad:**
+```typescript
+async getMenuById<T extends PublicMenu>(...): Promise<T> {
+  return await prismaService.menu.findFirstOrThrow(...) as T; // ❌ Never use 'as'
+}
+```
+
+**Example - Good:**
+```typescript
+async getMenuById<T = PublicMenu>(...): Promise<PublicMenu & T> {
+  return await prismaService.menu.findFirstOrThrow(...); // ✅ Proper type design
+}
+```
+
 ## Common Issues & Solutions
 
 ### Issue: Prisma Client not generated

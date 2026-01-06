@@ -30,7 +30,7 @@ export class OwnerResponseDto {
   updatedAt: Date;
 
   @Exclude()
-  id: number;
+  id: bigint;
 
   @Exclude()
   password: string;

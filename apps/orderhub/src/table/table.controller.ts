@@ -8,6 +8,8 @@ import {
   Delete,
   HttpCode,
   UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
@@ -19,8 +21,10 @@ import {
   updateTableSchema,
 } from '@spaceorder/auth';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { PublicTable } from '@spaceorder/db';
+import type { PublicTable, Table } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
+import { CachedTable } from 'src/decorators/cache/table.cache';
+import { TableResponseDto } from './dto/tableResponse.dto';
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
 export class UpdateTableDto extends createZodDto(updateTableSchema) {}
@@ -43,7 +47,7 @@ export class TableController {
     @Param('storeId') storeId: string,
     @Body() createTableDto: CreateTableDto,
   ): Promise<PublicTable> {
-    return await this.tableService.createTable({ storeId }, createTableDto);
+    return await this.tableService.createTable(storeId, createTableDto);
   }
 
   @Get()
@@ -51,7 +55,7 @@ export class TableController {
   async getTableList(
     @Param('storeId') storeId: string,
   ): Promise<PublicTable[]> {
-    return await this.tableService.getTableList({ storeId });
+    return await this.tableService.getTableList(storeId);
   }
 
   @Get(':tableId')
@@ -59,14 +63,16 @@ export class TableController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     TablePermission,
   )
+  @UseInterceptors(ClassSerializerInterceptor)
   async getTableById(
+    @CachedTable() cachedTable: Table | null,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
-  ): Promise<PublicTable> {
-    return await this.tableService.getTableById({
-      storeId,
-      tableId,
-    });
+  ): Promise<TableResponseDto | PublicTable> {
+    if (cachedTable) {
+      return new TableResponseDto(cachedTable);
+    }
+    return await this.tableService.getTableById(storeId, tableId);
   }
 
   @Patch(':tableId')
@@ -81,7 +87,7 @@ export class TableController {
     @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
   ): Promise<PublicTable> {
-    return await this.tableService.updateTable({ tableId }, updateTableDto);
+    return await this.tableService.updateTable(tableId, updateTableDto);
   }
 
   @Delete(':tableId')
@@ -91,6 +97,6 @@ export class TableController {
     TablePermission,
   )
   async deleteTable(@Param('tableId') tableId: string): Promise<void> {
-    await this.tableService.deleteTable({ tableId });
+    await this.tableService.deleteTable(tableId);
   }
 }

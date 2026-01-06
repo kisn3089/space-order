@@ -8,14 +8,19 @@ import {
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Owner, Store, Table } from '@spaceorder/db';
+import { StoreService } from 'src/store/store.service';
 
 type RequestWithClient = Request & {
   user: Owner;
+  table: Table | null;
 };
 
 @Injectable()
 export class TablePermission implements CanActivate {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly storeService: StoreService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithClient>();
@@ -24,12 +29,13 @@ export class TablePermission implements CanActivate {
 
     if (tableId) {
       const findTable = await this.getTableById(storeId, tableId);
-      if (findTable && findTable.store.ownerId === client.id) {
+      if (findTable.store.ownerId === client.id) {
+        request.table = findTable;
         return true;
       }
     } else {
-      const findStore = await this.getStoreById(storeId);
-      if (findStore && findStore.ownerId === client.id) {
+      const findStore = await this.storeService.getOwnerIdByIdInStore(storeId);
+      if (findStore.ownerId === client.id) {
         return true;
       }
     }
@@ -37,21 +43,12 @@ export class TablePermission implements CanActivate {
   }
 
   private async getTableById(
-    storePublicId: string,
-    tablePublicId: string,
+    storeId: string,
+    tableId: string,
   ): Promise<Table & { store: Pick<Store, 'ownerId'> }> {
     return await this.prismaService.table.findFirstOrThrow({
-      where: { publicId: tablePublicId, store: { publicId: storePublicId } },
+      where: { publicId: tableId, store: { publicId: storeId } },
       include: { store: { select: { ownerId: true } } },
-    });
-  }
-
-  private async getStoreById(
-    storePublicId: string,
-  ): Promise<Pick<Store, 'ownerId'>> {
-    return await this.prismaService.store.findFirstOrThrow({
-      where: { publicId: storePublicId },
-      select: { ownerId: true },
     });
   }
 }

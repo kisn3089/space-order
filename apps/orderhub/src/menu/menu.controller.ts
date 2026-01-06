@@ -7,9 +7,11 @@ import {
   Param,
   UseGuards,
   Delete,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
-import type { Owner, PublicMenu } from '@spaceorder/db';
+import type { Menu, Owner, PublicMenu } from '@spaceorder/db';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import {
   createMenuSchema,
@@ -21,6 +23,8 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
 import { Client } from 'src/decorators/client.decorator';
 import { MenuPermission } from 'src/utils/guards/model-auth/menu-permission.guard';
+import { CachedMenu } from 'src/decorators/cache/menu.cache';
+import { MenuResponseDto } from './dto/menuResponse.dto';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}
@@ -37,19 +41,19 @@ export class MenuController {
   )
   async createMenu(
     @Client() client: Owner,
-    @Param('storeId') storePublicId: string,
+    @Param('storeId') storeId: string,
     @Body() createMenuDto: CreateMenuDto,
   ) {
-    return await this.menuService.createMenu({ storePublicId }, createMenuDto);
+    return await this.menuService.createMenu(storeId, createMenuDto);
   }
 
   @Get()
   @UseGuards(ZodValidation({ params: storeIdParamsSchema }), MenuPermission)
   async getMenuList(
     @Client() client: Owner,
-    @Param('storeId') storePublicId: string,
+    @Param('storeId') storeId: string,
   ): Promise<PublicMenu[]> {
-    return await this.menuService.getMenuList(client, { storePublicId });
+    return await this.menuService.getMenuList(client, storeId);
   }
 
   @Get(':menuId')
@@ -57,14 +61,16 @@ export class MenuController {
     ZodValidation({ params: mergedStoreIdAndMenuIdParamsSchema }),
     MenuPermission,
   )
+  @UseInterceptors(ClassSerializerInterceptor)
   async getMenuById(
-    @Param('storeId') storePublicId: string,
-    @Param('menuId') menuPublicId: string,
-  ): Promise<PublicMenu> {
-    return await this.menuService.getMenuById({
-      storePublicId,
-      menuPublicId,
-    });
+    @CachedMenu() cachedMenu: Menu | null,
+    @Param('storeId') storeId: string,
+    @Param('menuId') menuId: string,
+  ): Promise<PublicMenu | MenuResponseDto> {
+    if (cachedMenu) {
+      return new MenuResponseDto(cachedMenu);
+    }
+    return await this.menuService.getMenuById(storeId, menuId);
   }
 
   @Patch(':menuId')
@@ -76,10 +82,10 @@ export class MenuController {
     MenuPermission,
   )
   async updateMenu(
-    @Param('menuId') menuPublicId: string,
+    @Param('menuId') menuId: string,
     @Body() updateMenuDto: UpdateMenuDto,
   ): Promise<PublicMenu> {
-    return await this.menuService.updateMenu({ menuPublicId }, updateMenuDto);
+    return await this.menuService.updateMenu(menuId, updateMenuDto);
   }
 
   @Delete(':menuId')
@@ -87,10 +93,7 @@ export class MenuController {
     ZodValidation({ params: mergedStoreIdAndMenuIdParamsSchema }),
     MenuPermission,
   )
-  async deleteMenu(
-    @Param('storeId') storePublicId: string,
-    @Param('menuId') menuPublicId: string,
-  ): Promise<void> {
-    await this.menuService.deleteMenu({ menuPublicId });
+  async deleteMenu(@Param('menuId') menuId: string): Promise<void> {
+    await this.menuService.deleteMenu(menuId);
   }
 }

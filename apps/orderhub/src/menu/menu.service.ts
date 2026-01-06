@@ -3,63 +3,52 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Owner, PublicMenu } from '@spaceorder/db';
 import { CreateMenuDto, UpdateMenuDto } from './menu.controller';
 
-type MenuBaseParams = { storePublicId: string };
-type MenuIdParams = { menuPublicId: string };
-
 @Injectable()
 export class MenuService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly menuOmit = { id: true, storeId: true };
 
   async createMenu(
-    { storePublicId }: MenuBaseParams,
+    storeId: string,
     createMenuDto: CreateMenuDto,
   ): Promise<PublicMenu> {
     return await this.prismaService.menu.create({
       data: {
-        store: { connect: { publicId: storePublicId } },
+        store: { connect: { publicId: storeId } },
         ...createMenuDto,
       },
       omit: this.menuOmit,
     });
   }
 
-  async getMenuList(
-    client: Owner,
-    { storePublicId }: MenuBaseParams,
-  ): Promise<PublicMenu[]> {
+  async getMenuList(client: Owner, storeId: string): Promise<PublicMenu[]> {
     return await this.prismaService.menu.findMany({
-      where: { store: { publicId: storePublicId, owner: { id: client.id } } },
+      where: { store: { publicId: storeId, owner: { id: client.id } } },
       omit: this.menuOmit,
     });
   }
 
-  async getMenuById({
-    storePublicId,
-    menuPublicId,
-  }: MenuBaseParams & MenuIdParams): Promise<PublicMenu> {
-    {
-      return await this.prismaService.menu.findFirstOrThrow({
-        where: { publicId: menuPublicId, store: { publicId: storePublicId } },
-        omit: this.menuOmit,
-      });
-    }
+  async getMenuById(storeId: string, menuId: string): Promise<PublicMenu> {
+    return await this.prismaService.menu.findFirstOrThrow({
+      where: { publicId: menuId, store: { publicId: storeId } },
+      omit: this.menuOmit,
+    });
   }
 
   async updateMenu(
-    { menuPublicId }: MenuIdParams,
+    menuId: string,
     updateMenuDto: UpdateMenuDto,
   ): Promise<PublicMenu> {
     return await this.prismaService.menu.update({
-      where: { publicId: menuPublicId },
+      where: { publicId: menuId },
       data: updateMenuDto,
       omit: this.menuOmit,
     });
   }
 
-  async deleteMenu({ menuPublicId }: MenuIdParams): Promise<void> {
+  async deleteMenu(menuId: string): Promise<void> {
     await this.prismaService.menu.delete({
-      where: { publicId: menuPublicId },
+      where: { publicId: menuId },
       omit: this.menuOmit,
     });
   }

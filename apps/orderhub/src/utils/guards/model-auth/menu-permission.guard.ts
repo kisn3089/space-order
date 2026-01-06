@@ -8,13 +8,18 @@ import {
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { Menu, Owner, Store } from '@spaceorder/db';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { StoreService } from 'src/store/store.service';
 
 type RequestWithClient = Request & {
   user: Owner;
+  menu: Menu | null;
 };
 @Injectable()
 export class MenuPermission implements CanActivate {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly storeService: StoreService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithClient>();
@@ -22,16 +27,14 @@ export class MenuPermission implements CanActivate {
     const { storeId, menuId } = request.params;
 
     if (menuId) {
-      const findMenuWithStoreId = await this.getMenuById(storeId, menuId);
-      if (
-        findMenuWithStoreId &&
-        findMenuWithStoreId.store.ownerId === client.id
-      ) {
+      const findMenuWithOwnerId = await this.getMenuById(storeId, menuId);
+      if (findMenuWithOwnerId.store.ownerId === client.id) {
+        request.menu = findMenuWithOwnerId;
         return true;
       }
     } else {
-      const findStore = await this.getStoreById(storeId);
-      if (findStore && findStore.ownerId === client.id) {
+      const findStore = await this.storeService.getOwnerIdByIdInStore(storeId);
+      if (findStore.ownerId === client.id) {
         return true;
       }
     }
@@ -39,21 +42,12 @@ export class MenuPermission implements CanActivate {
     throw new ForbiddenException(exceptionContentsIs('FORBIDDEN'));
   }
 
-  private async getStoreById(
-    storePublicId: string,
-  ): Promise<Pick<Store, 'ownerId'>> {
-    return await this.prismaService.store.findFirstOrThrow({
-      where: { publicId: storePublicId },
-      select: { ownerId: true },
-    });
-  }
-
   private async getMenuById(
-    storePublicId: string,
-    menuPublicId: string,
+    storeId: string,
+    menuId: string,
   ): Promise<Menu & { store: Pick<Store, 'ownerId'> }> {
     return await this.prismaService.menu.findFirstOrThrow({
-      where: { publicId: menuPublicId, store: { publicId: storePublicId } },
+      where: { publicId: menuId, store: { publicId: storeId } },
       include: { store: { select: { ownerId: true } } },
     });
   }

@@ -4,6 +4,6 @@ const getMenuByContext = (context: ExecutionContext) => {
   return context.switchToHttp().getRequest().menu;
 };
 
-export const CacheMenu = createParamDecorator(
+export const CachedMenu = createParamDecorator(
   (_data: unknown, context: ExecutionContext) => getMenuByContext(context),
 );

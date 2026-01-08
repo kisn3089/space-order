@@ -1,45 +1,30 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
+  // Post,
+  // Body,
+  // Patch,
   Param,
-  Delete,
+  // Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { StoreService } from './store.service';
-import { CreateStoreDto } from './dto/create-store.dto';
-import { UpdateStoreDto } from './dto/update-store.dto';
+import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
+import { Client } from 'src/decorators/client.decorator';
+import type { Owner } from '@spaceorder/db';
 
 @Controller('stores')
+@UseGuards(JwtAuthGuard)
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
-  @Post()
-  create(@Body() createStoreDto: CreateStoreDto) {
-    return this.storeService.create(createStoreDto);
-  }
-
   @Get()
-  async findAll() {
-    return await this.storeService.findAll();
+  async getStoreList(@Client() client: Owner) {
+    return await this.storeService.getStoreList(client);
   }
 
   @Get(':storeId')
-  async findOne(@Param('storeId') storeId: string) {
-    return await this.storeService.findOne(storeId);
-  }
-
-  @Patch(':storeId')
-  update(
-    @Param('storeId') storeId: string,
-    @Body() updateStoreDto: UpdateStoreDto,
-  ) {
-    return this.storeService.update(+storeId, updateStoreDto);
-  }
-
-  @Delete(':storeId')
-  remove(@Param('storeId') storeId: string) {
-    return this.storeService.remove(+storeId);
+  async getStoreById(@Param('storeId') storeId: string) {
+    return await this.storeService.getStoreById(storeId);
   }
 }

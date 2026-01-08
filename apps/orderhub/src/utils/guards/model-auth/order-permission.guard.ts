@@ -8,11 +8,11 @@ import {
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { OrderService } from 'src/order/order.service';
 import { IncludingIdTableSession } from '../table-session-auth.guard';
-import { PublicOrder } from '@spaceorder/db';
+import { PublicOrderWithItem } from '@spaceorder/db';
 
 type RequestWithTableSession = Request & {
   tableSession: IncludingIdTableSession;
-  order: PublicOrder | null;
+  order: PublicOrderWithItem | null;
 };
 
 @Injectable()

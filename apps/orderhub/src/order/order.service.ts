@@ -3,7 +3,7 @@ import {
   Menu,
   OrderStatus,
   Prisma,
-  PublicOrder,
+  PublicOrderWithItem,
   PublicTableSession,
   TableSession,
   TableSessionStatus,
@@ -21,7 +21,7 @@ type CreateOrderItemsWithValidMenuReturn = {
   bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'];
 };
 type CreateOrderReturn = {
-  createdOrder: PublicOrder;
+  createdOrder: PublicOrderWithItem;
   updatedTableSession: PublicTableSession;
 };
 export type BaseOrderParams = {
@@ -189,7 +189,7 @@ export class OrderService {
     return totalPriceByServer;
   }
 
-  async getOrderList(params: BaseOrderParams): Promise<PublicOrder[]> {
+  async getOrderList(params: BaseOrderParams): Promise<PublicOrderWithItem[]> {
     const {
       storeId: storePublicId,
       tableId: tablePublicId,
@@ -207,7 +207,7 @@ export class OrderService {
 
   async getOrderById(
     params: BaseOrderParams & OrderIdParams,
-  ): Promise<PublicOrder> {
+  ): Promise<PublicOrderWithItem> {
     return await this.prismaService.order.findFirstOrThrow({
       where: {
         publicId: params.orderId,
@@ -222,7 +222,7 @@ export class OrderService {
   async updateOrder(
     orderPublicId: string,
     updateOrderDto: UpdateOrderDto,
-  ): Promise<PublicOrder> {
+  ): Promise<PublicOrderWithItem> {
     return await this.prismaService.$transaction(async (tx) => {
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
@@ -266,7 +266,7 @@ export class OrderService {
     });
   }
 
-  async cancelOrder(orderPublicId: string): Promise<PublicOrder> {
+  async cancelOrder(orderPublicId: string): Promise<PublicOrderWithItem> {
     return await this.prismaService.order.update({
       where: { publicId: orderPublicId },
       data: { status: OrderStatus.CANCELLED },

@@ -34,7 +34,7 @@ export class TablePermission implements CanActivate {
         return true;
       }
     } else {
-      const findStore = await this.storeService.getOwnerIdByIdInStore(storeId);
+      const findStore = await this.storeService.getStoreById(storeId);
       if (findStore.ownerId === client.id) {
         return true;
       }

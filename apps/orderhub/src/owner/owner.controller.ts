@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpCode,
   UseGuards,
 } from '@nestjs/common';
 import { OwnerService } from './owner.service';
@@ -24,13 +23,16 @@ import { OwnerPermission } from 'src/utils/guards/model-auth/owner-permission.gu
 export class CreateOwnerDto extends createZodDto(createOwnerSchema) {}
 export class UpdateOwnerDto extends createZodDto(updateOwnerSchema) {}
 
+/** TODO: Admin만 접근 가능하도록 Permission 데코레이터 추가 필요,
+ * 본인의 데이터는 /me로 접근하도록 유도
+ */
+
 @Controller('owners')
 @UseGuards(JwtAuthGuard)
 export class OwnerController {
   constructor(private readonly ownerService: OwnerService) {}
 
   @Post()
-  @HttpCode(201)
   @UseGuards(ZodValidation({ body: createOwnerSchema }))
   async createOwner(
     @Body() createOwnerDto: CreateOwnerDto,
@@ -39,20 +41,17 @@ export class OwnerController {
   }
 
   @Get()
-  @HttpCode(200)
-  async retrieveOwnerList(): Promise<PublicOwner[]> {
+  async getOwnerList(): Promise<PublicOwner[]> {
     return await this.ownerService.getOwnerList();
   }
 
   @Get(':ownerId')
-  @HttpCode(200)
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
   async getOwnerById(@Param('ownerId') ownerId: string): Promise<PublicOwner> {
     return await this.ownerService.getOwnerById(ownerId);
   }
 
   @Patch(':ownerId')
-  @HttpCode(200)
   @UseGuards(
     ZodValidation({
       params: ownerParamsSchema,
@@ -68,7 +67,6 @@ export class OwnerController {
   }
 
   @Delete(':ownerId')
-  @HttpCode(204)
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
   async deleteOwner(@Param('ownerId') ownerId: string): Promise<void> {
     await this.ownerService.deleteOwner(ownerId);

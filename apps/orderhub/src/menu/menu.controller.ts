@@ -40,7 +40,6 @@ export class MenuController {
     MenuPermission,
   )
   async createMenu(
-    @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Body() createMenuDto: CreateMenuDto,
   ) {

@@ -6,7 +6,6 @@ import {
   Get,
   Patch,
   Delete,
-  HttpCode,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -35,7 +34,6 @@ export class TableController {
   constructor(private readonly tableService: TableService) {}
 
   @Post()
-  @HttpCode(201)
   @UseGuards(
     ZodValidation({
       params: storeIdParamsSchema,
@@ -65,6 +63,7 @@ export class TableController {
   )
   @UseInterceptors(ClassSerializerInterceptor)
   async getTableById(
+    /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
     @CachedTable() cachedTable: Table | null,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
@@ -91,7 +90,6 @@ export class TableController {
   }
 
   @Delete(':tableId')
-  @HttpCode(204)
   @UseGuards(
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     TablePermission,

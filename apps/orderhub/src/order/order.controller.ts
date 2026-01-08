@@ -15,7 +15,7 @@ import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import {
   COOKIE_TABLE,
-  type PublicOrder,
+  type PublicOrderWithItem,
   type TableSession,
 } from '@spaceorder/db';
 import { createZodDto } from 'nestjs-zod';
@@ -54,7 +54,7 @@ export class OrderController {
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<PublicOrder> {
+  ): Promise<PublicOrderWithItem> {
     const { createdOrder, updatedTableSession } =
       await this.orderService.createOrder(
         { storeId, tableId, tableSession },
@@ -81,7 +81,7 @@ export class OrderController {
     @Session() tableSession: TableSession,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
-  ): Promise<PublicOrder[]> {
+  ): Promise<PublicOrderWithItem[]> {
     return await this.orderService.getOrderList({
       storeId,
       tableId,
@@ -93,12 +93,12 @@ export class OrderController {
   @HttpCode(200)
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OrderPermission)
   async getOrderById(
-    @CachedOrder() cachedOrder: PublicOrder | null,
+    @CachedOrder() cachedOrder: PublicOrderWithItem | null,
     @Session() tableSession: TableSession,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
-  ): Promise<PublicOrder> {
+  ): Promise<PublicOrderWithItem> {
     if (cachedOrder) {
       return cachedOrder;
     }
@@ -122,14 +122,16 @@ export class OrderController {
   async updateOrder(
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
-  ): Promise<PublicOrder> {
+  ): Promise<PublicOrderWithItem> {
     return await this.orderService.updateOrder(orderId, updateOrderDto);
   }
 
   @Delete(':orderId')
   @HttpCode(200)
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OrderPermission)
-  async cancelOrder(@Param('orderId') orderId: string): Promise<PublicOrder> {
+  async cancelOrder(
+    @Param('orderId') orderId: string,
+  ): Promise<PublicOrderWithItem> {
     return await this.orderService.cancelOrder(orderId);
   }
 }

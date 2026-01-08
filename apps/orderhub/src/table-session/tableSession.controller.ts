@@ -6,7 +6,6 @@ import {
   Res,
   Get,
   UseGuards,
-  HttpCode,
   Body,
   Patch,
   UseInterceptors,
@@ -33,7 +32,6 @@ export class TableSessionController {
   constructor(private readonly tableSessionService: TableSessionService) {}
 
   @Post()
-  @HttpCode(201)
   async findActivatedSessionOrCreate(
     @Param('tableId') tablePublicId: string,
     @Res({ passthrough: true }) response: Response,
@@ -54,7 +52,6 @@ export class TableSessionController {
   }
 
   @Patch()
-  @HttpCode(200)
   @UseGuards(
     SessionAuth,
     ZodValidation({ body: updateSessionSchema }),
@@ -83,7 +80,6 @@ export class TableSessionController {
   }
 
   @Get()
-  @HttpCode(200)
   @UseGuards(SessionAuth, SessionPermission)
   /** TODO: 전체 세션 정보를 볼 필요가 있을까? (개발 이후에 삭제 고려) */
   async getSessionList(

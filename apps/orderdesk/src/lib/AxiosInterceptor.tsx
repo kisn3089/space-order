@@ -34,7 +34,7 @@ export default function AxiosInterceptor({
     error: AxiosError<AxiosCustomError, AxiosRequestConfig>
   ) {
     if (error instanceof AxiosError && error.config) {
-      if (error.response?.status === 419 || error.response?.status === 401) {
+      if (error.response?.status === 419) {
         try {
           const newAccessToken = await httpToken.refreshAccessToken();
 
@@ -52,8 +52,8 @@ export default function AxiosInterceptor({
           error.config.headers["Authorization"] =
             `Bearer ${newAccessToken.data.accessToken}`;
           return http(error.config);
-        } catch (refreshError) {
-          return Promise.reject(refreshError);
+        } catch {
+          signOut();
         }
       }
 

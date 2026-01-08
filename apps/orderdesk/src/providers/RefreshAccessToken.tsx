@@ -19,7 +19,7 @@ export async function RefreshAccessToken(): Promise<RefreshAccessTokenResponse> 
     throw new Error("No refresh Token");
   }
 
-  // 여기서 오류 시 refresh Token이 만료된 것이므로 상위 클라이언트에서 처리 필요
+  // 여기서 오류 시 refresh Token이 만료된 것이므로 상위 컴포넌트에서 처리 필요
   const accessTokenByRefreshToken = await httpToken.refreshAccessToken(
     refreshToken.value
   );

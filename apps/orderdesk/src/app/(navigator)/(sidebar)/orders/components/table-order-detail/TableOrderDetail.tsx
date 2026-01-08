@@ -5,12 +5,7 @@ import { OrderTable } from "./OrderTable";
 import { columns } from "./columns";
 import { Button } from "@spaceorder/ui/components/button";
 import useUpdateTableOrder from "../../hooks/useUpdateTableOrder";
-import {
-  HealthCheckResponse,
-  httpMe,
-  reduceTotalPrice,
-  transCurrencyFormat,
-} from "@spaceorder/api";
+import { HealthCheckResponse, httpMe } from "@spaceorder/api";
 import { AlertDialogWrapper } from "@spaceorder/ui/components/alert-dialog/AlertDialogWrapper";
 import { useCancellableAsync } from "@spaceorder/api/hooks/useCancellableAsync";
 import {
@@ -18,6 +13,7 @@ import {
   AlertDialogCancel,
 } from "@spaceorder/ui/components/alert-dialog/alert-dialog";
 import { Spinner } from "@spaceorder/ui/components/spinner";
+import { sumFromObjects, transCurrencyFormat } from "@spaceorder/auth";
 
 export default function TableOrderDetail() {
   const {
@@ -28,7 +24,7 @@ export default function TableOrderDetail() {
 
   // 총 가격 계산
   const totalPrice = useMemo(() => {
-    return reduceTotalPrice(
+    return sumFromObjects(
       orderItems.orderItem,
       (item) => item.price * item.quantity
     );

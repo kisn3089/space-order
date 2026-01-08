@@ -2,22 +2,31 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpCode,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { Client } from 'src/decorators/client.decorator';
-import type { Owner } from '@spaceorder/db';
+import type { PublicStoreWithTablesAndOrders, Owner } from '@spaceorder/db';
 import { OwnerResponseDto } from 'src/owner/dto/ownerResponse.dto';
+import { MeService } from './me.service';
 
 @Controller('me')
 @UseInterceptors(ClassSerializerInterceptor)
 export class MeController {
+  constructor(private readonly meService: MeService) {}
+
   @Get()
-  @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   findMe(@Client() owner: Owner): OwnerResponseDto {
     return new OwnerResponseDto(owner);
+  }
+
+  @Get('orders')
+  @UseGuards(JwtAuthGuard)
+  async getOrders(
+    @Client() owner: Owner,
+  ): Promise<PublicStoreWithTablesAndOrders> {
+    return await this.meService.getOrdersListByOwnerId(owner);
   }
 }

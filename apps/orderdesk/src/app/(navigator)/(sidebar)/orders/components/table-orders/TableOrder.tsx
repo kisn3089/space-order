@@ -1,39 +1,35 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@spaceorder/ui/components/card";
-import { TTableOrder } from "./orderData";
-import { useTableOrderContext } from "../../store/useTableOrderContext";
+import { CardContent } from "@spaceorder/ui/components/card";
+import { OrderStatus, PublicOrderWithItem } from "@spaceorder/db";
+import { Badge } from "@spaceorder/ui/components/badge";
+import { ORDER_STATUS } from "@spaceorder/api";
 
-export default function TableOrder({ order }: { order: TTableOrder }) {
-  const [, setTableOrderState] = useTableOrderContext();
-  const { tableNum, orderItem, totalPrice, memo } = order;
+export default function TableOrder({ order }: { order: PublicOrderWithItem }) {
+  const isFinishStatus =
+    order.status === OrderStatus.COMPLETED ||
+    order.status === OrderStatus.CANCELLED;
 
   return (
-    <Card
-      onClick={() => setTableOrderState(order)}
-      className="w-full flex flex-col cursor-pointer hover:bg-accent"
+    <CardContent
+      key={order.publicId}
+      className={`rounded-lg bg-accent ${!isFinishStatus ? "hover:bg-background" : ""} border p-2 mx-2 font-semibold flex flex-col justify-center`}
     >
-      <CardHeader className="p-4">
-        <CardTitle>{tableNum}</CardTitle>
-        {memo && (
-          <CardDescription className="whitespace-pre-line">{`요청 사항: ${memo}`}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className="flex-1 p-4 font-semibold flex flex-col justify-center">
-        {orderItem.map((order) => (
-          <p key={`${order.name}`}>{`${order.name}: ${order.quantity}개`}</p>
-        ))}
-      </CardContent>
-      <CardFooter className="flex justify-end p-2">
-        <p className="text-muted-foreground text-sm font-semibold">
-          {`총 금액: ${totalPrice}원`}
-        </p>
-      </CardFooter>
-    </Card>
+      <div className="flex justify-center">
+        <Badge
+          variant={ORDER_STATUS[order.status].badgeVariant}
+          className="w-fit text-xs"
+        >
+          {ORDER_STATUS[order.status].label}
+        </Badge>
+      </div>
+      {order.orderItems.map((orderItem, i) => (
+        <div
+          className="flex justify-between text-sm/5"
+          key={`${orderItem.menuName}-${i}`}
+        >
+          <p>{orderItem.menuName}</p>
+          <p>{orderItem.quantity}</p>
+        </div>
+      ))}
+    </CardContent>
   );
 }

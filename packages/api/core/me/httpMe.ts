@@ -1,10 +1,10 @@
-import { PublicOwner } from "@spaceorder/db";
+import { PublicOwner, PublicStoreWithTablesAndOrders } from "@spaceorder/db";
 import { http } from "../axios";
 import { AxiosRequestConfig } from "axios";
 
 const prefix = "/me";
 
-async function me(accessToken?: string): Promise<PublicOwner> {
+async function fetchMe(accessToken?: string): Promise<PublicOwner> {
   const response = await http.get<PublicOwner>(
     `${prefix}`,
     accessToken
@@ -18,15 +18,26 @@ async function me(accessToken?: string): Promise<PublicOwner> {
   return response.data;
 }
 
+async function fetchMyOrderList(): Promise<PublicStoreWithTablesAndOrders> {
+  const response = await http.get<PublicStoreWithTablesAndOrders>(
+    `${prefix}/orders`
+  );
+  return response.data;
+}
+
 export type HealthCheckResponse = {
   status: string;
   timestamp: string;
 };
-async function healthCheck(
+async function fetchHealthCheck(
   config?: AxiosRequestConfig
 ): Promise<HealthCheckResponse> {
   const response = await http.get<HealthCheckResponse>(``, config);
   return response.data;
 }
 
-export const httpMe = { me, healthCheck };
+export const httpMe = {
+  fetchMe,
+  fetchMyOrderList,
+  fetchHealthCheck,
+};

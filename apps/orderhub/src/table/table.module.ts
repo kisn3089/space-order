@@ -7,5 +7,6 @@ import { StoreModule } from 'src/store/store.module';
   imports: [StoreModule],
   providers: [TableService],
   controllers: [TableController],
+  exports: [TableService],
 })
 export class TableModule {}

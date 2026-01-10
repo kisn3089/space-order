@@ -20,6 +20,11 @@ type RequestWithTableSession = Request & {
   table: TableAndStoreOwnerId | null;
 };
 
+/**
+ * @access CachedOrder
+ * @access CachedTable 현재는 저장은 하지만 해당 데코레이터를 사용하면서 CachedTable를 사용하지 않고 있음.
+ * @description Guard to check permission to access the order or table and cache the result.
+ */
 @Injectable()
 export class OwnerOrderPermission implements CanActivate {
   constructor(
@@ -45,17 +50,15 @@ export class OwnerOrderPermission implements CanActivate {
             ownerId: client.id,
           },
         });
-      console.log('owner-order-permission----findOrder: ', findOrder);
 
       request.order = findOrder;
       return true;
     } else {
       const findTableAndStore: TableAndStoreOwnerId =
-        await this.tableService.getTableById(
-          { storeId, tableId },
-          { include: { store: { select: { ownerId: true } } } },
-        );
-      console.log('owner-order-permission----: ', findTableAndStore);
+        await this.tableService.getTableById({
+          storeId,
+          tableId,
+        });
 
       if (
         findTableAndStore.publicId === tableId &&

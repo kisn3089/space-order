@@ -1,6 +1,9 @@
 import z from "zod";
 import { TableSessionStatus } from "../../../db";
 
+// 32 bytes base64url encoding = 43 characters
+export const sessionTokenSchema = z.string().length(43);
+
 export const updateReactivateSchema = z
   .object({
     status: z.literal("REACTIVATE"),

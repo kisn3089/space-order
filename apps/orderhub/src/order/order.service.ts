@@ -198,7 +198,7 @@ export class OrderService {
 
   async getOrderList(principal: Principal): Promise<PublicOrderWithItem[]> {
     return await this.prismaService.order.findMany({
-      where: this.whereRecordBySubject(principal),
+      where: this.whereRecordByPrincipal(principal),
       ...this.orderIncludeOrOmit,
     });
   }
@@ -209,13 +209,13 @@ export class OrderService {
     return await this.prismaService.order.findFirstOrThrow({
       where: {
         publicId: principal.orderPublicId,
-        ...this.whereRecordBySubject(principal),
+        ...this.whereRecordByPrincipal(principal),
       },
       ...this.orderIncludeOrOmit,
     });
   }
 
-  private whereRecordBySubject = ({ params, type }: Principal) => {
+  private whereRecordByPrincipal = ({ params, type }: Principal) => {
     if (type === 'CUSTOMER') {
       return {
         storeId: params.tableSession.table.store.id,
@@ -236,7 +236,7 @@ export class OrderService {
     updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrderWithItem> {
     return await this.prismaService.$transaction(async (tx) => {
-      const whereByPrincipal = this.whereRecordBySubject(principal);
+      const whereByPrincipal = this.whereRecordByPrincipal(principal);
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
@@ -291,7 +291,7 @@ export class OrderService {
     return await this.prismaService.order.update({
       where: {
         publicId: principal.orderPublicId,
-        ...this.whereRecordBySubject(principal),
+        ...this.whereRecordByPrincipal(principal),
       },
       data: { status: OrderStatus.CANCELLED },
       ...this.orderIncludeOrOmit,

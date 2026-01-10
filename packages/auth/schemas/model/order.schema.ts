@@ -26,7 +26,10 @@ export const orderItemParamsSchema = orderIdParamsSchema.merge(
   orderItemIdParamsSchema
 );
 
-const optionsSchema = z.record(
+/**
+ * Body Schema
+ */
+const createOptionsSchema = z.record(
   z.string(),
   z.union([
     z.string(),
@@ -39,15 +42,12 @@ const optionsSchema = z.record(
   ])
 );
 
-/**
- * Body Schema
- */
 const orderItemSchema = z
   .object({
     menuPublicId: commonSchema.cuid2("Menu"),
     quantity: z.number().min(1, "수량은 최소 1 이상이어야 합니다."),
     menuName: z.string().optional(),
-    options: optionsSchema.optional(),
+    options: createOptionsSchema.optional(),
   })
   .strict();
 
@@ -58,7 +58,6 @@ export const createOrderSchema = z.object({
 });
 
 export const updateOrderSchema = createOrderSchema
-  // .omit({ menuPublicId: true, totalPrice: true })
   .extend({
     status: z.nativeEnum(OrderStatus),
     cancelledReason: z

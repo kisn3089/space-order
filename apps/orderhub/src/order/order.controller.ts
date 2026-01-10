@@ -73,7 +73,8 @@ export class OrderController {
   ): Promise<PublicOrderWithItem> {
     return await this.orderService.getOrderById({
       type: 'CUSTOMER',
-      params: { orderPublicId: orderId, tableSession },
+      params: { tableSession },
+      orderPublicId: orderId,
     });
   }
 
@@ -87,7 +88,7 @@ export class OrderController {
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrderWithItem> {
     return await this.orderService.updateOrder(
-      { type: 'CUSTOMER', params: { orderPublicId: orderId, tableSession } },
+      { type: 'CUSTOMER', params: { tableSession }, orderPublicId: orderId },
       updateOrderDto,
     );
   }
@@ -100,7 +101,8 @@ export class OrderController {
   ): Promise<PublicOrderWithItem> {
     return await this.orderService.cancelOrder({
       type: 'CUSTOMER',
-      params: { orderPublicId: orderId, tableSession },
+      params: { tableSession },
+      orderPublicId: orderId,
     });
   }
 }

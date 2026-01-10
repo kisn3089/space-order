@@ -62,20 +62,11 @@ export class TableController {
     TablePermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getTableById(
+  getTableById(
     /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
-    @CachedTable() cachedTable: TableAndStoreOwnerId | null,
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
-  ): Promise<TableResponseDto> {
-    if (cachedTable) {
-      return new TableResponseDto(cachedTable);
-    }
-    const findTable = await this.tableService.getTableById({
-      storeId,
-      tableId,
-    });
-    return new TableResponseDto(findTable);
+    @CachedTable() cachedTable: TableAndStoreOwnerId,
+  ): TableResponseDto {
+    return new TableResponseDto(cachedTable);
   }
 
   @Patch(':tableId')

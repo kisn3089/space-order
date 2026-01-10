@@ -25,18 +25,18 @@ type CreateOrderReturn = {
   updatedTableSession: PublicTableSession;
 };
 
+type PublicOrderId = {
+  orderPublicId: string;
+};
+
 type Principal =
   | {
       type: 'CUSTOMER';
-      params: {
-        orderPublicId?: string;
-        tableSession: SessionWithSanitizeId;
-      };
+      params: { tableSession: SessionWithSanitizeId };
     }
   | {
       type: 'OWNER';
       params: {
-        orderPublicId?: string;
         storePublicId: string;
         tablePublicId: string;
         ownerId: bigint;
@@ -203,9 +203,14 @@ export class OrderService {
     });
   }
 
-  async getOrderById(principal: Principal): Promise<PublicOrderWithItem> {
+  async getOrderById(
+    principal: Principal & PublicOrderId,
+  ): Promise<PublicOrderWithItem> {
     return await this.prismaService.order.findFirstOrThrow({
-      where: this.whereRecordBySubject(principal),
+      where: {
+        publicId: principal.orderPublicId,
+        ...this.whereRecordBySubject(principal),
+      },
       ...this.orderIncludeOrOmit,
     });
   }
@@ -216,12 +221,10 @@ export class OrderService {
         storeId: params.tableSession.table.store.id,
         tableId: params.tableSession.table.id,
         tableSessionId: params.tableSession.id,
-        publicId: params.orderPublicId,
       };
     } else {
       /** type === 'OWNER' */
       return {
-        publicId: params.orderPublicId,
         store: { publicId: params.storePublicId, ownerId: params.ownerId },
         table: { publicId: params.tablePublicId },
       };
@@ -229,7 +232,7 @@ export class OrderService {
   };
 
   async updateOrder(
-    principal: Principal,
+    principal: Principal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrderWithItem> {
     return await this.prismaService.$transaction(async (tx) => {
@@ -237,7 +240,10 @@ export class OrderService {
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
-          where: whereByPrincipal,
+          where: {
+            publicId: principal.orderPublicId,
+            ...whereByPrincipal,
+          },
           data: restUpdateOrderDto,
           ...this.orderIncludeOrOmit,
         });
@@ -256,7 +262,10 @@ export class OrderService {
           menuPublicIds,
         );
       return tx.order.update({
-        where: whereByPrincipal,
+        where: {
+          publicId: principal.orderPublicId,
+          ...whereByPrincipal,
+        },
         data: {
           /**
            *  NOTE: We intentionally delete and recreate all orderItems on update.
@@ -276,9 +285,14 @@ export class OrderService {
     });
   }
 
-  async cancelOrder(principal: Principal): Promise<PublicOrderWithItem> {
+  async cancelOrder(
+    principal: Principal & PublicOrderId,
+  ): Promise<PublicOrderWithItem> {
     return await this.prismaService.order.update({
-      where: this.whereRecordBySubject(principal),
+      where: {
+        publicId: principal.orderPublicId,
+        ...this.whereRecordBySubject(principal),
+      },
       data: { status: OrderStatus.CANCELLED },
       ...this.orderIncludeOrOmit,
     });

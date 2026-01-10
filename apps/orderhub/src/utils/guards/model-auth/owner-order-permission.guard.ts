@@ -14,7 +14,7 @@ import {
 } from '@spaceorder/db';
 import { TableService } from 'src/table/table.service';
 
-type RequestWithTableSession = Request & {
+type RequestWithClientAndOrderAndTable = Request & {
   user: Owner;
   order: PublicOrderWithItem | null;
   table: TableAndStoreOwnerId | null;
@@ -35,7 +35,7 @@ export class OwnerOrderPermission implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context
       .switchToHttp()
-      .getRequest<RequestWithTableSession>();
+      .getRequest<RequestWithClientAndOrderAndTable>();
     const client = request.user;
     const { storeId, tableId, orderId } = request.params;
 
@@ -44,11 +44,11 @@ export class OwnerOrderPermission implements CanActivate {
         await this.orderService.getOrderById({
           type: 'OWNER',
           params: {
-            orderPublicId: orderId,
             storePublicId: storeId,
             tablePublicId: tableId,
             ownerId: client.id,
           },
+          orderPublicId: orderId,
         });
 
       request.order = findOrder;
@@ -60,10 +60,7 @@ export class OwnerOrderPermission implements CanActivate {
           tableId,
         });
 
-      if (
-        findTableAndStore.publicId === tableId &&
-        findTableAndStore.store.ownerId === client.id
-      ) {
+      if (findTableAndStore.store.ownerId === client.id) {
         request.table = findTableAndStore;
         return true;
       }

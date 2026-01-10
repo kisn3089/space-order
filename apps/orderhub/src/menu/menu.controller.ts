@@ -61,15 +61,8 @@ export class MenuController {
     MenuPermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getMenuById(
-    @CachedMenu() cachedMenu: Menu | null,
-    @Param('storeId') storeId: string,
-    @Param('menuId') menuId: string,
-  ): Promise<PublicMenu | MenuResponseDto> {
-    if (cachedMenu) {
-      return new MenuResponseDto(cachedMenu);
-    }
-    return await this.menuService.getMenuById(storeId, menuId);
+  getMenuById(@CachedMenu() cachedMenu: Menu): MenuResponseDto {
+    return new MenuResponseDto(cachedMenu);
   }
 
   @Patch(':menuId')

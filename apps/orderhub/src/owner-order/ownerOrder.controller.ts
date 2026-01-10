@@ -77,25 +77,10 @@ export class OwnerOrderController {
 
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
-  async getOrderById(
+  getOrderById(
     @CachedOrder() cachedOrder: PublicOrderWithItem,
-    @Client() client: Owner,
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
-    @Param('orderId') orderId: string,
-  ): Promise<PublicOrderWithItem> {
-    if (cachedOrder) {
-      return cachedOrder;
-    }
-    return await this.orderService.getOrderById({
-      type: 'OWNER',
-      params: {
-        orderPublicId: orderId,
-        storePublicId: storeId,
-        tablePublicId: tableId,
-        ownerId: client.id,
-      },
-    });
+  ): PublicOrderWithItem {
+    return cachedOrder;
   }
 
   @Patch(':orderId')
@@ -114,11 +99,11 @@ export class OwnerOrderController {
       {
         type: 'OWNER',
         params: {
-          orderPublicId: orderId,
           storePublicId: storeId,
           tablePublicId: tableId,
           ownerId: client.id,
         },
+        orderPublicId: orderId,
       },
       updateOrderDto,
     );
@@ -135,11 +120,11 @@ export class OwnerOrderController {
     return await this.orderService.cancelOrder({
       type: 'OWNER',
       params: {
-        orderPublicId: orderId,
         storePublicId: storeId,
         tablePublicId: tableId,
         ownerId: client.id,
       },
+      orderPublicId: orderId,
     });
   }
 }

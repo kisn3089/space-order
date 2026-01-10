@@ -51,7 +51,9 @@ export class OwnerController {
   @Get(':ownerId')
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getOwnerById(@Param('ownerId') ownerId: string): Promise<PublicOwner> {
+  async getOwnerById(
+    @Param('ownerId') ownerId: string,
+  ): Promise<OwnerResponseDto> {
     const findOwner = await this.ownerService.getOwnerById(ownerId);
     return new OwnerResponseDto(findOwner);
   }

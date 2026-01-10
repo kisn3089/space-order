@@ -12,7 +12,7 @@ type StoreAndTableParams = {
 export class TableService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private readonly tableOmit = { id: true, storeId: true } as const;
+  private readonly tableOmit = { id: true, storeId: true };
 
   async createTable(
     storeId: string,

@@ -44,11 +44,8 @@ export class OwnerOrderController {
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<PublicOrderWithItem> {
-    const tableSession =
-      await this.tableSessionService.findActivatedSessionOrCreate(tableId);
-
     const { createdOrder } = await this.orderService.createOrder(
-      tableSession,
+      { tableId },
       createOrderDto,
     );
 

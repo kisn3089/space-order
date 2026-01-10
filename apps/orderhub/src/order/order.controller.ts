@@ -43,7 +43,7 @@ export class OrderController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<PublicOrderWithItem> {
     const { createdOrder, updatedTableSession } =
-      await this.orderService.createOrder(tableSession, createOrderDto);
+      await this.orderService.createOrder({ tableSession }, createOrderDto);
 
     responseCookie.set(
       response,

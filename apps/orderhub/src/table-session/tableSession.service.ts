@@ -37,7 +37,6 @@ export class TableSessionService {
           in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
         },
       },
-      omit: this.sanitizeOmit,
       include: this.includeSanitizeId,
     };
   }
@@ -55,31 +54,43 @@ export class TableSessionService {
     };
   }
 
+  async txFindActivatedSessionOrCreate(
+    tx: Tx,
+    tablePublicId: string,
+  ): Promise<SessionWithSanitizeId> {
+    const activatedSession = await tx.tableSession.findFirst({
+      ...this.getActivatedSessionById(tablePublicId),
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (activatedSession) {
+      if (!this.isSessionExpired(activatedSession)) {
+        return activatedSession;
+      }
+      await this.txUpdateSession(
+        activatedSession,
+        { status: TableSessionStatus.CLOSED },
+        tx,
+      );
+    }
+
+    const createdTableSession = await tx.tableSession.create(
+      this.createSession(tablePublicId),
+    );
+
+    return createdTableSession;
+  }
+
   async findActivatedSessionOrCreate(
     tablePublicId: string,
   ): Promise<SessionWithSanitizeId> {
     return await this.prismaService.$transaction(async (tx) => {
-      const activatedSession = await tx.tableSession.findFirst({
-        ...this.getActivatedSessionById(tablePublicId),
-        orderBy: { createdAt: 'desc' },
-      });
-
-      if (activatedSession) {
-        if (!this.isSessionExpired(activatedSession)) {
-          return activatedSession;
-        }
-        await this.txUpdateSession(
-          activatedSession,
-          { status: TableSessionStatus.CLOSED },
-          tx,
-        );
-      }
-
-      const createdTableSession = await tx.tableSession.create(
-        this.createSession(tablePublicId),
+      const activatedSession = await this.txFindActivatedSessionOrCreate(
+        tx,
+        tablePublicId,
       );
 
-      return createdTableSession;
+      return activatedSession;
     });
   }
 

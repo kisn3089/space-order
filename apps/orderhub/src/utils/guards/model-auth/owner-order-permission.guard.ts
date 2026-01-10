@@ -22,8 +22,9 @@ type RequestWithClientAndOrderAndTable = Request & {
 
 /**
  * @access CachedOrder
- * @access CachedTable 현재는 저장은 하지만 해당 데코레이터를 사용하면서 CachedTable를 사용하지 않고 있음.
- * @description Guard to check permission to access the order or table and cache the result.
+ * @description if orderId is present in params, can use CachedOrder
+ * @access CachedTable
+ * @description if orderId is not present in params, can use CachedTable
  */
 @Injectable()
 export class OwnerOrderPermission implements CanActivate {

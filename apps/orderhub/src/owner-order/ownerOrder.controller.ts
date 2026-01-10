@@ -19,7 +19,6 @@ import { CachedOrder } from 'src/decorators/cache/order.cache';
 import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
 import { OrderService } from 'src/order/order.service';
-import { TableSessionService } from 'src/table-session/tableSession.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { OwnerOrderPermission } from 'src/utils/guards/model-auth/owner-order-permission.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
@@ -27,10 +26,7 @@ import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 @Controller('owner/stores/:storeId/tables/:tableId/orders')
 @UseGuards(JwtAuthGuard)
 export class OwnerOrderController {
-  constructor(
-    private readonly orderService: OrderService,
-    private readonly tableSessionService: TableSessionService,
-  ) {}
+  constructor(private readonly orderService: OrderService) {}
 
   @Post()
   @UseGuards(

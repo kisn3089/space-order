@@ -6,20 +6,23 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Owner, Store, Table } from '@spaceorder/db';
+import { Owner, TableAndStoreOwnerId } from '@spaceorder/db';
 import { StoreService } from 'src/store/store.service';
+import { TableService } from 'src/table/table.service';
 
 type RequestWithClient = Request & {
   user: Owner;
-  table: Table | null;
+  table: TableAndStoreOwnerId | null;
 };
-
+/**
+ * @access CachedTable
+ * @description Guard to check permission to access the table and cache the result.
+ */
 @Injectable()
 export class TablePermission implements CanActivate {
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly storeService: StoreService,
+    private readonly tableService: TableService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,7 +31,10 @@ export class TablePermission implements CanActivate {
     const { storeId, tableId } = request.params;
 
     if (tableId) {
-      const findTable = await this.getTableById(storeId, tableId);
+      const findTable = await this.tableService.getTableById({
+        storeId,
+        tableId,
+      });
       if (findTable.store.ownerId === client.id) {
         request.table = findTable;
         return true;
@@ -40,15 +46,5 @@ export class TablePermission implements CanActivate {
       }
     }
     throw new ForbiddenException(exceptionContentsIs('FORBIDDEN'));
-  }
-
-  private async getTableById(
-    storeId: string,
-    tableId: string,
-  ): Promise<Table & { store: Pick<Store, 'ownerId'> }> {
-    return await this.prismaService.table.findFirstOrThrow({
-      where: { publicId: tableId, store: { publicId: storeId } },
-      include: { store: { select: { ownerId: true } } },
-    });
   }
 }

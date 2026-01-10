@@ -20,7 +20,7 @@ import {
   updateTableSchema,
 } from '@spaceorder/auth';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { PublicTable, Table } from '@spaceorder/db';
+import type { PublicTable, TableAndStoreOwnerId } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
 import { CachedTable } from 'src/decorators/cache/table.cache';
 import { TableResponseDto } from './dto/tableResponse.dto';
@@ -62,16 +62,11 @@ export class TableController {
     TablePermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getTableById(
+  getTableById(
     /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
-    @CachedTable() cachedTable: Table | null,
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
-  ): Promise<TableResponseDto | PublicTable> {
-    if (cachedTable) {
-      return new TableResponseDto(cachedTable);
-    }
-    return await this.tableService.getTableById(storeId, tableId);
+    @CachedTable() cachedTable: TableAndStoreOwnerId,
+  ): TableResponseDto {
+    return new TableResponseDto(cachedTable);
   }
 
   @Patch(':tableId')

@@ -5,7 +5,7 @@ import {
   Prisma,
   PublicOrderWithItem,
   PublicTableSession,
-  TableSession,
+  SessionWithTableAndStoreId,
   TableSessionStatus,
 } from '@spaceorder/db';
 import { TableSessionService } from 'src/table-session/tableSession.service';
@@ -24,12 +24,28 @@ type CreateOrderReturn = {
   createdOrder: PublicOrderWithItem;
   updatedTableSession: PublicTableSession;
 };
-export type BaseOrderParams = {
-  storeId: string;
-  tableId: string;
-  tableSession: TableSession;
+
+type PublicOrderId = {
+  orderPublicId: string;
 };
-export type OrderIdParams = { orderId: string };
+
+type ParamsPrincipal =
+  | {
+      type: 'CUSTOMER';
+      params: { tableSession: SessionWithTableAndStoreId };
+    }
+  | {
+      type: 'OWNER';
+      params: {
+        storePublicId: string;
+        tablePublicId: string;
+        ownerId: bigint;
+      };
+    };
+
+type CreateOrderParams =
+  | { tableSession: SessionWithTableAndStoreId; tableId?: never }
+  | { tableSession?: never; tableId: string };
 
 @Injectable()
 export class OrderService {
@@ -51,18 +67,20 @@ export class OrderService {
   };
 
   async createOrder(
-    params: BaseOrderParams,
+    { tableSession, tableId }: CreateOrderParams,
     createOrderDto: CreateOrderDto,
   ): Promise<CreateOrderReturn> {
-    const {
-      storeId: storePublicId,
-      tableId: tablePublicId,
-      tableSession,
-    } = params;
     return await this.prismaService.$transaction(async (tx) => {
       const menuPublicIds = createOrderDto.orderItems.map(
         (item) => item.menuPublicId,
       );
+
+      const sessionFromCookieOrCreated: SessionWithTableAndStoreId =
+        tableSession ??
+        (await this.tableSessionService.txFindActivatedSessionOrCreate(
+          tx,
+          tableId,
+        ));
 
       // TODO: 추후 메뉴 service로 이전
       const findMenuList = await tx.menu.findMany({
@@ -79,16 +97,16 @@ export class OrderService {
 
       const updatedTableSession =
         await this.tableSessionService.txUpdateSession(
-          tableSession,
+          sessionFromCookieOrCreated,
           { status: TableSessionStatus.ACTIVE },
           tx,
         );
 
       const createdOrder = await tx.order.create({
         data: {
-          store: { connect: { publicId: storePublicId } },
-          table: { connect: { publicId: tablePublicId } },
-          tableSession: { connect: { id: tableSession.id } },
+          storeId: sessionFromCookieOrCreated.table.store.id,
+          tableId: sessionFromCookieOrCreated.table.id,
+          tableSessionId: sessionFromCookieOrCreated.id,
           orderItems: { create: bulkCreateOrderItems },
           totalPrice: totalPriceByServer,
         },
@@ -189,45 +207,56 @@ export class OrderService {
     return totalPriceByServer;
   }
 
-  async getOrderList(params: BaseOrderParams): Promise<PublicOrderWithItem[]> {
-    const {
-      storeId: storePublicId,
-      tableId: tablePublicId,
-      tableSession,
-    } = params;
+  async getOrderList(
+    paramsPrincipal: ParamsPrincipal,
+  ): Promise<PublicOrderWithItem[]> {
     return await this.prismaService.order.findMany({
-      where: {
-        store: { publicId: storePublicId },
-        table: { publicId: tablePublicId },
-        tableSession: { id: tableSession.id },
-      },
+      where: this.whereRecordByPrincipal(paramsPrincipal),
       ...this.orderIncludeOrOmit,
     });
   }
 
   async getOrderById(
-    params: BaseOrderParams & OrderIdParams,
+    paramsPrincipal: ParamsPrincipal & PublicOrderId,
   ): Promise<PublicOrderWithItem> {
     return await this.prismaService.order.findFirstOrThrow({
       where: {
-        publicId: params.orderId,
-        store: { publicId: params.storeId },
-        table: { publicId: params.tableId },
-        tableSession: { id: params.tableSession.id },
+        publicId: paramsPrincipal.orderPublicId,
+        ...this.whereRecordByPrincipal(paramsPrincipal),
       },
       ...this.orderIncludeOrOmit,
     });
   }
 
+  private whereRecordByPrincipal({ params, type }: ParamsPrincipal) {
+    if (type === 'CUSTOMER') {
+      return {
+        storeId: params.tableSession.table.store.id,
+        tableId: params.tableSession.table.id,
+        tableSessionId: params.tableSession.id,
+      };
+    } else {
+      /** type === 'OWNER' */
+      return {
+        store: { publicId: params.storePublicId, ownerId: params.ownerId },
+        table: { publicId: params.tablePublicId },
+      };
+    }
+  }
+
   async updateOrder(
-    orderPublicId: string,
+    paramsPrincipal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrderWithItem> {
     return await this.prismaService.$transaction(async (tx) => {
+      const whereByPrincipal = this.whereRecordByPrincipal(paramsPrincipal);
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
-          where: { publicId: orderPublicId },
+          where: {
+            publicId: paramsPrincipal.orderPublicId,
+            ...whereByPrincipal,
+          },
           data: restUpdateOrderDto,
           ...this.orderIncludeOrOmit,
         });
@@ -246,7 +275,10 @@ export class OrderService {
           menuPublicIds,
         );
       return tx.order.update({
-        where: { publicId: orderPublicId },
+        where: {
+          publicId: paramsPrincipal.orderPublicId,
+          ...whereByPrincipal,
+        },
         data: {
           /**
            *  NOTE: We intentionally delete and recreate all orderItems on update.
@@ -266,9 +298,14 @@ export class OrderService {
     });
   }
 
-  async cancelOrder(orderPublicId: string): Promise<PublicOrderWithItem> {
+  async cancelOrder(
+    paramsPrincipal: ParamsPrincipal & PublicOrderId,
+  ): Promise<PublicOrderWithItem> {
     return await this.prismaService.order.update({
-      where: { publicId: orderPublicId },
+      where: {
+        publicId: paramsPrincipal.orderPublicId,
+        ...this.whereRecordByPrincipal(paramsPrincipal),
+      },
       data: { status: OrderStatus.CANCELLED },
       ...this.orderIncludeOrOmit,
     });

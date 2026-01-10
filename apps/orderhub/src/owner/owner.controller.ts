@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { OwnerService } from './owner.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
@@ -19,6 +21,7 @@ import {
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { PublicOwner } from '@spaceorder/db';
 import { OwnerPermission } from 'src/utils/guards/model-auth/owner-permission.guard';
+import { OwnerResponseDto } from './dto/ownerResponse.dto';
 
 export class CreateOwnerDto extends createZodDto(createOwnerSchema) {}
 export class UpdateOwnerDto extends createZodDto(updateOwnerSchema) {}
@@ -47,8 +50,12 @@ export class OwnerController {
 
   @Get(':ownerId')
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
-  async getOwnerById(@Param('ownerId') ownerId: string): Promise<PublicOwner> {
-    return await this.ownerService.getOwnerById(ownerId);
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getOwnerById(
+    @Param('ownerId') ownerId: string,
+  ): Promise<OwnerResponseDto> {
+    const findOwner = await this.ownerService.getOwnerById(ownerId);
+    return new OwnerResponseDto(findOwner);
   }
 
   @Patch(':ownerId')

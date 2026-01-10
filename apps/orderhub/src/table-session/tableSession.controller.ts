@@ -35,7 +35,7 @@ export class TableSessionController {
   async findActivatedSessionOrCreate(
     @Param('tableId') tablePublicId: string,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<PublicTableSession> {
+  ): Promise<TableSessionResponseDto> {
     const findOrCreatedSession =
       await this.tableSessionService.findActivatedSessionOrCreate(
         tablePublicId,
@@ -48,7 +48,7 @@ export class TableSessionController {
       { expires: findOrCreatedSession.expiresAt },
     );
 
-    return findOrCreatedSession;
+    return new TableSessionResponseDto(findOrCreatedSession);
   }
 
   @Patch()
@@ -94,12 +94,10 @@ export class TableSessionController {
   async getSessionBySessionToken(
     @Session() tableSession: TableSession,
   ): Promise<TableSessionResponseDto> {
-    const findTableSession =
-      await this.tableSessionService.getSessionBySessionToken(
-        tableSession.sessionToken,
-      );
+    const findTableSession = await this.tableSessionService.getActiveSession(
+      tableSession.sessionToken,
+    );
 
-    /** dto가 현재는 여기서만 쓰인다. */
     return new TableSessionResponseDto(findTableSession);
   }
 }

@@ -5,62 +5,42 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import {
-  TableSession,
-  COOKIE_TABLE,
-  TableSessionStatus,
-  Table,
-  Store,
-} from '@spaceorder/db';
+import { COOKIE_TABLE, SessionWithTableAndStoreId } from '@spaceorder/db';
+import { sessionTokenSchema } from '@spaceorder/auth/schemas/model/tableSession.schema';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 
-export type IncludingIdTableSession = TableSession & {
-  table: Table & { store: Pick<Store, 'publicId' | 'id'> };
+type RequestWithClient = Request & {
+  tableSession: SessionWithTableAndStoreId | null;
+  cookies: Record<string, string>;
 };
-
+/**
+ * @access CachedTableSession
+ * @description Guard to check permission to access the table session and cache the result.
+ */
 @Injectable()
 export class SessionAuth implements CanActivate {
   constructor(private readonly tableSessionService: TableSessionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const extractedSessionInCookie: string =
+    const request = context.switchToHttp().getRequest<RequestWithClient>();
+    const extractedSessionInCookie: string | undefined =
       request.cookies[COOKIE_TABLE.TABLE_SESSION];
 
-    if (!extractedSessionInCookie) {
-      throw new HttpException(
-        exceptionContentsIs('INVALID_TABLE_SESSION'),
-        HttpStatus.UNAUTHORIZED,
-      );
+    const tokenValidation = sessionTokenSchema.safeParse(
+      extractedSessionInCookie,
+    );
+
+    if (tokenValidation.success) {
+      const activeSessionWithSanitizeId: SessionWithTableAndStoreId =
+        await this.tableSessionService.getActiveSession(tokenValidation.data);
+      request.tableSession = activeSessionWithSanitizeId;
+      return true;
     }
 
-    const includingIdTableSession: IncludingIdTableSession =
-      await this.tableSessionService.getSessionBySessionToken(
-        extractedSessionInCookie,
-      );
-
-    if (this.isInvalidStatus(includingIdTableSession)) {
-      await this.tableSessionService.txUpdateSession(includingIdTableSession, {
-        status: TableSessionStatus.CLOSED,
-      });
-      throw new HttpException(
-        exceptionContentsIs('INVALID_TABLE_SESSION'),
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    request.tableSession = includingIdTableSession;
-    return true;
-  }
-
-  private isInvalidStatus(session: IncludingIdTableSession): boolean {
-    return (
-      session.expiresAt < new Date() &&
-      !(
-        session.status === TableSessionStatus.ACTIVE ||
-        session.status === TableSessionStatus.WAITING_ORDER
-      )
+    throw new HttpException(
+      exceptionContentsIs('INVALID_TABLE_SESSION'),
+      HttpStatus.UNAUTHORIZED,
     );
   }
 }

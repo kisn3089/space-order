@@ -14,6 +14,10 @@ type RequestWithClient = Request & {
   user: Owner;
   menu: Menu | null;
 };
+/**
+ * @access CachedMenu
+ * @description Guard to check permission to access the menu and cache the result.
+ */
 @Injectable()
 export class MenuPermission implements CanActivate {
   constructor(

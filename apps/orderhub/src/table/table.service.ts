@@ -2,8 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { createId } from '@paralleldrive/cuid2';
 import { CreateTableDto, UpdateTableDto } from './table.controller';
-import type { PublicTable } from '@spaceorder/db';
+import { TableAndStoreOwnerId, type PublicTable } from '@spaceorder/db';
 
+type StoreAndTableParams = {
+  storeId: string;
+  tableId: string;
+};
 @Injectable()
 export class TableService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -37,10 +41,13 @@ export class TableService {
     });
   }
 
-  async getTableById(storeId: string, tableId: string): Promise<PublicTable> {
+  async getTableById({
+    storeId,
+    tableId,
+  }: StoreAndTableParams): Promise<TableAndStoreOwnerId> {
     return await this.prismaService.table.findFirstOrThrow({
       where: { publicId: tableId, store: { publicId: storeId } },
-      omit: this.tableOmit,
+      include: { store: { select: { ownerId: true } } },
     });
   }
 

@@ -8,58 +8,42 @@ import {
   Param,
   Delete,
   UseGuards,
-  HttpCode,
   Res,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import {
   COOKIE_TABLE,
+  type SessionWithSanitizeId,
   type PublicOrderWithItem,
-  type TableSession,
 } from '@spaceorder/db';
 import { createZodDto } from 'nestjs-zod';
 import {
   createOrderSchema,
-  mergedStoreAndTableParamsSchema,
-  orderParamsSchema,
+  orderIdParamsSchema,
   updateOrderSchema,
 } from '@spaceorder/auth';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import { responseCookie } from 'src/utils/cookies';
-import { OrderPermission } from 'src/utils/guards/model-auth/order-permission.guard';
-import { CachedOrder } from 'src/decorators/cache/order.cache';
 
 export class CreateOrderDto extends createZodDto(createOrderSchema) {}
 export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}
 
-@Controller('stores/:storeId/tables/:tableId/orders')
+@Controller('customer/orders')
 @UseGuards(SessionAuth)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  @HttpCode(201)
-  @UseGuards(
-    ZodValidation({
-      params: mergedStoreAndTableParamsSchema,
-      body: createOrderSchema,
-    }),
-    OrderPermission,
-  )
+  @UseGuards(ZodValidation({ body: createOrderSchema }))
   async createOrder(
-    @Session() tableSession: TableSession,
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
+    @Session() tableSession: SessionWithSanitizeId,
     @Body() createOrderDto: CreateOrderDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<PublicOrderWithItem> {
     const { createdOrder, updatedTableSession } =
-      await this.orderService.createOrder(
-        { storeId, tableId, tableSession },
-        createOrderDto,
-      );
+      await this.orderService.createOrder(tableSession, createOrderDto);
 
     responseCookie.set(
       response,
@@ -72,66 +56,51 @@ export class OrderController {
   }
 
   @Get()
-  @HttpCode(200)
-  @UseGuards(
-    ZodValidation({ params: mergedStoreAndTableParamsSchema }),
-    OrderPermission,
-  )
   async getOrderList(
-    @Session() tableSession: TableSession,
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
+    @Session() tableSession: SessionWithSanitizeId,
   ): Promise<PublicOrderWithItem[]> {
     return await this.orderService.getOrderList({
-      storeId,
-      tableId,
-      tableSession,
+      type: 'CUSTOMER',
+      params: { tableSession },
     });
   }
 
   @Get(':orderId')
-  @HttpCode(200)
-  @UseGuards(ZodValidation({ params: orderParamsSchema }), OrderPermission)
+  @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
   async getOrderById(
-    @CachedOrder() cachedOrder: PublicOrderWithItem | null,
-    @Session() tableSession: TableSession,
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
+    @Session() tableSession: SessionWithSanitizeId,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem> {
-    if (cachedOrder) {
-      return cachedOrder;
-    }
     return await this.orderService.getOrderById({
-      storeId,
-      tableId,
-      orderId,
-      tableSession,
+      type: 'CUSTOMER',
+      params: { orderPublicId: orderId, tableSession },
     });
   }
 
   @Patch(':orderId')
-  @HttpCode(200)
   @UseGuards(
-    ZodValidation({
-      params: orderParamsSchema,
-      body: updateOrderSchema,
-    }),
-    OrderPermission,
+    ZodValidation({ params: orderIdParamsSchema, body: updateOrderSchema }),
   )
   async updateOrder(
+    @Session() tableSession: SessionWithSanitizeId,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<PublicOrderWithItem> {
-    return await this.orderService.updateOrder(orderId, updateOrderDto);
+    return await this.orderService.updateOrder(
+      { type: 'CUSTOMER', params: { orderPublicId: orderId, tableSession } },
+      updateOrderDto,
+    );
   }
 
   @Delete(':orderId')
-  @HttpCode(200)
-  @UseGuards(ZodValidation({ params: orderParamsSchema }), OrderPermission)
+  @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
   async cancelOrder(
+    @Session() tableSession: SessionWithSanitizeId,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem> {
-    return await this.orderService.cancelOrder(orderId);
+    return await this.orderService.cancelOrder({
+      type: 'CUSTOMER',
+      params: { orderPublicId: orderId, tableSession },
+    });
   }
 }

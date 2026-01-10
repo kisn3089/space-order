@@ -1,6 +1,6 @@
 import { QueryOptions, useQuery } from "@tanstack/react-query";
 import { PublicOwner, PublicStore } from "@spaceorder/db";
-import { httpStores } from "./httpStore";
+import { httpStores } from "./httpStores";
 
 type FetchStoreList = {
   queryOptions?: QueryOptions<PublicStore[]>;

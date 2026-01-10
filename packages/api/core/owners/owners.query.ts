@@ -22,7 +22,8 @@ type FetchOwnerUnique = {
   publicId: string;
 };
 const fetchOwnerUnique = ({ publicId, queryOptions }: FetchOwnerUnique) => {
-  const { queryKey = ["owners"], ...restOptions } = queryOptions ?? {};
+  const { queryKey = ["owners", publicId], ...restOptions } =
+    queryOptions ?? {};
   return useQuery<PublicOwner>({
     queryKey,
     queryFn: () => httpOwners.fetchUnique(publicId),

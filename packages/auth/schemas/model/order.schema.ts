@@ -19,9 +19,6 @@ const orderItemIdParamsSchema = z
   })
   .strict();
 
-export const orderParamsSchema =
-  mergedStoreAndTableParamsSchema.merge(orderIdParamsSchema);
-
 export const orderItemParamsSchema = orderIdParamsSchema.merge(
   orderItemIdParamsSchema
 );

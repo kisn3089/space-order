@@ -5,7 +5,7 @@ import {
   TableSessionStatus,
   Order,
   PublicTableSession,
-  SessionWithSanitizeId,
+  SessionWithTableAndStoreId,
 } from '@spaceorder/db';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -57,7 +57,7 @@ export class TableSessionService {
   async txFindActivatedSessionOrCreate(
     tx: Tx,
     tablePublicId: string,
-  ): Promise<SessionWithSanitizeId> {
+  ): Promise<SessionWithTableAndStoreId> {
     const activatedSession = await tx.tableSession.findFirst({
       ...this.getActivatedSessionById(tablePublicId),
       orderBy: { createdAt: 'desc' },
@@ -83,7 +83,7 @@ export class TableSessionService {
 
   async findActivatedSessionOrCreate(
     tablePublicId: string,
-  ): Promise<SessionWithSanitizeId> {
+  ): Promise<SessionWithTableAndStoreId> {
     return await this.prismaService.$transaction(async (tx) => {
       const activatedSession = await this.txFindActivatedSessionOrCreate(
         tx,
@@ -98,7 +98,9 @@ export class TableSessionService {
     return session.expiresAt < new Date();
   }
 
-  async getActiveSession(sessionToken: string): Promise<SessionWithSanitizeId> {
+  async getActiveSession(
+    sessionToken: string,
+  ): Promise<SessionWithTableAndStoreId> {
     return await this.prismaService.tableSession.findFirstOrThrow({
       where: {
         sessionToken,

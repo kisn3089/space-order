@@ -5,7 +5,7 @@ import {
   Prisma,
   PublicOrderWithItem,
   PublicTableSession,
-  SessionWithSanitizeId,
+  SessionWithTableAndStoreId,
   TableSessionStatus,
 } from '@spaceorder/db';
 import { TableSessionService } from 'src/table-session/tableSession.service';
@@ -32,7 +32,7 @@ type PublicOrderId = {
 type ParamsPrincipal =
   | {
       type: 'CUSTOMER';
-      params: { tableSession: SessionWithSanitizeId };
+      params: { tableSession: SessionWithTableAndStoreId };
     }
   | {
       type: 'OWNER';
@@ -44,7 +44,7 @@ type ParamsPrincipal =
     };
 
 type CreateOrderParams =
-  | { tableSession: SessionWithSanitizeId; tableId?: never }
+  | { tableSession: SessionWithTableAndStoreId; tableId?: never }
   | { tableSession?: never; tableId: string };
 
 @Injectable()
@@ -75,7 +75,7 @@ export class OrderService {
         (item) => item.menuPublicId,
       );
 
-      const sessionFromCookieOrCreated: SessionWithSanitizeId =
+      const sessionFromCookieOrCreated: SessionWithTableAndStoreId =
         tableSession ??
         (await this.tableSessionService.txFindActivatedSessionOrCreate(
           tx,

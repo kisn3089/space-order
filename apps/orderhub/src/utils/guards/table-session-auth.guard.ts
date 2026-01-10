@@ -5,13 +5,13 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { COOKIE_TABLE, SessionWithSanitizeId } from '@spaceorder/db';
+import { COOKIE_TABLE, SessionWithTableAndStoreId } from '@spaceorder/db';
 import { sessionTokenSchema } from '@spaceorder/auth/schemas/model/tableSession.schema';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 
 type RequestWithClient = Request & {
-  tableSession: SessionWithSanitizeId | null;
+  tableSession: SessionWithTableAndStoreId | null;
   cookies: Record<string, string>;
 };
 /**
@@ -32,7 +32,7 @@ export class SessionAuth implements CanActivate {
     );
 
     if (tokenValidation.success) {
-      const activeSessionWithSanitizeId: SessionWithSanitizeId =
+      const activeSessionWithSanitizeId: SessionWithTableAndStoreId =
         await this.tableSessionService.getActiveSession(tokenValidation.data);
       request.tableSession = activeSessionWithSanitizeId;
       return true;

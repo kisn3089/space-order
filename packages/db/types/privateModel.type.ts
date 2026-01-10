@@ -1,6 +1,6 @@
 import { Store, Table, TableSession } from "@prisma/client";
 
-export type SessionWithSanitizeId = TableSession & {
+export type SessionWithTableAndStoreId = TableSession & {
   table: Table & { store: Pick<Store, "publicId" | "id"> };
 };
 

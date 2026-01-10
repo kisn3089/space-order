@@ -6,10 +6,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { SessionWithSanitizeId } from '@spaceorder/db';
+import { SessionWithTableAndStoreId } from '@spaceorder/db';
 
 type RequestWithTableSession = Request & {
-  tableSession: SessionWithSanitizeId;
+  tableSession: SessionWithTableAndStoreId;
 };
 
 @Injectable()

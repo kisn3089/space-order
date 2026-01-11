@@ -15,7 +15,7 @@ type RequestWithClient = Request & {
   table: TableAndStoreOwnerId | null;
 };
 /**
- * @access CachedTable
+ * @access CachedTableByGuard
  * @description Guard to check permission to access the table and cache the result.
  */
 @Injectable()

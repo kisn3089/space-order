@@ -15,7 +15,7 @@ import {
   updateOrderSchema,
 } from '@spaceorder/auth';
 import type { Owner, PublicOrderWithItem } from '@spaceorder/db';
-import { CachedOrder } from 'src/decorators/cache/order.cache';
+import { CachedOrderByGuard } from 'src/decorators/cache/order.cache';
 import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
 import { OrderService } from 'src/order/order.service';
@@ -71,7 +71,7 @@ export class OwnerOrderController {
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
   getOrderById(
-    @CachedOrder() cachedOrder: PublicOrderWithItem,
+    @CachedOrderByGuard() cachedOrder: PublicOrderWithItem,
   ): PublicOrderWithItem {
     return cachedOrder;
   }

@@ -21,9 +21,9 @@ type RequestWithClientAndOrderAndTable = Request & {
 };
 
 /**
- * @access CachedOrder
+ * @access CachedOrderByGuard
  * @description if orderId is present in params, can use CachedOrder
- * @access CachedTable
+ * @access CachedTableByGuard
  * @description if orderId is not present in params, can use CachedTable
  */
 @Injectable()

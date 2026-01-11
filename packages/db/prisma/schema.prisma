@@ -195,6 +195,7 @@ model Order {
   storeId         BigInt      @map("store_id")
   tableId         BigInt     @map("table_id")
   tableSessionId  BigInt     @map("table_session_id")
+  // idempotencyKey  String      @map("idempotency_key")
   status          OrderStatus @default(PENDING)
   totalPrice      Int         @map("total_price")
   /*
@@ -216,6 +217,7 @@ model Order {
   tableSession TableSession  @relation(fields: [tableSessionId], references: [id], onDelete: Restrict)
   orderItems   OrderItem[]
 
+  // @@index([tableSessionId, idempotencyKey])
   @@index([tableSessionId])
   @@index([storeId, status, completedAt])
   @@map("order")

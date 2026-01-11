@@ -15,7 +15,7 @@ type RequestWithClient = Request & {
   menu: Menu | null;
 };
 /**
- * @access CachedMenu
+ * @access CachedMenuByGuard
  * @description Guard to check permission to access the menu and cache the result.
  */
 @Injectable()

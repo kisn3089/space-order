@@ -21,8 +21,8 @@ import {
 } from '@spaceorder/auth';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicTable, TableAndStoreOwnerId } from '@spaceorder/db';
-import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
-import { CachedTable } from 'src/decorators/cache/table.cache';
+import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
+import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
@@ -64,7 +64,7 @@ export class TableController {
   @UseInterceptors(ClassSerializerInterceptor)
   getTableById(
     /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
-    @CachedTable() cachedTable: TableAndStoreOwnerId,
+    @CachedTableByGuard() cachedTable: TableAndStoreOwnerId,
   ): TableResponseDto {
     return new TableResponseDto(cachedTable);
   }

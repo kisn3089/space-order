@@ -15,12 +15,12 @@ import {
   updateOrderSchema,
 } from '@spaceorder/auth';
 import type { Owner, PublicOrderWithItem } from '@spaceorder/db';
-import { CachedOrder } from 'src/decorators/cache/order.cache';
+import { CachedOrderByGuard } from 'src/decorators/cache/order.decorator';
 import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
 import { OrderService } from 'src/order/order.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { OwnerOrderPermission } from 'src/utils/guards/model-auth/owner-order-permission.guard';
+import { OwnerOrderPermission } from 'src/utils/guards/model-permissions/owner-order-permission.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 
 @Controller('owner/stores/:storeId/tables/:tableId/orders')
@@ -71,7 +71,7 @@ export class OwnerOrderController {
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
   getOrderById(
-    @CachedOrder() cachedOrder: PublicOrderWithItem,
+    @CachedOrderByGuard() cachedOrder: PublicOrderWithItem,
   ): PublicOrderWithItem {
     return cachedOrder;
   }

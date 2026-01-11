@@ -23,6 +23,9 @@ export const orderItemParamsSchema = orderIdParamsSchema.merge(
   orderItemIdParamsSchema
 );
 
+export const orderParamsSchema =
+  mergedStoreAndTableParamsSchema.merge(orderIdParamsSchema);
+
 /**
  * Body Schema
  */

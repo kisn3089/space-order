@@ -22,7 +22,7 @@ import {
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicTable, TableAndStoreOwnerId } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
-import { CachedTableByGuard } from 'src/decorators/cache/table.cache';
+import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}

@@ -23,7 +23,7 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
 import { Client } from 'src/decorators/client.decorator';
 import { MenuPermission } from 'src/utils/guards/model-auth/menu-permission.guard';
-import { CachedMenuByGuard } from 'src/decorators/cache/menu.cache';
+import { CachedMenuByGuard } from 'src/decorators/cache/menu.decorator';
 import { MenuResponseDto } from './dto/menuResponse.dto';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}

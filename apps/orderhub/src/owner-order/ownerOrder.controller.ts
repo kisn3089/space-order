@@ -15,7 +15,7 @@ import {
   updateOrderSchema,
 } from '@spaceorder/auth';
 import type { Owner, PublicOrderWithItem } from '@spaceorder/db';
-import { CachedOrderByGuard } from 'src/decorators/cache/order.cache';
+import { CachedOrderByGuard } from 'src/decorators/cache/order.decorator';
 import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
 import { OrderService } from 'src/order/order.service';

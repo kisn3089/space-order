@@ -22,9 +22,9 @@ type RequestWithClientAndOrderAndTable = Request & {
 
 /**
  * @access CachedOrderByGuard
- * @description if orderId is present in params, can use CachedOrder
+ * @description if orderId is present in params, can use CachedOrderByGuard
  * @access CachedTableByGuard
- * @description if orderId is not present in params, can use CachedTable
+ * @description if orderId is not present in params, can use CachedTableByGuard
  */
 @Injectable()
 export class OwnerOrderPermission implements CanActivate {

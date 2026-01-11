@@ -20,7 +20,7 @@ import {
 } from '@spaceorder/auth';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { PublicOwner } from '@spaceorder/db';
-import { OwnerPermission } from 'src/utils/guards/model-auth/owner-permission.guard';
+import { OwnerPermission } from 'src/utils/guards/model-permissions/owner-permission.guard';
 import { OwnerResponseDto } from './dto/ownerResponse.dto';
 
 export class CreateOwnerDto extends createZodDto(createOwnerSchema) {}

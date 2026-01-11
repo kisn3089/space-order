@@ -21,7 +21,7 @@ import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';
 import { TableSessionResponseDto } from './dto/tableSessionResponse.dto';
-import { SessionPermission } from 'src/utils/guards/model-auth/table-session-permission.guard';
+import { SessionPermission } from 'src/utils/guards/model-permissions/table-session-permission.guard';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionSchema>;
 

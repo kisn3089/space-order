@@ -21,7 +21,7 @@ import {
 } from '@spaceorder/auth';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicTable, TableAndStoreOwnerId } from '@spaceorder/db';
-import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
+import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
 import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
 

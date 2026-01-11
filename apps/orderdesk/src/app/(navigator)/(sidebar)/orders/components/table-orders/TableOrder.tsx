@@ -2,19 +2,32 @@ import { CardContent } from "@spaceorder/ui/components/card";
 import { OrderStatus, PublicOrderWithItem } from "@spaceorder/db";
 import { Badge } from "@spaceorder/ui/components/badge";
 import { meQuery, ORDER_STATUS, orderQuery } from "@spaceorder/api";
+import useOwnerOrders from "@spaceorder/api/core/owner-orders/useOwnerOrders.mutate";
+import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-orders/httpOwnerOrders";
+
+const nextStatusMap: Record<OrderStatus, OrderStatus | null> = {
+  [OrderStatus.PENDING]: OrderStatus.ACCEPTED,
+  [OrderStatus.ACCEPTED]: OrderStatus.PREPARING,
+  [OrderStatus.PREPARING]: OrderStatus.COMPLETED,
+  [OrderStatus.COMPLETED]: null, // 완료 상태는 다음 상태 없음
+  [OrderStatus.CANCELLED]: null, // 취소 상태는 다음 상태 없음
+} as const;
 
 type TableOrderProps = { order: PublicOrderWithItem; tableId: string };
 export default function TableOrder({ order, tableId }: TableOrderProps) {
+  const { updateOwnerOrder } = useOwnerOrders();
   const { data: stores, isSuccess } = meQuery.fetchMyOrderListAllinclusive({});
+
   if (!isSuccess) return null;
-  const { data: orderList, refetch } = orderQuery.fetchOrderUnique({
-    enabled: false,
-    fetchParams: {
-      storeId: stores?.publicId,
-      tableId: tableId,
-      orderId: order.publicId,
-    },
-  });
+  const { data: orderList, isSuccess: isOrderListSuccess } =
+    orderQuery.fetchOrderUnique({
+      enabled: isSuccess,
+      fetchParams: {
+        storeId: stores?.publicId,
+        tableId: tableId,
+        orderId: order.publicId,
+      },
+    });
 
   const isFinishStatus =
     order.status === OrderStatus.COMPLETED ||
@@ -26,11 +39,37 @@ export default function TableOrder({ order, tableId }: TableOrderProps) {
   };
 
   const pushNextOrderStatus = async () => {
-    console.log("next status로 전이합니다: ", stores);
-    /** 다음 주문 상태로 전이 */
-    await refetch();
+    if (isOrderListSuccess) {
+      // 상태 전이 맵: 현재 상태 -> 다음 상태
+
+      const nextStatus = nextStatusMap[orderList.status];
+      if (!nextStatus) {
+        console.log("더 이상 전이할 상태가 없습니다.");
+        return;
+      }
+      console.log(
+        "next status로 전이합니다: ",
+        nextStatus || "전이할 상태 없음"
+      );
+      const orderPayload: UpdateOwnerOrderPayload = {
+        // orderItems: orderList.orderItems.map((orderItem) => ({
+        //   menuName: orderItem.menuName,
+        //   options: orderItem.options,
+        //   quantity: orderItem.quantity,
+        //   menuPublicId: "emhvr5chzxzwa8vd98j0uuds",
+        // })),
+        // memo: "time",
+        status: nextStatus,
+        // totalPrice: orderList?.totalPrice,
+      };
+      /** 다음 주문 상태로 전이 */
+      const result = await updateOwnerOrder.mutateAsync({
+        params: { storeId: stores.publicId, tableId, orderId: order.publicId },
+        updateOrderPayload: orderPayload,
+      });
+      console.log("결과: ", result);
+    }
   };
-  console.log("orderList: ", orderList);
 
   return (
     <CardContent

@@ -1,8 +1,4 @@
-import {
-  PublicOwner,
-  PublicStoreWithTablesAndOrders,
-  PublicTable,
-} from "@spaceorder/db";
+import { PublicOwner, PublicStoreWithTablesAndOrders } from "@spaceorder/db";
 import { QueryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { httpMe } from "./httpMe";
 
@@ -43,14 +39,18 @@ const fetchMyOrderListAllinclusive = ({
         store.tables.forEach((table) => {
           if (table.tableSessions && table.tableSessions[0]) {
             queryClient.setQueryData(
-              ["orders", { storeId: store.publicId, tableId: table.publicId }],
+              [
+                "owner",
+                "orders",
+                { storeId: store.publicId, tableId: table.publicId },
+              ],
               table.tableSessions[0].orders
             );
           }
         });
 
         queryClient.setQueryData(
-          ["tables", { storeId: store.publicId }],
+          ["owner", "tables", { storeId: store.publicId }],
           store.tables
         );
       }

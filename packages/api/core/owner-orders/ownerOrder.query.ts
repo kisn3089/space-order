@@ -1,14 +1,14 @@
-import { PublicOrder } from "@spaceorder/db";
-import { QueryOptions, useQuery } from "@tanstack/react-query";
+import { PublicOrderWithItem } from "@spaceorder/db";
+import { QueryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import {
-  FetchOrderListParams,
+  FetchOrderParams,
   FetchOrderUniqueParams,
   httpOrders,
 } from "./httpOwnerOrders";
 
 type FetchOrderList = {
-  fetchParams: FetchOrderListParams;
-  queryOptions?: QueryOptions<PublicOrder[]>;
+  fetchParams: FetchOrderParams;
+  queryOptions?: QueryOptions<PublicOrderWithItem[]>;
   enabled?: boolean;
 };
 
@@ -17,9 +17,9 @@ const fetchOrderList = ({
   fetchParams,
   enabled,
 }: FetchOrderList) => {
-  const { queryKey = ["orders", fetchParams], ...restOptions } =
+  const { queryKey = ["owner", "orders", fetchParams], ...restOptions } =
     queryOptions ?? {};
-  return useQuery<PublicOrder[]>({
+  return useQuery<PublicOrderWithItem[]>({
     queryKey,
     queryFn: () => httpOrders.fetchList(fetchParams),
     select: (data) => data,
@@ -30,17 +30,18 @@ const fetchOrderList = ({
 
 type FetchOrderUnique = {
   fetchParams: FetchOrderUniqueParams;
-  queryOptions?: QueryOptions<PublicOrder>;
+  queryOptions?: QueryOptions<PublicOrderWithItem>;
   enabled?: boolean;
 };
+
 const fetchOrderUnique = ({
   queryOptions,
   fetchParams,
   enabled,
 }: FetchOrderUnique) => {
-  const { queryKey = ["order", fetchParams], ...restOptions } =
+  const { queryKey = ["owner", "order", fetchParams], ...restOptions } =
     queryOptions ?? {};
-  return useQuery<PublicOrder>({
+  return useQuery<PublicOrderWithItem>({
     queryKey,
     queryFn: () => httpOrders.fetchUnique(fetchParams),
     select: (data) => data,

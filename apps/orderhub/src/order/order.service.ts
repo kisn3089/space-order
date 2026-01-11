@@ -5,7 +5,7 @@ import {
   Prisma,
   PublicOrderWithItem,
   PublicTableSession,
-  SessionWithTableAndStoreId,
+  SessionWithTable,
   TableSessionStatus,
 } from '@spaceorder/db';
 import { TableSessionService } from 'src/table-session/tableSession.service';
@@ -32,7 +32,7 @@ type PublicOrderId = {
 type ParamsPrincipal =
   | {
       type: 'CUSTOMER';
-      params: { tableSession: SessionWithTableAndStoreId };
+      params: { tableSession: SessionWithTable };
     }
   | {
       type: 'OWNER';
@@ -44,7 +44,7 @@ type ParamsPrincipal =
     };
 
 type CreateOrderParams =
-  | { tableSession: SessionWithTableAndStoreId; tableId?: never }
+  | { tableSession: SessionWithTable; tableId?: never }
   | { tableSession?: never; tableId: string };
 
 @Injectable()
@@ -75,7 +75,7 @@ export class OrderService {
         (item) => item.menuPublicId,
       );
 
-      const sessionFromCookieOrCreated: SessionWithTableAndStoreId =
+      const sessionFromCookieOrCreated: SessionWithTable =
         tableSession ??
         (await this.tableSessionService.txFindActivatedSessionOrCreate(
           tx,
@@ -104,11 +104,12 @@ export class OrderService {
 
       const createdOrder = await tx.order.create({
         data: {
-          storeId: sessionFromCookieOrCreated.table.store.id,
+          storeId: sessionFromCookieOrCreated.table.storeId,
           tableId: sessionFromCookieOrCreated.table.id,
           tableSessionId: sessionFromCookieOrCreated.id,
           orderItems: { create: bulkCreateOrderItems },
           totalPrice: totalPriceByServer,
+          memo: createOrderDto.memo,
         },
         ...this.orderIncludeOrOmit,
       });
@@ -231,7 +232,7 @@ export class OrderService {
   private whereRecordByPrincipal({ params, type }: ParamsPrincipal) {
     if (type === 'CUSTOMER') {
       return {
-        storeId: params.tableSession.table.store.id,
+        storeId: params.tableSession.tableId,
         tableId: params.tableSession.table.id,
         tableSessionId: params.tableSession.id,
       };

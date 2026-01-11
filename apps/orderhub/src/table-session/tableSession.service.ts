@@ -5,7 +5,7 @@ import {
   TableSessionStatus,
   Order,
   PublicTableSession,
-  SessionWithTableAndStoreId,
+  SessionWithTable,
 } from '@spaceorder/db';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -18,11 +18,7 @@ import { Tx } from 'src/utils/helper/transactionPipe';
 export class TableSessionService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly sanitizeOmit = { id: true, tableId: true };
-  private readonly includeSanitizeId = {
-    table: {
-      include: { store: { select: { publicId: true, id: true } } },
-    },
-  };
+  private readonly includeSanitizeId = { table: true };
 
   private generateSecureSessionToken(): string {
     const buffer = randomBytes(32);
@@ -49,7 +45,6 @@ export class TableSessionService {
         sessionToken,
         expiresAt: new Date(Date.now() + 20 * 60 * 1000), // 20분 후 만료
       },
-      omit: this.sanitizeOmit,
       include: this.includeSanitizeId,
     };
   }
@@ -57,7 +52,7 @@ export class TableSessionService {
   async txFindActivatedSessionOrCreate(
     tx: Tx,
     tablePublicId: string,
-  ): Promise<SessionWithTableAndStoreId> {
+  ): Promise<SessionWithTable> {
     const activatedSession = await tx.tableSession.findFirst({
       ...this.getActivatedSessionById(tablePublicId),
       orderBy: { createdAt: 'desc' },
@@ -83,7 +78,7 @@ export class TableSessionService {
 
   async findActivatedSessionOrCreate(
     tablePublicId: string,
-  ): Promise<SessionWithTableAndStoreId> {
+  ): Promise<SessionWithTable> {
     return await this.prismaService.$transaction(async (tx) => {
       const activatedSession = await this.txFindActivatedSessionOrCreate(
         tx,
@@ -98,9 +93,7 @@ export class TableSessionService {
     return session.expiresAt < new Date();
   }
 
-  async getActiveSession(
-    sessionToken: string,
-  ): Promise<SessionWithTableAndStoreId> {
+  async getActiveSession(sessionToken: string): Promise<SessionWithTable> {
     return await this.prismaService.tableSession.findFirstOrThrow({
       where: {
         sessionToken,

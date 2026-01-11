@@ -4,7 +4,7 @@ import {
   FetchOrderListParams,
   FetchOrderUniqueParams,
   httpOrders,
-} from "./httpOrders";
+} from "./httpOwnerOrders";
 
 type FetchOrderList = {
   fetchParams: FetchOrderListParams;

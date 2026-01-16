@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './token-payload.interface';
+import { TokenPayload } from '@spaceorder/db/types/token-payload.interface';
 import { responseCookie } from '../cookies';
 import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
@@ -14,19 +14,20 @@ export class GenerateTokenService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private createTokenHelper(expirationConfigName: string) {
-    const expiresTimes = parseInt(
-      this.configService.getOrThrow<string>(expirationConfigName),
-    );
+  // private createTokenHelper(expirationConfigName: string) {
+  private createTokenHelper(expirationConfigName: number) {
+    // const expiresTimes = parseInt(
+    //   this.configService.getOrThrow<string>(expirationConfigName),
+    // );
     return {
       jwt: (baseTokenPayload: TokenPayload, jwtConfigName: string) => {
         const accessToken = this.jwtService.sign(baseTokenPayload, {
           secret: this.configService.getOrThrow<string>(jwtConfigName),
-          expiresIn: `${expiresTimes}ms`,
+          expiresIn: `${expirationConfigName}ms`,
         });
         return accessToken;
       },
-      expiresAt: () => new Date(Date.now() + expiresTimes),
+      expiresAt: () => new Date(Date.now() + expirationConfigName),
     };
   }
 
@@ -42,19 +43,23 @@ export class GenerateTokenService {
     };
 
     const expiresAt = this.createTokenHelper(
-      'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+      // 'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+      3000,
     ).expiresAt();
 
     const accessToken = this.createTokenHelper(
-      'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+      // 'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+      3000,
     ).jwt(tokenPayload, 'JWT_ACCESS_TOKEN_SECRET');
 
     const expiresRefreshToken = this.createTokenHelper(
-      'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+      // 'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+      3600000,
     ).expiresAt();
 
     const refreshToken = this.createTokenHelper(
-      'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+      // 'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+      3600000,
     ).jwt(tokenPayload, 'JWT_REFRESH_TOKEN_SECRET');
 
     responseCookie.set(response, COOKIE_TABLE.REFRESH, refreshToken, {

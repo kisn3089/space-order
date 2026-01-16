@@ -1,1 +1,2 @@
-export * from "./tables.query";
+export * from "./httpTables";
+export * from "./useTableMutation";

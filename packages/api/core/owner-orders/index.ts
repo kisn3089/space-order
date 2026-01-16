@@ -1,2 +1,2 @@
-export * from "./ownerOrder.query";
+export * from "./httpOwnerOrders";
 export * from "./useOwnerOrders.mutate";

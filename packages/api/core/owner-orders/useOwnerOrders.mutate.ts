@@ -28,20 +28,13 @@ export default function useOwnerOrders() {
     mutationKey: ["owner", "order", "update"],
     mutationFn: ({ params, updateOrderPayload }: UpdateOwnerOrderParams) =>
       httpOrders.updateOwnerOrder(params, updateOrderPayload),
-    onSuccess: (data, variables) => {
-      const { storeId, tableId } = variables.params;
+    onSuccess: (_, variables) => {
+      const { storeId, tableId, orderId } = variables.params;
       queryClient.invalidateQueries({
         queryKey: [
-          "owner",
-          "orders",
-          {
-            storeId,
-            tableId,
-          },
+          `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`,
         ],
       });
-      console.log("주문 업데이트 성공: ", data);
-      console.log("업데이트: ", variables);
     },
   });
 

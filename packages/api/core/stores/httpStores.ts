@@ -11,4 +11,10 @@ async function fetchUnique(publicId: string): Promise<ResponseStore> {
   return response.data;
 }
 
-export const httpStores = { fetchList, fetchUnique };
+async function fetchStoreWithOrders(): Promise<ResponseStoreWithTables> {
+  const response =
+    await http.get<ResponseStoreWithTables>(`/stores/alive-orders`);
+  return response.data;
+}
+
+export const httpStores = { fetchList, fetchUnique, fetchStoreWithOrders };

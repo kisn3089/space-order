@@ -1,1 +1,1 @@
-export * from "./owners.query";
+export * from "./httpOwners";

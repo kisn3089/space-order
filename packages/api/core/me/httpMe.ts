@@ -4,24 +4,8 @@ import { AxiosRequestConfig } from "axios";
 
 const prefix = "/me";
 
-async function fetchMe(accessToken?: string): Promise<PublicOwner> {
-  const response = await http.get<PublicOwner>(
-    `${prefix}`,
-    accessToken
-      ? {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      : {}
-  );
-  return response.data;
-}
-
-async function fetchMyOrderList(): Promise<PublicStoreWithTablesAndOrders> {
-  const response = await http.get<PublicStoreWithTablesAndOrders>(
-    `${prefix}/orders`
-  );
+async function fetchMe(): Promise<ResponseOwner> {
+  const response = await http.get<ResponseOwner>(`${prefix}`);
   return response.data;
 }
 
@@ -38,6 +22,5 @@ async function fetchHealthCheck(
 
 export const httpMe = {
   fetchMe,
-  fetchMyOrderList,
   fetchHealthCheck,
 };

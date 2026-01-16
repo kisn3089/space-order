@@ -57,8 +57,8 @@ export class OwnerOrderPermission implements CanActivate {
     } else {
       const findTableAndStore: TableAndStoreOwnerId =
         await this.tableService.getTableById({
-          storeId,
-          tableId,
+          where: { publicId: tableId, store: { publicId: storeId } },
+          include: { store: { select: { ownerId: true } } },
         });
 
       if (findTableAndStore.store.ownerId === client.id) {

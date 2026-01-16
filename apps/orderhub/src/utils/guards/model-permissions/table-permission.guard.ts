@@ -32,8 +32,8 @@ export class TablePermission implements CanActivate {
 
     if (tableId) {
       const findTable = await this.tableService.getTableById({
-        storeId,
-        tableId,
+        where: { publicId: tableId, store: { publicId: storeId } },
+        include: { store: { select: { ownerId: true } } },
       });
       if (findTable.store.ownerId === client.id) {
         request.table = findTable;

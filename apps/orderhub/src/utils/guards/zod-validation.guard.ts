@@ -41,7 +41,12 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
           query,
           'ZOD_QUERY_FAILED',
         );
-        request.query = queryResult;
+        Object.defineProperty(request, 'query', {
+          value: queryResult,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
       }
 
       if (schemas?.body && body) {

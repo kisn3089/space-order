@@ -1,9 +1,18 @@
 import { CardContent } from "@spaceorder/ui/components/card";
-import { OrderStatus, PublicOrderWithItem } from "@spaceorder/db";
+import {
+  OrderStatus,
+  ResponseOrderWithItem,
+  TABLE_QUERY_FILTER_CONST,
+  TABLE_QUERY_INCLUDE_CONST,
+} from "@spaceorder/db";
 import { Badge } from "@spaceorder/ui/components/badge";
-import { meQuery, ORDER_STATUS, orderQuery } from "@spaceorder/api";
 import useOwnerOrders from "@spaceorder/api/core/owner-orders/useOwnerOrders.mutate";
-import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-orders/httpOwnerOrders";
+import {
+  FetchOrderUniqueParams,
+  UpdateOwnerOrderPayload,
+} from "@spaceorder/api/core/owner-orders/httpOwnerOrders";
+import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
+import { BADGE_BY_ORDER_STATUS } from "@spaceorder/ui/constants/badgeByOrderStatus.const";
 
 const nextStatusMap: Record<OrderStatus, OrderStatus | null> = {
   [OrderStatus.PENDING]: OrderStatus.ACCEPTED,
@@ -13,21 +22,15 @@ const nextStatusMap: Record<OrderStatus, OrderStatus | null> = {
   [OrderStatus.CANCELLED]: null, // 취소 상태는 다음 상태 없음
 } as const;
 
-type TableOrderProps = { order: PublicOrderWithItem; tableId: string };
-export default function TableOrder({ order, tableId }: TableOrderProps) {
+export default function TableOrder({
+  orderId,
+  storeId,
+  tableId,
+}: FetchOrderUniqueParams) {
+  const { data: order } = useSuspenseWithAuth<ResponseOrderWithItem>(
+    `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`
+  );
   const { updateOwnerOrder } = useOwnerOrders();
-  const { data: stores, isSuccess } = meQuery.fetchMyOrderListAllinclusive({});
-
-  if (!isSuccess) return null;
-  const { data: orderList, isSuccess: isOrderListSuccess } =
-    orderQuery.fetchOrderUnique({
-      enabled: isSuccess,
-      fetchParams: {
-        storeId: stores?.publicId,
-        tableId: tableId,
-        orderId: order.publicId,
-      },
-    });
 
   const isFinishStatus =
     order.status === OrderStatus.COMPLETED ||
@@ -39,18 +42,13 @@ export default function TableOrder({ order, tableId }: TableOrderProps) {
   };
 
   const pushNextOrderStatus = async () => {
-    if (isOrderListSuccess) {
-      // 상태 전이 맵: 현재 상태 -> 다음 상태
-
-      const nextStatus = nextStatusMap[orderList.status];
+    // 상태 전이 맵: 현재 상태 -> 다음 상태
+    if (order.status) {
+      const nextStatus = nextStatusMap[order.status];
       if (!nextStatus) {
         console.log("더 이상 전이할 상태가 없습니다.");
         return;
       }
-      console.log(
-        "next status로 전이합니다: ",
-        nextStatus || "전이할 상태 없음"
-      );
       const orderPayload: UpdateOwnerOrderPayload = {
         // orderItems: orderList.orderItems.map((orderItem) => ({
         //   menuName: orderItem.menuName,
@@ -64,7 +62,11 @@ export default function TableOrder({ order, tableId }: TableOrderProps) {
       };
       /** 다음 주문 상태로 전이 */
       const result = await updateOwnerOrder.mutateAsync({
-        params: { storeId: stores.publicId, tableId, orderId: order.publicId },
+        params: {
+          storeId: storeId,
+          tableId,
+          orderId,
+        },
         updateOrderPayload: orderPayload,
       });
       console.log("결과: ", result);
@@ -79,10 +81,10 @@ export default function TableOrder({ order, tableId }: TableOrderProps) {
     >
       <div className="flex justify-center">
         <Badge
-          variant={ORDER_STATUS[order.status].badgeVariant}
+          variant={BADGE_BY_ORDER_STATUS[order.status].badgeVariant}
           className="w-fit text-xs"
         >
-          {ORDER_STATUS[order.status].label}
+          {BADGE_BY_ORDER_STATUS[order.status].label}
         </Badge>
       </div>
       {order.orderItems.map((orderItem, i) => (

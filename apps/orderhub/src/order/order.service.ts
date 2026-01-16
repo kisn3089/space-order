@@ -50,7 +50,7 @@ export class OrderService {
     private readonly tableSessionService: TableSessionService,
   ) {}
 
-  private readonly orderIncludeOrOmit = {
+  private orderIncludeOrOmit = {
     include: {
       orderItems: { omit: { id: true, orderId: true, menuId: true } },
     },
@@ -60,7 +60,7 @@ export class OrderService {
       tableId: true,
       tableSessionId: true,
     },
-  };
+  } as const;
 
   async createOrder(
     { tableSession, tableId }: CreateOrderParams,
@@ -79,6 +79,7 @@ export class OrderService {
         ));
 
       // TODO: 추후 메뉴 service로 이전
+      /** TODO: 별도의 클래스로 분리 [checkMenuValidation] */
       const findMenuList = await tx.menu.findMany({
         where: { publicId: { in: menuPublicIds } },
         select: { publicId: true, name: true, price: true },
@@ -208,9 +209,32 @@ export class OrderService {
     principal: ParamsPrincipal,
   ): Promise<ResponseOrderWithItem[]> {
     return await this.prismaService.order.findMany({
-      where: this.whereRecordByPrincipal(paramsPrincipal),
+      where: this.whereRecordByPrincipal(principal),
       ...this.orderIncludeOrOmit,
     });
+  }
+
+  private whereRecordByPrincipal({ params, type }: ParamsPrincipal) {
+    if (type === 'CUSTOMER') {
+      return { tableSessionId: params.tableSession.id };
+    } else {
+      /** type === 'OWNER' */
+      /** TODO: 기본 조회는 모든 orders를 응답.
+       *  query에(alive) 따라 활성화된 테이블 세션으로 제한이 필요
+       */
+      return {
+        tableSession: {
+          table: {
+            store: { ownerId: params.ownerId, publicId: params.storePublicId },
+            publicId: params.tablePublicId,
+          },
+          expiresAt: { gte: new Date() },
+          status: {
+            in: [TableSessionStatus.WAITING_ORDER, TableSessionStatus.ACTIVE],
+          },
+        },
+      };
+    }
   }
 
   async getOrderById(
@@ -223,22 +247,6 @@ export class OrderService {
       },
       ...this.orderIncludeOrOmit,
     });
-  }
-
-  private whereRecordByPrincipal({ params, type }: ParamsPrincipal) {
-    if (type === 'CUSTOMER') {
-      return {
-        storeId: params.tableSession.tableId,
-        tableId: params.tableSession.table.id,
-        tableSessionId: params.tableSession.id,
-      };
-    } else {
-      /** type === 'OWNER' */
-      return {
-        store: { publicId: params.storePublicId, ownerId: params.ownerId },
-        table: { publicId: params.tablePublicId },
-      };
-    }
   }
 
   async updateOrder(

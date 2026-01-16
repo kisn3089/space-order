@@ -45,7 +45,7 @@ export default function FormCard() {
       return;
     }
     updateAxiosAuthorizationHeader(signInResult.data.accessToken);
-    setAuthInfo(signInResult.data);
+    setAuthInfo({ accessToken: signInResult.data.accessToken });
 
     router.replace("/orders");
   };

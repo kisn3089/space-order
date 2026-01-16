@@ -1,12 +1,11 @@
-import { COOKIE_TABLE } from "@spaceorder/db";
+import { COOKIE_TABLE } from "@spaceorder/db/constants";
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const refreshToken = req.cookies.get(COOKIE_TABLE.REFRESH);
 
   if (!refreshToken) {
-    const signInUrl = new URL("/signin", req.url);
-    return NextResponse.redirect(signInUrl);
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
 
   return NextResponse.next();

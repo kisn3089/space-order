@@ -38,8 +38,8 @@ export default function parseCookieFromResponseHeader(
 export async function setCookieFromResponseHeader(
   responseCookies: NextCookie[]
 ) {
-  for (const { name, value } of responseCookies) {
-    await setServerCookie(name, value);
+  for (const { name, value, expires } of responseCookies) {
+    await setServerCookie(name, value, { expires });
   }
 
   // responseCookies.forEach(async ({ name, value }) => {

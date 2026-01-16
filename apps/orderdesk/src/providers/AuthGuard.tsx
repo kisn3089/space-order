@@ -2,7 +2,7 @@
 
 import React from "react";
 import { refreshAccessToken } from "../app/common/servers/refreshAccessToken";
-import { useAuthInfo } from "@spaceorder/auth";
+import { isExpired, useAuthInfo } from "@spaceorder/auth";
 import { getAccessToken } from "@/app/common/servers/getAccessToken";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -16,14 +16,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   React.useEffect(() => {
     /** 새로고침 시 useAuthInfo 갱신 */
     (async () => {
-      console.log("[AuthGuard] Refreshing access token...");
       const accessToken = await getAccessToken();
-      if (accessToken) {
+
+      if (accessToken && !isExpired(accessToken)) {
         setAuthInfo({ accessToken });
         return;
       }
 
       try {
+        console.info("[AuthGuard] Refreshed access token...");
         const refreshedAccessToken = await refreshAccessToken();
         setAuthInfo({ accessToken: refreshedAccessToken.accessToken });
       } catch (error: unknown) {

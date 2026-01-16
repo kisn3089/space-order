@@ -22,7 +22,7 @@ import {
   updateTableSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { PublicTable, TableAndStoreOwnerId } from '@spaceorder/db';
+import type { ResponseTable, TableAndStoreOwnerId } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
 import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
@@ -82,7 +82,7 @@ export class TableController {
   async updateTable(
     @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
-  ): Promise<PublicTable> {
+  ): Promise<ResponseTable> {
     return await this.tableService.updateTable(tableId, updateTableDto);
   }
 

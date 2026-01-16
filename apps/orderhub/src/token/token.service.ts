@@ -3,8 +3,8 @@ import { Response } from 'express';
 import { Owner, Prisma } from '@spaceorder/db';
 import { comparePlainToEncrypted, encrypt } from 'src/utils/lib/crypt';
 import { OwnerService } from '../owner/owner.service';
-import type { AccessToken, SignInRequest } from '@spaceorder/api';
 import { GenerateToken } from 'src/utils/jwt/token-config';
+import type { ResponseAccessToken, SignInRequest } from '@spaceorder/api';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { OwnerResponseDto } from 'src/owner/dto/ownerResponse.dto';
 
@@ -18,7 +18,10 @@ export class TokenService {
     private readonly generateToken: GenerateToken,
   ) {}
 
-  async createToken(owner: Owner, response: Response): Promise<AccessToken> {
+  async createToken(
+    owner: Owner,
+    response: Response,
+  ): Promise<ResponseAccessToken> {
     const { accessToken, expiresAt, refreshToken } =
       this.generateToken.generateToken(owner, response);
 

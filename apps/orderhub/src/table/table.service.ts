@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { createId } from '@paralleldrive/cuid2';
 import { CreateTableDto, UpdateTableDto } from './table.controller';
-import { TableAndStoreOwnerId, type PublicTable } from '@spaceorder/db';
+import { type Prisma, type ResponseTable } from '@spaceorder/db';
 
 type StoreAndTableParams = {
   storeId: string;
@@ -17,7 +17,7 @@ export class TableService {
   async createTable(
     storeId: string,
     createTableDto: CreateTableDto,
-  ): Promise<PublicTable> {
+  ): Promise<ResponseTable> {
     const tablePublicId = createId();
     const qrCode = `/stores/${storeId}/tables/${tablePublicId}/session`;
     const createdTable = await this.prismaService.table.create({
@@ -54,7 +54,7 @@ export class TableService {
   async updateTable(
     tableId: string,
     updateTableDto: UpdateTableDto,
-  ): Promise<PublicTable> {
+  ): Promise<ResponseTable> {
     return await this.prismaService.table.update({
       where: { publicId: tableId },
       data: updateTableDto,
@@ -62,7 +62,7 @@ export class TableService {
     });
   }
 
-  async deleteTable(tableId: string): Promise<PublicTable> {
+  async deleteTable(tableId: string): Promise<ResponseTable> {
     return await this.prismaService.table.delete({
       where: { publicId: tableId },
       omit: this.tableOmit,

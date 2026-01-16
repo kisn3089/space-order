@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
 import { sessionTokenSchema } from '@spaceorder/api/schemas';
+import { SessionWithTable } from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 

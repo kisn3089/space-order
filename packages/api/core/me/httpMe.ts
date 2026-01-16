@@ -1,4 +1,4 @@
-import { PublicOwner, PublicStoreWithTablesAndOrders } from "@spaceorder/db";
+import { ResponseOwner } from "@spaceorder/db";
 import { http } from "../axios";
 import { AxiosRequestConfig } from "axios";
 

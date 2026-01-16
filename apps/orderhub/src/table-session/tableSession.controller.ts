@@ -18,8 +18,8 @@ import {
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { responseCookie } from 'src/utils/cookies';
-import type { PublicTableSession, TableSession } from '@spaceorder/db';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
+import type { ResponseTableSession, TableSession } from '@spaceorder/db';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';
@@ -64,7 +64,7 @@ export class TableSessionController {
     @Session() tableSession: TableSession,
     @Body() updateSessionDto: UpdateTableSessionDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<PublicTableSession> {
+  ): Promise<ResponseTableSession> {
     const updatedSession = await this.tableSessionService.txUpdateSession(
       tableSession,
       updateSessionDto,
@@ -83,23 +83,20 @@ export class TableSessionController {
   }
 
   @Get()
-  @UseGuards(SessionAuth, SessionPermission)
   /** TODO: 전체 세션 정보를 볼 필요가 있을까? (개발 이후에 삭제 고려) */
   async getSessionList(
     @Param('tableId') tablePublicId: string,
-  ): Promise<PublicTableSession[]> {
+  ): Promise<ResponseTableSession[]> {
     return await this.tableSessionService.getSessionList(tablePublicId);
   }
 
   /** TODO: 테스트를 위한 임시 */
-  @Get('get')
-  @UseGuards(SessionAuth, SessionPermission)
+  @Get(':sessionPublicId')
   async getSessionBySessionToken(
-    @Session() tableSession: TableSession,
+    @Param('sessionPublicId') sessionPublicId: string,
   ): Promise<TableSessionResponseDto> {
-    const findTableSession = await this.tableSessionService.getActiveSession(
-      tableSession.sessionToken,
-    );
+    const findTableSession =
+      await this.tableSessionService.getSessionByTableId(sessionPublicId);
 
     return new TableSessionResponseDto(findTableSession);
   }

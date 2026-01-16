@@ -6,7 +6,7 @@ import {
   orderIdParamsSchema,
 } from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { PublicOrderItem } from '@spaceorder/db';
+import { ResponseOrderItem } from '@spaceorder/db';
 
 @Controller('orders/:orderId/order-items')
 @UseGuards(JwtAuthGuard)
@@ -22,7 +22,7 @@ export class OrderItemController {
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
   async getOrderItemList(
     @Param('orderId') orderPublicId: string,
-  ): Promise<PublicOrderItem[]> {
+  ): Promise<ResponseOrderItem[]> {
     return await this.orderItemService.getOrderItemList(orderPublicId);
   }
 
@@ -31,7 +31,7 @@ export class OrderItemController {
   async getOrderItemById(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
-  ): Promise<PublicOrderItem> {
+  ): Promise<ResponseOrderItem> {
     return await this.orderItemService.getOrderItemById(
       orderPublicId,
       orderItemPublicId,

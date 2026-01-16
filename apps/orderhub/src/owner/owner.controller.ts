@@ -19,7 +19,7 @@ import {
   updateOwnerSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { PublicOwner } from '@spaceorder/db';
+import { ResponseOwner } from '@spaceorder/db';
 import { OwnerPermission } from 'src/utils/guards/model-permissions/owner-permission.guard';
 import { OwnerResponseDto } from './dto/ownerResponse.dto';
 
@@ -39,12 +39,12 @@ export class OwnerController {
   @UseGuards(ZodValidation({ body: createOwnerSchema }))
   async createOwner(
     @Body() createOwnerDto: CreateOwnerDto,
-  ): Promise<PublicOwner> {
+  ): Promise<ResponseOwner> {
     return await this.ownerService.createOwner(createOwnerDto);
   }
 
   @Get()
-  async getOwnerList(): Promise<PublicOwner[]> {
+  async getOwnerList(): Promise<ResponseOwner[]> {
     return await this.ownerService.getOwnerList();
   }
 
@@ -69,7 +69,7 @@ export class OwnerController {
   async updateOwner(
     @Param('ownerId') ownerId: string,
     @Body() updateOwnerDto: UpdateOwnerDto,
-  ): Promise<PublicOwner> {
+  ): Promise<ResponseOwner> {
     return await this.ownerService.updateOwner(ownerId, updateOwnerDto);
   }
 

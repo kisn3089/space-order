@@ -8,11 +8,14 @@ import SignInField from "../sign-in-field/SignInField";
 import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
-import { signInFormSchema } from "@spaceorder/auth/schemas/signIn.schema";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
-import { updateAxiosAuthorizationHeader, SignInRequest } from "@spaceorder/api";
-import { useAuthInfo } from "@/providers/AuthenticationProvider";
+import {
+  updateAxiosAuthorizationHeader,
+  SignInRequest,
+  signInFormSchema,
+} from "@spaceorder/api";
+import { useAuthInfo } from "@spaceorder/auth";
 
 export default function FormCard() {
   const { setAuthInfo } = useAuthInfo();

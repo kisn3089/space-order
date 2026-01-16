@@ -1,13 +1,13 @@
-import { PublicStore } from "@spaceorder/db";
+import { ResponseStore, ResponseStoreWithTables } from "@spaceorder/db";
 import { http } from "../axios/http";
 
-async function fetchList(): Promise<PublicStore[]> {
-  const response = await http.get<PublicStore[]>("/stores");
+async function fetchList(): Promise<ResponseStore[]> {
+  const response = await http.get<ResponseStore[]>("/stores");
   return response.data;
 }
 
-async function fetchUnique(publicId: string): Promise<PublicStore> {
-  const response = await http.get<PublicStore>(`/stores/${publicId}`);
+async function fetchUnique(publicId: string): Promise<ResponseStore> {
+  const response = await http.get<ResponseStore>(`/stores/${publicId}`);
   return response.data;
 }
 

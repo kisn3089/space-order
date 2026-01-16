@@ -11,7 +11,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
-import type { Menu, Owner, PublicMenu } from '@spaceorder/db';
+import type { Menu, Owner, ResponseMenu } from '@spaceorder/db';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
@@ -51,7 +51,7 @@ export class MenuController {
   async getMenuList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
-  ): Promise<PublicMenu[]> {
+  ): Promise<ResponseMenu[]> {
     return await this.menuService.getMenuList(client, storeId);
   }
 
@@ -76,7 +76,7 @@ export class MenuController {
   async updateMenu(
     @Param('menuId') menuId: string,
     @Body() updateMenuDto: UpdateMenuDto,
-  ): Promise<PublicMenu> {
+  ): Promise<ResponseMenu> {
     return await this.menuService.updateMenu(menuId, updateMenuDto);
   }
 

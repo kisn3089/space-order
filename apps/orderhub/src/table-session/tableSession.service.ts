@@ -4,7 +4,7 @@ import {
   Prisma,
   TableSessionStatus,
   Order,
-  PublicTableSession,
+  ResponseTableSession,
   SessionWithTable,
 } from '@spaceorder/db';
 import { randomBytes } from 'crypto';
@@ -110,7 +110,7 @@ export class TableSessionService {
     tableSession: TableSession,
     updateSessionDto: UpdateTableSessionDto,
     tx?: Tx,
-  ): Promise<PublicTableSession> {
+  ): Promise<ResponseTableSession> {
     const txableService = tx ?? this.prismaService;
 
     switch (updateSessionDto.status) {
@@ -199,7 +199,7 @@ export class TableSessionService {
 
   private async txUpdateSessionFinishByPayment(
     tableSession: TableSession,
-  ): Promise<PublicTableSession> {
+  ): Promise<ResponseTableSession> {
     return await this.prismaService.$transaction(async (tx) => {
       await tx.tableSession.update({
         where: { sessionToken: tableSession.sessionToken },

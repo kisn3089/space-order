@@ -9,14 +9,14 @@ import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { OrderService } from 'src/order/order.service';
 import {
   Owner,
-  PublicOrderWithItem,
+  ResponseOrderWithItem,
   TableAndStoreOwnerId,
 } from '@spaceorder/db';
 import { TableService } from 'src/table/table.service';
 
 type RequestWithClientAndOrderAndTable = Request & {
   user: Owner;
-  order: PublicOrderWithItem | null;
+  order: ResponseOrderWithItem | null;
   table: TableAndStoreOwnerId | null;
 };
 
@@ -41,7 +41,7 @@ export class OwnerOrderPermission implements CanActivate {
     const { storeId, tableId, orderId } = request.params;
 
     if (orderId) {
-      const findOrder: PublicOrderWithItem =
+      const findOrder: ResponseOrderWithItem =
         await this.orderService.getOrderById({
           type: 'OWNER',
           params: {

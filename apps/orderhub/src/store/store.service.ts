@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import type { Owner, Store } from '@spaceorder/db';
+import {
+  ResponseStoreWithTables,
+  type Owner,
+  type Store,
+} from '@spaceorder/db';
 
 @Injectable()
 export class StoreService {

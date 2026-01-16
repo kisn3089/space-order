@@ -14,7 +14,7 @@ import {
   orderParamsSchema,
   updateOrderSchema,
 } from '@spaceorder/api/schemas';
-import type { Owner, PublicOrderWithItem } from '@spaceorder/db';
+import type { Owner, ResponseOrderWithItem } from '@spaceorder/db';
 import { CachedOrderByGuard } from 'src/decorators/cache/order.decorator';
 import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
@@ -39,7 +39,7 @@ export class OwnerOrderController {
   async createOrder(
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     const { createdOrder } = await this.orderService.createOrder(
       { tableId },
       createOrderDto,
@@ -57,7 +57,7 @@ export class OwnerOrderController {
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
-  ): Promise<PublicOrderWithItem[]> {
+  ): Promise<ResponseOrderWithItem[]> {
     return await this.orderService.getOrderList({
       type: 'OWNER',
       params: {
@@ -71,8 +71,8 @@ export class OwnerOrderController {
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
   getOrderById(
-    @CachedOrderByGuard() cachedOrder: PublicOrderWithItem,
-  ): PublicOrderWithItem {
+    @CachedOrderByGuard() cachedOrder: ResponseOrderWithItem,
+  ): ResponseOrderWithItem {
     return cachedOrder;
   }
 
@@ -87,7 +87,7 @@ export class OwnerOrderController {
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     return await this.orderService.updateOrder(
       {
         type: 'OWNER',
@@ -109,7 +109,7 @@ export class OwnerOrderController {
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     return await this.orderService.cancelOrder({
       type: 'OWNER',
       params: {

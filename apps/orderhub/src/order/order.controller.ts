@@ -14,7 +14,7 @@ import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import {
   type SessionWithTable,
-  type PublicOrderWithItem,
+  type ResponseOrderWithItem,
 } from '@spaceorder/db';
 import { createZodDto } from 'nestjs-zod';
 import {
@@ -34,14 +34,13 @@ export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}
 @UseGuards(SessionAuth)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
-
   @Post()
   @UseGuards(ZodValidation({ body: createOrderSchema }))
   async createOrder(
     @Session() tableSession: SessionWithTable,
     @Body() createOrderDto: CreateOrderDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     const { createdOrder, updatedTableSession } =
       await this.orderService.createOrder({ tableSession }, createOrderDto);
 
@@ -58,7 +57,7 @@ export class OrderController {
   @Get()
   async getOrderList(
     @Session() tableSession: SessionWithTable,
-  ): Promise<PublicOrderWithItem[]> {
+  ): Promise<ResponseOrderWithItem[]> {
     return await this.orderService.getOrderList({
       type: 'CUSTOMER',
       params: { tableSession },
@@ -70,7 +69,7 @@ export class OrderController {
   async getOrderById(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     return await this.orderService.getOrderById({
       type: 'CUSTOMER',
       params: { tableSession },
@@ -86,7 +85,7 @@ export class OrderController {
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     return await this.orderService.updateOrder(
       { type: 'CUSTOMER', params: { tableSession }, orderPublicId: orderId },
       updateOrderDto,
@@ -98,7 +97,7 @@ export class OrderController {
   async cancelOrder(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
-  ): Promise<PublicOrderWithItem> {
+  ): Promise<ResponseOrderWithItem> {
     return await this.orderService.cancelOrder({
       type: 'CUSTOMER',
       params: { tableSession },

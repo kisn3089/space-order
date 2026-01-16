@@ -29,7 +29,7 @@ export class BuildIncludeService {
         return { filter: undefined, include: undefined };
       }
 
-      return { filter: filterRecord[filter], include: undefined };
+      return { filter: filterRecord[filter](), include: undefined };
     }
 
     const findIncludeObject = includeKeyRecord[include];
@@ -38,7 +38,7 @@ export class BuildIncludeService {
     )[0] as keyof (typeof includeKeyRecord)[typeof include];
     const extractedIncludeRecord = findIncludeObject[includeKey];
 
-    const findFilterRecord = filter ? filterRecord[filter] : (true as const);
+    const findFilterRecord = filter ? filterRecord[filter]() : {};
 
     return {
       filter: undefined,

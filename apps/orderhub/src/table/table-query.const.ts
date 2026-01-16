@@ -6,7 +6,7 @@ import {
 
 export const TABLE_OMIT = { id: true, storeId: true } as const;
 
-const aliveSession = {
+const createAliveSessionFilter = () => ({
   where: {
     status: {
       in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
@@ -15,17 +15,17 @@ const aliveSession = {
   },
   take: 1,
   orderBy: { createdAt: 'desc' as const },
-};
+});
 
-const endedSession = {
+const endedSession = () => ({
   where: { status: TableSessionStatus.CLOSED },
   omit: { id: true, tableId: true },
-};
+});
 
 export const TABLE_SESSION_FILTER_RECORD = {
-  [TABLE_QUERY_FILTER_CONST.ALIVE_SESSION]: aliveSession,
+  [TABLE_QUERY_FILTER_CONST.ALIVE_SESSION]: createAliveSessionFilter,
   [TABLE_QUERY_FILTER_CONST.ENDED_SESSION]: endedSession,
-  [TABLE_QUERY_FILTER_CONST.ACTIVATED_TABLE]: { isActive: true },
+  [TABLE_QUERY_FILTER_CONST.ACTIVATED_TABLE]: () => ({ isActive: true }),
 } as const;
 
 const ordersOmit = {

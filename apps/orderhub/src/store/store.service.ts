@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ResponseStoreWithTables,
+  TABLE_QUERY_FILTER_CONST,
+  TABLE_QUERY_INCLUDE_CONST,
   type Owner,
   type Store,
 } from '@spaceorder/db';
@@ -38,11 +40,13 @@ export class StoreService {
           omit: { id: true, storeId: true },
           include: {
             tableSessions: {
-              ...TABLE_SESSION_FILTER_RECORD['alive-session'],
+              ...TABLE_SESSION_FILTER_RECORD[
+                TABLE_QUERY_FILTER_CONST.ALIVE_SESSION
+              ](),
               include:
-                TABLE_INCLUDE_KEY_RECORD['order-items']['tableSessions'][
-                  'include'
-                ],
+                TABLE_INCLUDE_KEY_RECORD[TABLE_QUERY_INCLUDE_CONST.ORDER_ITEMS][
+                  'tableSessions'
+                ]['include'],
             },
           },
         },

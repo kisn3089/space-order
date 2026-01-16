@@ -9,7 +9,9 @@ export default function TableOrderList() {
   const setCache = useSetCacheFromStoreWithOrders();
   const { data: store } = useSuspenseWithAuth<ResponseStoreWithTables>(
     `/stores/alive-orders`,
-    { onSuccess: setCache }
+    {
+      onSuccess: setCache,
+    }
   );
 
   const tableCount = store.tableCount ?? 0;

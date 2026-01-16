@@ -1,17 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 // import TableOrderDetail from "./components/table-order-detail/TableOrderDetail";
-import TableOrderList from "./components/table-orders/TableOrderList";
-import TableOrderProvider from "./store/useTableOrderContext";
+import TableOrderList from "./components/table-order-list/TableOrderList";
+// import { ErrorBoundary } from "react-error-boundary";
 
 export default function OrdersPage() {
   return (
     <div className="flex flex-col h-full">
-      <TableOrderProvider>
+      {/* <ErrorBoundary fallback={<div>Something went wrong loading orders.</div>}> */}
+      <Suspense fallback={<div>Loading orders...</div>}>
         <TableOrderList />
-        {/* <TableOrderDetail /> */}
-      </TableOrderProvider>
+      </Suspense>
+      {/* </ErrorBoundary> */}
+      {/* <TableOrderDetail /> */}
       <div className="p-2"></div>
     </div>
   );

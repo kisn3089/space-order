@@ -13,7 +13,7 @@ import {
   AlertDialogCancel,
 } from "@spaceorder/ui/components/alert-dialog/alert-dialog";
 import { Spinner } from "@spaceorder/ui/components/spinner";
-import { sumFromObjects, transCurrencyFormat } from "@spaceorder/auth";
+import { sumFromObjects, transCurrencyFormat } from "@spaceorder/api";
 
 export default function TableOrderDetail() {
   const {
@@ -38,7 +38,9 @@ export default function TableOrderDetail() {
   ) => {
     // AlertDialog 닫힘 방지
     e.preventDefault();
-    const result: HealthCheckResponse = await httpMe.healthCheck({ signal });
+    const result: HealthCheckResponse = await httpMe.fetchHealthCheck({
+      signal,
+    });
     return result;
   };
 

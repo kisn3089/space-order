@@ -2,7 +2,7 @@
 
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { TTableOrderItem } from "../table-orders/orderData";
+import { TTableOrderItem } from "../table-order-list/orderData";
 import { Badge } from "@spaceorder/ui/components/badge";
 
 export const columns: ColumnDef<TTableOrderItem>[] = [

@@ -1,4 +1,9 @@
-import { OrderStatus, PublicTableSessionWithTable } from "@spaceorder/db";
+import {
+  OrderStatus,
+  ResponseTableWithSessions,
+  TABLE_QUERY_FILTER_CONST,
+  TABLE_QUERY_INCLUDE_CONST,
+} from "@spaceorder/db";
 import { Button } from "@spaceorder/ui/components/button";
 import {
   Card,
@@ -7,16 +12,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@spaceorder/ui/components/card";
-import TableOrder from "../table-orders/TableOrder";
+import TableOrder from "../table-order-list/TableOrder";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
+import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 
-type TableBoardProps = { table: PublicTableSessionWithTable };
-export default function TableBoard({ table }: TableBoardProps) {
+type TableBoardProps = {
+  storeId: string;
+  tableId: string;
+};
+const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
+const { ORDERS } = TABLE_QUERY_INCLUDE_CONST;
+
+export default function TableBoard({ storeId, tableId }: TableBoardProps) {
+  const { data: table } = useSuspenseWithAuth<ResponseTableWithSessions>(
+    `/stores/${storeId}/tables/${tableId}?include=${ORDERS}&filter=${ALIVE_SESSION}`
+  );
+
   const { tableNumber, section, tableSessions } = table;
+  const tableSession = tableSessions ? tableSessions[0] : null;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
-  /** tableSession이 없을 때 fallback jsx를 eraly return 하자 */
-  const tableSession = tableSessions?.[0];
-
   const findPendingStatusInOrders = tableSession?.orders?.find(
     (order) => order.status === OrderStatus.PENDING
   );
@@ -67,7 +81,8 @@ export default function TableBoard({ table }: TableBoardProps) {
             <TableOrder
               key={order.publicId}
               tableId={table.publicId}
-              order={order}
+              orderId={order.publicId}
+              storeId={storeId}
             />
           ))}
         </ActivityRender>

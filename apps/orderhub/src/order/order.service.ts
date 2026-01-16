@@ -238,28 +238,28 @@ export class OrderService {
   }
 
   async getOrderById(
-    paramsPrincipal: ParamsPrincipal & PublicOrderId,
+    principal: ParamsPrincipal & PublicOrderId,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.order.findFirstOrThrow({
       where: {
-        publicId: paramsPrincipal.orderPublicId,
-        ...this.whereRecordByPrincipal(paramsPrincipal),
+        publicId: principal.orderPublicId,
+        ...this.whereRecordByPrincipal(principal),
       },
       ...this.orderIncludeOrOmit,
     });
   }
 
   async updateOrder(
-    paramsPrincipal: ParamsPrincipal & PublicOrderId,
+    principal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.$transaction(async (tx) => {
-      const whereByPrincipal = this.whereRecordByPrincipal(paramsPrincipal);
+      const whereByPrincipal = this.whereRecordByPrincipal(principal);
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
           where: {
-            publicId: paramsPrincipal.orderPublicId,
+            publicId: principal.orderPublicId,
             ...whereByPrincipal,
           },
           data: restUpdateOrderDto,
@@ -281,7 +281,7 @@ export class OrderService {
         );
       return tx.order.update({
         where: {
-          publicId: paramsPrincipal.orderPublicId,
+          publicId: principal.orderPublicId,
           ...whereByPrincipal,
         },
         data: {
@@ -304,12 +304,12 @@ export class OrderService {
   }
 
   async cancelOrder(
-    paramsPrincipal: ParamsPrincipal & PublicOrderId,
+    principal: ParamsPrincipal & PublicOrderId,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.order.update({
       where: {
-        publicId: paramsPrincipal.orderPublicId,
-        ...this.whereRecordByPrincipal(paramsPrincipal),
+        publicId: principal.orderPublicId,
+        ...this.whereRecordByPrincipal(principal),
       },
       data: { status: OrderStatus.CANCELLED },
       ...this.orderIncludeOrOmit,

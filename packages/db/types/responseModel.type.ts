@@ -12,6 +12,11 @@ export type ResponseOwner = Omit<Owner, "id" | "refreshToken" | "password">;
 // type OwnerRole = "owner" | "admin";
 
 export type ResponseTable = Omit<Table, "id" | "storeId">;
+export type ExtendedResponseTable = ResponseTable & {
+  tableSessions?: ResponseTableSession[];
+  store?: ResponseStore;
+  orders?: Array<ResponseOrder & { orderItems?: ResponseOrderItem[] }>;
+};
 
 export type ResponseTableSession = Omit<TableSession, "id" | "tableId">;
 

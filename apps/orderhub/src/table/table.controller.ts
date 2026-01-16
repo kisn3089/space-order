@@ -23,7 +23,11 @@ import {
   updateTableSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { ResponseTable, TableAndStoreOwnerId } from '@spaceorder/db';
+import type {
+  ExtendedResponseTable,
+  ResponseTable,
+  TableAndStoreOwnerId,
+} from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
 import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
@@ -72,7 +76,7 @@ export class TableController {
   async getTableList(
     @Param('storeId') storeId: string,
     @Query() query?: TableQueryParams,
-  ): Promise<ResponseTable[]> {
+  ): Promise<ExtendedResponseTable[]> {
     const { filter, include } = this.buildInclude.build({
       query,
       includeKeyRecord: TABLE_INCLUDE_KEY_RECORD,
@@ -101,7 +105,7 @@ export class TableController {
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Query() query?: TableQueryParams,
-  ) {
+  ): Promise<TableResponseDto | ExtendedResponseTable> {
     if (!query || (!query.include && !query.filter)) {
       return new TableResponseDto(cachedTable);
     }

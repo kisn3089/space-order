@@ -5,6 +5,10 @@ import {
   type Owner,
   type Store,
 } from '@spaceorder/db';
+import {
+  TABLE_INCLUDE_KEY_RECORD,
+  TABLE_SESSION_FILTER_RECORD,
+} from 'src/table/table-query.const';
 
 @Injectable()
 export class StoreService {
@@ -22,6 +26,28 @@ export class StoreService {
   async getStoreById(storePublicId: string): Promise<Store> {
     return await this.prismaService.store.findFirstOrThrow({
       where: { publicId: storePublicId },
+    });
+  }
+
+  async getStoreWithOrderList(client: Owner): Promise<ResponseStoreWithTables> {
+    return await this.prismaService.store.findFirstOrThrow({
+      where: { ownerId: client.id },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        tables: {
+          omit: { id: true, storeId: true },
+          include: {
+            tableSessions: {
+              ...TABLE_SESSION_FILTER_RECORD['alive-session'],
+              include:
+                TABLE_INCLUDE_KEY_RECORD['order-items']['tableSessions'][
+                  'include'
+                ],
+            },
+          },
+        },
+      },
+      omit: this.storeOmit,
     });
   }
 }

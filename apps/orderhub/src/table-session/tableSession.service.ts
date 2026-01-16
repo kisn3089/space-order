@@ -121,6 +121,7 @@ export class TableSessionService {
     return await this.prismaService.tableSession.findFirstOrThrow({
       where: {
         publicId: sessionPublicId,
+        // 테스트를 위한 임시 주석
         // expiresAt: { gte: new Date() },
         // status: { in: this.readyToOrderStatuses },
       },

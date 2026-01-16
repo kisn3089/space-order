@@ -53,4 +53,8 @@ export const tableQuerySchema = z.discriminatedUnion("include", [
     include: z.literal("orders"),
     filter: z.enum(["alive-session", "ended-session"]).optional(),
   }),
+  z.object({
+    include: z.literal("order-items"),
+    filter: z.enum(["alive-session", "ended-session"]).optional(),
+  }),
 ]);

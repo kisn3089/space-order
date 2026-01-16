@@ -36,13 +36,13 @@ export class TableResponseDto {
   updatedAt: Date;
 
   @Expose()
-  store: Store;
+  store?: Store;
 
   @Expose()
-  orders: Order[];
+  orders?: Order[];
 
   @Expose()
-  tableSessions: TableSession[];
+  tableSessions?: TableSession[];
 
   @Exclude()
   id: bigint;

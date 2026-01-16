@@ -25,7 +25,7 @@ const endedSession = {
 export const TABLE_SESSION_FILTER_RECORD = {
   [TABLE_QUERY_FILTER_CONST.ALIVE_SESSION]: aliveSession,
   [TABLE_QUERY_FILTER_CONST.ENDED_SESSION]: endedSession,
-  [TABLE_QUERY_FILTER_CONST.ACTIVED_TABLE]: { isActive: true },
+  [TABLE_QUERY_FILTER_CONST.ACTIVATED_TABLE]: { isActive: true },
 } as const;
 
 const ordersOmit = {

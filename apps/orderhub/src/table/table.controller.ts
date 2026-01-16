@@ -102,7 +102,7 @@ export class TableController {
     @Param('tableId') tableId: string,
     @Query() query?: TableQueryParams,
   ) {
-    if (!query) {
+    if (!query || (!query.include && !query.filter)) {
       return new TableResponseDto(cachedTable);
     }
 

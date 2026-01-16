@@ -11,10 +11,6 @@ export const http = axios.create({
   withCredentials: true,
 });
 
-export function updateAxiosAuthorizationHeader(token: string) {
-  http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
-
 type AxiosCustomError = {
   errorCode: number;
   message: string;
@@ -46,7 +42,6 @@ http.interceptors.response.use(
           authCallbacks.setAuthInfo({
             accessToken: newAccessToken.accessToken,
           });
-          updateAxiosAuthorizationHeader(newAccessToken.accessToken);
 
           error.config.headers["Authorization"] =
             `Bearer ${newAccessToken.accessToken}`;

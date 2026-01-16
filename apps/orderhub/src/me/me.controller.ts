@@ -9,12 +9,11 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { Client } from 'src/decorators/client.decorator';
 import type { Owner } from '@spaceorder/db';
 import { OwnerResponseDto } from 'src/owner/dto/ownerResponse.dto';
-import { MeService } from './me.service';
 
 @Controller('me')
 @UseInterceptors(ClassSerializerInterceptor)
 export class MeController {
-  constructor(private readonly meService: MeService) {}
+  constructor() {}
 
   @Get()
   @UseGuards(JwtAuthGuard)

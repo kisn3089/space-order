@@ -10,11 +10,7 @@ import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
-import {
-  updateAxiosAuthorizationHeader,
-  SignInRequest,
-  signInFormSchema,
-} from "@spaceorder/api";
+import { SignInRequest, signInFormSchema } from "@spaceorder/api";
 import { useAuthInfo } from "@spaceorder/auth";
 
 export default function FormCard() {
@@ -44,7 +40,6 @@ export default function FormCard() {
       setError("password", { message: signInResult.error?.message });
       return;
     }
-    updateAxiosAuthorizationHeader(signInResult.data.accessToken);
     setAuthInfo({ accessToken: signInResult.data.accessToken });
 
     router.replace("/orders");

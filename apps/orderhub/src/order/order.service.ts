@@ -50,7 +50,7 @@ export class OrderService {
     private readonly tableSessionService: TableSessionService,
   ) {}
 
-  private readonly orderIncludeOrOmit = {
+  private orderIncludeOrOmit = {
     include: {
       orderItems: { omit: { id: true, orderId: true, menuId: true } },
     },
@@ -60,7 +60,7 @@ export class OrderService {
       tableId: true,
       tableSessionId: true,
     },
-  };
+  } as const;
 
   async createOrder(
     { tableSession, tableId }: CreateOrderParams,
@@ -79,6 +79,7 @@ export class OrderService {
         ));
 
       // TODO: 추후 메뉴 service로 이전
+      /** TODO: 별도의 클래스로 분리 [checkMenuValidation] */
       const findMenuList = await tx.menu.findMany({
         where: { publicId: { in: menuPublicIds } },
         select: { publicId: true, name: true, price: true },
@@ -208,50 +209,57 @@ export class OrderService {
     principal: ParamsPrincipal,
   ): Promise<ResponseOrderWithItem[]> {
     return await this.prismaService.order.findMany({
-      where: this.whereRecordByPrincipal(paramsPrincipal),
-      ...this.orderIncludeOrOmit,
-    });
-  }
-
-  async getOrderById(
-    paramsPrincipal: ParamsPrincipal & PublicOrderId,
-  ): Promise<ResponseOrderWithItem> {
-    return await this.prismaService.order.findFirstOrThrow({
-      where: {
-        publicId: paramsPrincipal.orderPublicId,
-        ...this.whereRecordByPrincipal(paramsPrincipal),
-      },
+      where: this.whereRecordByPrincipal(principal),
       ...this.orderIncludeOrOmit,
     });
   }
 
   private whereRecordByPrincipal({ params, type }: ParamsPrincipal) {
     if (type === 'CUSTOMER') {
-      return {
-        storeId: params.tableSession.tableId,
-        tableId: params.tableSession.table.id,
-        tableSessionId: params.tableSession.id,
-      };
+      return { tableSessionId: params.tableSession.id };
     } else {
       /** type === 'OWNER' */
+      /** TODO: 기본 조회는 모든 orders를 응답.
+       *  query에(alive) 따라 활성화된 테이블 세션으로 제한이 필요
+       */
       return {
-        store: { publicId: params.storePublicId, ownerId: params.ownerId },
-        table: { publicId: params.tablePublicId },
+        tableSession: {
+          table: {
+            store: { ownerId: params.ownerId, publicId: params.storePublicId },
+            publicId: params.tablePublicId,
+          },
+          expiresAt: { gte: new Date() },
+          status: {
+            in: [TableSessionStatus.WAITING_ORDER, TableSessionStatus.ACTIVE],
+          },
+        },
       };
     }
   }
 
+  async getOrderById(
+    principal: ParamsPrincipal & PublicOrderId,
+  ): Promise<ResponseOrderWithItem> {
+    return await this.prismaService.order.findFirstOrThrow({
+      where: {
+        publicId: principal.orderPublicId,
+        ...this.whereRecordByPrincipal(principal),
+      },
+      ...this.orderIncludeOrOmit,
+    });
+  }
+
   async updateOrder(
-    paramsPrincipal: ParamsPrincipal & PublicOrderId,
+    principal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.$transaction(async (tx) => {
-      const whereByPrincipal = this.whereRecordByPrincipal(paramsPrincipal);
+      const whereByPrincipal = this.whereRecordByPrincipal(principal);
       const { orderItems, ...restUpdateOrderDto } = updateOrderDto;
       if (!orderItems) {
         return await tx.order.update({
           where: {
-            publicId: paramsPrincipal.orderPublicId,
+            publicId: principal.orderPublicId,
             ...whereByPrincipal,
           },
           data: restUpdateOrderDto,
@@ -273,7 +281,7 @@ export class OrderService {
         );
       return tx.order.update({
         where: {
-          publicId: paramsPrincipal.orderPublicId,
+          publicId: principal.orderPublicId,
           ...whereByPrincipal,
         },
         data: {
@@ -296,12 +304,12 @@ export class OrderService {
   }
 
   async cancelOrder(
-    paramsPrincipal: ParamsPrincipal & PublicOrderId,
+    principal: ParamsPrincipal & PublicOrderId,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.order.update({
       where: {
-        publicId: paramsPrincipal.orderPublicId,
-        ...this.whereRecordByPrincipal(paramsPrincipal),
+        publicId: principal.orderPublicId,
+        ...this.whereRecordByPrincipal(principal),
       },
       data: { status: OrderStatus.CANCELLED },
       ...this.orderIncludeOrOmit,

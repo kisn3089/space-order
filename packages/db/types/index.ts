@@ -1,2 +1,2 @@
-export * from "./publicModel.type";
 export * from "./privateModel.type";
+export * from "./responseModel.type";

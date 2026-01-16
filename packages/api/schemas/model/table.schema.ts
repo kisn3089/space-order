@@ -43,14 +43,22 @@ export const tableListQuerySchema = z.discriminatedUnion("include", [
     filter: z.enum(["alive-session", "ended-session"]).optional(),
   }),
   z.object({
+    include: z.literal("order-items"),
+    filter: z.enum(["alive-session", "ended-session"]).optional(),
+  }),
+  z.object({
     include: z.undefined(),
-    filter: z.literal("actived-table").optional(),
+    filter: z.literal("activated-table").optional(),
   }),
 ]);
 
 export const tableQuerySchema = z.discriminatedUnion("include", [
   z.object({
     include: z.literal("orders"),
+    filter: z.enum(["alive-session", "ended-session"]).optional(),
+  }),
+  z.object({
+    include: z.literal("order-items"),
     filter: z.enum(["alive-session", "ended-session"]).optional(),
   }),
 ]);

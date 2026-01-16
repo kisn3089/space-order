@@ -21,12 +21,4 @@ export class MeController {
   findMe(@Client() owner: Owner): OwnerResponseDto {
     return new OwnerResponseDto(owner);
   }
-
-  @Get('orders')
-  @UseGuards(JwtAuthGuard)
-  async getOrders(
-    @Client() owner: Owner,
-  ): Promise<PublicStoreWithTablesAndOrders> {
-    return await this.meService.getOrdersListByOwnerId(owner);
-  }
 }

@@ -41,7 +41,13 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
           query,
           'ZOD_QUERY_FAILED',
         );
-        request.query = queryResult;
+        /** express request의 query는 read-only이기 때문에 재정의를 통해 변경한다. */
+        Object.defineProperty(request, 'query', {
+          value: queryResult,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
       }
 
       if (schemas?.body && body) {

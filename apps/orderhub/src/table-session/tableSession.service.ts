@@ -18,7 +18,7 @@ import { Tx } from 'src/utils/helper/transactionPipe';
 export class TableSessionService {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly sanitizeOmit = { id: true, tableId: true };
-  private readonly includeSanitizeId = { table: true };
+  private readonly withTable = { table: true };
 
   private generateSecureSessionToken(): string {
     const buffer = randomBytes(32);
@@ -33,7 +33,7 @@ export class TableSessionService {
           in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
         },
       },
-      include: this.includeSanitizeId,
+      include: this.withTable,
     };
   }
 
@@ -45,7 +45,7 @@ export class TableSessionService {
         sessionToken,
         expiresAt: new Date(Date.now() + 20 * 60 * 1000), // 20분 후 만료
       },
-      include: this.includeSanitizeId,
+      include: this.withTable,
     };
   }
 
@@ -59,6 +59,12 @@ export class TableSessionService {
     });
 
     if (activatedSession) {
+      if (!activatedSession.table.isActive) {
+        throw new HttpException(
+          exceptionContentsIs('TABLE_INACTIVE'),
+          HttpStatus.FORBIDDEN,
+        );
+      }
       if (!this.isSessionExpired(activatedSession)) {
         return activatedSession;
       }
@@ -98,11 +104,31 @@ export class TableSessionService {
       where: {
         sessionToken,
         expiresAt: { gte: new Date() },
-        status: {
-          in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
-        },
+        status: { in: this.readyToOrderStatuses },
       },
-      include: this.includeSanitizeId,
+      include: this.withTable,
+    });
+  }
+
+  private readonly readyToOrderStatuses = [
+    TableSessionStatus.WAITING_ORDER,
+    TableSessionStatus.ACTIVE,
+  ];
+
+  async getSessionByTableId(
+    sessionPublicId: string,
+  ): Promise<SessionWithTable> {
+    return await this.prismaService.tableSession.findFirstOrThrow({
+      where: {
+        publicId: sessionPublicId,
+        // 테스트를 위한 임시 주석
+        // expiresAt: { gte: new Date() },
+        // status: { in: this.readyToOrderStatuses },
+      },
+      include: {
+        ...this.withTable,
+        orders: true,
+      },
     });
   }
 
@@ -136,6 +162,12 @@ export class TableSessionService {
 
       case TableSessionStatus.PAYMENT_PENDING:
         return await this.txUpdateSessionFinishByPayment(tableSession);
+
+      default:
+        throw new HttpException(
+          exceptionContentsIs('INVALID_PAYLOAD_TABLE_SESSION'),
+          HttpStatus.BAD_REQUEST,
+        );
     }
   }
 
@@ -246,6 +278,7 @@ export class TableSessionService {
     return await this.prismaService.tableSession.findMany({
       where: { table: { publicId: tablePublicId } },
       omit: this.sanitizeOmit,
+      include: { orders: true, table: true },
     });
   }
 }

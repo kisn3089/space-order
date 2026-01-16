@@ -182,9 +182,6 @@ importers:
       '@spaceorder/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@spaceorder/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
       '@spaceorder/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -318,6 +315,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@spaceorder/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@spaceorder/db':
         specifier: workspace:*
         version: link:../db
@@ -330,6 +330,9 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@spaceorder/lintconfig':
         specifier: workspace:*
@@ -349,15 +352,9 @@ importers:
 
   packages/auth:
     dependencies:
-      '@spaceorder/api':
-        specifier: workspace:*
-        version: link:../api
       react:
         specifier: 18.3.1
         version: 18.3.1
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
     devDependencies:
       '@spaceorder/lintconfig':
         specifier: workspace:*

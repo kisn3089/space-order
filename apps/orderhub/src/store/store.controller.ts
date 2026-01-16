@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  // Post,
-  // Body,
-  // Patch,
-  Param,
-  // Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { Client } from 'src/decorators/client.decorator';
@@ -21,6 +12,12 @@ export class StoreController {
   @Get()
   async getStoreList(@Client() client: Owner) {
     return await this.storeService.getStoreList(client);
+  }
+
+  /** 추후 지점이 2개 이상인 경우 로컬 스토리지를 통해 활성화된 storeId 값으로 변경한다. */
+  @Get('alive-orders')
+  async getStoreWithOrderList(@Client() client: Owner) {
+    return await this.storeService.getStoreWithOrderList(client);
   }
 
   @Get(':storeId')

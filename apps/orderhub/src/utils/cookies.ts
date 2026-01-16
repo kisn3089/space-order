@@ -1,4 +1,4 @@
-import { COOKIE_TABLE } from '@spaceorder/db';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
 import { CookieOptions, Response } from 'express';
 
 function set(

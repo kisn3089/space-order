@@ -12,11 +12,14 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { TableSessionService } from './tableSession.service';
-import { tableParamsSchema, updateSessionSchema } from '@spaceorder/auth';
+import {
+  tableParamsSchema,
+  updateSessionSchema,
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { responseCookie } from 'src/utils/cookies';
-import { COOKIE_TABLE } from '@spaceorder/db';
 import type { PublicTableSession, TableSession } from '@spaceorder/db';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';

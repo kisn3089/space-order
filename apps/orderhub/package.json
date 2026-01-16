@@ -30,7 +30,6 @@
     "@nestjs/swagger": "^11.2.3",
     "@paralleldrive/cuid2": "^3.0.4",
     "@spaceorder/api": "workspace:*",
-    "@spaceorder/auth": "workspace:*",
     "@spaceorder/db": "workspace:*",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",

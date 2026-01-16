@@ -1,7 +1,10 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { OrderItemService } from './orderItem.service';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { orderItemParamsSchema, orderIdParamsSchema } from '@spaceorder/auth';
+import {
+  orderItemParamsSchema,
+  orderIdParamsSchema,
+} from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { PublicOrderItem } from '@spaceorder/db';
 

@@ -5,8 +5,8 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { COOKIE_TABLE, SessionWithTable } from '@spaceorder/db';
-import { sessionTokenSchema } from '@spaceorder/auth/schemas/model/tableSession.schema';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
+import { sessionTokenSchema } from '@spaceorder/api/schemas';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { TableSessionService } from 'src/table-session/tableSession.service';
 

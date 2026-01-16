@@ -5,10 +5,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { PublicOwner, COOKIE_TABLE } from '@spaceorder/db';
+import { PublicOwner } from '@spaceorder/db';
 import { JwtErrorInfo } from './jwt-auth.guard';
 import { Response } from 'express';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
 
 @Injectable()
 export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {

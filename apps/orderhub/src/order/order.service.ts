@@ -11,7 +11,7 @@ import {
 import { TableSessionService } from 'src/table-session/tableSession.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderDto } from './order.controller';
-import { sumFromObjects } from '@spaceorder/auth';
+import { sumFromObjects } from '@spaceorder/api/utils';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
 

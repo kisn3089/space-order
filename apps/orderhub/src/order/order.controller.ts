@@ -13,7 +13,6 @@ import {
 import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import {
-  COOKIE_TABLE,
   type SessionWithTable,
   type PublicOrderWithItem,
 } from '@spaceorder/db';
@@ -22,10 +21,11 @@ import {
   createOrderSchema,
   orderIdParamsSchema,
   updateOrderSchema,
-} from '@spaceorder/auth';
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import { responseCookie } from 'src/utils/cookies';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
 
 export class CreateOrderDto extends createZodDto(createOrderSchema) {}
 export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}

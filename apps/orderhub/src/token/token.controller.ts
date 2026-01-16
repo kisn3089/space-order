@@ -6,8 +6,8 @@ import type { Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { signInFormSchema } from '@spaceorder/auth';
 import { AccessToken } from '@spaceorder/api';
+import { signInFormSchema } from '@spaceorder/api/schemas';
 
 @Controller('token')
 export class TokenController {

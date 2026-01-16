@@ -13,18 +13,18 @@ import {
 import { MenuService } from './menu.service';
 import type { Menu, Owner, PublicMenu } from '@spaceorder/db';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import {
-  createMenuSchema,
-  mergedStoreIdAndMenuIdParamsSchema,
-  storeIdParamsSchema,
-  updateMenuSchema,
-} from '@spaceorder/auth';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
 import { Client } from 'src/decorators/client.decorator';
 import { MenuPermission } from 'src/utils/guards/model-permissions/menu-permission.guard';
 import { CachedMenuByGuard } from 'src/decorators/cache/menu.decorator';
 import { MenuResponseDto } from './dto/menuResponse.dto';
+import {
+  createMenuSchema,
+  mergedStoreIdAndMenuIdParamsSchema,
+  storeIdParamsSchema,
+  updateMenuSchema,
+} from '@spaceorder/api/schemas';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}

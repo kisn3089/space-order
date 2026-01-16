@@ -11,7 +11,7 @@ import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateTableSessionDto } from './tableSession.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { sumFromObjects } from '@spaceorder/auth';
+import { sumFromObjects } from '@spaceorder/api/utils';
 import { Tx } from 'src/utils/helper/transactionPipe';
 
 @Injectable()

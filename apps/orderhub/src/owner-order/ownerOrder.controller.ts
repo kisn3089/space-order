@@ -13,7 +13,7 @@ import {
   mergedStoreAndTableParamsSchema,
   orderParamsSchema,
   updateOrderSchema,
-} from '@spaceorder/auth';
+} from '@spaceorder/api/schemas';
 import type { Owner, PublicOrderWithItem } from '@spaceorder/db';
 import { CachedOrderByGuard } from 'src/decorators/cache/order.decorator';
 import { Client } from 'src/decorators/client.decorator';

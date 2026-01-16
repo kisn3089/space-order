@@ -17,8 +17,10 @@ import {
   createTableSchema,
   mergedStoreAndTableParamsSchema,
   storeIdParamsSchema,
+  tableListQuerySchema,
+  tableQuerySchema,
   updateTableSchema,
-} from '@spaceorder/auth';
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicTable, TableAndStoreOwnerId } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';

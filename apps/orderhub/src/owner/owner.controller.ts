@@ -17,7 +17,7 @@ import {
   createOwnerSchema,
   ownerParamsSchema,
   updateOwnerSchema,
-} from '@spaceorder/auth';
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { PublicOwner } from '@spaceorder/db';
 import { OwnerPermission } from 'src/utils/guards/model-permissions/owner-permission.guard';

@@ -4,5 +4,4 @@ export * from "./stores";
 export * from "./tables";
 export * from "./owner-orders";
 export * from "./me";
-export * from "./TanstackProvider";
 export * from "./axios";

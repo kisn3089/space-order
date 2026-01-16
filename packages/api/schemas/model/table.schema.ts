@@ -26,6 +26,8 @@ export const updateTableSchema = createTableSchema.partial().extend({
   isActive: z.boolean().optional(),
 });
 
+export type UpdateTable = z.infer<typeof updateTableSchema>;
+
 export const tableParamsSchema = z
   .object({
     tableId: commonSchema.cuid2("Table"),
@@ -34,3 +36,21 @@ export const tableParamsSchema = z
 
 export const mergedStoreAndTableParamsSchema =
   storeIdParamsSchema.merge(tableParamsSchema);
+
+export const tableListQuerySchema = z.discriminatedUnion("include", [
+  z.object({
+    include: z.literal("orders"),
+    filter: z.enum(["alive-session", "ended-session"]).optional(),
+  }),
+  z.object({
+    include: z.undefined(),
+    filter: z.literal("actived-table").optional(),
+  }),
+]);
+
+export const tableQuerySchema = z.discriminatedUnion("include", [
+  z.object({
+    include: z.literal("orders"),
+    filter: z.enum(["alive-session", "ended-session"]).optional(),
+  }),
+]);

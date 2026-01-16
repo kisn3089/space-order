@@ -4,7 +4,8 @@ import { TokenPayload } from './token-payload.interface';
 import { responseCookie } from '../cookies';
 import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
-import { Admin, Owner, COOKIE_TABLE } from '@spaceorder/db';
+import { Admin, Owner } from '@spaceorder/db';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
 
 @Injectable()
 export class GenerateToken {

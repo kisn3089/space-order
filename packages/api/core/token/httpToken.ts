@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { http } from "../axios/http";
+import { http, updateAxiosAuthorizationHeader } from "../axios/http";
 import { ResponseAccessToken, SignInRequest } from "./token.type";
 import { COOKIE_TABLE } from "@spaceorder/db";
 
@@ -13,6 +13,7 @@ async function createAccessToken({
     email,
     password,
   });
+  updateAxiosAuthorizationHeader(response.data.accessToken);
   return response;
 }
 
@@ -30,6 +31,7 @@ async function refreshAccessToken(
         }
       : {}
   );
+  updateAxiosAuthorizationHeader(response.data.accessToken);
   return response;
 }
 

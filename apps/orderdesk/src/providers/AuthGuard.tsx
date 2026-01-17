@@ -29,7 +29,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         console.info("[AuthGuard] Refreshed access token...");
         const refreshedAccessToken = await refreshAccessToken();
         setAuthInfo({ accessToken: refreshedAccessToken.accessToken });
-        updateAxiosAuthorizationHeader(refreshedAccessToken.accessToken);
       } catch (error: unknown) {
         console.error("[AuthGuard] Failed to refresh access token", error);
         signOut();

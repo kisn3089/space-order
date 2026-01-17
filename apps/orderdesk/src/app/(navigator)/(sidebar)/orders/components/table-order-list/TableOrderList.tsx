@@ -4,6 +4,7 @@ import TableBoard from "../table-board/TableBoard";
 import { ResponseStoreWithTables } from "@spaceorder/db";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import { useSetCacheFromStoreWithOrders } from "../../hooks/useSetCacheFromStoreWithOrders";
+import TableBoardLayout from "./TableOrderListLayout";
 
 export default function TableOrderList() {
   const setCache = useSetCacheFromStoreWithOrders();
@@ -15,13 +16,8 @@ export default function TableOrderList() {
   );
 
   const tableCount = store.tableCount ?? 0;
-  const tableBoardMaxHeight =
-    tableCount < 3 ? "grid-rows-[max(50%)]" : "auto-rows-fr";
-
   return (
-    <div
-      className={`w-full h-full grid grid-cols-[minmax(200px,_300px)_minmax(200px,_300px)] ${tableBoardMaxHeight} gap-3 min-w-[410px]`}
-    >
+    <TableBoardLayout count={tableCount}>
       {store.tables.map((table) => {
         return (
           <TableBoard
@@ -31,6 +27,6 @@ export default function TableOrderList() {
           />
         );
       })}
-    </div>
+    </TableBoardLayout>
   );
 }

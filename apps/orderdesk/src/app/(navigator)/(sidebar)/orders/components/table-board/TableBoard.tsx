@@ -15,6 +15,7 @@ import {
 import TableOrder from "../table-order-list/TableOrder";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
+import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
 
 type TableBoardProps = {
   storeId: string;
@@ -29,8 +30,9 @@ export default function TableBoard({ storeId, tableId }: TableBoardProps) {
   );
 
   const { tableNumber, section, tableSessions } = table;
-  const tableSession = tableSessions ? tableSessions[0] : null;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
+  const tableSession = tableSessions ? tableSessions[0] : null;
+
   const findPendingStatusInOrders = tableSession?.orders?.find(
     (order) => order.status === OrderStatus.PENDING
   );
@@ -49,14 +51,6 @@ export default function TableBoard({ storeId, tableId }: TableBoardProps) {
   const selectableStyle = isActiveTable ? "" : "opacity-20 cursor-not-allowed";
   const sessionActiveStyle = tableSession ? "hover:bg-accent" : "";
 
-  const sessionExpireAt = tableSession
-    ? new Date(tableSession.expiresAt).toLocaleTimeString("Ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-    : "";
-
   return (
     <Card
       className={`w-full min-h-[200px] flex flex-col cursor-pointer ${sessionActiveStyle} ${selectableStyle} max-h-[300px]`}
@@ -68,28 +62,30 @@ export default function TableBoard({ storeId, tableId }: TableBoardProps) {
           <CardDescription className="text-sm">{section}</CardDescription>
         </ActivityRender>
       </CardHeader>
-      <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
-        <div className="p-2">
-          <Button onClick={acceptEveryPendingOrders} className="w-full">
-            {"모든 주문 수락"}
-          </Button>
-        </div>
-      </ActivityRender>
-      <div className="flex flex-col gap-y-1 pb-2 overflow-y-auto scrollbar-hide">
-        <ActivityRender mode={tableSession ? "visible" : "hidden"}>
-          {tableSession?.orders?.map((order) => (
-            <TableOrder
-              key={order.publicId}
-              tableId={table.publicId}
-              orderId={order.publicId}
-              storeId={storeId}
-            />
-          ))}
+      <div className="h-full">
+        <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
+          <div className="p-2">
+            <Button onClick={acceptEveryPendingOrders} className="w-full">
+              {"모든 주문 수락"}
+            </Button>
+          </div>
         </ActivityRender>
+        <div className="flex flex-col gap-y-1 pb-2 overflow-y-auto scrollbar-hide">
+          <ActivityRender mode={tableSession ? "visible" : "hidden"}>
+            {tableSession?.orders?.map((order) => (
+              <TableOrder
+                key={order.publicId}
+                tableId={table.publicId}
+                orderId={order.publicId}
+                storeId={storeId}
+              />
+            ))}
+          </ActivityRender>
+        </div>
       </div>
-      <ActivityRender mode={sessionExpireAt ? "visible" : "hidden"}>
-        <CardFooter>
-          <p>{sessionExpireAt}</p>
+      <ActivityRender mode={tableSession?.expiresAt ? "visible" : "hidden"}>
+        <CardFooter className="p-2">
+          <SessionExpireTime expiresAt={tableSession?.expiresAt} />
         </CardFooter>
       </ActivityRender>
     </Card>

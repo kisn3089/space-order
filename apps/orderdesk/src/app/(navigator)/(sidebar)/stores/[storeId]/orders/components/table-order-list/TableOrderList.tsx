@@ -47,9 +47,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
   };
 
   const tableClickEvnet = () => {
-    console.log("click order");
-    push(`?tableId=${tableId}`);
-    // setTableOrderState(order)
+    push(`/stores/${storeId}/orders/${tableId}`);
   };
 
   const isActiveTable = table.isActive === true;

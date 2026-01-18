@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import TableBoard from "./components/table-board/TableOrderBoard";
+import TableBoard from "./components/table-board/TableBoard";
 import TableBoardLayout from "./components/table-order-list/TableOrderListLayout";
 import { Skeleton } from "@spaceorder/ui/components/skeleton";
+import PreventUntilFetch from "@/components/PreventUntilFetch";
 
 export const metadata: Metadata = {
   title: "Orders",
@@ -18,12 +19,16 @@ export default function OrdersLayout({
 }>) {
   return (
     <section className="antialiased h-full grid place-items-center gap-2 grid-cols-[2fr_minmax(380px,1fr)] px-6">
-      <div className="flex flex-col h-full">
-        <Suspense fallback={<LoadingSkeleton />}>
-          <TableBoard storeId={params.storeId} />
-        </Suspense>
-      </div>
-      {children}
+      <Suspense fallback={<LoadingSkeleton />}>
+        <PreventUntilFetch url={`/stores/alive-orders`}>
+          <div className="flex flex-col h-full">
+            <Suspense fallback={<LoadingSkeleton />}>
+              <TableBoard storeId={params.storeId} />
+            </Suspense>
+          </div>
+          {children}
+        </PreventUntilFetch>
+      </Suspense>
     </section>
   );
 }

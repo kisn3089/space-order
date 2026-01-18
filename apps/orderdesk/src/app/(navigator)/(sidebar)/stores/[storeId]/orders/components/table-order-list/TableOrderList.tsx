@@ -19,6 +19,7 @@ import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
 import { ErrorBoundary } from "react-error-boundary";
 import { useRouter } from "next/navigation";
 import ErrorFallback from "@/components/ErrorFallback";
+import TableErrorFallback from "./TableErrorFallback";
 
 type TableBoardProps = {
   storeId: string;
@@ -28,12 +29,9 @@ const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
 const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
 export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
-  const { push } = useRouter();
-
   const { data: table } = useSuspenseWithAuth<ResponseTableWithSessions>(
     `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
   );
-
   const { tableNumber, section, tableSessions } = table;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
   const tableSession = tableSessions ? tableSessions[0] : null;
@@ -44,9 +42,16 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
 
   const acceptEveryPendingOrders = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+
+    const filterPendingStatusInOrders = tableSession?.orders?.filter(
+      (order) => order.status === OrderStatus.PENDING
+    );
+
+    console.log("filterPendingStatusInOrders: ", filterPendingStatusInOrders);
     console.log("모든 주문 수락했어요!");
   };
 
+  const { push } = useRouter();
   const tableClickEvnet = () => {
     push(`/stores/${storeId}/orders/${tableId}`);
   };
@@ -102,18 +107,5 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
         </CardFooter>
       </ActivityRender>
     </Card>
-  );
-}
-
-function TableErrorFallback() {
-  return (
-    <div className="absolute top-[50%] transform-3d -translate-y-[50%]">
-      <div className="flex flex-col gap-2 p-2">
-        <p className="font-semibold">주문 정보 요청 중 오류가 발생했습니다.</p>
-        <Button id="retry" className="w-full">
-          다시 시도
-        </Button>
-      </div>
-    </div>
   );
 }

@@ -21,14 +21,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onUpdateQuantity?: (itemId: string, delta: number) => void;
-  onRemoveItem?: (itemId: string) => void;
+  // onRemoveItem?: (itemId: string) => void;
 }
 
 export function OrderTable<TData, TValue>({
   columns,
   data,
   onUpdateQuantity,
-  onRemoveItem,
+  // onRemoveItem,
 }: DataTableProps<TData, TValue>) {
   const [selectedRow, setSelectedRow] = useState<Record<string, boolean>>({});
 
@@ -44,7 +44,7 @@ export function OrderTable<TData, TValue>({
     meta: {
       onUpdateQuantity,
       onRemoveItem: {
-        remove: onRemoveItem,
+        // remove: onRemoveItem,
         setSelectedRow,
       },
     },

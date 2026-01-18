@@ -1,12 +1,14 @@
 "use client";
 
-import TableBoard from "../table-board/TableBoard";
+import TableOrderList from "../table-order-list/TableOrderList";
 import { ResponseStoreWithTables } from "@spaceorder/db";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import { useSetCacheFromStoreWithOrders } from "../../hooks/useSetCacheFromStoreWithOrders";
-import TableBoardLayout from "./TableOrderListLayout";
+import TableBoardLayout from "../table-order-list/TableOrderListLayout";
 
-export default function TableOrderList() {
+export default function TableBoard({ storeId }: { storeId: string }) {
+  console.log("board", storeId);
+
   const setCache = useSetCacheFromStoreWithOrders();
   const { data: store } = useSuspenseWithAuth<ResponseStoreWithTables>(
     `/stores/alive-orders`,
@@ -18,7 +20,7 @@ export default function TableOrderList() {
     <TableBoardLayout count={tableCount}>
       {store.tables.map((table) => {
         return (
-          <TableBoard
+          <TableOrderList
             key={table.publicId}
             storeId={store.publicId}
             tableId={table.publicId}

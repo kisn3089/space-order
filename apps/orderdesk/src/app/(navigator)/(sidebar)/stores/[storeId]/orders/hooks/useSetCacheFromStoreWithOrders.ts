@@ -14,7 +14,7 @@ export const useSetCacheFromStoreWithOrders = () => {
   const setData = (storeWithTables: ResponseStoreWithTables) => {
     const { tables, ...store } = storeWithTables;
     const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-    const { ORDERS } = TABLE_QUERY_INCLUDE_CONST;
+    const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
     queryClient.setQueryData<ResponseStore>(["/stores"], store);
 
@@ -23,7 +23,7 @@ export const useSetCacheFromStoreWithOrders = () => {
 
       queryClient.setQueryData<ResponseTableWithSessions>(
         [
-          `/stores/${store.publicId}/tables/${table.publicId}?include=${ORDERS}&filter=${ALIVE_SESSION}`,
+          `/stores/${store.publicId}/tables/${table.publicId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
         ],
         tableWithSessions
       );
@@ -54,7 +54,7 @@ export const useSetCacheFromStoreWithOrders = () => {
 
     queryClient.setQueryData<ResponseTableWithSessions[]>(
       [
-        `/stores/${store.publicId}/tables?include=${ORDERS}&filter=${ALIVE_SESSION}`,
+        `/stores/${store.publicId}/tables?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
       ],
       tablesWithAliveSessions
     );

@@ -12,21 +12,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@spaceorder/ui/components/card";
-import TableOrder from "../table-order-list/TableOrder";
+import TableOrder from "./TableOrder";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
+import { ErrorBoundary } from "react-error-boundary";
+import { useRouter } from "next/navigation";
 
 type TableBoardProps = {
   storeId: string;
   tableId: string;
 };
 const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-const { ORDERS } = TABLE_QUERY_INCLUDE_CONST;
+const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
-export default function TableBoard({ storeId, tableId }: TableBoardProps) {
+export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
+  const { push } = useRouter();
+
   const { data: table } = useSuspenseWithAuth<ResponseTableWithSessions>(
-    `/stores/${storeId}/tables/${tableId}?include=${ORDERS}&filter=${ALIVE_SESSION}`
+    `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
   );
 
   const { tableNumber, section, tableSessions } = table;
@@ -44,6 +48,7 @@ export default function TableBoard({ storeId, tableId }: TableBoardProps) {
 
   const tableClickEvnet = () => {
     console.log("click order");
+    push(`?tableId=${tableId}`);
     // setTableOrderState(order)
   };
 
@@ -54,7 +59,7 @@ export default function TableBoard({ storeId, tableId }: TableBoardProps) {
   return (
     <Card
       className={`w-full min-h-[200px] flex flex-col cursor-pointer ${sessionActiveStyle} ${selectableStyle} max-h-[300px]`}
-      onClick={tableClickEvnet}
+      onClick={() => (isActiveTable ? tableClickEvnet() : null)}
     >
       <CardHeader className="flex flex-row justify-between gap-1 p-2">
         <CardTitle>{tableNumber}</CardTitle>
@@ -73,12 +78,17 @@ export default function TableBoard({ storeId, tableId }: TableBoardProps) {
         <div className="flex flex-col gap-y-1 pb-2 overflow-y-auto scrollbar-hide">
           <ActivityRender mode={tableSession ? "visible" : "hidden"}>
             {tableSession?.orders?.map((order) => (
-              <TableOrder
+              <ErrorBoundary
+                fallback={<div>오류가 발생했습니다.</div>}
                 key={order.publicId}
-                tableId={table.publicId}
-                orderId={order.publicId}
-                storeId={storeId}
-              />
+              >
+                <TableOrder
+                  key={order.publicId}
+                  tableId={table.publicId}
+                  orderId={order.publicId}
+                  storeId={storeId}
+                />
+              </ErrorBoundary>
             ))}
           </ActivityRender>
         </div>

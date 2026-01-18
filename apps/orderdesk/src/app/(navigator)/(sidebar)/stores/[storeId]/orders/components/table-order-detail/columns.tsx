@@ -2,32 +2,30 @@
 
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { TTableOrderItem } from "../table-order-list/orderData";
 import { Badge } from "@spaceorder/ui/components/badge";
+import { ResponseOrderItem } from "@spaceorder/db";
 
-export const columns: ColumnDef<TTableOrderItem>[] = [
+export const columns: ColumnDef<ResponseOrderItem>[] = [
   {
     accessorKey: "name",
     header: "메뉴명",
     cell: ({ row }) => {
       // 필수 옵션과 추가 옵션을 합쳐서 표시
-      const requiredOptions = row.original?.requiredOptions;
-      const customOptions = row.original?.customOptions;
-      const combinedOptions = { ...requiredOptions, ...customOptions };
+      const orderOptions = row.original.options;
 
       return (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
             <div className="flex gap-1 flex-wrap">
-              {combinedOptions && (
+              {orderOptions && (
                 <>
-                  {Object.entries(combinedOptions).map(([key, value]) => (
+                  {Object.entries(orderOptions).map(([key, value]) => (
                     <Badge key={key}>{`${key}: ${value}`}</Badge>
                   ))}
                 </>
               )}
             </div>
-            {row.original.name}
+            {row.original.menuName}
           </div>
         </div>
       );
@@ -51,7 +49,7 @@ export const columns: ColumnDef<TTableOrderItem>[] = [
               className="size-7 font-semibold"
               onClick={(e) => {
                 e.stopPropagation();
-                meta?.onUpdateQuantity?.(row.original.id, -1);
+                meta?.onUpdateQuantity?.(row.original.publicId, -1);
               }}
             >
               -
@@ -65,7 +63,7 @@ export const columns: ColumnDef<TTableOrderItem>[] = [
               className="size-7 font-semibold"
               onClick={(e) => {
                 e.stopPropagation();
-                meta?.onUpdateQuantity?.(row.original.id, 1);
+                meta?.onUpdateQuantity?.(row.original.publicId, 1);
               }}
             >
               +
@@ -94,7 +92,7 @@ export const columns: ColumnDef<TTableOrderItem>[] = [
 
       const removeMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        meta?.onRemoveItem?.remove?.(row.original.id);
+        meta?.onRemoveItem?.remove?.(row.original.publicId);
         // 삭제 후 선택 상태 초기화
         meta?.onRemoveItem?.setSelectedRow({});
       };

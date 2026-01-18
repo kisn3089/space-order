@@ -1,10 +1,5 @@
 import { CardContent } from "@spaceorder/ui/components/card";
-import {
-  OrderStatus,
-  ResponseOrderWithItem,
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
-} from "@spaceorder/db";
+import { OrderStatus, ResponseOrderWithItem } from "@spaceorder/db";
 import { Badge } from "@spaceorder/ui/components/badge";
 import useOwnerOrders from "@spaceorder/api/core/owner-orders/useOwnerOrders.mutate";
 import {

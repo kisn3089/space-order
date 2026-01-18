@@ -6,6 +6,13 @@ import {
   httpOrders,
   UpdateOwnerOrderPayload,
 } from "./httpOwnerOrders";
+import {
+  TABLE_QUERY_FILTER_CONST,
+  TABLE_QUERY_INCLUDE_CONST,
+} from "@spaceorder/db";
+
+const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
+const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
 type CreateOwnerOrderParams = {
   params: FetchOrderParams;
@@ -30,6 +37,11 @@ export default function useOwnerOrders() {
       httpOrders.updateOwnerOrder(params, updateOrderPayload),
     onSuccess: (_, variables) => {
       const { storeId, tableId, orderId } = variables.params;
+      queryClient.invalidateQueries({
+        queryKey: [
+          `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
+        ],
+      });
       queryClient.invalidateQueries({
         queryKey: [
           `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`,

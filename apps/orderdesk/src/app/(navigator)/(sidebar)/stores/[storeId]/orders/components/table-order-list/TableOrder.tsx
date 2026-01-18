@@ -71,7 +71,7 @@ export default function TableOrder({
   return (
     <CardContent
       key={order.publicId}
-      className={`rounded-lg bg-accent ${!isFinishStatus ? "hover:bg-background" : ""} border p-2 mx-2 font-semibold flex flex-col justify-center`}
+      className={`rounded-lg bg-accent ${!isFinishStatus ? "hover:bg-background" : ""} border p-2 font-semibold flex flex-col justify-center`}
       onClick={orderClickEvent}
     >
       <div className="flex justify-center">

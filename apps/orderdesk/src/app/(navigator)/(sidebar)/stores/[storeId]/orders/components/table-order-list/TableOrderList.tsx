@@ -66,15 +66,15 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
           <CardDescription className="text-sm">{section}</CardDescription>
         </ActivityRender>
       </CardHeader>
-      <div className="h-full relative">
+      <div className="h-full overflow-y-auto scrollbar-hide relative">
         <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
-          <div className="p-2">
+          <div className="px-2">
             <Button onClick={acceptEveryPendingOrders} className="w-full">
               {"모든 주문 수락"}
             </Button>
           </div>
         </ActivityRender>
-        <div className="flex flex-col gap-y-1 pb-2 overflow-y-auto scrollbar-hide">
+        <div className="flex flex-col gap-y-1 p-2">
           <ActivityRender mode={tableSession ? "visible" : "hidden"}>
             {tableSession?.orders?.map((order) => (
               <ErrorBoundary

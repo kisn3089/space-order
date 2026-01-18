@@ -44,7 +44,5 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return null;
   }
 
-  console.log("authInfo: ", authInfo);
-
   return <>{children}</>;
 }

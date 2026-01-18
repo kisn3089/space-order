@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardTitle } from "@spaceorder/ui/components/card";
 import FormCard from "./components/form-card/FormCard";
-// import MotionTabs from "./components/motionTabs/MotionTabs";
 
 export default async function SignInPage() {
   return (

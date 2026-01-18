@@ -8,15 +8,19 @@ import {
 } from "@spaceorder/db";
 import { useQueryClient } from "@tanstack/react-query";
 
+const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
+const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
+
 export const useSetCacheFromStoreWithOrders = () => {
   const queryClient = useQueryClient();
 
   const setData = (storeWithTables: ResponseStoreWithTables) => {
     const { tables, ...store } = storeWithTables;
-    const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-    const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
-    queryClient.setQueryData<ResponseStore>(["/stores"], store);
+    queryClient.setQueryData<ResponseStore>(
+      [`/stores/${store.publicId}`],
+      store
+    );
 
     const tablesWithAliveSessions = tables.map((tableWithSessions) => {
       const { tableSessions, ...table } = tableWithSessions;

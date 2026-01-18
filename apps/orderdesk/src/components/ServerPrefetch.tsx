@@ -13,6 +13,7 @@ type ServerPrefetchProps = {
   children: React.ReactNode;
   shouldSuccess?: boolean;
 };
+
 export default async function ServerPrefetch({
   url,
   children,

@@ -1,13 +1,53 @@
 import { useAuthInfo } from "@spaceorder/auth";
 import { Button } from "@spaceorder/ui/components/button";
+import { useEffect } from "react";
+import { FallbackProps } from "react-error-boundary";
 
+/**
+ * @description children의 Element id 값이 "retry"와 "sign-out"인 요소에 이벤트 리스너를 등록하고,
+ * children을 렌더링한다.
+ *
+ * @property 아래 event trigger는 Element id 값을 기준으로 한다.
+ * @event retry 클릭 시 resetErrorBoundary 호출
+ * @event sign-out 클릭 시 signOut 호출
+ */
 export default function ErrorFallback({
   error,
   resetErrorBoundary,
-}: {
-  error: Error & { digest?: string };
-  resetErrorBoundary: () => void;
-}) {
+  children,
+}: FallbackProps & React.PropsWithChildren) {
+  const { signOut } = useAuthInfo();
+
+  useEffect(() => {
+    if (!children) {
+      return;
+    }
+
+    const retryElement = document.getElementById("retry");
+    const signOutElement = document.getElementById("sign-out");
+
+    retryElement?.addEventListener("click", resetErrorBoundary);
+    signOutElement?.addEventListener("click", signOut);
+
+    return () => {
+      retryElement?.removeEventListener("click", resetErrorBoundary);
+      signOutElement?.removeEventListener("click", signOut);
+    };
+  }, [children, resetErrorBoundary, signOut]);
+
+  if (children) {
+    return <>{children}</>;
+  }
+
+  return (
+    <DefaultErrorFallback
+      error={error}
+      resetErrorBoundary={resetErrorBoundary}
+    />
+  );
+}
+
+function DefaultErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   const { signOut } = useAuthInfo();
 
   return (

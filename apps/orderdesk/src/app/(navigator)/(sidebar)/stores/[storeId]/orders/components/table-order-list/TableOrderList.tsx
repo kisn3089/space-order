@@ -18,6 +18,7 @@ import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
 import { ErrorBoundary } from "react-error-boundary";
 import { useRouter } from "next/navigation";
+import ErrorFallback from "@/components/ErrorFallback";
 
 type TableBoardProps = {
   storeId: string;
@@ -65,7 +66,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
           <CardDescription className="text-sm">{section}</CardDescription>
         </ActivityRender>
       </CardHeader>
-      <div className="h-full">
+      <div className="h-full relative">
         <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
           <div className="p-2">
             <Button onClick={acceptEveryPendingOrders} className="w-full">
@@ -77,7 +78,11 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
           <ActivityRender mode={tableSession ? "visible" : "hidden"}>
             {tableSession?.orders?.map((order) => (
               <ErrorBoundary
-                fallback={<div>오류가 발생했습니다.</div>}
+                fallbackRender={(args) => (
+                  <ErrorFallback {...args}>
+                    <TableErrorFallback />
+                  </ErrorFallback>
+                )}
                 key={order.publicId}
               >
                 <TableOrder
@@ -97,5 +102,18 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
         </CardFooter>
       </ActivityRender>
     </Card>
+  );
+}
+
+function TableErrorFallback() {
+  return (
+    <div className="absolute top-[50%] transform-3d -translate-y-[50%]">
+      <div className="flex flex-col gap-2 p-2">
+        <p className="font-semibold">주문 정보 요청 중 오류가 발생했습니다.</p>
+        <Button id="retry" className="w-full">
+          다시 시도
+        </Button>
+      </div>
+    </div>
   );
 }

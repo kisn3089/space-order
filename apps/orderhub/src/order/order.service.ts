@@ -92,10 +92,15 @@ export class OrderService {
           menuPublicIds,
         );
 
+      const reducedSessionTotalAmount =
+        sessionFromCookieOrCreated.totalAmount + totalPriceByServer;
       const updatedTableSession =
         await this.tableSessionService.txUpdateSession(
           sessionFromCookieOrCreated,
-          { status: TableSessionStatus.ACTIVE },
+          {
+            totalAmount: reducedSessionTotalAmount,
+            status: TableSessionStatus.ACTIVE,
+          },
           tx,
         );
 

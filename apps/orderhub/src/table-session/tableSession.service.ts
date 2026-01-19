@@ -13,6 +13,10 @@ import { UpdateTableSessionDto } from './tableSession.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { sumFromObjects } from '@spaceorder/api/utils';
 import { Tx } from 'src/utils/helper/transactionPipe';
+import { updateActivateSchema } from '@spaceorder/api/schemas';
+import z from 'zod';
+
+type UpdateSessionFromCreateOrder = z.infer<typeof updateActivateSchema>;
 
 @Injectable()
 export class TableSessionService {
@@ -147,7 +151,7 @@ export class TableSessionService {
 
       case TableSessionStatus.ACTIVE:
         return await txableService.tableSession.update(
-          this.setSessionActivate(tableSession),
+          this.setSessionActivate(tableSession, updateSessionDto),
         );
 
       case 'REACTIVATE':
@@ -201,11 +205,12 @@ export class TableSessionService {
   /** WAITING_ORDER 상태였다가 주문 시 ACTIVE 상태로 변경 */
   private setSessionActivate(
     tableSession: TableSession,
+    updateSessionDto: UpdateSessionFromCreateOrder,
   ): Prisma.TableSessionUpdateArgs {
     return {
       where: { sessionToken: tableSession.sessionToken },
       data: {
-        status: TableSessionStatus.ACTIVE,
+        ...updateSessionDto,
         expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2시간 후 만료
       },
       omit: this.sanitizeOmit,

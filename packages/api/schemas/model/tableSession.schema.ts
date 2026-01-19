@@ -19,6 +19,10 @@ export const updateDeactivateSchema = z
 export const updateActivateSchema = z
   .object({
     status: z.literal(TableSessionStatus.ACTIVE),
+    totalAmount: z
+      .number()
+      .min(0, "총 가격은 0원 이상이어야 합니다.")
+      .optional(),
   })
   .strict();
 

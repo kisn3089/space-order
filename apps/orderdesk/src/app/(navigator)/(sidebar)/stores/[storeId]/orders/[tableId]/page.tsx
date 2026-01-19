@@ -8,7 +8,7 @@ import { Suspense } from "react";
 export default function TableOrderDetailPage({
   params,
 }: {
-  params?: { storeId: string; tableId: string };
+  params: { storeId: string; tableId: string };
 }) {
   return (
     <div className="overflow-hidden rounded-md border w-full h-full flex flex-col justify-between shadow-sm">

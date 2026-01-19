@@ -1,6 +1,6 @@
 import React from "react";
-import TableOrderDetail from "./[tableId]/page";
+import EmptyOrderDetail from "./components/table-order-detail/EmptyOrderDetail";
 
 export default function OrdersPage() {
-  return <TableOrderDetail />;
+  return <EmptyOrderDetail />;
 }

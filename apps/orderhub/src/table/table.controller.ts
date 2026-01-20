@@ -26,7 +26,7 @@ import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type {
   ExtendedResponseTable,
   ResponseTable,
-  TableAndStoreOwnerId,
+  Table,
 } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
 import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
@@ -101,7 +101,7 @@ export class TableController {
   @UseInterceptors(ClassSerializerInterceptor)
   async getTableById(
     /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
-    @CachedTableByGuard() cachedTable: TableAndStoreOwnerId,
+    @CachedTableByGuard() cachedTable: Table,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Query() query?: TableQueryParams,

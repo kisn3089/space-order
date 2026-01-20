@@ -6,13 +6,13 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { Owner, TableAndStoreOwnerId } from '@spaceorder/db';
+import { Owner, Table } from '@spaceorder/db';
 import { StoreService } from 'src/store/store.service';
 import { TableService } from 'src/table/table.service';
 
 type RequestWithClient = Request & {
   user: Owner;
-  table: TableAndStoreOwnerId | null;
+  table: Table | null;
 };
 /**
  * @access CachedTableByGuard
@@ -32,13 +32,13 @@ export class TablePermission implements CanActivate {
 
     if (tableId) {
       const findTable = await this.tableService.getTableById({
-        where: { publicId: tableId, store: { publicId: storeId } },
-        include: { store: { select: { ownerId: true } } },
+        where: {
+          publicId: tableId,
+          store: { publicId: storeId, ownerId: client.id },
+        },
       });
-      if (findTable.store.ownerId === client.id) {
-        request.table = findTable;
-        return true;
-      }
+
+      request.table = findTable;
     } else {
       const findStore = await this.storeService.getStoreById(storeId);
       if (findStore.ownerId === client.id) {

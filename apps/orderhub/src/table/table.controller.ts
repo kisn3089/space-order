@@ -112,14 +112,21 @@ export class TableController {
       return new TableResponseDto(cachedTable);
     }
 
-    const { include } = this.queryParamsBuilder.build({
+    const { filter, include } = this.queryParamsBuilder.build({
       query,
       includeRecord: SESSION_INCLUDE_RECORD,
+      filterRecord: TABLE_FILTER_RECORD,
     });
+
+    const includeSession =
+      query?.filter !== 'activated-table'
+        ? { tableSessions: { ...include, ...filter } }
+        : {};
 
     return await this.tableService.getTableUnique({
       where: { publicId: tableId, store: { publicId: storeId } },
-      ...include,
+      include: includeSession,
+      omit: TABLE_OMIT,
     });
   }
 

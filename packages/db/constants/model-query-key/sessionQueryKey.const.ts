@@ -8,8 +8,8 @@ export const SESSION_QUERY_FILTER_KEYS = {
   ACTIVATED_TABLE,
 } as const;
 
-const ORDERS = "orders" as const;
-const ORDER_ITEMS = "order-items" as const;
+export const ORDERS = "orders" as const;
+export const ORDER_ITEMS = "order-items" as const;
 
 export const SESSION_QUERY_INCLUDE_KEYS = {
   ORDERS,

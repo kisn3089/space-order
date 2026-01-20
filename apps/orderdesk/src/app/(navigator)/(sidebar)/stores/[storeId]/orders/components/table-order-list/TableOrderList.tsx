@@ -36,10 +36,6 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
   const tableSession = tableSessions ? tableSessions[0] : null;
 
-  const findPendingStatusInOrders = tableSession?.orders?.find(
-    (order) => order.status === OrderStatus.PENDING
-  );
-
   const acceptEveryPendingOrders = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
@@ -52,7 +48,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
   };
 
   const { push } = useRouter();
-  const tableClickEvnet = () => {
+  const tableClickEvent = () => {
     push(`/stores/${storeId}/orders/${tableId}`);
   };
 
@@ -60,10 +56,14 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
   const selectableStyle = isActiveTable ? "" : "opacity-20 cursor-not-allowed";
   const sessionActiveStyle = tableSession ? "hover:bg-accent" : "";
 
+  const findPendingStatusInOrders = tableSession?.orders?.find(
+    (order) => order.status === OrderStatus.PENDING
+  );
+
   return (
     <Card
       className={`w-full min-h-[200px] flex flex-col cursor-pointer ${sessionActiveStyle} ${selectableStyle} max-h-[300px]`}
-      onClick={() => (isActiveTable ? tableClickEvnet() : null)}
+      onClick={() => (isActiveTable ? tableClickEvent() : null)}
     >
       <CardHeader className="flex flex-row justify-between gap-1 p-2">
         <CardTitle>{tableNumber}</CardTitle>

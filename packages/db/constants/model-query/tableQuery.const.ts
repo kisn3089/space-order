@@ -1,6 +1,8 @@
-const ALIVE_SESSION = "alive-session" as const;
-const ENDED_SESSION = "ended-session" as const;
-const ACTIVATED_TABLE = "activated-table" as const;
+import {
+  ACTIVATED_TABLE,
+  ALIVE_SESSION,
+  ENDED_SESSION,
+} from "./tableSessionQuery.const";
 
 export const TABLE_QUERY_FILTER_CONST = {
   ALIVE_SESSION,

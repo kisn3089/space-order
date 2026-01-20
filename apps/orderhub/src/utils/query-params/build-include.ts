@@ -11,7 +11,7 @@ export interface IncludeOptions<
       }
     | undefined;
 
-  includeKeyRecord: IncludeRecord;
+  includeKeyRecord?: IncludeRecord;
   filterRecord: FilterRecord;
 }
 
@@ -29,7 +29,16 @@ export class BuildIncludeService {
         return { filter: undefined, include: undefined };
       }
 
+      console.log('just filter');
+
       return { filter: filterRecord[filter](), include: undefined };
+    }
+
+    if (!includeKeyRecord) {
+      return {
+        filter: filter ? filterRecord[filter]() : undefined,
+        include: undefined,
+      };
     }
 
     const findIncludeObject = includeKeyRecord[include];

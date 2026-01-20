@@ -74,10 +74,10 @@ export const columns: ColumnDef<ResponseOrderItem>[] = [
     },
   },
   {
-    accessorKey: "price",
+    accessorKey: "totalPrice",
     header: () => <div className="text-right w-full">가격</div>,
     cell: ({ row, table }) => {
-      const amount = parseFloat(row.getValue("price"));
+      const amount = parseFloat(row.getValue("totalPrice"));
       const formatted = new Intl.NumberFormat("ko-KR", {
         currency: "KRW",
       }).format(amount);
@@ -86,15 +86,15 @@ export const columns: ColumnDef<ResponseOrderItem>[] = [
       const meta = table.options.meta as {
         onRemoveItem?: {
           remove: (itemId: string) => void;
-          setSelectedRow: (selection: Record<string, boolean>) => void;
         };
+        setSelectedRow: (selection: Record<string, boolean>) => void;
       };
 
       const removeMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         meta?.onRemoveItem?.remove?.(row.original.publicId);
         // 삭제 후 선택 상태 초기화
-        meta?.onRemoveItem?.setSelectedRow({});
+        meta?.setSelectedRow({});
       };
 
       return (

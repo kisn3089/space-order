@@ -6,6 +6,7 @@ import {
   Order,
   ResponseTableSession,
   SessionWithTable,
+  OrderItem,
 } from '@spaceorder/db';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -261,15 +262,18 @@ export class TableSessionService {
         );
       }
 
-      const totalAmount = sumFromObjects<Order>(
-        sessionOrders,
-        (order) => order.totalPrice,
+      const flatMappedOrderItems = sessionOrders.flatMap(
+        (order) => order.orderItems,
+      );
+
+      const totalAmount = sumFromObjects<OrderItem>(
+        flatMappedOrderItems,
+        (orderItems) => orderItems.price * orderItems.quantity,
       );
 
       return await tx.tableSession.update({
         where: { sessionToken: tableSession.sessionToken },
         data: {
-          totalAmount: totalAmount,
           paidAmount: totalAmount, // 전액 결제 가정
           status: TableSessionStatus.CLOSED,
           closedAt: new Date(),

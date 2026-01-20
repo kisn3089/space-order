@@ -13,7 +13,15 @@ export default function EmptyOrderDetail() {
         </Button>
       }
     >
-      <div>임시</div>
+      <EmptyOrder />
     </TableOrderDetailLayout>
+  );
+}
+
+function EmptyOrder() {
+  return (
+    <div className="grid place-content-center h-full">
+      <div className="font-semibold text-lg">선택된 테이블이 없습니다.</div>
+    </div>
   );
 }

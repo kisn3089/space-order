@@ -20,7 +20,10 @@ import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
 import { OrderService } from 'src/order/order.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { OwnerOrderPermission } from 'src/utils/guards/model-permissions/owner-order-permission.guard';
+import {
+  OwnerOrderPermission,
+  OwnerOrderWritePermission,
+} from 'src/utils/guards/model-permissions/owner-order-permission.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 
 @Controller('owner/stores/:storeId/tables/:tableId/orders')
@@ -79,7 +82,7 @@ export class OwnerOrderController {
   @Patch(':orderId')
   @UseGuards(
     ZodValidation({ params: orderParamsSchema, body: updateOrderSchema }),
-    OwnerOrderPermission,
+    OwnerOrderWritePermission,
   )
   async updateOrder(
     @Client() client: Owner,
@@ -103,7 +106,10 @@ export class OwnerOrderController {
   }
 
   @Delete(':orderId')
-  @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
+  @UseGuards(
+    ZodValidation({ params: orderParamsSchema }),
+    OwnerOrderWritePermission,
+  )
   async cancelOrder(
     @Client() client: Owner,
     @Param('storeId') storeId: string,

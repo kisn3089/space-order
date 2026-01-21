@@ -32,7 +32,7 @@ import { TablePermission } from 'src/utils/guards/model-permissions/table-permis
 import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
 import { TABLE_OMIT, TABLE_FILTER_RECORD } from './table-query.const';
-import { BuildIncludeService } from 'src/utils/query-params/build-include';
+import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { SESSION_INCLUDE_KEY_RECORD } from 'src/table-session/table-session-query.const';
 
 type TableQueryParams = {
@@ -47,7 +47,7 @@ export class UpdateTableDto extends createZodDto(updateTableSchema) {}
 export class TableController {
   constructor(
     private readonly tableService: TableService,
-    private readonly buildInclude: BuildIncludeService,
+    private readonly queryParamsBuilder: QueryParamsBuilderService,
   ) {}
 
   @Post()
@@ -74,9 +74,9 @@ export class TableController {
     @Param('storeId') storeId: string,
     @Query() query?: TableQueryParams,
   ): Promise<ExtendedResponseTable[]> {
-    const { filter, include } = this.buildInclude.build({
+    const { filter, include } = this.queryParamsBuilder.build({
       query,
-      includeKeyRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_KEY_RECORD,
       filterRecord: TABLE_FILTER_RECORD,
     });
 
@@ -112,9 +112,9 @@ export class TableController {
       return new TableResponseDto(cachedTable);
     }
 
-    const { include } = this.buildInclude.build({
+    const { include } = this.queryParamsBuilder.build({
       query,
-      includeKeyRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_KEY_RECORD,
     });
 
     return await this.tableService.getTableUnique({

@@ -23,11 +23,7 @@ import {
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { responseCookie } from 'src/utils/cookies';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
-import {
-  TableSessionStatus,
-  type ResponseTableSession,
-  type TableSession,
-} from '@spaceorder/db';
+import { type ResponseTableSession, type TableSession } from '@spaceorder/db';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';
@@ -38,7 +34,7 @@ import {
   SESSION_FILTER_RECORD,
   SESSION_INCLUDE_KEY_RECORD,
 } from './table-session-query.const';
-import { BuildIncludeService } from 'src/utils/query-params/build-include';
+import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionSchema>;
 type SessionQueryParams = {
@@ -51,7 +47,7 @@ type SessionQueryParams = {
 export class TableSessionController {
   constructor(
     private readonly tableSessionService: TableSessionService,
-    private readonly buildInclude: BuildIncludeService,
+    private readonly queryParamsBuilder: QueryParamsBuilderService,
   ) {}
 
   @Post()
@@ -88,9 +84,9 @@ export class TableSessionController {
     @Param('tableId') tablePublicId: string,
     @Query() query?: SessionQueryParams,
   ): Promise<ResponseTableSession[]> {
-    const { include, filter } = this.buildInclude.build({
+    const { include, filter } = this.queryParamsBuilder.build({
       query,
-      includeKeyRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_KEY_RECORD,
       filterRecord: SESSION_FILTER_RECORD,
     });
 
@@ -112,9 +108,9 @@ export class TableSessionController {
     @Param('sessionId') sessionId: string,
     @Query() query?: SessionQueryParams,
   ): Promise<ResponseTableSession> {
-    const { include } = this.buildInclude.build({
+    const { include } = this.queryParamsBuilder.build({
       query,
-      includeKeyRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_KEY_RECORD,
       filterRecord: SESSION_FILTER_RECORD,
     });
 

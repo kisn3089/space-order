@@ -24,7 +24,7 @@ import {
   partialUpdateOrderItemSchema,
 } from '@spaceorder/api/schemas/model/orderItem.schema';
 import { OrderItemPermission } from 'src/utils/guards/model-permissions/order-item-permission.guard';
-import { BuildIncludeService } from 'src/utils/query-params/build-include';
+import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { ORDER_ITEM_FILTER_RECORD } from './order-item-query.const';
 
 export class CreateOrderItemDto extends createZodDto(createOrderItemSchema) {}
@@ -41,7 +41,7 @@ type OrderItemQueryParams = {
 export class OrderItemController {
   constructor(
     private readonly orderItemService: OrderItemService,
-    private readonly buildInclude: BuildIncludeService,
+    private readonly queryParamsBuilder: QueryParamsBuilderService,
   ) {}
 
   @Post()
@@ -64,7 +64,7 @@ export class OrderItemController {
     @Param('orderId') orderPublicId: string,
     @Query() query?: OrderItemQueryParams,
   ): Promise<ResponseOrderItem[]> {
-    const { filter } = this.buildInclude.build({
+    const { filter } = this.queryParamsBuilder.build({
       query,
       filterRecord: ORDER_ITEM_FILTER_RECORD,
     });

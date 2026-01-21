@@ -19,6 +19,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    return await this.ownerService.getOwnerUnique(payload.sub);
+    return await this.ownerService.getOwnerUnique({
+      where: { publicId: payload.sub },
+    });
   }
 }

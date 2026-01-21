@@ -83,7 +83,7 @@ export class OwnerOrderPermission implements CanActivate {
     params: { storeId: string; tableId: string },
     client: Owner,
   ): Promise<Table> {
-    return await this.tableService.getTableById({
+    return await this.tableService.getTableUnique({
       where: {
         publicId: params.tableId,
         store: { publicId: params.storeId, ownerId: client.id },

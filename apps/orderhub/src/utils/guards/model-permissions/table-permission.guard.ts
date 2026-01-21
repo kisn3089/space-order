@@ -1,22 +1,19 @@
 import { Request } from 'express';
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { Owner, Table } from '@spaceorder/db';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Owner, Store, Table } from '@spaceorder/db';
 import { StoreService } from 'src/store/store.service';
 import { TableService } from 'src/table/table.service';
 
 type RequestWithClient = Request & {
   user: Owner;
   table: Table | null;
+  store: Store | null;
 };
 /**
  * @access CachedTableByGuard
  * @description Guard to check permission to access the table and cache the result.
+ * @access CachedStoreByGuard
+ * @description Guard to check permission to access the store and cache the result.
  */
 @Injectable()
 export class TablePermission implements CanActivate {
@@ -31,7 +28,7 @@ export class TablePermission implements CanActivate {
     const { storeId, tableId } = request.params;
 
     if (tableId) {
-      const findTable = await this.tableService.getTableById({
+      const findTable = await this.tableService.getTableUnique({
         where: {
           publicId: tableId,
           store: { publicId: storeId, ownerId: client.id },
@@ -39,14 +36,14 @@ export class TablePermission implements CanActivate {
       });
 
       request.table = findTable;
+      return true;
     } else {
       const findStore = await this.storeService.getStoreUnique({
-        where: { publicId: storeId },
+        where: { publicId: storeId, ownerId: client.id },
       });
-      if (findStore.ownerId === client.id) {
-        return true;
-      }
+
+      request.store = findStore;
+      return true;
     }
-    throw new ForbiddenException(exceptionContentsIs('FORBIDDEN'));
   }
 }

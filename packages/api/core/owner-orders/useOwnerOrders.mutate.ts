@@ -7,12 +7,12 @@ import {
   UpdateOwnerOrderPayload,
 } from "./httpOwnerOrders";
 import {
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
+  SESSION_QUERY_FILTER_CONST,
+  SESSION_QUERY_INCLUDE_CONST,
 } from "@spaceorder/db";
 
-const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
+const { ALIVE_SESSION } = SESSION_QUERY_FILTER_CONST;
+const { ORDER_ITEMS } = SESSION_QUERY_INCLUDE_CONST;
 
 type CreateOwnerOrderParams = {
   params: FetchOrderParams;

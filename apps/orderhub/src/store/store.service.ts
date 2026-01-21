@@ -3,14 +3,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   Prisma,
   ResponseStoreWithTables,
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
+  SESSION_QUERY_FILTER_CONST,
+  SESSION_QUERY_INCLUDE_CONST,
   type Owner,
 } from '@spaceorder/db';
-import {
-  TABLE_INCLUDE_KEY_RECORD,
-  TABLE_SESSION_FILTER_RECORD,
-} from 'src/table/table-query.const';
+import { TABLE_FILTER_RECORD } from 'src/table/table-query.const';
+import { SESSION_INCLUDE_KEY_RECORD } from 'src/table-session/table-session-query.const';
 
 @Injectable()
 export class StoreService {
@@ -38,13 +36,13 @@ export class StoreService {
           omit: { id: true, storeId: true },
           include: {
             tableSessions: {
-              ...TABLE_SESSION_FILTER_RECORD[
-                TABLE_QUERY_FILTER_CONST.ALIVE_SESSION
+              ...TABLE_FILTER_RECORD[
+                SESSION_QUERY_FILTER_CONST.ALIVE_SESSION
               ](),
               include:
-                TABLE_INCLUDE_KEY_RECORD[TABLE_QUERY_INCLUDE_CONST.ORDER_ITEMS][
-                  'tableSessions'
-                ]['include'],
+                SESSION_INCLUDE_KEY_RECORD[
+                  SESSION_QUERY_INCLUDE_CONST.ORDER_ITEMS
+                ]['tableSessions']['include'],
             },
           },
         },

@@ -1,6 +1,7 @@
 import z from "zod";
 import { storeIdParamsSchema } from "./store.schema";
 import { commonSchema } from "../common";
+import { sessionIncludeQuerySchema } from "./tableSession.schema";
 
 export const createTableSchema = z
   .object({
@@ -29,36 +30,32 @@ export const updateTableSchema = createTableSchema.partial().extend({
 export type UpdateTable = z.infer<typeof updateTableSchema>;
 
 export const tableParamsSchema = z
-  .object({
-    tableId: commonSchema.cuid2("Table"),
-  })
+  .object({ tableId: commonSchema.cuid2("Table") })
   .strict();
 
 export const mergedStoreAndTableParamsSchema =
   storeIdParamsSchema.merge(tableParamsSchema);
 
-export const tableListQuerySchema = z.discriminatedUnion("include", [
-  z.object({
-    include: z.literal("orders"),
-    filter: z.enum(["alive-session", "ended-session"]).optional(),
-  }),
-  z.object({
-    include: z.literal("order-items"),
-    filter: z.enum(["alive-session", "ended-session"]).optional(),
-  }),
-  z.object({
-    include: z.undefined(),
-    filter: z.literal("activated-table").optional(),
-  }),
+/** -------- Query --------- */
+// include가 있으면 filter는 session filter만 가능
+const tableWithIncludeQuerySchema = z.object({
+  include: sessionIncludeQuerySchema.include.optional(),
+  filter: sessionIncludeQuerySchema.filter.optional(),
+});
+
+// include가 없으면 filter=activated-table 가능
+const tableWithoutIncludeQuerySchema = z.object({
+  include: z.undefined(),
+  filter: z.literal("activated-table").optional(),
+});
+
+export const tableListQuerySchema = z.union([
+  tableWithIncludeQuerySchema,
+  tableWithoutIncludeQuerySchema,
 ]);
 
-export const tableQuerySchema = z.discriminatedUnion("include", [
-  z.object({
-    include: z.literal("orders"),
-    filter: z.enum(["alive-session", "ended-session"]).optional(),
-  }),
-  z.object({
-    include: z.literal("order-items"),
-    filter: z.enum(["alive-session", "ended-session"]).optional(),
-  }),
-]);
+export const tableUniqueQuerySchema = z
+  .object({
+    include: sessionIncludeQuerySchema.include.optional(),
+  })
+  .optional();

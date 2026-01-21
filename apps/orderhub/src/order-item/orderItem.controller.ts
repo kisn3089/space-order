@@ -20,6 +20,7 @@ import { ResponseOrderItem } from '@spaceorder/db';
 import { createZodDto } from 'nestjs-zod';
 import {
   createOrderItemSchema,
+  orderItemQuerySchema,
   partialUpdateOrderItemSchema,
 } from '@spaceorder/api/schemas/model/orderItem.schema';
 import { OrderItemPermission } from 'src/utils/guards/model-permissions/order-item-permission.guard';
@@ -56,30 +57,33 @@ export class OrderItemController {
   }
 
   @Get()
-  @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
+  @UseGuards(
+    ZodValidation({ params: orderIdParamsSchema, query: orderItemQuerySchema }),
+  )
   async getList(
     @Param('orderId') orderPublicId: string,
-  ): Promise<ResponseOrderItem[]> {
-    return await this.orderItemService.getOrderItemList({
-      where: { order: { publicId: orderPublicId } },
-      omit: this.orderItemService.orderItemOmit,
-    });
-  }
-  @Get(':orderItemId')
-  @UseGuards(ZodValidation({ params: orderItemParamsSchema }))
-  async getUnique(
-    @Param('orderId') orderPublicId: string,
-    @Param('orderItemId') orderItemPublicId: string,
     @Query() query?: OrderItemQueryParams,
-  ): Promise<ResponseOrderItem> {
+  ): Promise<ResponseOrderItem[]> {
     const { filter } = this.buildInclude.build({
       query,
       filterRecord: ORDER_ITEM_FILTER_RECORD,
     });
 
+    return await this.orderItemService.getOrderItemList({
+      where: { order: { publicId: orderPublicId, ...filter } },
+      omit: this.orderItemService.orderItemOmit,
+    });
+  }
+
+  @Get(':orderItemId')
+  @UseGuards(ZodValidation({ params: orderItemParamsSchema }))
+  async getUnique(
+    @Param('orderId') orderPublicId: string,
+    @Param('orderItemId') orderItemPublicId: string,
+  ): Promise<ResponseOrderItem> {
     return await this.orderItemService.getOrderItemUnique({
       where: {
-        order: { publicId: orderPublicId, ...filter },
+        order: { publicId: orderPublicId },
         publicId: orderItemPublicId,
       },
       omit: this.orderItemService.orderItemOmit,

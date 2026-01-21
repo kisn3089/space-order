@@ -3,7 +3,7 @@ import {
   TableSessionStatus,
 } from '@spaceorder/db';
 
-const createAliveSessionFilter = () => ({
+const createOrderItemAliveSessionFilter = () => ({
   tableSession: {
     status: TableSessionStatus.ACTIVE,
     expiresAt: { gt: new Date() },
@@ -11,5 +11,6 @@ const createAliveSessionFilter = () => ({
 });
 
 export const ORDER_ITEM_FILTER_RECORD = {
-  [ORDER_ITEM_QUERY_FILTER_CONST.ALIVE_SESSION]: createAliveSessionFilter,
+  [ORDER_ITEM_QUERY_FILTER_CONST.ALIVE_SESSION]:
+    createOrderItemAliveSessionFilter,
 } as const;

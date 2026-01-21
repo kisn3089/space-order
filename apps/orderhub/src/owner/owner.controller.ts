@@ -37,24 +37,27 @@ export class OwnerController {
 
   @Post()
   @UseGuards(ZodValidation({ body: createOwnerSchema }))
-  async createOwner(
-    @Body() createOwnerDto: CreateOwnerDto,
-  ): Promise<ResponseOwner> {
+  async create(@Body() createOwnerDto: CreateOwnerDto): Promise<ResponseOwner> {
     return await this.ownerService.createOwner(createOwnerDto);
   }
 
   @Get()
-  async getOwnerList(): Promise<ResponseOwner[]> {
-    return await this.ownerService.getOwnerList();
+  async getList(): Promise<ResponseOwner[]> {
+    return await this.ownerService.getOwnerList({
+      omit: this.ownerService.ownerOmit,
+    });
   }
 
   @Get(':ownerId')
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getOwnerById(
+  async getUnique(
     @Param('ownerId') ownerId: string,
   ): Promise<OwnerResponseDto> {
-    const findOwner = await this.ownerService.getOwnerById(ownerId);
+    const findOwner = await this.ownerService.getOwnerUnique({
+      where: { publicId: ownerId },
+    });
+
     return new OwnerResponseDto(findOwner);
   }
 
@@ -66,16 +69,16 @@ export class OwnerController {
     }),
     OwnerPermission,
   )
-  async updateOwner(
+  async partialUpdate(
     @Param('ownerId') ownerId: string,
     @Body() updateOwnerDto: UpdateOwnerDto,
   ): Promise<ResponseOwner> {
-    return await this.ownerService.updateOwner(ownerId, updateOwnerDto);
+    return await this.ownerService.partialUpdateOwner(ownerId, updateOwnerDto);
   }
 
   @Delete(':ownerId')
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
-  async deleteOwner(@Param('ownerId') ownerId: string): Promise<void> {
+  async delete(@Param('ownerId') ownerId: string): Promise<void> {
     await this.ownerService.deleteOwner(ownerId);
   }
 }

@@ -40,7 +40,9 @@ export class TablePermission implements CanActivate {
 
       request.table = findTable;
     } else {
-      const findStore = await this.storeService.getStoreById(storeId);
+      const findStore = await this.storeService.getStoreUnique({
+        where: { publicId: storeId },
+      });
       if (findStore.ownerId === client.id) {
         return true;
       }

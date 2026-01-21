@@ -68,7 +68,7 @@ export class OwnerOrderPermission implements CanActivate {
     client: Owner,
     type: 'OWNER' | 'WRITE' = 'OWNER',
   ): Promise<ResponseOrderWithItem> {
-    return await this.orderService.getOrderById({
+    return await this.orderService.getOrderUnique({
       type,
       params: {
         storePublicId: params.storeId,

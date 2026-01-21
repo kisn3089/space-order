@@ -41,7 +41,7 @@ export class TableService {
     return await this.prismaService.table.findFirstOrThrow(args);
   }
 
-  async updateTable(
+  async partialUpdateTable(
     tableId: string,
     updateTableDto: UpdateTableDto,
   ): Promise<ResponseTable> {

@@ -45,7 +45,7 @@ export class OrderItemController {
 
   @Post()
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
-  async createOrderItem(
+  async create(
     @Param('orderId') orderPublicId: string,
     @Body() createOrderItemDto: CreateOrderItemDto,
   ): Promise<ResponseOrderItem> {
@@ -57,7 +57,7 @@ export class OrderItemController {
 
   @Get()
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
-  async getOrderItemList(
+  async getList(
     @Param('orderId') orderPublicId: string,
   ): Promise<ResponseOrderItem[]> {
     return await this.orderItemService.getOrderItemList({
@@ -67,7 +67,7 @@ export class OrderItemController {
   }
   @Get(':orderItemId')
   @UseGuards(ZodValidation({ params: orderItemParamsSchema }))
-  async getOrderItemById(
+  async getUnique(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
     @Query() query?: OrderItemQueryParams,
@@ -77,7 +77,7 @@ export class OrderItemController {
       filterRecord: ORDER_ITEM_FILTER_RECORD,
     });
 
-    return await this.orderItemService.getOrderItemById({
+    return await this.orderItemService.getOrderItemUnique({
       where: {
         order: { publicId: orderPublicId, ...filter },
         publicId: orderItemPublicId,
@@ -94,7 +94,7 @@ export class OrderItemController {
     }),
     OrderItemPermission,
   )
-  async updateOrderItem(
+  async partialUpdate(
     @Param('orderItemId') orderItemPublicId: string,
     @Body() updateOrderItemDto: UpdateOrderItemDto,
   ): Promise<ResponseOrderItem> {
@@ -109,9 +109,7 @@ export class OrderItemController {
     ZodValidation({ params: orderItemParamsSchema }),
     OrderItemPermission,
   )
-  async deleteOrderItem(
-    @Param('orderItemId') orderItemPublicId: string,
-  ): Promise<void> {
+  async delete(@Param('orderItemId') orderItemPublicId: string): Promise<void> {
     return await this.orderItemService.deleteOrderItem(orderItemPublicId);
   }
 }

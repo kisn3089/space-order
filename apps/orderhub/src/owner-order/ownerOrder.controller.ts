@@ -39,7 +39,7 @@ export class OwnerOrderController {
     }),
     OwnerOrderPermission,
   )
-  async createOrder(
+  async create(
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<ResponseOrderWithItem> {
@@ -56,7 +56,7 @@ export class OwnerOrderController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     OwnerOrderPermission,
   )
-  async getOrderList(
+  async getList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
@@ -73,7 +73,7 @@ export class OwnerOrderController {
 
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
-  getOrderById(
+  getUnique(
     @CachedOrderByGuard() cachedOrder: ResponseOrderWithItem,
   ): ResponseOrderWithItem {
     return cachedOrder;
@@ -84,14 +84,14 @@ export class OwnerOrderController {
     ZodValidation({ params: orderParamsSchema, body: updateOrderSchema }),
     OwnerOrderWritePermission,
   )
-  async updateOrder(
+  async partialUpdate(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {
-    return await this.orderService.updateOrder(
+    return await this.orderService.partialUpdateOrder(
       {
         type: 'OWNER',
         params: {
@@ -110,7 +110,7 @@ export class OwnerOrderController {
     ZodValidation({ params: orderParamsSchema }),
     OwnerOrderWritePermission,
   )
-  async cancelOrder(
+  async cancel(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,

@@ -10,18 +10,23 @@ export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
   @Get()
-  async getStoreList(@Client() client: Owner) {
-    return await this.storeService.getStoreList(client);
+  async getList(@Client() client: Owner) {
+    return await this.storeService.getStoreList({
+      where: { ownerId: client.id },
+      omit: this.storeService.storeOmit,
+    });
+  }
+
+  @Get(':storeId')
+  async getUnique(@Param('storeId') storeId: string) {
+    return await this.storeService.getStoreUnique({
+      where: { publicId: storeId },
+    });
   }
 
   /** 추후 지점이 2개 이상인 경우 로컬 스토리지를 통해 활성화된 storeId 값으로 변경한다. */
   @Get('alive-orders')
   async getStoreWithOrderList(@Client() client: Owner) {
     return await this.storeService.getStoreWithOrderList(client);
-  }
-
-  @Get(':storeId')
-  async getStoreById(@Param('storeId') storeId: string) {
-    return await this.storeService.getStoreById(storeId);
   }
 }

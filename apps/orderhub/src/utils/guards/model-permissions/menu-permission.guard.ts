@@ -6,8 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { Menu, Owner, Store } from '@spaceorder/db';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Menu, Owner } from '@spaceorder/db';
 import { StoreService } from 'src/store/store.service';
 import { MenuService } from 'src/menu/menu.service';
 
@@ -32,7 +31,7 @@ export class MenuPermission implements CanActivate {
     const { storeId, menuId } = request.params;
 
     if (menuId) {
-      const findMenuWithOwnerId = await this.menuService.getMenuById({
+      const findMenuWithOwnerId = await this.menuService.getMenuUnique({
         where: { publicId: menuId, store: { publicId: storeId } },
         include: { store: { select: { ownerId: true } } },
       });
@@ -41,7 +40,9 @@ export class MenuPermission implements CanActivate {
         return true;
       }
     } else {
-      const findStore = await this.storeService.getStoreById(storeId);
+      const findStore = await this.storeService.getStoreUnique({
+        where: { publicId: storeId },
+      });
       if (findStore.ownerId === client.id) {
         return true;
       }

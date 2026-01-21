@@ -27,7 +27,7 @@ export class MenuService {
     return await this.prismaService.menu.findMany(args);
   }
 
-  async getMenuById<T extends Prisma.MenuFindFirstOrThrowArgs>(
+  async getMenuUnique<T extends Prisma.MenuFindFirstOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.MenuFindFirstOrThrowArgs>,
   ): Promise<Prisma.MenuGetPayload<T>> {
     return await this.prismaService.menu.findFirstOrThrow(args);

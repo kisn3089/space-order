@@ -61,7 +61,7 @@ export class TableController {
     }),
     TablePermission,
   )
-  async createTable(
+  async create(
     @Param('storeId') storeId: string,
     @Body() createTableDto: CreateTableDto,
   ): Promise<ResponseTable> {
@@ -73,7 +73,7 @@ export class TableController {
     ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema }),
     TablePermission,
   )
-  async getTableList(
+  async getList(
     @Param('storeId') storeId: string,
     @Query() query?: TableQueryParams,
   ): Promise<ExtendedResponseTable[]> {
@@ -99,7 +99,7 @@ export class TableController {
     TablePermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getTableById(
+  async getUnique(
     /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
     @CachedTableByGuard() cachedTable: Table,
     @Param('storeId') storeId: string,
@@ -131,11 +131,11 @@ export class TableController {
     }),
     TablePermission,
   )
-  async updateTable(
+  async partialUpdate(
     @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
   ): Promise<ResponseTable> {
-    return await this.tableService.updateTable(tableId, updateTableDto);
+    return await this.tableService.partialUpdateTable(tableId, updateTableDto);
   }
 
   @Delete(':tableId')
@@ -143,7 +143,7 @@ export class TableController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     TablePermission,
   )
-  async deleteTable(@Param('tableId') tableId: string): Promise<void> {
+  async delete(@Param('tableId') tableId: string): Promise<void> {
     await this.tableService.deleteTable(tableId);
   }
 }

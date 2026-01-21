@@ -72,7 +72,7 @@ export class OrderItemService {
     return await this.prismaService.orderItem.findMany(args);
   }
 
-  async getOrderItemById<T extends Prisma.OrderItemFindFirstOrThrowArgs>(
+  async getOrderItemUnique<T extends Prisma.OrderItemFindFirstOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.OrderItemFindFirstOrThrowArgs>,
   ): Promise<Prisma.OrderItemGetPayload<T>> {
     return await this.prismaService.orderItem.findFirstOrThrow(args);

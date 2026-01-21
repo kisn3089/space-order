@@ -29,8 +29,6 @@ export class BuildIncludeService {
         return { filter: undefined, include: undefined };
       }
 
-      console.log('just filter');
-
       return { filter: filterRecord[filter](), include: undefined };
     }
 

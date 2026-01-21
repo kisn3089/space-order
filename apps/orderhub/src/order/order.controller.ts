@@ -36,7 +36,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   @Post()
   @UseGuards(ZodValidation({ body: createOrderSchema }))
-  async createOrder(
+  async create(
     @Session() tableSession: SessionWithTable,
     @Body() createOrderDto: CreateOrderDto,
     @Res({ passthrough: true }) response: Response,
@@ -55,7 +55,7 @@ export class OrderController {
   }
 
   @Get()
-  async getOrderList(
+  async getList(
     @Session() tableSession: SessionWithTable,
   ): Promise<ResponseOrderWithItem[]> {
     return await this.orderService.getOrderList({
@@ -66,11 +66,11 @@ export class OrderController {
 
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
-  async getOrderById(
+  async getUnique(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
   ): Promise<ResponseOrderWithItem> {
-    return await this.orderService.getOrderById({
+    return await this.orderService.getOrderUnique({
       type: 'CUSTOMER',
       params: { tableSession },
       orderPublicId: orderId,
@@ -81,12 +81,12 @@ export class OrderController {
   @UseGuards(
     ZodValidation({ params: orderIdParamsSchema, body: updateOrderSchema }),
   )
-  async updateOrder(
+  async partialUpdate(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {
-    return await this.orderService.updateOrder(
+    return await this.orderService.partialUpdateOrder(
       { type: 'CUSTOMER', params: { tableSession }, orderPublicId: orderId },
       updateOrderDto,
     );
@@ -94,7 +94,7 @@ export class OrderController {
 
   @Delete(':orderId')
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
-  async cancelOrder(
+  async cancel(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
   ): Promise<ResponseOrderWithItem> {

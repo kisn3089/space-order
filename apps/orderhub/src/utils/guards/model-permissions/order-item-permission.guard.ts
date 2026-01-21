@@ -26,7 +26,7 @@ export class OrderItemPermission implements CanActivate {
 
     const client = request.user;
     const findOrderItemFromAliveSession =
-      await this.orderItemService.getOrderItemById({
+      await this.orderItemService.getOrderItemUnique({
         where: {
           order: {
             publicId: orderId,

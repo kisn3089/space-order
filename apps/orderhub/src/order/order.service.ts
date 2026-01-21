@@ -225,7 +225,7 @@ export class OrderService {
     }
   }
 
-  async getOrderById(
+  async getOrderUnique(
     principal: ParamsPrincipal & PublicOrderId,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.order.findFirstOrThrow({
@@ -237,7 +237,7 @@ export class OrderService {
     });
   }
 
-  async updateOrder(
+  async partialUpdateOrder(
     principal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {

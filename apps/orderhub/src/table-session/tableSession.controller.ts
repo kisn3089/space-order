@@ -84,7 +84,7 @@ export class TableSessionController {
 
   @Get()
   /** TODO: 전체 세션 정보를 볼 필요가 있을까? (개발 이후에 삭제 고려) */
-  async getSessionList(
+  async getList(
     @Param('tableId') tablePublicId: string,
   ): Promise<ResponseTableSession[]> {
     return await this.tableSessionService.getSessionList(tablePublicId);

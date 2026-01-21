@@ -52,7 +52,10 @@ export class MenuController {
     @Client() client: Owner,
     @Param('storeId') storeId: string,
   ): Promise<ResponseMenu[]> {
-    return await this.menuService.getMenuList(client, storeId);
+    return await this.menuService.getMenuList({
+      where: { store: { publicId: storeId, owner: { id: client.id } } },
+      omit: this.menuService.menuOmit,
+    });
   }
 
   @Get(':menuId')
@@ -61,8 +64,19 @@ export class MenuController {
     MenuPermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  getMenuById(@CachedMenuByGuard() cachedMenu: Menu): MenuResponseDto {
-    return new MenuResponseDto(cachedMenu);
+  async getMenuById(
+    @CachedMenuByGuard() cachedMenu: Menu,
+    @Param('storeId') storeId: string,
+    @Param('menuId') menuId: string,
+  ): Promise<MenuResponseDto | ResponseMenu> {
+    if (cachedMenu) {
+      return new MenuResponseDto(cachedMenu);
+    }
+
+    return await this.menuService.getMenuById({
+      where: { publicId: menuId, store: { publicId: storeId } },
+      omit: this.menuService.menuOmit,
+    });
   }
 
   @Patch(':menuId')
@@ -73,11 +87,11 @@ export class MenuController {
     }),
     MenuPermission,
   )
-  async updateMenu(
+  async partialUpdateMenu(
     @Param('menuId') menuId: string,
     @Body() updateMenuDto: UpdateMenuDto,
   ): Promise<ResponseMenu> {
-    return await this.menuService.updateMenu(menuId, updateMenuDto);
+    return await this.menuService.partialUpdateMenu(menuId, updateMenuDto);
   }
 
   @Delete(':menuId')

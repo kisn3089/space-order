@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Owner, ResponseMenu } from '@spaceorder/db';
+import { Prisma, ResponseMenu } from '@spaceorder/db';
 import { CreateMenuDto, UpdateMenuDto } from './menu.controller';
 
 @Injectable()
 export class MenuService {
   constructor(private readonly prismaService: PrismaService) {}
-  private readonly menuOmit = { id: true, storeId: true };
+  menuOmit = { id: true, storeId: true } as const;
 
   async createMenu(
     storeId: string,
@@ -21,21 +21,19 @@ export class MenuService {
     });
   }
 
-  async getMenuList(client: Owner, storeId: string): Promise<ResponseMenu[]> {
-    return await this.prismaService.menu.findMany({
-      where: { store: { publicId: storeId, owner: { id: client.id } } },
-      omit: this.menuOmit,
-    });
+  async getMenuList<T extends Prisma.MenuFindManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.MenuFindManyArgs>,
+  ): Promise<Prisma.MenuGetPayload<T>[]> {
+    return await this.prismaService.menu.findMany(args);
   }
 
-  async getMenuById(storeId: string, menuId: string): Promise<ResponseMenu> {
-    return await this.prismaService.menu.findFirstOrThrow({
-      where: { publicId: menuId, store: { publicId: storeId } },
-      omit: this.menuOmit,
-    });
+  async getMenuById<T extends Prisma.MenuFindFirstOrThrowArgs>(
+    args: Prisma.SelectSubset<T, Prisma.MenuFindFirstOrThrowArgs>,
+  ): Promise<Prisma.MenuGetPayload<T>> {
+    return await this.prismaService.menu.findFirstOrThrow(args);
   }
 
-  async updateMenu(
+  async partialUpdateMenu(
     menuId: string,
     updateMenuDto: UpdateMenuDto,
   ): Promise<ResponseMenu> {

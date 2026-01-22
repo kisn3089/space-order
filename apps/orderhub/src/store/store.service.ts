@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, ResponseStoreWithTables, type Owner } from '@spaceorder/db';
+import { Prisma, SummarizedOrdersFromStore, type Owner } from '@spaceorder/db';
 import { TABLE_FILTER_RECORD } from 'src/table/table-query.const';
 import {} from 'src/table-session/table-session-query.const';
 
@@ -21,7 +21,7 @@ export class StoreService {
     return await this.prismaService.store.findFirstOrThrow(args);
   }
 
-  async getOrderSummary(client: Owner): Promise<ResponseStoreWithTables> {
+  async getOrderSummary(client: Owner): Promise<SummarizedOrdersFromStore> {
     return await this.prismaService.store.findFirstOrThrow({
       where: { ownerId: client.id },
       orderBy: { createdAt: 'asc' },

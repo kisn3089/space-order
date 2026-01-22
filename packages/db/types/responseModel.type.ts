@@ -8,17 +8,17 @@ import type {
   TableSession,
 } from "@prisma/client";
 
-export type ResponseOwner = Omit<Owner, "id" | "refreshToken" | "password">;
-// type OwnerRole = "owner" | "admin";
-
-export type ResponseTable = Omit<Table, "id" | "storeId">;
-
 /** TODO: query의 include 값에 따라 타입이 동적 할당되도록 유틸 함수 만들자. */
 export type ExtendedResponseTable = ResponseTable & {
   tableSessions?: ResponseTableSession[];
   store?: ResponseStore;
   orders?: Array<ResponseOrder & { orderItems?: ResponseOrderItem[] }>;
 };
+
+export type ResponseOwner = Omit<Owner, "id" | "refreshToken" | "password">;
+// type OwnerRole = "owner" | "admin";
+
+export type ResponseTable = Omit<Table, "id" | "storeId">;
 
 export type ResponseTableSession = Omit<TableSession, "id" | "tableId">;
 
@@ -44,4 +44,27 @@ export type ResponseTableWithSessions = ResponseTable & {
 };
 export type ResponseStoreWithTables = ResponseStore & {
   tables: ResponseTableWithSessions[];
+};
+
+export type SummarizedOrderItem = Pick<
+  ResponseOrderItem,
+  "publicId" | "menuName" | "quantity"
+>;
+export type SummarizedOrderWithItem = Pick<
+  ResponseOrder,
+  "publicId" | "status"
+>;
+export type SummarizedTableSession = Pick<
+  ResponseTableSession,
+  "publicId" | "expiresAt"
+>;
+
+export type SummarizedOrdersFromStore = ResponseStore & {
+  tables: ResponseTable[] & {
+    tableSessions?: SummarizedTableSession[] & {
+      orders: SummarizedOrderWithItem[] & {
+        orderItems: SummarizedOrderItem[];
+      };
+    };
+  };
 };

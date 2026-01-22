@@ -196,7 +196,6 @@ model Order {
   tableId         BigInt     @map("table_id")
   tableSessionId  BigInt     @map("table_session_id")
   status          OrderStatus @default(PENDING)
-  totalPrice      Int         @map("total_price")
   /*
    * 메뉴마다의 요청사항과 별개로 고객이 남기는 요청사항
    * 예) 해장국 덜 맵게 해주세요.
@@ -284,7 +283,6 @@ model TableSession {
   /** 결제 정보
    * 결제를 orderItem 단위로 하는 것을 고려하면 별도의 Payment 모델이 필요하다.
    */
-  totalAmount     Int                @default(0) @map("total_amount")
   paidAmount      Int                @default(0) @map("paid_amount")
 
   createdAt       DateTime           @default(now()) @map("created_at")

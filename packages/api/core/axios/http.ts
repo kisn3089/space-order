@@ -36,8 +36,6 @@ export function setupAuthInterceptor(callbacks: AuthCallbacks) {
 http.interceptors.response.use(
   undefined,
   async (error: AxiosError<AxiosCustomError, AxiosRequestConfig>) => {
-    console.log("[http interceptor] Response error:", error.response?.status);
-
     if (error instanceof AxiosError && error.config) {
       if (error.response?.status === 419 && authCallbacks) {
         try {
@@ -52,7 +50,6 @@ http.interceptors.response.use(
             `Bearer ${newAccessToken.accessToken}`;
           return http(error.config);
         } catch (refreshError) {
-          console.log("[http interceptor] Token refresh failed, signing out");
           authCallbacks?.signOut();
         }
       }
@@ -62,7 +59,6 @@ http.interceptors.response.use(
         !error.config.url?.includes("/token/refresh") &&
         authCallbacks
       ) {
-        console.log("[http interceptor] Forbidden, signing out");
         authCallbacks.signOut();
       }
     }

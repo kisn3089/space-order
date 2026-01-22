@@ -38,7 +38,9 @@ export class TokenService {
     password,
   }: SignInRequest): Promise<OwnerResponseDto | undefined> {
     try {
-      const owner = await this.ownerService.getOwnerByEmail(email);
+      const owner = await this.ownerService.getOwnerUnique({
+        where: { email },
+      });
 
       const isCorrectPassword = await comparePlainToEncrypted(
         password,
@@ -66,7 +68,9 @@ export class TokenService {
     refreshToken: string,
     ownerPublicId: string,
   ): Promise<Owner> {
-    const owner = await this.ownerService.getOwnerById(ownerPublicId);
+    const owner = await this.ownerService.getOwnerUnique({
+      where: { publicId: ownerPublicId },
+    });
     if (!owner || owner.refreshToken === null) {
       throw new HttpException(
         exceptionContentsIs('REFRESH_FAILED'),

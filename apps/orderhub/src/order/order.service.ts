@@ -33,7 +33,7 @@ type ParamsPrincipal =
       params: { tableSession: SessionWithTable };
     }
   | {
-      type: 'OWNER';
+      type: 'OWNER' | 'WRITE';
       params: { tablePublicId: string; storePublicId: string; ownerId: bigint };
     };
 
@@ -199,22 +199,33 @@ export class OrderService {
       /** TODO: 기본 조회는 모든 orders를 응답.
        *  query에(alive) 따라 활성화된 테이블 세션으로 제한이 필요
        */
+
+      const writeAccessCondition =
+        type === 'WRITE'
+          ? {
+              expiresAt: { gte: new Date() },
+              status: {
+                in: [
+                  TableSessionStatus.WAITING_ORDER,
+                  TableSessionStatus.ACTIVE,
+                ],
+              },
+            }
+          : {};
+
       return {
         tableSession: {
           table: {
             store: { ownerId: params.ownerId, publicId: params.storePublicId },
             publicId: params.tablePublicId,
           },
-          expiresAt: { gte: new Date() },
-          status: {
-            in: [TableSessionStatus.WAITING_ORDER, TableSessionStatus.ACTIVE],
-          },
+          ...writeAccessCondition,
         },
       };
     }
   }
 
-  async getOrderById(
+  async getOrderUnique(
     principal: ParamsPrincipal & PublicOrderId,
   ): Promise<ResponseOrderWithItem> {
     return await this.prismaService.order.findFirstOrThrow({
@@ -226,7 +237,7 @@ export class OrderService {
     });
   }
 
-  async updateOrder(
+  async partialUpdateOrder(
     principal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {

@@ -3,7 +3,6 @@ import {
   TableSession,
   Prisma,
   TableSessionStatus,
-  Order,
   ResponseTableSession,
   SessionWithTable,
   OrderItem,
@@ -22,8 +21,8 @@ type UpdateSessionFromCreateOrder = z.infer<typeof updateActivateSchema>;
 @Injectable()
 export class TableSessionService {
   constructor(private readonly prismaService: PrismaService) {}
-  private readonly sanitizeOmit = { id: true, tableId: true };
-  private readonly withTable = { table: true };
+  private sanitizeOmit = { id: true, tableId: true } as const;
+  withTable = { table: true } as const;
 
   private generateSecureSessionToken(): string {
     const buffer = randomBytes(32);
@@ -120,21 +119,16 @@ export class TableSessionService {
     TableSessionStatus.ACTIVE,
   ];
 
-  async getSessionByTableId(
-    sessionPublicId: string,
-  ): Promise<SessionWithTable> {
-    return await this.prismaService.tableSession.findFirstOrThrow({
-      where: {
-        publicId: sessionPublicId,
-        // 테스트를 위한 임시 주석
-        // expiresAt: { gte: new Date() },
-        // status: { in: this.readyToOrderStatuses },
-      },
-      include: {
-        ...this.withTable,
-        orders: true,
-      },
-    });
+  async getSessionList<T extends Prisma.TableSessionFindManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.TableSessionFindManyArgs>,
+  ): Promise<Prisma.TableSessionGetPayload<T>[]> {
+    return await this.prismaService.tableSession.findMany(args);
+  }
+
+  async getSessionUnique<T extends Prisma.TableSessionFindFirstOrThrowArgs>(
+    args: Prisma.SelectSubset<T, Prisma.TableSessionFindFirstOrThrowArgs>,
+  ): Promise<Prisma.TableSessionGetPayload<T>> {
+    return await this.prismaService.tableSession.findFirstOrThrow(args);
   }
 
   async txUpdateSession(
@@ -280,14 +274,6 @@ export class TableSessionService {
         },
         omit: this.sanitizeOmit,
       });
-    });
-  }
-
-  async getSessionList(tablePublicId: string) {
-    return await this.prismaService.tableSession.findMany({
-      where: { table: { publicId: tablePublicId } },
-      omit: this.sanitizeOmit,
-      include: { orders: true, table: true },
     });
   }
 }

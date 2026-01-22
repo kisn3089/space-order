@@ -39,7 +39,7 @@ export class MenuController {
     ZodValidation({ params: storeIdParamsSchema, body: createMenuSchema }),
     MenuPermission,
   )
-  async createMenu(
+  async create(
     @Param('storeId') storeId: string,
     @Body() createMenuDto: CreateMenuDto,
   ) {
@@ -48,11 +48,14 @@ export class MenuController {
 
   @Get()
   @UseGuards(ZodValidation({ params: storeIdParamsSchema }), MenuPermission)
-  async getMenuList(
+  async getList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
   ): Promise<ResponseMenu[]> {
-    return await this.menuService.getMenuList(client, storeId);
+    return await this.menuService.getMenuList({
+      where: { store: { publicId: storeId, owner: { id: client.id } } },
+      omit: this.menuService.menuOmit,
+    });
   }
 
   @Get(':menuId')
@@ -61,7 +64,7 @@ export class MenuController {
     MenuPermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  getMenuById(@CachedMenuByGuard() cachedMenu: Menu): MenuResponseDto {
+  getUnique(@CachedMenuByGuard() cachedMenu: Menu): MenuResponseDto {
     return new MenuResponseDto(cachedMenu);
   }
 
@@ -73,11 +76,11 @@ export class MenuController {
     }),
     MenuPermission,
   )
-  async updateMenu(
+  async partialUpdate(
     @Param('menuId') menuId: string,
     @Body() updateMenuDto: UpdateMenuDto,
   ): Promise<ResponseMenu> {
-    return await this.menuService.updateMenu(menuId, updateMenuDto);
+    return await this.menuService.partialUpdateMenu(menuId, updateMenuDto);
   }
 
   @Delete(':menuId')
@@ -85,7 +88,7 @@ export class MenuController {
     ZodValidation({ params: mergedStoreIdAndMenuIdParamsSchema }),
     MenuPermission,
   )
-  async deleteMenu(@Param('menuId') menuId: string): Promise<void> {
+  async delete(@Param('menuId') menuId: string): Promise<void> {
     await this.menuService.deleteMenu(menuId);
   }
 }

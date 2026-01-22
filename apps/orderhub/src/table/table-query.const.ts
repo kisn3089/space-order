@@ -1,12 +1,7 @@
-import {
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
-  TableSessionStatus,
-} from '@spaceorder/db';
+import { SESSION_QUERY_FILTER_KEYS, TableSessionStatus } from '@spaceorder/db';
+import { endedSessionFilter } from 'src/table-session/table-session-query.const';
 
-export const TABLE_OMIT = { id: true, storeId: true } as const;
-
-const createAliveSessionFilter = () => ({
+const aliveRecentSessionFilter = () => ({
   where: {
     status: {
       in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
@@ -17,40 +12,12 @@ const createAliveSessionFilter = () => ({
   orderBy: { createdAt: 'desc' as const },
 });
 
-const endedSession = () => ({
-  where: { status: TableSessionStatus.CLOSED },
-  omit: { id: true, tableId: true },
-});
+const endedTableFilter = () => ({ where: endedSessionFilter() });
 
-export const TABLE_SESSION_FILTER_RECORD = {
-  [TABLE_QUERY_FILTER_CONST.ALIVE_SESSION]: createAliveSessionFilter,
-  [TABLE_QUERY_FILTER_CONST.ENDED_SESSION]: endedSession,
-  [TABLE_QUERY_FILTER_CONST.ACTIVATED_TABLE]: () => ({ isActive: true }),
-} as const;
+export const TABLE_OMIT = { id: true, storeId: true } as const;
 
-const ordersOmit = {
-  id: true,
-  storeId: true,
-  tableId: true,
-  tableSessionId: true,
-} as const;
-export const TABLE_INCLUDE_KEY_RECORD = {
-  [TABLE_QUERY_INCLUDE_CONST.ORDERS]: {
-    tableSessions: {
-      include: { orders: { omit: ordersOmit } },
-      omit: { id: true, tableId: true },
-    },
-  },
-  [TABLE_QUERY_INCLUDE_CONST.ORDER_ITEMS]: {
-    tableSessions: {
-      include: {
-        orders: {
-          omit: ordersOmit,
-          include: {
-            orderItems: { omit: { id: true, orderId: true, menuId: true } },
-          },
-        },
-      },
-    },
-  },
+export const TABLE_FILTER_RECORD = {
+  [SESSION_QUERY_FILTER_KEYS.ALIVE_SESSION]: aliveRecentSessionFilter,
+  [SESSION_QUERY_FILTER_KEYS.ENDED_SESSION]: endedTableFilter,
+  [SESSION_QUERY_FILTER_KEYS.ACTIVATED_TABLE]: () => ({ isActive: true }),
 } as const;

@@ -20,7 +20,10 @@ import { Client } from 'src/decorators/client.decorator';
 import { CreateOrderDto, UpdateOrderDto } from 'src/order/order.controller';
 import { OrderService } from 'src/order/order.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { OwnerOrderPermission } from 'src/utils/guards/model-permissions/owner-order-permission.guard';
+import {
+  OwnerOrderPermission,
+  OwnerOrderWritePermission,
+} from 'src/utils/guards/model-permissions/owner-order-permission.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 
 @Controller('owner/stores/:storeId/tables/:tableId/orders')
@@ -36,7 +39,7 @@ export class OwnerOrderController {
     }),
     OwnerOrderPermission,
   )
-  async createOrder(
+  async create(
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<ResponseOrderWithItem> {
@@ -53,7 +56,7 @@ export class OwnerOrderController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     OwnerOrderPermission,
   )
-  async getOrderList(
+  async getList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
@@ -70,7 +73,7 @@ export class OwnerOrderController {
 
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
-  getOrderById(
+  getUnique(
     @CachedOrderByGuard() cachedOrder: ResponseOrderWithItem,
   ): ResponseOrderWithItem {
     return cachedOrder;
@@ -79,16 +82,16 @@ export class OwnerOrderController {
   @Patch(':orderId')
   @UseGuards(
     ZodValidation({ params: orderParamsSchema, body: updateOrderSchema }),
-    OwnerOrderPermission,
+    OwnerOrderWritePermission,
   )
-  async updateOrder(
+  async partialUpdate(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<ResponseOrderWithItem> {
-    return await this.orderService.updateOrder(
+    return await this.orderService.partialUpdateOrder(
       {
         type: 'OWNER',
         params: {
@@ -103,8 +106,11 @@ export class OwnerOrderController {
   }
 
   @Delete(':orderId')
-  @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
-  async cancelOrder(
+  @UseGuards(
+    ZodValidation({ params: orderParamsSchema }),
+    OwnerOrderWritePermission,
+  )
+  async cancel(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,

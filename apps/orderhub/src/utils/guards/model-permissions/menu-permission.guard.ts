@@ -6,9 +6,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { Menu, Owner, Store } from '@spaceorder/db';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Menu, Owner } from '@spaceorder/db';
 import { StoreService } from 'src/store/store.service';
+import { MenuService } from 'src/menu/menu.service';
 
 type RequestWithClient = Request & {
   user: Owner;
@@ -21,7 +21,7 @@ type RequestWithClient = Request & {
 @Injectable()
 export class MenuPermission implements CanActivate {
   constructor(
-    private readonly prismaService: PrismaService,
+    private readonly menuService: MenuService,
     private readonly storeService: StoreService,
   ) {}
 
@@ -31,28 +31,23 @@ export class MenuPermission implements CanActivate {
     const { storeId, menuId } = request.params;
 
     if (menuId) {
-      const findMenuWithOwnerId = await this.getMenuById(storeId, menuId);
+      const findMenuWithOwnerId = await this.menuService.getMenuUnique({
+        where: { publicId: menuId, store: { publicId: storeId } },
+        include: { store: { select: { ownerId: true } } },
+      });
       if (findMenuWithOwnerId.store.ownerId === client.id) {
         request.menu = findMenuWithOwnerId;
         return true;
       }
     } else {
-      const findStore = await this.storeService.getStoreById(storeId);
+      const findStore = await this.storeService.getStoreUnique({
+        where: { publicId: storeId },
+      });
       if (findStore.ownerId === client.id) {
         return true;
       }
     }
 
     throw new ForbiddenException(exceptionContentsIs('FORBIDDEN'));
-  }
-
-  private async getMenuById(
-    storeId: string,
-    menuId: string,
-  ): Promise<Menu & { store: Pick<Store, 'ownerId'> }> {
-    return await this.prismaService.menu.findFirstOrThrow({
-      where: { publicId: menuId, store: { publicId: storeId } },
-      include: { store: { select: { ownerId: true } } },
-    });
   }
 }

@@ -1,2 +1,2 @@
 export * from "./cookieTable.const";
-export * from "./model-query";
+export * from "./model-query-key";

@@ -17,7 +17,7 @@ export class MeController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findMe(@Client() owner: Owner): OwnerResponseDto {
+  find(@Client() owner: Owner): OwnerResponseDto {
     return new OwnerResponseDto(owner);
   }
 }

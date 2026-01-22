@@ -1,34 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
+  Prisma,
   ResponseStoreWithTables,
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
+  SESSION_QUERY_FILTER_CONST,
+  SESSION_QUERY_INCLUDE_CONST,
   type Owner,
-  type Store,
 } from '@spaceorder/db';
-import {
-  TABLE_INCLUDE_KEY_RECORD,
-  TABLE_SESSION_FILTER_RECORD,
-} from 'src/table/table-query.const';
+import { TABLE_FILTER_RECORD } from 'src/table/table-query.const';
+import { SESSION_INCLUDE_KEY_RECORD } from 'src/table-session/table-session-query.const';
 
 @Injectable()
 export class StoreService {
   constructor(private readonly prismaService: PrismaService) {}
-  private readonly storeOmit = { id: true, ownerId: true };
+  storeOmit = { id: true, ownerId: true } as const;
 
-  async getStoreList(client: Owner): Promise<Store[]> {
-    return await this.prismaService.store.findMany({
-      where: { ownerId: client.id },
-      omit: this.storeOmit,
-    });
+  async getStoreList<T extends Prisma.StoreFindManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.StoreFindManyArgs>,
+  ): Promise<Prisma.StoreGetPayload<T>[]> {
+    return await this.prismaService.store.findMany(args);
   }
 
-  /** 데코레이터 검증을 위해 full field가 필요하다. Omit 하지 않음 */
-  async getStoreById(storePublicId: string): Promise<Store> {
-    return await this.prismaService.store.findFirstOrThrow({
-      where: { publicId: storePublicId },
-    });
+  async getStoreUnique<T extends Prisma.StoreFindFirstOrThrowArgs>(
+    args: Prisma.SelectSubset<T, Prisma.StoreFindFirstOrThrowArgs>,
+  ): Promise<Prisma.StoreGetPayload<T>> {
+    return await this.prismaService.store.findFirstOrThrow(args);
   }
 
   async getStoreWithOrderList(client: Owner): Promise<ResponseStoreWithTables> {
@@ -40,13 +36,13 @@ export class StoreService {
           omit: { id: true, storeId: true },
           include: {
             tableSessions: {
-              ...TABLE_SESSION_FILTER_RECORD[
-                TABLE_QUERY_FILTER_CONST.ALIVE_SESSION
+              ...TABLE_FILTER_RECORD[
+                SESSION_QUERY_FILTER_CONST.ALIVE_SESSION
               ](),
               include:
-                TABLE_INCLUDE_KEY_RECORD[TABLE_QUERY_INCLUDE_CONST.ORDER_ITEMS][
-                  'tableSessions'
-                ]['include'],
+                SESSION_INCLUDE_KEY_RECORD[
+                  SESSION_QUERY_INCLUDE_CONST.ORDER_ITEMS
+                ]['tableSessions']['include'],
             },
           },
         },

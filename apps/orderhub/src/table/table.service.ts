@@ -35,13 +35,13 @@ export class TableService {
     return await this.prismaService.table.findMany(args);
   }
 
-  async getTableById<T extends Prisma.TableFindFirstOrThrowArgs>(
+  async getTableUnique<T extends Prisma.TableFindFirstOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.TableFindFirstOrThrowArgs>,
   ): Promise<Prisma.TableGetPayload<T>> {
     return await this.prismaService.table.findFirstOrThrow(args);
   }
 
-  async updateTable(
+  async partialUpdateTable(
     tableId: string,
     updateTableDto: UpdateTableDto,
   ): Promise<ResponseTable> {

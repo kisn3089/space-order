@@ -61,6 +61,11 @@ const EXCEPTION_CONTENTS = {
     code: 'MENU_MISMATCH',
     message: '요청한 메뉴가 존재하지 않습니다.',
   },
+  /** ---Order Item--- */
+  ORDER_ITEM_OPTIONS_INVALID: {
+    code: 'ORDER_ITEM_OPTIONS_INVALID',
+    message: '주문 항목 옵션이 올바르지 않습니다.',
+  },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {
     code: 'ZOD_PARAMS_FAILED',

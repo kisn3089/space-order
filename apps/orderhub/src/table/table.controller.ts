@@ -19,28 +19,25 @@ import {
   mergedStoreAndTableParamsSchema,
   storeIdParamsSchema,
   tableListQuerySchema,
-  tableQuerySchema,
+  tableUniqueQuerySchema,
   updateTableSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type {
   ExtendedResponseTable,
   ResponseTable,
-  TableAndStoreOwnerId,
+  Table,
 } from '@spaceorder/db';
 import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
 import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
-import {
-  TABLE_INCLUDE_KEY_RECORD,
-  TABLE_OMIT,
-  TABLE_SESSION_FILTER_RECORD,
-} from './table-query.const';
-import { BuildIncludeService } from 'src/utils/query-params/build-include';
+import { TABLE_OMIT, TABLE_FILTER_RECORD } from './table-query.const';
+import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
+import { SESSION_INCLUDE_KEY_RECORD } from 'src/table-session/table-session-query.const';
 
 type TableQueryParams = {
-  include?: keyof typeof TABLE_INCLUDE_KEY_RECORD;
-  filter?: keyof typeof TABLE_SESSION_FILTER_RECORD;
+  filter?: keyof typeof TABLE_FILTER_RECORD;
+  include?: keyof typeof SESSION_INCLUDE_KEY_RECORD;
 };
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
@@ -50,7 +47,7 @@ export class UpdateTableDto extends createZodDto(updateTableSchema) {}
 export class TableController {
   constructor(
     private readonly tableService: TableService,
-    private readonly buildInclude: BuildIncludeService,
+    private readonly queryParamsBuilder: QueryParamsBuilderService,
   ) {}
 
   @Post()
@@ -61,7 +58,7 @@ export class TableController {
     }),
     TablePermission,
   )
-  async createTable(
+  async create(
     @Param('storeId') storeId: string,
     @Body() createTableDto: CreateTableDto,
   ): Promise<ResponseTable> {
@@ -73,19 +70,25 @@ export class TableController {
     ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema }),
     TablePermission,
   )
-  async getTableList(
+  async getList(
     @Param('storeId') storeId: string,
     @Query() query?: TableQueryParams,
   ): Promise<ExtendedResponseTable[]> {
-    const { filter, include } = this.buildInclude.build({
+    const { filter, include } = this.queryParamsBuilder.build({
       query,
-      includeKeyRecord: TABLE_INCLUDE_KEY_RECORD,
-      filterRecord: TABLE_SESSION_FILTER_RECORD,
+      includeRecord: SESSION_INCLUDE_KEY_RECORD,
+      filterRecord: TABLE_FILTER_RECORD,
     });
 
+    const tableFilter = query?.filter === 'activated-table' ? filter : {};
+    const includeSession =
+      query?.filter !== 'activated-table'
+        ? { tableSessions: { ...include, ...filter } }
+        : {};
+
     return await this.tableService.getTableList({
-      where: { store: { publicId: storeId }, ...filter },
-      include: include,
+      where: { store: { publicId: storeId }, ...tableFilter },
+      include: includeSession,
       omit: TABLE_OMIT,
     });
   }
@@ -94,14 +97,13 @@ export class TableController {
   @UseGuards(
     ZodValidation({
       params: mergedStoreAndTableParamsSchema,
-      query: tableQuerySchema,
+      query: tableUniqueQuerySchema,
     }),
     TablePermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getTableById(
-    /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
-    @CachedTableByGuard() cachedTable: TableAndStoreOwnerId,
+  async getUnique(
+    @CachedTableByGuard() cachedTable: Table,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Query() query?: TableQueryParams,
@@ -110,16 +112,14 @@ export class TableController {
       return new TableResponseDto(cachedTable);
     }
 
-    const { filter, include } = this.buildInclude.build({
+    const { include } = this.queryParamsBuilder.build({
       query,
-      includeKeyRecord: TABLE_INCLUDE_KEY_RECORD,
-      filterRecord: TABLE_SESSION_FILTER_RECORD,
+      includeRecord: SESSION_INCLUDE_KEY_RECORD,
     });
 
-    return await this.tableService.getTableById({
-      where: { publicId: tableId, store: { publicId: storeId }, ...filter },
-      include: include,
-      omit: TABLE_OMIT,
+    return await this.tableService.getTableUnique({
+      where: { publicId: tableId, store: { publicId: storeId } },
+      ...include,
     });
   }
 
@@ -131,11 +131,11 @@ export class TableController {
     }),
     TablePermission,
   )
-  async updateTable(
+  async partialUpdate(
     @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
   ): Promise<ResponseTable> {
-    return await this.tableService.updateTable(tableId, updateTableDto);
+    return await this.tableService.partialUpdateTable(tableId, updateTableDto);
   }
 
   @Delete(':tableId')
@@ -143,7 +143,7 @@ export class TableController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     TablePermission,
   )
-  async deleteTable(@Param('tableId') tableId: string): Promise<void> {
+  async delete(@Param('tableId') tableId: string): Promise<void> {
     await this.tableService.deleteTable(tableId);
   }
 }

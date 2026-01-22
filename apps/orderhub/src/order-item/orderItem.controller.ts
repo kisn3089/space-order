@@ -1,4 +1,14 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { OrderItemService } from './orderItem.service';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import {
@@ -6,35 +16,119 @@ import {
   orderIdParamsSchema,
 } from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { ResponseOrderItem } from '@spaceorder/db';
+import type { Owner, ResponseOrderItem } from '@spaceorder/db';
+import { createZodDto } from 'nestjs-zod';
+import {
+  createOrderItemSchema,
+  orderItemQuerySchema,
+  partialUpdateOrderItemSchema,
+} from '@spaceorder/api/schemas/model/orderItem.schema';
+import {
+  OrderItemPermission,
+  OrderItemWritePermission,
+} from 'src/utils/guards/model-permissions/order-item-permission.guard';
+import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
+import { ORDER_ITEM_FILTER_RECORD } from './order-item-query.const';
+import { Client } from 'src/decorators/client.decorator';
+
+export class CreateOrderItemDto extends createZodDto(createOrderItemSchema) {}
+export class UpdateOrderItemDto extends createZodDto(
+  partialUpdateOrderItemSchema,
+) {}
+
+type OrderItemQueryParams = {
+  filter?: keyof typeof ORDER_ITEM_FILTER_RECORD;
+};
 
 @Controller('orders/:orderId/order-items')
 @UseGuards(JwtAuthGuard)
 export class OrderItemController {
-  constructor(private readonly orderItemService: OrderItemService) {}
+  constructor(
+    private readonly orderItemService: OrderItemService,
+    private readonly queryParamsBuilder: QueryParamsBuilderService,
+  ) {}
 
-  /**
-   * order-item은 order에 종속되므로 독립적으로 생성하고 수정하는 API는 존재하지 않음
-   * PermissionGuard를 구현하지 않았다. 필요하면 이후에 구현할 것
-   */
+  @Post()
+  @UseGuards(
+    ZodValidation({ params: orderIdParamsSchema, body: createOrderItemSchema }),
+    OrderItemPermission,
+  )
+  async create(
+    @Client() client: Owner,
+    @Param('orderId') orderPublicId: string,
+    @Body() createOrderItemDto: CreateOrderItemDto,
+  ): Promise<ResponseOrderItem> {
+    return await this.orderItemService.createOrderItem(
+      orderPublicId,
+      createOrderItemDto,
+      client,
+    );
+  }
 
   @Get()
-  @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
-  async getOrderItemList(
+  @UseGuards(
+    ZodValidation({ params: orderIdParamsSchema, query: orderItemQuerySchema }),
+    OrderItemPermission,
+  )
+  async getList(
     @Param('orderId') orderPublicId: string,
+    @Query() query?: OrderItemQueryParams,
   ): Promise<ResponseOrderItem[]> {
-    return await this.orderItemService.getOrderItemList(orderPublicId);
+    const { filter } = this.queryParamsBuilder.build({
+      query,
+      filterRecord: ORDER_ITEM_FILTER_RECORD,
+    });
+
+    return await this.orderItemService.getOrderItemList({
+      where: { order: { publicId: orderPublicId, ...filter } },
+      omit: this.orderItemService.orderItemOmit,
+    });
   }
 
   @Get(':orderItemId')
-  @UseGuards(ZodValidation({ params: orderItemParamsSchema }))
-  async getOrderItemById(
+  @UseGuards(
+    ZodValidation({ params: orderItemParamsSchema }),
+    OrderItemPermission,
+  )
+  async getUnique(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
   ): Promise<ResponseOrderItem> {
-    return await this.orderItemService.getOrderItemById(
-      orderPublicId,
+    return await this.orderItemService.getOrderItemUnique({
+      where: {
+        order: { publicId: orderPublicId },
+        publicId: orderItemPublicId,
+      },
+      omit: this.orderItemService.orderItemOmit,
+    });
+  }
+
+  @Patch(':orderItemId')
+  @UseGuards(
+    ZodValidation({
+      params: orderItemParamsSchema,
+      body: partialUpdateOrderItemSchema,
+    }),
+    OrderItemWritePermission,
+  )
+  async partialUpdate(
+    @Client() client: Owner,
+    @Param('orderItemId') orderItemPublicId: string,
+    @Body() updateOrderItemDto: UpdateOrderItemDto,
+  ): Promise<ResponseOrderItem> {
+    return await this.orderItemService.partialUpdateOrderItem(
       orderItemPublicId,
+      updateOrderItemDto,
+      client,
     );
+  }
+
+  @Delete(':orderItemId')
+  @UseGuards(
+    ZodValidation({ params: orderItemParamsSchema }),
+    OrderItemWritePermission,
+  )
+  async delete(@Param('orderItemId') orderItemPublicId: string): Promise<void> {
+    return await this.orderItemService.deleteOrderItem(orderItemPublicId);
   }
 }

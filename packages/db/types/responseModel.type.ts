@@ -12,6 +12,8 @@ export type ResponseOwner = Omit<Owner, "id" | "refreshToken" | "password">;
 // type OwnerRole = "owner" | "admin";
 
 export type ResponseTable = Omit<Table, "id" | "storeId">;
+
+/** TODO: query의 include 값에 따라 타입이 동적 할당되도록 유틸 함수 만들자. */
 export type ExtendedResponseTable = ResponseTable & {
   tableSessions?: ResponseTableSession[];
   store?: ResponseStore;

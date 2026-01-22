@@ -32,14 +32,14 @@ import { SessionPermission } from 'src/utils/guards/model-permissions/table-sess
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import {
   SESSION_FILTER_RECORD,
-  SESSION_INCLUDE_KEY_RECORD,
+  SESSION_INCLUDE_RECORD,
 } from './table-session-query.const';
 import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionSchema>;
 type SessionQueryParams = {
   filter?: keyof typeof SESSION_FILTER_RECORD;
-  include?: keyof typeof SESSION_INCLUDE_KEY_RECORD;
+  include?: keyof typeof SESSION_INCLUDE_RECORD;
 };
 
 @Controller('tables/:tableId/sessions')
@@ -86,7 +86,7 @@ export class TableSessionController {
   ): Promise<ResponseTableSession[]> {
     const { include, filter } = this.queryParamsBuilder.build({
       query,
-      includeRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_RECORD,
       filterRecord: SESSION_FILTER_RECORD,
     });
 
@@ -111,7 +111,7 @@ export class TableSessionController {
   ): Promise<ResponseTableSession> {
     const { include } = this.queryParamsBuilder.build({
       query,
-      includeRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_RECORD,
       filterRecord: SESSION_FILTER_RECORD,
     });
 

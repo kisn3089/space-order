@@ -45,7 +45,7 @@ const ORDER_ITEMS_RECORD = {
   omit: { id: true, tableId: true },
 } as const;
 
-export const SESSION_INCLUDE_KEY_RECORD = {
+export const SESSION_INCLUDE_RECORD = {
   [SESSION_QUERY_INCLUDE_KEYS.ORDERS]: ORDERS_RECORD,
   [SESSION_QUERY_INCLUDE_KEYS.ORDER_ITEMS]: ORDER_ITEMS_RECORD,
 } as const;

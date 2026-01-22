@@ -1,6 +1,6 @@
 import z from "zod";
 import { commonSchema } from "../common";
-import { ORDER_ITEM_QUERY_FILTER_CONST } from "@spaceorder/db/constants/model-query/orderItemQuery.const";
+import { ORDER_ITEM_QUERY_FILTER_CONST } from "@spaceorder/db/constants/model-query-key/orderItemQuery.const";
 
 const createOptionsSchema = z.record(
   z.string(),

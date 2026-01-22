@@ -1,7 +1,7 @@
 import z from "zod";
 import {
-  SESSION_QUERY_FILTER_CONST,
-  SESSION_QUERY_INCLUDE_CONST,
+  SESSION_QUERY_FILTER_KEYS,
+  SESSION_QUERY_INCLUDE_KEYS,
   TableSessionStatus,
 } from "../../../db";
 import { commonSchema } from "../common";
@@ -55,13 +55,13 @@ export const sessionParamsSchema = tableIdParamsSchema.merge(sessionIdSchema);
 
 /** -------- Query --------- */
 const sessionFilterEnumSchema = z.enum([
-  SESSION_QUERY_FILTER_CONST.ALIVE_SESSION,
-  SESSION_QUERY_FILTER_CONST.ENDED_SESSION,
+  SESSION_QUERY_FILTER_KEYS.ALIVE_SESSION,
+  SESSION_QUERY_FILTER_KEYS.ENDED_SESSION,
 ]);
 
 const sessionIncludeEnumSchema = z.enum([
-  SESSION_QUERY_INCLUDE_CONST.ORDERS,
-  SESSION_QUERY_INCLUDE_CONST.ORDER_ITEMS,
+  SESSION_QUERY_INCLUDE_KEYS.ORDERS,
+  SESSION_QUERY_INCLUDE_KEYS.ORDER_ITEMS,
 ]);
 
 export const sessionIncludeQuerySchema = {

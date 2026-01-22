@@ -1,6 +1,6 @@
 import {
-  SESSION_QUERY_FILTER_CONST,
-  SESSION_QUERY_INCLUDE_CONST,
+  SESSION_QUERY_FILTER_KEYS,
+  SESSION_QUERY_INCLUDE_KEYS,
   TableSessionStatus,
 } from '@spaceorder/db';
 
@@ -19,8 +19,8 @@ export const endedSessionFilter = () => ({
 });
 
 export const SESSION_FILTER_RECORD = {
-  [SESSION_QUERY_FILTER_CONST.ALIVE_SESSION]: aliveSessionFilter,
-  [SESSION_QUERY_FILTER_CONST.ENDED_SESSION]: endedSessionFilter,
+  [SESSION_QUERY_FILTER_KEYS.ALIVE_SESSION]: aliveSessionFilter,
+  [SESSION_QUERY_FILTER_KEYS.ENDED_SESSION]: endedSessionFilter,
 } as const;
 
 const ordersOmit = {
@@ -29,20 +29,23 @@ const ordersOmit = {
   tableId: true,
   tableSessionId: true,
 } as const;
-export const SESSION_INCLUDE_KEY_RECORD = {
-  [SESSION_QUERY_INCLUDE_CONST.ORDERS]: {
-    include: { orders: { omit: ordersOmit } },
-    omit: { id: true, tableId: true },
-  },
-  [SESSION_QUERY_INCLUDE_CONST.ORDER_ITEMS]: {
-    include: {
-      orders: {
-        omit: ordersOmit,
-        include: {
-          orderItems: { omit: { id: true, orderId: true, menuId: true } },
-        },
+const ORDERS_RECORD = {
+  include: { orders: { omit: ordersOmit } },
+  omit: { id: true, tableId: true },
+} as const;
+const ORDER_ITEMS_RECORD = {
+  include: {
+    orders: {
+      omit: ordersOmit,
+      include: {
+        orderItems: { omit: { id: true, orderId: true, menuId: true } },
       },
     },
-    omit: { id: true, tableId: true },
   },
+  omit: { id: true, tableId: true },
+} as const;
+
+export const SESSION_INCLUDE_KEY_RECORD = {
+  [SESSION_QUERY_INCLUDE_KEYS.ORDERS]: ORDERS_RECORD,
+  [SESSION_QUERY_INCLUDE_KEYS.ORDER_ITEMS]: ORDER_ITEMS_RECORD,
 } as const;

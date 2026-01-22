@@ -1,7 +1,7 @@
-import { SESSION_QUERY_FILTER_CONST, TableSessionStatus } from '@spaceorder/db';
+import { SESSION_QUERY_FILTER_KEYS, TableSessionStatus } from '@spaceorder/db';
 import { endedSessionFilter } from 'src/table-session/table-session-query.const';
 
-const createAliveSessionFilter = () => ({
+const aliveRecentSessionFilter = () => ({
   where: {
     status: {
       in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
@@ -17,7 +17,7 @@ const endedTableFilter = () => ({ where: endedSessionFilter() });
 export const TABLE_OMIT = { id: true, storeId: true } as const;
 
 export const TABLE_FILTER_RECORD = {
-  [SESSION_QUERY_FILTER_CONST.ALIVE_SESSION]: createAliveSessionFilter,
-  [SESSION_QUERY_FILTER_CONST.ENDED_SESSION]: endedTableFilter,
-  [SESSION_QUERY_FILTER_CONST.ACTIVATED_TABLE]: () => ({ isActive: true }),
+  [SESSION_QUERY_FILTER_KEYS.ALIVE_SESSION]: aliveRecentSessionFilter,
+  [SESSION_QUERY_FILTER_KEYS.ENDED_SESSION]: endedTableFilter,
+  [SESSION_QUERY_FILTER_KEYS.ACTIVATED_TABLE]: () => ({ isActive: true }),
 } as const;

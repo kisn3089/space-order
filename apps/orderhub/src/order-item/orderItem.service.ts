@@ -12,27 +12,27 @@ export class OrderItemService {
 
   async createOrderItem(
     orderPublicId: string,
-    createData: CreateOrderItemDto,
+    createPayload: CreateOrderItemDto,
   ): Promise<ResponseOrderItem> {
     const [findMenu, findOrder] = await Promise.all([
       this.prismaService.menu.findFirstOrThrow(
-        this.findMenuFields(createData.menuPublicId),
+        this.findMenuFields(createPayload.menuPublicId),
       ),
       this.prismaService.order.findFirstOrThrow(
         this.findOrderFields(orderPublicId),
       ),
     ]);
 
-    this.canMenuHasOptions(findMenu, createData.options);
+    this.validateMenuOptions(findMenu, createPayload.options);
 
     return await this.prismaService.orderItem.create({
       data: {
         menuId: findMenu.id,
         menuName: findMenu.name,
         price: findMenu.price,
-        quantity: createData.quantity,
+        quantity: createPayload.quantity,
         orderId: findOrder.id,
-        ...(createData.options ? { options: createData.options } : {}),
+        ...(createPayload.options ? { options: createPayload.options } : {}),
       },
       omit: this.orderItemOmit,
     });
@@ -58,18 +58,16 @@ export class OrderItemService {
     };
   }
 
-  private canMenuHasOptions(
+  private validateMenuOptions(
     findMenu: Pick<Menu, 'requiredOptions' | 'customOptions'>,
     options: CreateOrderItemDto['options'],
-  ): boolean {
+  ): void {
     if (options && !(findMenu.requiredOptions || findMenu.customOptions)) {
       throw new HttpException(
         exceptionContentsIs('ORDER_ITEM_OPTIONS_INVALID'),
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    return true;
   }
 
   async getOrderItemList<T extends Prisma.OrderItemFindManyArgs>(
@@ -86,22 +84,22 @@ export class OrderItemService {
 
   async partialUpdateOrderItem(
     orderItemPublicId: string,
-    updatePaylod: UpdateOrderItemDto,
+    updatePayload: UpdateOrderItemDto,
   ): Promise<ResponseOrderItem> {
-    if (!updatePaylod.menuPublicId) {
+    if (!updatePayload.menuPublicId) {
       return await this.prismaService.orderItem.update({
         where: { publicId: orderItemPublicId },
-        data: updatePaylod,
+        data: updatePayload,
         omit: this.orderItemOmit,
       });
     }
 
-    const { menuPublicId, ...omitedUpdatePayload } = updatePaylod;
+    const { menuPublicId, ...omitedUpdatePayload } = updatePayload;
     const findMenu = await this.prismaService.menu.findFirstOrThrow(
       this.findMenuFields(menuPublicId),
     );
 
-    this.canMenuHasOptions(findMenu, omitedUpdatePayload.options);
+    this.validateMenuOptions(findMenu, omitedUpdatePayload.options);
 
     return await this.prismaService.orderItem.update({
       where: { publicId: orderItemPublicId },

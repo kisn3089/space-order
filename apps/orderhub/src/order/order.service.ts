@@ -160,9 +160,7 @@ export class OrderService {
           menuName: menu.name,
           price: menu.price,
           quantity: orderItem.quantity,
-          ...(orderItem.options && (menu.requiredOptions || menu.customOptions)
-            ? { options: orderItem.options }
-            : {}),
+          ...(orderItem.options ? { options: orderItem.options } : {}),
         };
       });
 

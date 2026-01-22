@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  Prisma,
-  ResponseStoreWithTables,
-  SESSION_QUERY_FILTER_CONST,
-  SESSION_QUERY_INCLUDE_CONST,
-  type Owner,
-} from '@spaceorder/db';
+import { Prisma, ResponseStoreWithTables, type Owner } from '@spaceorder/db';
 import { TABLE_FILTER_RECORD } from 'src/table/table-query.const';
-import { SESSION_INCLUDE_KEY_RECORD } from 'src/table-session/table-session-query.const';
+import {} from 'src/table-session/table-session-query.const';
 
 @Injectable()
 export class StoreService {
@@ -27,7 +21,7 @@ export class StoreService {
     return await this.prismaService.store.findFirstOrThrow(args);
   }
 
-  async getStoreWithOrderList(client: Owner): Promise<ResponseStoreWithTables> {
+  async getOrderSummary(client: Owner): Promise<ResponseStoreWithTables> {
     return await this.prismaService.store.findFirstOrThrow({
       where: { ownerId: client.id },
       orderBy: { createdAt: 'asc' },
@@ -36,13 +30,24 @@ export class StoreService {
           omit: { id: true, storeId: true },
           include: {
             tableSessions: {
-              ...TABLE_FILTER_RECORD[
-                SESSION_QUERY_FILTER_CONST.ALIVE_SESSION
-              ](),
-              include:
-                SESSION_INCLUDE_KEY_RECORD[
-                  SESSION_QUERY_INCLUDE_CONST.ORDER_ITEMS
-                ]['tableSessions']['include'],
+              ...TABLE_FILTER_RECORD['alive-session'](),
+              select: {
+                publicId: true,
+                expiresAt: true,
+                orders: {
+                  select: {
+                    publicId: true,
+                    status: true,
+                    orderItems: {
+                      select: {
+                        publicId: true,
+                        menuName: true,
+                        quantity: true,
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },

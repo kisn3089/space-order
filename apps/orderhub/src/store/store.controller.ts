@@ -18,9 +18,9 @@ export class StoreController {
   }
 
   /** 추후 지점이 2개 이상인 경우 로컬 스토리지를 통해 활성화된 storeId 값으로 변경한다. */
-  @Get('alive-orders')
-  async getStoreWithOrderList(@Client() client: Owner) {
-    return await this.storeService.getStoreWithOrderList(client);
+  @Get('order-summary')
+  async getOrderSummary(@Client() client: Owner) {
+    return await this.storeService.getOrderSummary(client);
   }
 
   @Get(':storeId')

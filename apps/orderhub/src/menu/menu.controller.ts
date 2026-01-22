@@ -64,19 +64,8 @@ export class MenuController {
     MenuPermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getUnique(
-    @CachedMenuByGuard() cachedMenu: Menu,
-    @Param('storeId') storeId: string,
-    @Param('menuId') menuId: string,
-  ): Promise<MenuResponseDto | ResponseMenu> {
-    if (cachedMenu) {
-      return new MenuResponseDto(cachedMenu);
-    }
-
-    return await this.menuService.getMenuUnique({
-      where: { publicId: menuId, store: { publicId: storeId } },
-      omit: this.menuService.menuOmit,
-    });
+  getUnique(@CachedMenuByGuard() cachedMenu: Menu): MenuResponseDto {
+    return new MenuResponseDto(cachedMenu);
   }
 
   @Patch(':menuId')

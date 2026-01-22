@@ -5,15 +5,15 @@ type AsyncFunction<TArgs extends any[], TReturn> = (
   ...args: TArgs
 ) => Promise<TReturn>;
 
-type CancellableAsyncReturn<TArgs extends any[], TReturn> = {
+type CancelableAsyncReturn<TArgs extends any[], TReturn> = {
   (...args: TArgs): Promise<TReturn | undefined>;
   isPending: boolean;
   abort: () => void;
 };
 
-export function useCancellableAsync<TArgs extends any[], TReturn>(
+export function useCancelableAsync<TArgs extends any[], TReturn>(
   promiseFunction: AsyncFunction<TArgs, TReturn>
-): CancellableAsyncReturn<TArgs, TReturn> {
+): CancelableAsyncReturn<TArgs, TReturn> {
   const [isPending, startTransition] = React.useTransition();
   const abortControllerRef = React.useRef<AbortController | null>(null);
 

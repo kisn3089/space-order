@@ -11,20 +11,20 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
-import type { Menu, Owner, PublicMenu } from '@spaceorder/db';
+import type { Menu, Owner, ResponseMenu } from '@spaceorder/db';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
+import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
+import { createZodDto } from 'nestjs-zod';
+import { Client } from 'src/decorators/client.decorator';
+import { MenuPermission } from 'src/utils/guards/model-permissions/menu-permission.guard';
+import { CachedMenuByGuard } from 'src/decorators/cache/menu.decorator';
+import { MenuResponseDto } from './dto/menuResponse.dto';
 import {
   createMenuSchema,
   mergedStoreIdAndMenuIdParamsSchema,
   storeIdParamsSchema,
   updateMenuSchema,
-} from '@spaceorder/auth';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { createZodDto } from 'nestjs-zod';
-import { Client } from 'src/decorators/client.decorator';
-import { MenuPermission } from 'src/utils/guards/model-auth/menu-permission.guard';
-import { CachedMenu } from 'src/decorators/cache/menu.cache';
-import { MenuResponseDto } from './dto/menuResponse.dto';
+} from '@spaceorder/api/schemas';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}
@@ -40,7 +40,6 @@ export class MenuController {
     MenuPermission,
   )
   async createMenu(
-    @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Body() createMenuDto: CreateMenuDto,
   ) {
@@ -52,7 +51,7 @@ export class MenuController {
   async getMenuList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
-  ): Promise<PublicMenu[]> {
+  ): Promise<ResponseMenu[]> {
     return await this.menuService.getMenuList(client, storeId);
   }
 
@@ -62,15 +61,8 @@ export class MenuController {
     MenuPermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
-  async getMenuById(
-    @CachedMenu() cachedMenu: Menu | null,
-    @Param('storeId') storeId: string,
-    @Param('menuId') menuId: string,
-  ): Promise<PublicMenu | MenuResponseDto> {
-    if (cachedMenu) {
-      return new MenuResponseDto(cachedMenu);
-    }
-    return await this.menuService.getMenuById(storeId, menuId);
+  getMenuById(@CachedMenuByGuard() cachedMenu: Menu): MenuResponseDto {
+    return new MenuResponseDto(cachedMenu);
   }
 
   @Patch(':menuId')
@@ -84,7 +76,7 @@ export class MenuController {
   async updateMenu(
     @Param('menuId') menuId: string,
     @Body() updateMenuDto: UpdateMenuDto,
-  ): Promise<PublicMenu> {
+  ): Promise<ResponseMenu> {
     return await this.menuService.updateMenu(menuId, updateMenuDto);
   }
 

@@ -6,10 +6,10 @@ import {
   Get,
   Patch,
   Delete,
-  HttpCode,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Query,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
@@ -18,24 +18,42 @@ import {
   createTableSchema,
   mergedStoreAndTableParamsSchema,
   storeIdParamsSchema,
+  tableListQuerySchema,
+  tableQuerySchema,
   updateTableSchema,
-} from '@spaceorder/auth';
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { PublicTable, Table } from '@spaceorder/db';
-import { TablePermission } from 'src/utils/guards/model-auth/table-permission.guard';
-import { CachedTable } from 'src/decorators/cache/table.cache';
+import type {
+  ExtendedResponseTable,
+  ResponseTable,
+  TableAndStoreOwnerId,
+} from '@spaceorder/db';
+import { TablePermission } from 'src/utils/guards/model-permissions/table-permission.guard';
+import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
+import {
+  TABLE_INCLUDE_KEY_RECORD,
+  TABLE_OMIT,
+  TABLE_SESSION_FILTER_RECORD,
+} from './table-query.const';
+import { BuildIncludeService } from 'src/utils/query-params/build-include';
+
+type TableQueryParams = {
+  include?: keyof typeof TABLE_INCLUDE_KEY_RECORD;
+  filter?: keyof typeof TABLE_SESSION_FILTER_RECORD;
+};
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
 export class UpdateTableDto extends createZodDto(updateTableSchema) {}
-
 @Controller('stores/:storeId/tables')
 @UseGuards(JwtAuthGuard)
 export class TableController {
-  constructor(private readonly tableService: TableService) {}
+  constructor(
+    private readonly tableService: TableService,
+    private readonly buildInclude: BuildIncludeService,
+  ) {}
 
   @Post()
-  @HttpCode(201)
   @UseGuards(
     ZodValidation({
       params: storeIdParamsSchema,
@@ -46,33 +64,63 @@ export class TableController {
   async createTable(
     @Param('storeId') storeId: string,
     @Body() createTableDto: CreateTableDto,
-  ): Promise<PublicTable> {
+  ): Promise<ResponseTable> {
     return await this.tableService.createTable(storeId, createTableDto);
   }
 
   @Get()
-  @UseGuards(ZodValidation({ params: storeIdParamsSchema }), TablePermission)
+  @UseGuards(
+    ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema }),
+    TablePermission,
+  )
   async getTableList(
     @Param('storeId') storeId: string,
-  ): Promise<PublicTable[]> {
-    return await this.tableService.getTableList(storeId);
+    @Query() query?: TableQueryParams,
+  ): Promise<ExtendedResponseTable[]> {
+    const { filter, include } = this.buildInclude.build({
+      query,
+      includeKeyRecord: TABLE_INCLUDE_KEY_RECORD,
+      filterRecord: TABLE_SESSION_FILTER_RECORD,
+    });
+
+    return await this.tableService.getTableList({
+      where: { store: { publicId: storeId }, ...filter },
+      include: include,
+      omit: TABLE_OMIT,
+    });
   }
 
   @Get(':tableId')
   @UseGuards(
-    ZodValidation({ params: mergedStoreAndTableParamsSchema }),
+    ZodValidation({
+      params: mergedStoreAndTableParamsSchema,
+      query: tableQuerySchema,
+    }),
     TablePermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
   async getTableById(
-    @CachedTable() cachedTable: Table | null,
+    /** TODO: idempotency를 Cache 데코레이터에 구현하여 L1 캐시로 사용해도 좋을듯? */
+    @CachedTableByGuard() cachedTable: TableAndStoreOwnerId,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
-  ): Promise<TableResponseDto | PublicTable> {
-    if (cachedTable) {
+    @Query() query?: TableQueryParams,
+  ): Promise<TableResponseDto | ExtendedResponseTable> {
+    if (!query || (!query.include && !query.filter)) {
       return new TableResponseDto(cachedTable);
     }
-    return await this.tableService.getTableById(storeId, tableId);
+
+    const { filter, include } = this.buildInclude.build({
+      query,
+      includeKeyRecord: TABLE_INCLUDE_KEY_RECORD,
+      filterRecord: TABLE_SESSION_FILTER_RECORD,
+    });
+
+    return await this.tableService.getTableById({
+      where: { publicId: tableId, store: { publicId: storeId }, ...filter },
+      include: include,
+      omit: TABLE_OMIT,
+    });
   }
 
   @Patch(':tableId')
@@ -86,12 +134,11 @@ export class TableController {
   async updateTable(
     @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
-  ): Promise<PublicTable> {
+  ): Promise<ResponseTable> {
     return await this.tableService.updateTable(tableId, updateTableDto);
   }
 
   @Delete(':tableId')
-  @HttpCode(204)
   @UseGuards(
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     TablePermission,

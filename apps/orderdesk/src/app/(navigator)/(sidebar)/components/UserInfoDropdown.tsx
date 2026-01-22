@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthInfo } from "@/providers/AuthenticationProvider";
+import { useAuthInfo } from "@spaceorder/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,

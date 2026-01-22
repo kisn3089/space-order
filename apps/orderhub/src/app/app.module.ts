@@ -15,6 +15,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
 import { MenuModule } from 'src/menu/menu.module';
 import { OrderItemModule } from 'src/order-item/orderItem.module';
+import { OwnerOrderModule } from 'src/owner-order/ownerOrder.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OrderItemModule } from 'src/order-item/orderItem.module';
     AdminModule,
     MenuModule,
     OwnerModule,
+    OwnerOrderModule,
     TokenModule,
     StoreModule,
     OrderModule,

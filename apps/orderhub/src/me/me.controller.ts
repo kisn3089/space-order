@@ -2,7 +2,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpCode,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -14,8 +13,9 @@ import { OwnerResponseDto } from 'src/owner/dto/ownerResponse.dto';
 @Controller('me')
 @UseInterceptors(ClassSerializerInterceptor)
 export class MeController {
+  constructor() {}
+
   @Get()
-  @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   findMe(@Client() owner: Owner): OwnerResponseDto {
     return new OwnerResponseDto(owner);

@@ -1,4 +1,4 @@
-export type AccessToken = {
+export type ResponseAccessToken = {
   accessToken: string;
   expiresAt: Date;
 };

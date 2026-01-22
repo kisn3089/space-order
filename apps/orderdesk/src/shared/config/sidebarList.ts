@@ -8,7 +8,7 @@ export const sidebarList = [
   },
   {
     title: "주문 현황",
-    url: "/orders",
+    url: "/stores",
     icon: ConciergeBell,
   },
 ];

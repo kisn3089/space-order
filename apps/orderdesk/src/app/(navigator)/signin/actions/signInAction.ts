@@ -1,15 +1,15 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { AxiosError } from "axios";
-import { AccessToken, httpToken } from "@spaceorder/api";
-import { COOKIE_TABLE } from "@spaceorder/db";
-import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { ResponseAccessToken, httpToken } from "@spaceorder/api";
+import parseCookieFromResponseHeader, {
+  setCookieFromResponseHeader,
+} from "@/utils/parseCookieFromResponseHeader";
 
 type ActionResponse =
   | {
       success: true;
-      data: AccessToken;
+      data: ResponseAccessToken;
     }
   | {
       success: false;
@@ -30,37 +30,15 @@ export default async function signInAction(
       email,
       password,
     });
-    const cookieStore = cookies();
-    const setCookieHeader = createdAccessToken.headers["set-cookie"];
 
-    if (setCookieHeader) {
-      const cookies = Array.isArray(setCookieHeader)
-        ? setCookieHeader
-        : [setCookieHeader];
-      cookies.forEach((cookieString) => {
-        const [nameValue, ...attributes] = cookieString.split(";");
-        const [name, value] = nameValue.trim().split("=");
-        const responseCookieOptions: ResponseCookie = {
-          name,
-          value,
-          path: "/",
-          expires: undefined,
-        };
-        if (name === COOKIE_TABLE.REFRESH && value) {
-          attributes.forEach((attr) => {
-            const [key, val] = attr.trim().split("=");
-            const lowerKey = key.toLowerCase();
-
-            if (lowerKey === "path" && val) responseCookieOptions.path = val;
-            if (lowerKey === "expires" && val)
-              responseCookieOptions.expires = new Date(val);
-          });
-          cookieStore.set(name, value, responseCookieOptions);
-        }
-      });
+    const cookieFromResponseHeader = createdAccessToken.headers["set-cookie"];
+    if (cookieFromResponseHeader) {
+      const responseCookies = parseCookieFromResponseHeader(
+        cookieFromResponseHeader
+      );
+      await setCookieFromResponseHeader(responseCookies);
     }
 
-    console.log("success signIn: ", email);
     return {
       success: true,
       data: createdAccessToken.data,

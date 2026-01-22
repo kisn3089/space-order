@@ -26,6 +26,11 @@ const EXCEPTION_CONTENTS = {
     code: 'SIGNIN_FAILED',
     message: '이메일 또는 비밀번호가 올바르지 않습니다.',
   },
+  /** ---Table--- */
+  TABLE_INACTIVE: {
+    code: 'TABLE_INACTIVE',
+    message: '요청한 테이블은 비활성화 상태입니다.',
+  },
   /** ---Table Session--- */
   INVALID_TABLE_SESSION: {
     code: 'INVALID_TABLE_SESSION',

@@ -1,7 +1,8 @@
 import { SidebarProvider } from "@spaceorder/ui/components/sidebar";
-import AuthGuard from "@/providers/AuthGuard";
 import { cookies } from "next/headers";
 import NavSidebar from "./components/NavSidebar";
+import AuthGuard from "@/providers/AuthGuard";
+import ServerPrefetch from "@/components/ServerPrefetch";
 
 export default function SidebarLayout({
   children,
@@ -14,10 +15,12 @@ export default function SidebarLayout({
   return (
     <section className="antialiased">
       <AuthGuard>
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <NavSidebar />
-          <main className="w-full">{children}</main>
-        </SidebarProvider>
+        <ServerPrefetch url="/me" shouldSuccess>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <NavSidebar />
+            <main className="w-full">{children}</main>
+          </SidebarProvider>
+        </ServerPrefetch>
       </AuthGuard>
     </section>
   );

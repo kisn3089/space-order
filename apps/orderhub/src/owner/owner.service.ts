@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { encrypt } from 'src/utils/lib/crypt';
 import { CreateOwnerDto, UpdateOwnerDto } from './owner.controller';
-import { Owner, PublicOwner } from '@spaceorder/db';
+import { Owner, ResponseOwner } from '@spaceorder/db';
 
 @Injectable()
 export class OwnerService {
@@ -10,7 +10,7 @@ export class OwnerService {
 
   private readonly ownerOmit = { id: true, password: true, refreshToken: true };
 
-  async createOwner(createOwnerDto: CreateOwnerDto): Promise<PublicOwner> {
+  async createOwner(createOwnerDto: CreateOwnerDto): Promise<ResponseOwner> {
     const encryptedPassword = await encrypt(createOwnerDto.password);
     const createdOwner = await this.prismaService.owner.create({
       data: { ...createOwnerDto, password: encryptedPassword },
@@ -20,7 +20,7 @@ export class OwnerService {
     return createdOwner;
   }
 
-  async getOwnerList(): Promise<PublicOwner[]> {
+  async getOwnerList(): Promise<ResponseOwner[]> {
     return await this.prismaService.owner.findMany({
       omit: this.ownerOmit,
     });
@@ -45,7 +45,7 @@ export class OwnerService {
   async updateOwner(
     ownerPublicId: string,
     updateOwnerDto: UpdateOwnerDto,
-  ): Promise<PublicOwner> {
+  ): Promise<ResponseOwner> {
     return await this.prismaService.owner.update({
       where: { publicId: ownerPublicId },
       data: updateOwnerDto,
@@ -53,7 +53,7 @@ export class OwnerService {
     });
   }
 
-  async deleteOwner(ownerPublicId: string): Promise<PublicOwner> {
+  async deleteOwner(ownerPublicId: string): Promise<ResponseOwner> {
     return await this.prismaService.owner.delete({
       where: { publicId: ownerPublicId },
       omit: this.ownerOmit,
@@ -63,7 +63,7 @@ export class OwnerService {
   async updateRefreshToken(
     ownerPublicId: string,
     refreshToken: string,
-  ): Promise<PublicOwner> {
+  ): Promise<ResponseOwner> {
     return await this.prismaService.owner.update({
       where: { publicId: ownerPublicId },
       data: { lastLoginAt: new Date(), refreshToken },

@@ -6,8 +6,9 @@ import {
   Patch,
   Param,
   Delete,
-  HttpCode,
   UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { OwnerService } from './owner.service';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
@@ -16,13 +17,18 @@ import {
   createOwnerSchema,
   ownerParamsSchema,
   updateOwnerSchema,
-} from '@spaceorder/auth';
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { PublicOwner } from '@spaceorder/db';
-import { OwnerPermission } from 'src/utils/guards/model-auth/owner-permission.guard';
+import { ResponseOwner } from '@spaceorder/db';
+import { OwnerPermission } from 'src/utils/guards/model-permissions/owner-permission.guard';
+import { OwnerResponseDto } from './dto/ownerResponse.dto';
 
 export class CreateOwnerDto extends createZodDto(createOwnerSchema) {}
 export class UpdateOwnerDto extends createZodDto(updateOwnerSchema) {}
+
+/** TODO: Admin만 접근 가능하도록 Permission 데코레이터 추가 필요,
+ * 본인의 데이터는 /me로 접근하도록 유도
+ */
 
 @Controller('owners')
 @UseGuards(JwtAuthGuard)
@@ -30,29 +36,29 @@ export class OwnerController {
   constructor(private readonly ownerService: OwnerService) {}
 
   @Post()
-  @HttpCode(201)
   @UseGuards(ZodValidation({ body: createOwnerSchema }))
   async createOwner(
     @Body() createOwnerDto: CreateOwnerDto,
-  ): Promise<PublicOwner> {
+  ): Promise<ResponseOwner> {
     return await this.ownerService.createOwner(createOwnerDto);
   }
 
   @Get()
-  @HttpCode(200)
-  async retrieveOwnerList(): Promise<PublicOwner[]> {
+  async getOwnerList(): Promise<ResponseOwner[]> {
     return await this.ownerService.getOwnerList();
   }
 
   @Get(':ownerId')
-  @HttpCode(200)
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
-  async getOwnerById(@Param('ownerId') ownerId: string): Promise<PublicOwner> {
-    return await this.ownerService.getOwnerById(ownerId);
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getOwnerById(
+    @Param('ownerId') ownerId: string,
+  ): Promise<OwnerResponseDto> {
+    const findOwner = await this.ownerService.getOwnerById(ownerId);
+    return new OwnerResponseDto(findOwner);
   }
 
   @Patch(':ownerId')
-  @HttpCode(200)
   @UseGuards(
     ZodValidation({
       params: ownerParamsSchema,
@@ -63,12 +69,11 @@ export class OwnerController {
   async updateOwner(
     @Param('ownerId') ownerId: string,
     @Body() updateOwnerDto: UpdateOwnerDto,
-  ): Promise<PublicOwner> {
+  ): Promise<ResponseOwner> {
     return await this.ownerService.updateOwner(ownerId, updateOwnerDto);
   }
 
   @Delete(':ownerId')
-  @HttpCode(204)
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
   async deleteOwner(@Param('ownerId') ownerId: string): Promise<void> {
     await this.ownerService.deleteOwner(ownerId);

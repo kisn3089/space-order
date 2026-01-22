@@ -1,9 +1,12 @@
-import { Controller, Get, HttpCode, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { OrderItemService } from './orderItem.service';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { orderItemParamsSchema, orderIdParamsSchema } from '@spaceorder/auth';
+import {
+  orderItemParamsSchema,
+  orderIdParamsSchema,
+} from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { PublicOrderItem } from '@spaceorder/db';
+import { ResponseOrderItem } from '@spaceorder/db';
 
 @Controller('orders/:orderId/order-items')
 @UseGuards(JwtAuthGuard)
@@ -16,21 +19,19 @@ export class OrderItemController {
    */
 
   @Get()
-  @HttpCode(200)
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
   async getOrderItemList(
     @Param('orderId') orderPublicId: string,
-  ): Promise<PublicOrderItem[]> {
+  ): Promise<ResponseOrderItem[]> {
     return await this.orderItemService.getOrderItemList(orderPublicId);
   }
 
   @Get(':orderItemId')
-  @HttpCode(200)
   @UseGuards(ZodValidation({ params: orderItemParamsSchema }))
   async getOrderItemById(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
-  ): Promise<PublicOrderItem> {
+  ): Promise<ResponseOrderItem> {
     return await this.orderItemService.getOrderItemById(
       orderPublicId,
       orderItemPublicId,

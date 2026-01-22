@@ -1,31 +1,48 @@
 "use client";
 
-import { useAuthInfo } from "./AuthenticationProvider";
 import React from "react";
-import { RefreshAccessToken } from "./RefreshAccessToken";
-import AxiosInterceptor from "@/lib/AxiosInterceptor";
+import { refreshAccessToken } from "../app/common/servers/refreshAccessToken";
+import { isExpired, useAuthInfo } from "@spaceorder/auth";
+import { getAccessToken } from "@/app/common/servers/getAccessToken";
+import { useQueryClient } from "@tanstack/react-query";
 import { updateAxiosAuthorizationHeader } from "@spaceorder/api";
 
-export default function AuthGuard({ children }: React.PropsWithChildren) {
+type AuthGuardProps = {
+  children: React.ReactNode;
+};
+export default function AuthGuard({ children }: AuthGuardProps) {
   const { authInfo, setAuthInfo, signOut } = useAuthInfo();
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
+    /** 새로고침 시 useAuthInfo 갱신 */
     (async () => {
+      const accessToken = await getAccessToken();
+
+      if (accessToken && !isExpired(accessToken)) {
+        setAuthInfo({ accessToken });
+        updateAxiosAuthorizationHeader(accessToken);
+        return;
+      }
+
       try {
-        // 새로고침 시 access token 재발급
-        const refreshedAccessToken = await RefreshAccessToken();
-        setAuthInfo(refreshedAccessToken);
-        updateAxiosAuthorizationHeader(refreshedAccessToken.accessToken);
-      } catch {
-        console.error("[AuthGuard] Failed to refresh access token");
+        console.info("[AuthGuard] Refreshed access token...");
+        const refreshedAccessToken = await refreshAccessToken();
+        setAuthInfo({ accessToken: refreshedAccessToken.accessToken });
+      } catch (error: unknown) {
+        console.error("[AuthGuard] Failed to refresh access token", error);
         signOut();
       }
     })();
+
+    return () => {
+      queryClient.clear();
+    };
   }, []);
 
   if (!authInfo.accessToken) {
     return null;
   }
 
-  return <AxiosInterceptor>{children}</AxiosInterceptor>;
+  return <>{children}</>;
 }

@@ -35,20 +35,20 @@ export class TableResponseDto {
   @Expose()
   updatedAt: Date;
 
+  @Expose()
+  store?: Store;
+
+  @Expose()
+  orders?: Order[];
+
+  @Expose()
+  tableSessions?: TableSession[];
+
   @Exclude()
   id: bigint;
 
   @Exclude()
   storeId: bigint;
-
-  @Exclude()
-  store: Store;
-
-  @Exclude()
-  orders: Order[];
-
-  @Exclude()
-  tableSessions: TableSession[];
 
   constructor(partial: Partial<Table>) {
     Object.assign(this, partial);

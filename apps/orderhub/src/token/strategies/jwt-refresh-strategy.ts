@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { TokenPayload } from 'src/utils/jwt/token-payload.interface';
 import { TokenService } from '../token.service';
-import { COOKIE_TABLE } from '@spaceorder/db';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
+import { TokenPayload } from '@spaceorder/db';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { TokenService } from '../token.service';
-import { PublicOwner } from '@spaceorder/db';
+import { ResponseOwner } from '@spaceorder/db';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -22,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(
     email: string,
     password: string,
-  ): Promise<PublicOwner | undefined> {
+  ): Promise<ResponseOwner | undefined> {
     return await this.tokenService.validateSignInPayload({ email, password });
   }
 }

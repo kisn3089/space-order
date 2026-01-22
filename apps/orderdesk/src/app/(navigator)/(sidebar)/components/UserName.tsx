@@ -1,11 +1,10 @@
 "use client";
 
-import { meQuery } from "@spaceorder/api";
+import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
+import { ResponseOwner } from "@spaceorder/db";
 
 export default function UserName() {
-  const { data: ownerInfo, isSuccess } = meQuery.findMe({});
+  const { data } = useSuspenseWithAuth<ResponseOwner>(`/me`);
 
-  if (!isSuccess) return null;
-
-  return <span>{ownerInfo.name}</span>;
+  return <span>{data.name}</span>;
 }

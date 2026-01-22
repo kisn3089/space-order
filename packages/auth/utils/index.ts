@@ -1,1 +1,1 @@
-export * from "./priceFormatter";
+export * from "./decodedToken";

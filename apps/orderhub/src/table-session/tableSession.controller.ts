@@ -6,23 +6,25 @@ import {
   Res,
   Get,
   UseGuards,
-  HttpCode,
   Body,
   Patch,
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { TableSessionService } from './tableSession.service';
-import { tableParamsSchema, updateSessionSchema } from '@spaceorder/auth';
+import {
+  tableParamsSchema,
+  updateSessionSchema,
+} from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { responseCookie } from 'src/utils/cookies';
-import { COOKIE_TABLE } from '@spaceorder/db';
-import type { PublicTableSession, TableSession } from '@spaceorder/db';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
+import type { ResponseTableSession, TableSession } from '@spaceorder/db';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import type { z } from 'zod';
 import { TableSessionResponseDto } from './dto/tableSessionResponse.dto';
-import { SessionPermission } from 'src/utils/guards/model-auth/table-session-permission.guard';
+import { SessionPermission } from 'src/utils/guards/model-permissions/table-session-permission.guard';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionSchema>;
 
@@ -33,11 +35,10 @@ export class TableSessionController {
   constructor(private readonly tableSessionService: TableSessionService) {}
 
   @Post()
-  @HttpCode(201)
   async findActivatedSessionOrCreate(
     @Param('tableId') tablePublicId: string,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<PublicTableSession> {
+  ): Promise<TableSessionResponseDto> {
     const findOrCreatedSession =
       await this.tableSessionService.findActivatedSessionOrCreate(
         tablePublicId,
@@ -50,11 +51,10 @@ export class TableSessionController {
       { expires: findOrCreatedSession.expiresAt },
     );
 
-    return findOrCreatedSession;
+    return new TableSessionResponseDto(findOrCreatedSession);
   }
 
   @Patch()
-  @HttpCode(200)
   @UseGuards(
     SessionAuth,
     ZodValidation({ body: updateSessionSchema }),
@@ -64,7 +64,7 @@ export class TableSessionController {
     @Session() tableSession: TableSession,
     @Body() updateSessionDto: UpdateTableSessionDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<PublicTableSession> {
+  ): Promise<ResponseTableSession> {
     const updatedSession = await this.tableSessionService.txUpdateSession(
       tableSession,
       updateSessionDto,
@@ -83,27 +83,21 @@ export class TableSessionController {
   }
 
   @Get()
-  @HttpCode(200)
-  @UseGuards(SessionAuth, SessionPermission)
   /** TODO: 전체 세션 정보를 볼 필요가 있을까? (개발 이후에 삭제 고려) */
   async getSessionList(
     @Param('tableId') tablePublicId: string,
-  ): Promise<PublicTableSession[]> {
+  ): Promise<ResponseTableSession[]> {
     return await this.tableSessionService.getSessionList(tablePublicId);
   }
 
   /** TODO: 테스트를 위한 임시 */
-  @Get('get')
-  @UseGuards(SessionAuth, SessionPermission)
+  @Get(':sessionPublicId')
   async getSessionBySessionToken(
-    @Session() tableSession: TableSession,
+    @Param('sessionPublicId') sessionPublicId: string,
   ): Promise<TableSessionResponseDto> {
     const findTableSession =
-      await this.tableSessionService.getSessionBySessionToken(
-        tableSession.sessionToken,
-      );
+      await this.tableSessionService.getSessionByTableId(sessionPublicId);
 
-    /** dto가 현재는 여기서만 쓰인다. */
     return new TableSessionResponseDto(findTableSession);
   }
 }

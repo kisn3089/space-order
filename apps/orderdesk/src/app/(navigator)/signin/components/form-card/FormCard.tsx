@@ -8,11 +8,10 @@ import SignInField from "../sign-in-field/SignInField";
 import Link from "next/link";
 import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
-import { signInFormSchema } from "@spaceorder/auth/schemas/signIn.schema";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
-import { updateAxiosAuthorizationHeader, SignInRequest } from "@spaceorder/api";
-import { useAuthInfo } from "@/providers/AuthenticationProvider";
+import { SignInRequest, signInFormSchema } from "@spaceorder/api";
+import { useAuthInfo } from "@spaceorder/auth";
 
 export default function FormCard() {
   const { setAuthInfo } = useAuthInfo();
@@ -41,10 +40,9 @@ export default function FormCard() {
       setError("password", { message: signInResult.error?.message });
       return;
     }
-    updateAxiosAuthorizationHeader(signInResult.data.accessToken);
-    setAuthInfo(signInResult.data);
+    setAuthInfo({ accessToken: signInResult.data.accessToken });
 
-    router.replace("/orders");
+    router.replace("/stores");
   };
 
   return (

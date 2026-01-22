@@ -1,13 +1,13 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './token-payload.interface';
 import { responseCookie } from '../cookies';
 import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
-import { Admin, Owner, COOKIE_TABLE } from '@spaceorder/db';
+import { Admin, Owner, TokenPayload } from '@spaceorder/db';
+import { COOKIE_TABLE } from '@spaceorder/db/constants';
 
 @Injectable()
-export class GenerateToken {
+export class GenerateTokenService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
@@ -39,6 +39,7 @@ export class GenerateToken {
       aud: this.configService.get('JWT_AUDIENCE'),
       typ: `Bearer`,
     };
+
     const expiresAt = this.createTokenHelper(
       'JWT_ACCESS_TOKEN_EXPIRATION_MS',
     ).expiresAt();
@@ -57,6 +58,10 @@ export class GenerateToken {
 
     responseCookie.set(response, COOKIE_TABLE.REFRESH, refreshToken, {
       expires: expiresRefreshToken,
+    });
+
+    responseCookie.set(response, COOKIE_TABLE.ACCESS_TOKEN, accessToken, {
+      expires: expiresAt,
     });
 
     return { accessToken, expiresAt, refreshToken, tokenPayload };

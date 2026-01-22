@@ -1,41 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import { CreateStoreDto } from './dto/create-store.dto';
-import { UpdateStoreDto } from './dto/update-store.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Store } from '@spaceorder/db';
+import {
+  ResponseStoreWithTables,
+  TABLE_QUERY_FILTER_CONST,
+  TABLE_QUERY_INCLUDE_CONST,
+  type Owner,
+  type Store,
+} from '@spaceorder/db';
+import {
+  TABLE_INCLUDE_KEY_RECORD,
+  TABLE_SESSION_FILTER_RECORD,
+} from 'src/table/table-query.const';
 
 @Injectable()
 export class StoreService {
   constructor(private readonly prismaService: PrismaService) {}
+  private readonly storeOmit = { id: true, ownerId: true };
 
-  create(createStoreDto: CreateStoreDto) {
-    return 'This action adds a new store';
-  }
-
-  async findAll() {
-    return await this.prismaService.store.findMany();
-  }
-
-  async findOne(publicId: string) {
-    return await this.prismaService.store.findUnique({
-      where: { publicId },
+  async getStoreList(client: Owner): Promise<Store[]> {
+    return await this.prismaService.store.findMany({
+      where: { ownerId: client.id },
+      omit: this.storeOmit,
     });
   }
 
-  update(id: number, updateStoreDto: UpdateStoreDto) {
-    return `This action updates a #${id} store`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} store`;
-  }
-
-  async getOwnerIdByIdInStore(
-    storePublicId: string,
-  ): Promise<Pick<Store, 'ownerId'>> {
+  /** 데코레이터 검증을 위해 full field가 필요하다. Omit 하지 않음 */
+  async getStoreById(storePublicId: string): Promise<Store> {
     return await this.prismaService.store.findFirstOrThrow({
       where: { publicId: storePublicId },
-      select: { ownerId: true },
+    });
+  }
+
+  async getStoreWithOrderList(client: Owner): Promise<ResponseStoreWithTables> {
+    return await this.prismaService.store.findFirstOrThrow({
+      where: { ownerId: client.id },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        tables: {
+          omit: { id: true, storeId: true },
+          include: {
+            tableSessions: {
+              ...TABLE_SESSION_FILTER_RECORD[
+                TABLE_QUERY_FILTER_CONST.ALIVE_SESSION
+              ](),
+              include:
+                TABLE_INCLUDE_KEY_RECORD[TABLE_QUERY_INCLUDE_CONST.ORDER_ITEMS][
+                  'tableSessions'
+                ]['include'],
+            },
+          },
+        },
+      },
+      omit: this.storeOmit,
     });
   }
 }

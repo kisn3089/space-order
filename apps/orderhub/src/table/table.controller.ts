@@ -33,11 +33,11 @@ import { CachedTableByGuard } from 'src/decorators/cache/table.decorator';
 import { TableResponseDto } from './dto/tableResponse.dto';
 import { TABLE_OMIT, TABLE_FILTER_RECORD } from './table-query.const';
 import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
-import { SESSION_INCLUDE_KEY_RECORD } from 'src/table-session/table-session-query.const';
+import { SESSION_INCLUDE_RECORD } from 'src/table-session/table-session-query.const';
 
 type TableQueryParams = {
   filter?: keyof typeof TABLE_FILTER_RECORD;
-  include?: keyof typeof SESSION_INCLUDE_KEY_RECORD;
+  include?: keyof typeof SESSION_INCLUDE_RECORD;
 };
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
@@ -76,7 +76,7 @@ export class TableController {
   ): Promise<ExtendedResponseTable[]> {
     const { filter, include } = this.queryParamsBuilder.build({
       query,
-      includeRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_RECORD,
       filterRecord: TABLE_FILTER_RECORD,
     });
 
@@ -114,7 +114,7 @@ export class TableController {
 
     const { include } = this.queryParamsBuilder.build({
       query,
-      includeRecord: SESSION_INCLUDE_KEY_RECORD,
+      includeRecord: SESSION_INCLUDE_RECORD,
     });
 
     return await this.tableService.getTableUnique({

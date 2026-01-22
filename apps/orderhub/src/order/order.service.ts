@@ -203,7 +203,7 @@ export class OrderService {
       const writeAccessCondition =
         type === 'WRITE'
           ? {
-              expiresAt: { gte: new Date() },
+              expiresAt: { gt: new Date() },
               status: {
                 in: [
                   TableSessionStatus.WAITING_ORDER,

@@ -107,7 +107,7 @@ export class TableSessionService {
     return await this.prismaService.tableSession.findFirstOrThrow({
       where: {
         sessionToken,
-        expiresAt: { gte: new Date() },
+        expiresAt: { gt: new Date() },
         status: { in: this.readyToOrderStatuses },
       },
       include: this.withTable,

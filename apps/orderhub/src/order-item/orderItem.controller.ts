@@ -16,7 +16,7 @@ import {
   orderIdParamsSchema,
 } from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { ResponseOrderItem } from '@spaceorder/db';
+import type { Owner, ResponseOrderItem } from '@spaceorder/db';
 import { createZodDto } from 'nestjs-zod';
 import {
   createOrderItemSchema,
@@ -29,6 +29,7 @@ import {
 } from 'src/utils/guards/model-permissions/order-item-permission.guard';
 import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { ORDER_ITEM_FILTER_RECORD } from './order-item-query.const';
+import { Client } from 'src/decorators/client.decorator';
 
 export class CreateOrderItemDto extends createZodDto(createOrderItemSchema) {}
 export class UpdateOrderItemDto extends createZodDto(
@@ -49,16 +50,18 @@ export class OrderItemController {
 
   @Post()
   @UseGuards(
-    ZodValidation({ params: orderIdParamsSchema }),
+    ZodValidation({ params: orderIdParamsSchema, body: createOrderItemSchema }),
     OrderItemPermission,
   )
   async create(
+    @Client() client: Owner,
     @Param('orderId') orderPublicId: string,
     @Body() createOrderItemDto: CreateOrderItemDto,
   ): Promise<ResponseOrderItem> {
     return await this.orderItemService.createOrderItem(
       orderPublicId,
       createOrderItemDto,
+      client,
     );
   }
 
@@ -109,12 +112,14 @@ export class OrderItemController {
     OrderItemWritePermission,
   )
   async partialUpdate(
+    @Client() client: Owner,
     @Param('orderItemId') orderItemPublicId: string,
     @Body() updateOrderItemDto: UpdateOrderItemDto,
   ): Promise<ResponseOrderItem> {
     return await this.orderItemService.partialUpdateOrderItem(
       orderItemPublicId,
       updateOrderItemDto,
+      client,
     );
   }
 

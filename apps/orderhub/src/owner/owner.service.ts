@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { encrypt } from 'src/utils/lib/crypt';
 import { CreateOwnerDto, UpdateOwnerDto } from './owner.controller';
-import { Owner, Prisma, ResponseOwner } from '@spaceorder/db';
+import { Prisma, ResponseOwner } from '@spaceorder/db';
 
 @Injectable()
 export class OwnerService {

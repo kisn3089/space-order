@@ -105,6 +105,7 @@ export class TableSessionController {
     }),
   )
   async getUnique(
+    @Param('tableId') tablePublicId: string,
     @Param('sessionId') sessionId: string,
     @Query() query?: SessionQueryParams,
   ): Promise<ResponseTableSession> {
@@ -115,7 +116,7 @@ export class TableSessionController {
     });
 
     return await this.tableSessionService.getSessionUnique({
-      where: { publicId: sessionId },
+      where: { publicId: sessionId, table: { publicId: tablePublicId } },
       ...include,
     });
   }

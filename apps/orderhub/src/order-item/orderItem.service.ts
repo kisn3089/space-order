@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Menu, Prisma, ResponseOrderItem } from '@spaceorder/db';
+import { Menu, Owner, Prisma, ResponseOrderItem } from '@spaceorder/db';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderItemDto, UpdateOrderItemDto } from './orderItem.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
@@ -13,10 +13,11 @@ export class OrderItemService {
   async createOrderItem(
     orderPublicId: string,
     createPayload: CreateOrderItemDto,
+    client: Owner,
   ): Promise<ResponseOrderItem> {
     const [findMenu, findOrder] = await Promise.all([
       this.prismaService.menu.findFirstOrThrow(
-        this.findMenuFields(createPayload.menuPublicId),
+        this.findMenuFields(createPayload.menuPublicId, client),
       ),
       this.prismaService.order.findFirstOrThrow(
         this.findOrderFields(orderPublicId),
@@ -38,9 +39,12 @@ export class OrderItemService {
     });
   }
 
-  private findMenuFields(menuPublicId: string) {
+  private findMenuFields(menuPublicId: string, client: Owner) {
     return {
-      where: { publicId: menuPublicId },
+      where: {
+        publicId: menuPublicId,
+        store: { ownerId: client.id },
+      },
       select: {
         id: true,
         name: true,
@@ -85,6 +89,7 @@ export class OrderItemService {
   async partialUpdateOrderItem(
     orderItemPublicId: string,
     updatePayload: UpdateOrderItemDto,
+    client: Owner,
   ): Promise<ResponseOrderItem> {
     if (!updatePayload.menuPublicId) {
       return await this.prismaService.orderItem.update({
@@ -94,12 +99,12 @@ export class OrderItemService {
       });
     }
 
-    const { menuPublicId, ...omitedUpdatePayload } = updatePayload;
+    const { menuPublicId, ...omittedUpdatePayload } = updatePayload;
     const findMenu = await this.prismaService.menu.findFirstOrThrow(
-      this.findMenuFields(menuPublicId),
+      this.findMenuFields(menuPublicId, client),
     );
 
-    this.validateMenuOptions(findMenu, omitedUpdatePayload.options);
+    this.validateMenuOptions(findMenu, omittedUpdatePayload.options);
 
     return await this.prismaService.orderItem.update({
       where: { publicId: orderItemPublicId },
@@ -107,7 +112,7 @@ export class OrderItemService {
         menu: { connect: { id: findMenu.id } },
         menuName: findMenu.name,
         price: findMenu.price,
-        ...omitedUpdatePayload,
+        ...omittedUpdatePayload,
       },
       omit: this.orderItemOmit,
     });

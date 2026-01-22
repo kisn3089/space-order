@@ -23,7 +23,10 @@ import {
   orderItemQuerySchema,
   partialUpdateOrderItemSchema,
 } from '@spaceorder/api/schemas/model/orderItem.schema';
-import { OrderItemPermission } from 'src/utils/guards/model-permissions/order-item-permission.guard';
+import {
+  OrderItemPermission,
+  OrderItemWritePermission,
+} from 'src/utils/guards/model-permissions/order-item-permission.guard';
 import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { ORDER_ITEM_FILTER_RECORD } from './order-item-query.const';
 
@@ -45,7 +48,10 @@ export class OrderItemController {
   ) {}
 
   @Post()
-  @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
+  @UseGuards(
+    ZodValidation({ params: orderIdParamsSchema }),
+    OrderItemPermission,
+  )
   async create(
     @Param('orderId') orderPublicId: string,
     @Body() createOrderItemDto: CreateOrderItemDto,
@@ -59,6 +65,7 @@ export class OrderItemController {
   @Get()
   @UseGuards(
     ZodValidation({ params: orderIdParamsSchema, query: orderItemQuerySchema }),
+    OrderItemPermission,
   )
   async getList(
     @Param('orderId') orderPublicId: string,
@@ -76,7 +83,10 @@ export class OrderItemController {
   }
 
   @Get(':orderItemId')
-  @UseGuards(ZodValidation({ params: orderItemParamsSchema }))
+  @UseGuards(
+    ZodValidation({ params: orderItemParamsSchema }),
+    OrderItemPermission,
+  )
   async getUnique(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
@@ -96,7 +106,7 @@ export class OrderItemController {
       params: orderItemParamsSchema,
       body: partialUpdateOrderItemSchema,
     }),
-    OrderItemPermission,
+    OrderItemWritePermission,
   )
   async partialUpdate(
     @Param('orderItemId') orderItemPublicId: string,
@@ -111,7 +121,7 @@ export class OrderItemController {
   @Delete(':orderItemId')
   @UseGuards(
     ZodValidation({ params: orderItemParamsSchema }),
-    OrderItemPermission,
+    OrderItemWritePermission,
   )
   async delete(@Param('orderItemId') orderItemPublicId: string): Promise<void> {
     return await this.orderItemService.deleteOrderItem(orderItemPublicId);

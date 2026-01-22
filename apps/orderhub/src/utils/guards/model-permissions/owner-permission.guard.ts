@@ -20,7 +20,7 @@ export class OwnerPermission implements CanActivate {
 
     /**
      * 추후 Admin은 모든 Owner에 대한 권한을 가질 수 있도록 구현 예정
-     * writer 권한은 Admin 권한만 가능하도록 변경 필요
+     * write 권한은 Admin 권한만 가능하도록 변경 필요
      */
 
     if (ownerId === client.publicId) {

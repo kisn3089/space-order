@@ -4,8 +4,8 @@ import { ExecutionContext } from '@nestjs/common/interfaces/features/execution-c
 import { OrderItem, Owner, TableSessionStatus } from '@spaceorder/db';
 import { OrderItemService } from 'src/order-item/orderItem.service';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { ForbiddenException } from '@nestjs/common/exceptions/forbidden.exception';
 
 type RequestWithOrderItem = Request & {
   user: Owner;
@@ -18,33 +18,73 @@ type RequestWithOrderItem = Request & {
  */
 @Injectable()
 export class OrderItemPermission implements CanActivate {
-  constructor(private readonly orderItemService: OrderItemService) {}
+  constructor(protected readonly orderItemService: OrderItemService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithOrderItem>();
     const { orderId, orderItemId } = request.params;
 
     const client = request.user;
-    const findOrderItemFromAliveSession =
-      await this.orderItemService.getOrderItemUnique({
+    const findOrderItemFromAliveSession = await this.findOrderItem(
+      orderId,
+      orderItemId,
+      client,
+    );
+
+    request.orderItem = findOrderItemFromAliveSession;
+    return true;
+  }
+
+  async findOrderItem(
+    orderId: string,
+    orderItemId: string | undefined,
+    client: Owner,
+  ): Promise<OrderItem> {
+    return await this.orderItemService.getOrderItemUnique({
+      where: {
+        order: { publicId: orderId, table: { store: { ownerId: client.id } } },
+        ...(orderItemId ? { publicId: orderItemId } : {}),
+      },
+    });
+  }
+}
+
+export class OrderItemWritePermission extends OrderItemPermission {
+  async findOrderItem(
+    orderId: string,
+    orderItemId: string | undefined,
+    client: Owner,
+  ): Promise<OrderItem> {
+    const orderItemWithSession = await this.orderItemService.getOrderItemUnique(
+      {
         where: {
           order: {
             publicId: orderId,
-            tableSession: {
-              status: TableSessionStatus.ACTIVE,
-              expiresAt: { gt: new Date() },
-            },
             table: { store: { ownerId: client.id } },
           },
-          publicId: orderItemId,
+          ...(orderItemId ? { publicId: orderItemId } : {}),
         },
-      });
+        include: {
+          order: {
+            include: {
+              tableSession: { select: { status: true, expiresAt: true } },
+            },
+          },
+        },
+      },
+    );
 
-    if (findOrderItemFromAliveSession) {
-      request.orderItem = findOrderItemFromAliveSession;
-      return true;
+    if (
+      orderItemWithSession.order.tableSession.status !==
+        TableSessionStatus.ACTIVE ||
+      orderItemWithSession.order.tableSession.expiresAt < new Date()
+    ) {
+      throw new HttpException(
+        exceptionContentsIs('TABLE_SESSION_NOT_ACTIVE'),
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    throw new ForbiddenException(exceptionContentsIs('FORBIDDEN'));
+    return orderItemWithSession;
   }
 }

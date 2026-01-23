@@ -82,7 +82,7 @@ export class TableController {
 
     const tableFilter = query?.filter === 'activated-table' ? filter : {};
     const includeSession =
-      query?.filter !== 'activated-table'
+      query?.filter !== 'activated-table' && include
         ? { tableSessions: { ...include, ...filter } }
         : {};
 

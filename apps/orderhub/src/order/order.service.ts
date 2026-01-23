@@ -65,6 +65,20 @@ export class OrderService {
     createOrderDto: CreateOrderDto,
   ): Promise<CreateOrderReturn> {
     return await this.prismaService.$transaction(async (tx) => {
+      const sessionFromCookieOrCreated: SessionWithTable =
+        tableSession ??
+        (await this.tableSessionService.txFindActivatedSessionOrCreate(
+          tx,
+          tableId,
+        ));
+
+      if (!sessionFromCookieOrCreated) {
+        throw new HttpException(
+          exceptionContentsIs('TABLE_SESSION_NOT_ACTIVE'),
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
       const menuPublicIds = createOrderDto.orderItems.map(
         (item) => item.menuPublicId,
       );
@@ -86,20 +100,6 @@ export class OrderService {
         findMenuList,
         menuPublicIds,
       );
-
-      const sessionFromCookieOrCreated: SessionWithTable =
-        tableSession ??
-        (await this.tableSessionService.txFindActivatedSessionOrCreate(
-          tx,
-          tableId,
-        ));
-
-      if (!sessionFromCookieOrCreated) {
-        throw new HttpException(
-          exceptionContentsIs('TABLE_SESSION_NOT_ACTIVE'),
-          HttpStatus.NOT_FOUND,
-        );
-      }
 
       const updatedTableSession =
         sessionFromCookieOrCreated.status !== TableSessionStatus.ACTIVE

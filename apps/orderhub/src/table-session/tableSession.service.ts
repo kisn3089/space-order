@@ -21,36 +21,21 @@ type UpdateSessionFromCreateOrder = z.infer<typeof updateActivateSchema>;
 @Injectable()
 export class TableSessionService {
   constructor(private readonly prismaService: PrismaService) {}
+
   private sanitizeOmit = { id: true, tableId: true } as const;
   withTable = { table: true } as const;
 
-  private generateSecureSessionToken(): string {
-    const buffer = randomBytes(32);
-    return buffer.toString('base64url');
-  }
+  async findActivatedSessionOrCreate(
+    tablePublicId: string,
+  ): Promise<SessionWithTable> {
+    return await this.prismaService.$transaction(async (tx) => {
+      const activatedSession = await this.txFindActivatedSessionOrCreate(
+        tx,
+        tablePublicId,
+      );
 
-  private getActivatedSessionById(tablePublicId: string) {
-    return {
-      where: {
-        table: { publicId: tablePublicId },
-        status: {
-          in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
-        },
-      },
-      include: this.withTable,
-    };
-  }
-
-  private createSession(tablePublicId: string) {
-    const sessionToken = this.generateSecureSessionToken();
-    return {
-      data: {
-        table: { connect: { publicId: tablePublicId } },
-        sessionToken,
-        expiresAt: new Date(Date.now() + 20 * 60 * 1000), // 20분 후 만료
-      },
-      include: this.withTable,
-    };
+      return activatedSession;
+    });
   }
 
   async txFindActivatedSessionOrCreate(
@@ -79,6 +64,8 @@ export class TableSessionService {
       );
     }
 
+    await this.validActivatedTable(tx, tablePublicId);
+
     const createdTableSession = await tx.tableSession.create(
       this.createSession(tablePublicId),
     );
@@ -86,21 +73,50 @@ export class TableSessionService {
     return createdTableSession;
   }
 
-  async findActivatedSessionOrCreate(
-    tablePublicId: string,
-  ): Promise<SessionWithTable> {
-    return await this.prismaService.$transaction(async (tx) => {
-      const activatedSession = await this.txFindActivatedSessionOrCreate(
-        tx,
-        tablePublicId,
-      );
-
-      return activatedSession;
-    });
+  private getActivatedSessionById(tablePublicId: string) {
+    return {
+      where: {
+        table: { publicId: tablePublicId, isActive: true },
+        status: {
+          in: [TableSessionStatus.ACTIVE, TableSessionStatus.WAITING_ORDER],
+        },
+      },
+      include: this.withTable,
+    };
   }
 
   private isSessionExpired(session: TableSession): boolean {
     return session.expiresAt < new Date();
+  }
+
+  private async validActivatedTable(tx: Tx, tablePublicId: string) {
+    try {
+      await tx.table.findUniqueOrThrow({
+        where: { publicId: tablePublicId, isActive: true },
+      });
+    } catch {
+      throw new HttpException(
+        exceptionContentsIs('TABLE_INACTIVE'),
+        HttpStatus.FORBIDDEN,
+      );
+    }
+  }
+
+  private createSession(tablePublicId: string) {
+    const sessionToken = this.generateSecureSessionToken();
+    return {
+      data: {
+        table: { connect: { publicId: tablePublicId } },
+        sessionToken,
+        expiresAt: new Date(Date.now() + 20 * 60 * 1000), // 20분 후 만료
+      },
+      include: this.withTable,
+    };
+  }
+
+  private generateSecureSessionToken(): string {
+    const buffer = randomBytes(32);
+    return buffer.toString('base64url');
   }
 
   async getActiveSession(sessionToken: string): Promise<SessionWithTable> {

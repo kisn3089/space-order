@@ -112,7 +112,6 @@ export class TableSessionController {
     const { include } = this.queryParamsBuilder.build({
       query,
       includeRecord: SESSION_INCLUDE_RECORD,
-      filterRecord: SESSION_FILTER_RECORD,
     });
 
     return await this.tableSessionService.getSessionUnique({

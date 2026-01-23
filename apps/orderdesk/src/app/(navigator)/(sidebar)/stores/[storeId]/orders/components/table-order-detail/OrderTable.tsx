@@ -16,10 +16,13 @@ import {
   TableHeader,
   TableRow,
 } from "@spaceorder/ui/components/table";
+import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading?: boolean;
   onUpdateQuantity?: (itemId: string, delta: number) => void;
   onRemoveItem?: (itemId: string) => void;
 }
@@ -27,6 +30,7 @@ interface DataTableProps<TData, TValue> {
 export function OrderTable<TData, TValue>({
   columns,
   data,
+  isLoading,
   onUpdateQuantity,
   onRemoveItem,
 }: DataTableProps<TData, TValue>) {
@@ -50,7 +54,7 @@ export function OrderTable<TData, TValue>({
     },
   });
 
-  const applyChanges = () => {
+  const detectChanges = () => {
     const selectedRowKeys = Object.keys(selectedRow);
     if (selectedRowKeys.length === 0) return;
 
@@ -59,7 +63,7 @@ export function OrderTable<TData, TValue>({
   };
 
   return (
-    <Table className="h-full" onClick={applyChanges}>
+    <Table className="h-full" onClick={detectChanges}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow
@@ -85,8 +89,11 @@ export function OrderTable<TData, TValue>({
         ))}
       </TableHeader>
       <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
+        <ActivityRender
+          mode={isLoading ? "hidden" : "visible"}
+          fallback={<LoadingFallback />}
+        >
+          {table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
@@ -96,13 +103,13 @@ export function OrderTable<TData, TValue>({
                 // 이미 선택된 row를 클릭하면 해제, 아니면 단일 선택
                 if (row.getIsSelected()) {
                   row.toggleSelected(false);
-                  applyChanges();
+                  detectChanges();
                 } else {
                   table.resetRowSelection();
                   row.toggleSelected(true);
                 }
               }}
-              className="grid grid-cols-[2fr_1fr_1fr] cursor-pointer min-h-16"
+              className="grid grid-cols-[2fr_1fr_1fr] cursor-pointer min-h-16 animate-fade-in-up"
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
@@ -113,16 +120,19 @@ export function OrderTable<TData, TValue>({
                 </TableCell>
               ))}
             </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
-              {/* MVP 이후 변경 필요 */}
-            </TableCell>
-          </TableRow>
-        )}
+          ))}
+        </ActivityRender>
       </TableBody>
     </Table>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <tr>
+      <td>
+        <LoadingSpinner />
+      </td>
+    </tr>
   );
 }

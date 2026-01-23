@@ -4,6 +4,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import TableOrderDetail from "../components/table-order-detail/TableOrderDetail";
 import ErrorFallback from "@/components/ErrorFallback";
 import { Suspense } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function TableOrderDetailPage({
   params,
@@ -19,7 +20,7 @@ export default function TableOrderDetailPage({
           </ErrorFallback>
         )}
       >
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingSpinner />}>
           <TableOrderDetail params={params} />
         </Suspense>
       </ErrorBoundary>

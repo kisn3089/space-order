@@ -24,7 +24,7 @@ export default function TableOrderDetail({
   const { storeId, tableId } = params;
   const fetchUrl = `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`;
 
-  const { data: tableWithSessions } =
+  const { data: tableWithSessions, isRefetching } =
     useSuspenseWithAuth<ResponseTableWithSessions>(fetchUrl, {
       queryOptions: { queryKey: [fetchUrl], refetchOnMount: "always" },
     });
@@ -67,6 +67,7 @@ export default function TableOrderDetail({
       <OrderTable
         columns={columns}
         data={mergedCalcuratedPriceByQuntity}
+        isLoading={isRefetching}
         onUpdateQuantity={update}
         onRemoveItem={removeById}
       />

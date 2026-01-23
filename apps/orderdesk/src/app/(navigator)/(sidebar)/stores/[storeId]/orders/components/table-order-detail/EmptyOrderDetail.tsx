@@ -21,7 +21,9 @@ export default function EmptyOrderDetail() {
 function EmptyOrder() {
   return (
     <div className="grid place-content-center h-full">
-      <div className="font-semibold text-lg">선택된 테이블이 없습니다.</div>
+      <div className="font-semibold text-lg">
+        선택된 테이블에 주문이 없습니다.
+      </div>
     </div>
   );
 }

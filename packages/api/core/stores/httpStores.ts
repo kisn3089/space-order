@@ -1,4 +1,4 @@
-import { ResponseStore, ResponseStoreWithTables } from "@spaceorder/db";
+import { ResponseStore, SummarizedOrdersFromStore } from "@spaceorder/db";
 import { http } from "../axios/http";
 
 async function fetchList(): Promise<ResponseStore[]> {
@@ -11,10 +11,14 @@ async function fetchUnique(publicId: string): Promise<ResponseStore> {
   return response.data;
 }
 
-async function fetchStoreWithOrders(): Promise<ResponseStoreWithTables> {
+async function fetchOrderSummary(): Promise<SummarizedOrdersFromStore> {
   const response =
-    await http.get<ResponseStoreWithTables>(`/stores/alive-orders`);
+    await http.get<SummarizedOrdersFromStore>(`/stores/alive-orders`);
   return response.data;
 }
 
-export const httpStores = { fetchList, fetchUnique, fetchStoreWithOrders };
+export const httpStores = {
+  fetchList,
+  fetchUnique,
+  fetchStoreWithOrders: fetchOrderSummary,
+};

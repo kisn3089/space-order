@@ -1,8 +1,8 @@
 import {
+  ALIVE_SESSION,
+  ORDER_ITEMS,
   OrderStatus,
-  ResponseTableWithSessions,
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
+  SummarizedTableWithSessions,
 } from "@spaceorder/db";
 import { Button } from "@spaceorder/ui/components/button";
 import {
@@ -25,14 +25,13 @@ type TableBoardProps = {
   storeId: string;
   tableId: string;
 };
-const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
 export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
-  const { data: table } = useSuspenseWithAuth<ResponseTableWithSessions>(
-    `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
-  );
-  const { tableNumber, section, tableSessions } = table;
+  const { data: tableWithSessions } =
+    useSuspenseWithAuth<SummarizedTableWithSessions>(
+      `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
+    );
+  const { tableNumber, section, tableSessions } = tableWithSessions;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
   const tableSession = tableSessions ? tableSessions[0] : null;
 
@@ -52,7 +51,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
     push(`/stores/${storeId}/orders/${tableId}`);
   };
 
-  const isActiveTable = table.isActive === true;
+  const isActiveTable = tableWithSessions.isActive === true;
   const selectableStyle = isActiveTable ? "" : "opacity-20 cursor-not-allowed";
   const sessionActiveStyle = tableSession ? "hover:bg-accent" : "";
 
@@ -92,7 +91,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
               >
                 <TableOrder
                   key={order.publicId}
-                  tableId={table.publicId}
+                  tableId={tableWithSessions.publicId}
                   orderId={order.publicId}
                   storeId={storeId}
                 />

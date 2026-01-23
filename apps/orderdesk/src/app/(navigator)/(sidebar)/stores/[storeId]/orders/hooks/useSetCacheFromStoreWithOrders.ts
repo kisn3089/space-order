@@ -1,20 +1,17 @@
 import {
-  ResponseOrderWithItem,
+  ALIVE_SESSION,
+  ORDER_ITEMS,
   ResponseStore,
-  ResponseStoreWithTables,
-  ResponseTableWithSessions,
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
+  SummarizedOrdersFromStore,
+  SummarizedTableWithSessions,
+  SummarizedOrderWithItem,
 } from "@spaceorder/db";
 import { useQueryClient } from "@tanstack/react-query";
-
-const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
 export const useSetCacheFromStoreWithOrders = () => {
   const queryClient = useQueryClient();
 
-  const setData = (storeWithTables: ResponseStoreWithTables) => {
+  const setData = (storeWithTables: SummarizedOrdersFromStore) => {
     const { tables, ...store } = storeWithTables;
 
     queryClient.setQueryData<ResponseStore>(
@@ -23,9 +20,12 @@ export const useSetCacheFromStoreWithOrders = () => {
     );
 
     const tablesWithAliveSessions = tables.map((tableWithSessions) => {
-      const { tableSessions, ...table } = tableWithSessions;
+      if (!tableWithSessions?.tableSessions) {
+        return tableWithSessions;
+      }
 
-      queryClient.setQueryData<ResponseTableWithSessions>(
+      const { tableSessions, ...table } = tableWithSessions;
+      queryClient.setQueryData<SummarizedTableWithSessions>(
         [
           `/stores/${store.publicId}/tables/${table.publicId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
         ],
@@ -38,13 +38,13 @@ export const useSetCacheFromStoreWithOrders = () => {
          * 캐시 url 설정도 변경 필요 &filter=alive 같은 식으로
          */
 
-        queryClient.setQueryData<ResponseOrderWithItem[]>(
+        queryClient.setQueryData<SummarizedOrderWithItem[]>(
           [`/owner/stores/${store.publicId}/tables/${table.publicId}/orders`],
           tableSessions[0].orders
         );
 
         tableSessions[0].orders?.forEach((order) => {
-          queryClient.setQueryData<ResponseOrderWithItem>(
+          queryClient.setQueryData<SummarizedOrderWithItem>(
             [
               `/owner/stores/${store.publicId}/tables/${table.publicId}/orders/${order.publicId}`,
             ],
@@ -56,7 +56,7 @@ export const useSetCacheFromStoreWithOrders = () => {
       return tableWithSessions;
     });
 
-    queryClient.setQueryData<ResponseTableWithSessions[]>(
+    queryClient.setQueryData<SummarizedTableWithSessions[]>(
       [
         `/stores/${store.publicId}/tables?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
       ],

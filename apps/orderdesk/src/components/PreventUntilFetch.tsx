@@ -2,7 +2,7 @@
 
 import { useSetCacheFromStoreWithOrders } from "@/app/(navigator)/(sidebar)/stores/[storeId]/orders/hooks/useSetCacheFromStoreWithOrders";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
-import { ResponseStoreWithTables } from "@spaceorder/db";
+import { SummarizedOrdersFromStore } from "@spaceorder/db";
 
 export function PreventUntilFetch({
   url,
@@ -11,9 +11,9 @@ export function PreventUntilFetch({
 }: {
   url: string;
   children: React.ReactNode;
-  onSuccess?: (data: ResponseStoreWithTables) => void;
+  onSuccess?: (data: SummarizedOrdersFromStore) => void;
 }) {
-  const { isSuccess } = useSuspenseWithAuth<ResponseStoreWithTables>(url, {
+  const { isSuccess } = useSuspenseWithAuth<SummarizedOrdersFromStore>(url, {
     onSuccess,
   });
 
@@ -31,7 +31,7 @@ export function ClientPreventUntilFetch({
 }) {
   const setCache = useSetCacheFromStoreWithOrders();
   return (
-    <PreventUntilFetch url={`/stores/alive-orders`} onSuccess={setCache}>
+    <PreventUntilFetch url={`/stores/order-summary`} onSuccess={setCache}>
       {children}
     </PreventUntilFetch>
   );

@@ -1,7 +1,7 @@
 import {
   HealthCheckResponse,
   httpMe,
-  useCancellableAsync,
+  useCancelableAsync,
 } from "@spaceorder/api";
 import {
   AlertDialogAction,
@@ -26,7 +26,7 @@ export default function PaymentDialog(
     return result;
   };
 
-  const paymentTransaction = useCancellableAsync<
+  const paymentTransaction = useCancelableAsync<
     [React.MouseEvent<HTMLButtonElement>],
     HealthCheckResponse
   >(payment);

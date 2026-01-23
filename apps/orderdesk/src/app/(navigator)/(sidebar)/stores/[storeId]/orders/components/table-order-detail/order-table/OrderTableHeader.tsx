@@ -1,0 +1,31 @@
+import {
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@spaceorder/ui/components/table";
+import { flexRender, Header, Table } from "@tanstack/react-table";
+
+type OrderTableHeaderProps<TData> = { table: Table<TData> };
+export default function OrderTableHeader<TData>({
+  table,
+}: OrderTableHeaderProps<TData>) {
+  return (
+    <TableHeader>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <TableRow className="grid grid-cols-[2fr_1fr_1fr]" key={headerGroup.id}>
+          {headerGroup.headers.map((header) => (
+            <Head key={header.id} header={header} />
+          ))}
+        </TableRow>
+      ))}
+    </TableHeader>
+  );
+}
+
+function Head<TData>({ header }: { header: Header<TData, unknown> }) {
+  return (
+    <TableHead key={header.id} className="flex items-center whitespace-pre">
+      {flexRender(header.column.columnDef.header, header.getContext())}
+    </TableHead>
+  );
+}

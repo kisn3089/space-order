@@ -1,13 +1,13 @@
 import { CardContent } from "@spaceorder/ui/components/card";
 import { OrderStatus, ResponseOrderWithItem } from "@spaceorder/db";
 import { Badge } from "@spaceorder/ui/components/badge";
-import useOwnerOrders from "@spaceorder/api/core/owner-orders/useOwnerOrders.mutate";
 import {
   FetchOrderUniqueParams,
   UpdateOwnerOrderPayload,
-} from "@spaceorder/api/core/owner-orders/httpOwnerOrders";
+} from "@spaceorder/api/core/owner-order/httpOwnerOrder";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import { BADGE_BY_ORDER_STATUS } from "@spaceorder/ui/constants/badgeByOrderStatus.const";
+import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
 
 const nextStatusMap: Record<OrderStatus, OrderStatus | null> = {
   [OrderStatus.PENDING]: OrderStatus.ACCEPTED,
@@ -25,7 +25,7 @@ export default function TableOrder({
   const { data: order } = useSuspenseWithAuth<ResponseOrderWithItem>(
     `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`
   );
-  const { updateOwnerOrder } = useOwnerOrders();
+  const { updateOwnerOrder } = useOwnerOrder();
 
   const isFinishStatus =
     order.status === OrderStatus.COMPLETED ||

@@ -1,0 +1,143 @@
+"use client";
+
+import {
+  ColumnDef,
+  getCoreRowModel,
+  Row,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useState } from "react";
+
+import { Table, TableBody, TableRow } from "@spaceorder/ui/components/table";
+import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import OrderTableHeader from "./OrderTableHeader";
+import EditController from "./EditController";
+import OrderTableCells from "./OrderTableCells";
+import useOrderItemTable from "../../../hooks/useOrderItemTable";
+import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
+
+interface DataTableProps {
+  columns: ColumnDef<ResponseOrderItem>[];
+  data: ResponseOrderItem[];
+  isLoading?: boolean;
+}
+
+/** TODO: 컴포넌트 재사용 가능성 높은니 추상화 필요 */
+export function OrderTable({ columns, data, isLoading }: DataTableProps) {
+  const { removeById, update } = useOrderItemTable();
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [editingData, setEditingData] = useState<ResponseOrderItem | null>(
+    null
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    state: { rowSelection },
+    onRowSelectionChange: setRowSelection,
+    meta: {
+      editingData,
+      updateEditingQuantity: (delta: number) =>
+        setEditingData((prev) =>
+          prev
+            ? { ...prev, quantity: Math.max(1, prev.quantity + delta) }
+            : null
+        ),
+      resetEditing: () => setEditingData(null),
+    },
+  });
+
+  const detectChanges = () => {
+    const selectedRowKeys = Object.keys(rowSelection);
+    if (selectedRowKeys.length === 0) return;
+
+    setRowSelection({});
+    setEditingData(null);
+    // TODO: 테이블 변경점 포착 시 API 호출 로직을 여기에 추가해야 함
+  };
+
+  const RowClickEvent = (
+    e: React.MouseEvent<HTMLTableRowElement>,
+    row: Row<ResponseOrderItem>
+  ) => {
+    const isSelected = row.getIsSelected();
+    // 상위 table 태그의 clearSelection 이벤트 방지
+    e.stopPropagation();
+    // 이미 선택된 row를 클릭하면 해제, 아니면 단일 선택
+    if (isSelected) {
+      row.toggleSelected(false);
+      detectChanges();
+    } else {
+      table.resetRowSelection();
+      row.toggleSelected(true);
+      // 선택 시 원본 데이터 복사하여 editingData에 저장
+      setEditingData(row.original);
+    }
+  };
+
+  const resetSelection = () => {
+    setRowSelection({});
+    setEditingData(null);
+  };
+
+  const removeMenu = (row: Row<ResponseOrderItem>) => {
+    removeById(row.original.publicId);
+    resetSelection();
+  };
+
+  const updateFromEditingItem = () => {
+    update(editingData);
+    resetSelection();
+  };
+
+  return (
+    <Table className="h-full" onClick={detectChanges}>
+      <OrderTableHeader table={table} />
+      <TableBody>
+        <ActivityRender
+          mode={isLoading ? "hidden" : "visible"}
+          fallback={<LoadingFallback />}
+        >
+          {table.getRowModel().rows.map((row) => {
+            const isSelected = row.getIsSelected();
+
+            return (
+              <TableRow
+                key={row.id}
+                data-state={isSelected && "selected"}
+                onClick={(e) => RowClickEvent(e, row)}
+                className="flex flex-col"
+              >
+                <OrderTableCells row={row} />
+                <ActivityRender mode={isSelected ? "visible" : "hidden"}>
+                  <EditController
+                    setChanges={(e) => {
+                      e.stopPropagation();
+                      updateFromEditingItem();
+                    }}
+                    remove={(e) => {
+                      e.stopPropagation();
+                      removeMenu(row);
+                    }}
+                  />
+                </ActivityRender>
+              </TableRow>
+            );
+          })}
+        </ActivityRender>
+      </TableBody>
+    </Table>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <tr>
+      <td>
+        <LoadingSpinner />
+      </td>
+    </tr>
+  );
+}

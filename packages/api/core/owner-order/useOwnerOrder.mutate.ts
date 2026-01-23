@@ -3,9 +3,9 @@ import {
   CreateOwnerOrderPayload,
   FetchOrderParams,
   FetchOrderUniqueParams,
-  httpOrders,
+  httpOrder,
   UpdateOwnerOrderPayload,
-} from "./httpOwnerOrders";
+} from "./httpOwnerOrder";
 import {
   SESSION_QUERY_FILTER_KEYS,
   SESSION_QUERY_INCLUDE_KEYS,
@@ -22,19 +22,19 @@ type UpdateOwnerOrderParams = {
   params: FetchOrderUniqueParams;
   updateOrderPayload: UpdateOwnerOrderPayload;
 };
-export default function useOwnerOrders() {
+export default function useOwnerOrder() {
   const queryClient = useQueryClient();
 
   const createOwnerOrder = useMutation({
     mutationKey: ["owner", "order", "create"],
     mutationFn: ({ params, createOrderData }: CreateOwnerOrderParams) =>
-      httpOrders.createOwnerOrder(params, createOrderData),
+      httpOrder.createOwnerOrder(params, createOrderData),
   });
 
   const updateOwnerOrder = useMutation({
     mutationKey: ["owner", "order", "update"],
     mutationFn: ({ params, updateOrderPayload }: UpdateOwnerOrderParams) =>
-      httpOrders.updateOwnerOrder(params, updateOrderPayload),
+      httpOrder.updateOwnerOrder(params, updateOrderPayload),
     onSuccess: (_, variables) => {
       const { storeId, tableId, orderId } = variables.params;
       queryClient.invalidateQueries({
@@ -47,6 +47,9 @@ export default function useOwnerOrders() {
           `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`,
         ],
       });
+    },
+    onError: (error) => {
+      alert("이미 완료되었거나 취소된 주문은 수정할 수 없습니다.");
     },
   });
 

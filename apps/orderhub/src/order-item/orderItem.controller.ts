@@ -16,7 +16,7 @@ import {
   orderIdParamsSchema,
 } from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import type { Owner, ResponseOrderItem } from '@spaceorder/db';
+import type { OrderItem, Owner, ResponseOrderItem } from '@spaceorder/db';
 import { createZodDto } from 'nestjs-zod';
 import {
   createOrderItemSchema,
@@ -30,6 +30,7 @@ import {
 import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { ORDER_ITEM_FILTER_RECORD } from './order-item-query.const';
 import { Client } from 'src/decorators/client.decorator';
+import { CachedOrderItemByGuard } from 'src/decorators/cache/orderItem.decorator';
 
 export class CreateOrderItemDto extends createZodDto(createOrderItemSchema) {}
 export class UpdateOrderItemDto extends createZodDto(
@@ -113,6 +114,7 @@ export class OrderItemController {
   )
   async partialUpdate(
     @Client() client: Owner,
+    @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
     @Param('orderItemId') orderItemPublicId: string,
     @Body() updateOrderItemDto: UpdateOrderItemDto,
   ): Promise<ResponseOrderItem> {
@@ -120,6 +122,7 @@ export class OrderItemController {
       orderItemPublicId,
       updateOrderItemDto,
       client,
+      cachedOrderItem
     );
   }
 

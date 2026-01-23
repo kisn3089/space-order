@@ -1,9 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Menu, Owner, Prisma, ResponseOrderItem } from '@spaceorder/db';
+import {
+  Menu,
+  OrderItem,
+  Owner,
+  Prisma,
+  ResponseOrderItem,
+} from '@spaceorder/db';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderItemDto, UpdateOrderItemDto } from './orderItem.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 
+type MenuId = { id: bigint } | { publicId: string };
 @Injectable()
 export class OrderItemService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -17,7 +24,7 @@ export class OrderItemService {
   ): Promise<ResponseOrderItem> {
     const [findMenu, findOrder] = await Promise.all([
       this.prismaService.menu.findFirstOrThrow(
-        this.findMenuFields(createPayload.menuPublicId, client),
+        this.findMenuFields({ publicId: createPayload.menuPublicId }, client),
       ),
       this.prismaService.order.findFirstOrThrow(
         this.findOrderFields(orderPublicId),
@@ -39,12 +46,9 @@ export class OrderItemService {
     });
   }
 
-  private findMenuFields(menuPublicId: string, client: Owner) {
+  private findMenuFields(menuId: MenuId, client: Owner) {
     return {
-      where: {
-        publicId: menuPublicId,
-        store: { ownerId: client.id },
-      },
+      where: { ...menuId, store: { ownerId: client.id } },
       select: {
         id: true,
         name: true,
@@ -90,8 +94,10 @@ export class OrderItemService {
     orderItemPublicId: string,
     updatePayload: UpdateOrderItemDto,
     client: Owner,
+    cachedOrderItem: OrderItem,
   ): Promise<ResponseOrderItem> {
-    if (!updatePayload.menuPublicId) {
+    const { menuPublicId, options, quantity } = updatePayload;
+    if (!menuPublicId && !options) {
       return await this.prismaService.orderItem.update({
         where: { publicId: orderItemPublicId },
         data: updatePayload,
@@ -99,12 +105,14 @@ export class OrderItemService {
       });
     }
 
-    const { menuPublicId, ...omittedUpdatePayload } = updatePayload;
+    const menuId = menuPublicId
+      ? { publicId: menuPublicId }
+      : { id: cachedOrderItem.menuId };
     const findMenu = await this.prismaService.menu.findFirstOrThrow(
-      this.findMenuFields(menuPublicId, client),
+      this.findMenuFields(menuId, client),
     );
 
-    this.validateMenuOptions(findMenu, omittedUpdatePayload.options);
+    this.validateMenuOptions(findMenu, options);
 
     return await this.prismaService.orderItem.update({
       where: { publicId: orderItemPublicId },
@@ -112,7 +120,8 @@ export class OrderItemService {
         menu: { connect: { id: findMenu.id } },
         menuName: findMenu.name,
         price: findMenu.price,
-        ...omittedUpdatePayload,
+        quantity,
+        options,
       },
       omit: this.orderItemOmit,
     });

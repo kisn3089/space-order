@@ -43,4 +43,5 @@ export const updateOrderSchema = createOrderSchema
       .string()
       .max(50, "취소 사유는 최대 50자까지 가능합니다."),
   })
-  .partial();
+  .partial()
+  .strict();

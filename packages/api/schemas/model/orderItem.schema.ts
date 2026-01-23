@@ -24,7 +24,10 @@ export const createOrderItemSchema = z
   })
   .strict();
 
-export const partialUpdateOrderItemSchema = createOrderItemSchema.partial();
+export const partialUpdateOrderItemSchema = createOrderItemSchema
+  .omit({ menuName: true })
+  .partial()
+  .strict();
 
 /** -------- Query --------- */
 const orderItemFilterQuerySchema = z.object({

@@ -10,11 +10,10 @@ import {
   ResponseTableWithSessions,
 } from "@spaceorder/db";
 import PaymentDialog from "./PaymentDialog";
-import { OrderTable } from "./OrderTable";
+import { OrderTable } from "./order-table/OrderTable";
 import { columns } from "./columns";
 import TableOrderDetailLayout from "./TableOrderDetailLayout";
 import EmptyOrderDetail from "./EmptyOrderDetail";
-import useUpdateTableOrder from "../../hooks/useUpdateTableOrder";
 
 export default function TableOrderDetail({
   params,
@@ -29,8 +28,6 @@ export default function TableOrderDetail({
       queryOptions: { queryKey: [fetchUrl], refetchOnMount: "always" },
     });
 
-  const { removeById, update } = useUpdateTableOrder();
-
   const { tableSessions } = tableWithSessions;
   const tableSession = tableSessions ? tableSessions[0] : null;
   if (!tableSession || tableSession.orders.length === 0) {
@@ -42,6 +39,7 @@ export default function TableOrderDetail({
     return order.orderItems.map((item) => ({
       ...item,
       totalPrice: item.price * item.quantity,
+      orderId: order.publicId,
     }));
   });
 
@@ -68,8 +66,6 @@ export default function TableOrderDetail({
         columns={columns}
         data={mergedCalcuratedPriceByQuntity}
         isLoading={isRefetching}
-        onUpdateQuantity={update}
-        onRemoveItem={removeById}
       />
     </TableOrderDetailLayout>
   );

@@ -1,5 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { httpOrderItems, UpdateOrderItemPayload } from "./httpOrderItem";
+import {
+  FetchOrderItemUnique,
+  httpOrderItems,
+  UpdateOrderItemPayload,
+} from "./httpOrderItem";
+import {
+  ALIVE_SESSION,
+  ORDER_ITEMS,
+} from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
 
 type UseOrderItemParams = { storeId: string; tableId: string };
 export default function useOrderItem({ storeId, tableId }: UseOrderItemParams) {
@@ -11,18 +19,33 @@ export default function useOrderItem({ storeId, tableId }: UseOrderItemParams) {
       params,
       updateOrderItemPayload,
     }: {
-      params: { orderId: string; orderItemId: string };
+      params: FetchOrderItemUnique;
       updateOrderItemPayload: UpdateOrderItemPayload;
     }) => httpOrderItems.updateOrderItem(params, updateOrderItemPayload),
-    onSuccess: (_, variables) => {
-      const { orderId } = variables.params;
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [
-          `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`,
+          `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
         ],
       });
     },
   });
 
-  return { updateOrderItem };
+  const removeOrderItem = useMutation({
+    mutationKey: ["order-item", "remove"],
+    mutationFn: ({ params }: { params: FetchOrderItemUnique }) =>
+      httpOrderItems.removeOrderItem(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/stores/order-summary`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
+        ],
+      });
+    },
+  });
+
+  return { updateOrderItem, removeOrderItem };
 }

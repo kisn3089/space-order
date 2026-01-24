@@ -3,15 +3,15 @@
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@spaceorder/ui/components/badge";
-import { ResponseOrderItem } from "@spaceorder/db";
+import { ResponseOrderItemWithOrderId } from "./order-table/OrderTable";
 
 interface TableMeta {
-  editingData: ResponseOrderItem | null;
+  editingData: ResponseOrderItemWithOrderId | null;
   updateEditingQuantity: (delta: number) => void;
   resetEditing: () => void;
 }
 
-export const columns: ColumnDef<ResponseOrderItem>[] = [
+export const columns: ColumnDef<ResponseOrderItemWithOrderId>[] = [
   {
     accessorKey: "name",
     header: "메뉴명",
@@ -42,9 +42,10 @@ export const columns: ColumnDef<ResponseOrderItem>[] = [
     cell: ({ row, table }) => {
       const isSelected = row.getIsSelected();
       const meta = table.options.meta as TableMeta;
-      const displayQuantity = isSelected && meta.editingData
-        ? meta.editingData.quantity
-        : row.getValue<number>("quantity");
+      const displayQuantity =
+        isSelected && meta.editingData
+          ? meta.editingData.quantity
+          : row.getValue<number>("quantity");
 
       return (
         <div className="flex items-center justify-center gap-2 w-full">

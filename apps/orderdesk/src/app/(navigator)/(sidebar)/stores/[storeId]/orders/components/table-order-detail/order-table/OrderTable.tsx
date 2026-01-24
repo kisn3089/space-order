@@ -17,19 +17,20 @@ import OrderTableCells from "./OrderTableCells";
 import useOrderItemTable from "../../../hooks/useOrderItemTable";
 import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
 
+export type ResponseOrderItemWithOrderId = ResponseOrderItem & {
+  orderId: string;
+};
 interface DataTableProps {
-  columns: ColumnDef<ResponseOrderItem>[];
-  data: ResponseOrderItem[];
+  columns: ColumnDef<ResponseOrderItemWithOrderId>[];
+  data: ResponseOrderItemWithOrderId[];
   isLoading?: boolean;
 }
-
 /** TODO: 컴포넌트 재사용 가능성 높은니 추상화 필요 */
 export function OrderTable({ columns, data, isLoading }: DataTableProps) {
   const { removeById, update } = useOrderItemTable();
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-  const [editingData, setEditingData] = useState<ResponseOrderItem | null>(
-    null
-  );
+  const [editingData, setEditingData] =
+    useState<ResponseOrderItemWithOrderId | null>(null);
 
   const table = useReactTable({
     data,
@@ -60,7 +61,7 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
 
   const RowClickEvent = (
     e: React.MouseEvent<HTMLTableRowElement>,
-    row: Row<ResponseOrderItem>
+    row: Row<ResponseOrderItemWithOrderId>
   ) => {
     const isSelected = row.getIsSelected();
     // 상위 table 태그의 clearSelection 이벤트 방지
@@ -82,8 +83,8 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
     setEditingData(null);
   };
 
-  const removeMenu = (row: Row<ResponseOrderItem>) => {
-    removeById(row.original.publicId);
+  const removeMenu = () => {
+    removeById(editingData);
     resetSelection();
   };
 
@@ -119,7 +120,7 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
                     }}
                     remove={(e) => {
                       e.stopPropagation();
-                      removeMenu(row);
+                      removeMenu();
                     }}
                   />
                 </ActivityRender>

@@ -37,7 +37,6 @@ export const useSetCacheFromStoreWithOrders = () => {
          * TODO: orders의 기본 조회가 모든 orders로 변경되고 query(alive)에 따라 활성화된 테이블 세션의 orders를 조회한다면
          * 캐시 url 설정도 변경 필요 &filter=alive 같은 식으로
          */
-
         queryClient.setQueryData<SummarizedOrderWithItem[]>(
           [`/owner/stores/${store.publicId}/tables/${table.publicId}/orders`],
           tableSessions[0].orders

@@ -1,35 +1,43 @@
 "use client";
 
-import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
+import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
+import { useParams } from "next/navigation";
+import { ResponseOrderItemWithOrderId } from "../components/table-order-detail/order-table/OrderTable";
 
 export default function useOrderItemTable() {
-  // 수량 변경 핸들러
-  const update = async (orderItem: ResponseOrderItem | null) => {
+  const { storeId, tableId } = useParams<{
+    storeId: string;
+    tableId: string;
+  }>();
+
+  const { updateOrderItem, removeOrderItem } = useOrderItem({
+    storeId,
+    tableId,
+  });
+
+  const update = async (orderItem: ResponseOrderItemWithOrderId | null) => {
     if (!orderItem) return;
 
-    console.log("[Update] Quantity: ", orderItem);
-
-    // setTableOrderState((prevTableOrder) => {
-    //   const updatedOrderItems = prevTableOrder.orderItems.map((orderItem) => {
-    //     if (orderItem.id === selectedOrderId) {
-    //       const newQuantity = Math.max(1, orderItem.quantity + delta); // 최소 1개
-    //       return { ...orderItem, quantity: newQuantity };
-    //     }
-    //     return orderItem;
-    //   });
-    //   return { ...prevTableOrder, orderItem: updatedOrderItems };
-    // });
+    return await updateOrderItem.mutateAsync({
+      params: {
+        orderId: orderItem.orderId,
+        orderItemId: orderItem.publicId,
+      },
+      updateOrderItemPayload: {
+        quantity: orderItem.quantity,
+      },
+    });
   };
 
-  // 메뉴 삭제 핸들러
-  const removeById = (selectedOrderId: string) => {
-    console.log("[Remove] Id: ", selectedOrderId);
-    // setTableOrderState((prevOrderItems) => {
-    //   const updatedOrderItems = prevOrderItems.orderItem.filter(
-    //     (orderItem) => orderItem.id !== selectedOrderId
-    //   );
-    //   return { ...prevOrderItems, orderItem: updatedOrderItems };
-    // });
+  const removeById = async (orderItem: ResponseOrderItemWithOrderId | null) => {
+    if (!orderItem) return;
+
+    return await removeOrderItem.mutateAsync({
+      params: {
+        orderId: orderItem.orderId,
+        orderItemId: orderItem.publicId,
+      },
+    });
   };
 
   return { update, removeById };

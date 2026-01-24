@@ -13,8 +13,11 @@ export type UpdateOrderItemPayload = Partial<
 >;
 
 type FetchOrderItemParams = { orderId: string };
+export type FetchOrderItemUnique = FetchOrderItemParams & {
+  orderItemId: string;
+};
 async function updateOrderItem(
-  { orderId, orderItemId }: FetchOrderItemParams & { orderItemId: string },
+  { orderId, orderItemId }: FetchOrderItemUnique,
   updateOrderItemPayload: UpdateOrderItemPayload
 ) {
   const response = await http.patch<ResponseOrderItem>(
@@ -24,6 +27,12 @@ async function updateOrderItem(
   return response.data;
 }
 
+async function removeOrderItem({ orderId, orderItemId }: FetchOrderItemUnique) {
+  const response = await http.delete<void>(`${prefix(orderId)}/${orderItemId}`);
+  return response.data;
+}
+
 export const httpOrderItems = {
   updateOrderItem,
+  removeOrderItem,
 };

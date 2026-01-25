@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   Menu,
   OrderItem,
+  OrderStatus,
   Owner,
   Prisma,
   ResponseOrderItem,
@@ -127,9 +128,30 @@ export class OrderItemService {
     });
   }
 
-  async deleteOrderItem(orderItemPublicId: string) {
-    await this.prismaService.orderItem.delete({
-      where: { publicId: orderItemPublicId },
+  async deleteOrderItem(
+    orderItemPublicId: string,
+    cachedOrderItem: OrderItem,
+  ): Promise<void> {
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.orderItem.delete({ where: { publicId: orderItemPublicId } });
+
+      const remainingItems = await tx.orderItem.count({
+        where: { orderId: cachedOrderItem.orderId },
+      });
+
+      if (remainingItems === 0) {
+        /**
+         * order.cancelOrder 메서드와 다르게 살아있는 tableSession임을 검증하지 않는 이유는
+         * controller에서 OrderItemWritePermission 가드가 이미 검증을 수행했기 때문이다.
+         *
+         * @see orderService.cancelOrder
+         * @see OrderItemWritePermission
+         */
+        await tx.order.update({
+          where: { id: cachedOrderItem.orderId },
+          data: { status: OrderStatus.CANCELLED },
+        });
+      }
     });
   }
 }

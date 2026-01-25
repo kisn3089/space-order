@@ -5,7 +5,7 @@ export const BADGE_BY_ORDER_STATUS = {
   },
   ACCEPTED: {
     label: "주문 수락",
-    badgeVariant: "outline",
+    badgeVariant: "default",
   },
   PREPARING: {
     label: "준비중",

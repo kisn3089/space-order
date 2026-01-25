@@ -64,7 +64,7 @@ const EXCEPTION_CONTENTS = {
   /** ---Order Item--- */
   ORDER_ITEM_OPTIONS_INVALID: {
     code: 'ORDER_ITEM_OPTIONS_INVALID',
-    message: '주문 항목 옵션이 올바르지 않습니다.',
+    message: '해당 메뉴는 옵션 설정이 되어있지 않습니다.',
   },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {

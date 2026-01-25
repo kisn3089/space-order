@@ -54,8 +54,4 @@ export const tableListQuerySchema = z.union([
   tableWithoutIncludeQuerySchema,
 ]);
 
-export const tableUniqueQuerySchema = z
-  .object({
-    include: sessionIncludeQuerySchema.include.optional(),
-  })
-  .optional();
+export const tableUniqueQuerySchema = tableWithIncludeQuerySchema.optional();

@@ -83,7 +83,7 @@ export class TableController {
     const tableFilter = query?.filter === 'activated-table' ? filter : {};
     const includeSession =
       query?.filter !== 'activated-table' && include
-        ? { tableSessions: { ...include, ...filter } }
+        ? { tableSessions: { ...(include ?? {}), ...(filter ?? {}) } }
         : {};
 
     return await this.tableService.getTableList({
@@ -120,7 +120,7 @@ export class TableController {
 
     const includeSession =
       query?.filter !== 'activated-table'
-        ? { tableSessions: { ...include, ...filter } }
+        ? { tableSessions: { ...(include ?? {}), ...(filter ?? {}) } }
         : {};
 
     return await this.tableService.getTableUnique({

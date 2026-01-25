@@ -17,7 +17,7 @@ import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRe
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
 import { ErrorBoundary } from "react-error-boundary";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ErrorFallback from "@/components/ErrorFallback";
 import TableErrorFallback from "./TableErrorFallback";
 
@@ -27,6 +27,7 @@ type TableBoardProps = {
 };
 
 export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
+  const params = useParams<{ tableId: string }>();
   const { data: tableWithSessions } =
     useSuspenseWithAuth<SummarizedTableWithSessions>(
       `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
@@ -52,8 +53,11 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
   };
 
   const isActiveTable = tableWithSessions.isActive === true;
-  const selectableStyle = isActiveTable ? "" : "opacity-20 cursor-not-allowed";
+  const tableInactivateStyle = isActiveTable
+    ? ""
+    : "opacity-20 cursor-not-allowed";
   const sessionActiveStyle = tableSession ? "hover:bg-accent" : "";
+  const selectedTableStyle = "shadow-lg shadow-destructive/50";
 
   const findPendingStatusInOrders = tableSession?.orders?.find(
     (order) => order.status === OrderStatus.PENDING
@@ -61,7 +65,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
 
   return (
     <Card
-      className={`w-full min-h-[200px] flex flex-col cursor-pointer ${sessionActiveStyle} ${selectableStyle} max-h-[300px]`}
+      className={`w-full min-h-[200px] flex flex-col cursor-pointer transition-shadow duration-300 ${sessionActiveStyle} ${tableInactivateStyle} ${params.tableId === tableId ? selectedTableStyle : ""} max-h-[300px]`}
       onClick={() => (isActiveTable ? tableClickEvent() : null)}
     >
       <CardHeader className="flex flex-row justify-between gap-1 p-2">

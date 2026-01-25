@@ -72,13 +72,6 @@ export class OrderService {
           tableId,
         ));
 
-      if (!sessionFromCookieOrCreated) {
-        throw new HttpException(
-          exceptionContentsIs('TABLE_SESSION_NOT_ACTIVE'),
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
       const menuPublicIds = createOrderDto.orderItems.map(
         (item) => item.menuPublicId,
       );

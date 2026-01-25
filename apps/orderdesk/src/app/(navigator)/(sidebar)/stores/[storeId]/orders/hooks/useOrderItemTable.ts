@@ -23,9 +23,7 @@ export default function useOrderItemTable() {
         orderId: orderItem.orderId,
         orderItemId: orderItem.publicId,
       },
-      updateOrderItemPayload: {
-        quantity: orderItem.quantity,
-      },
+      updateOrderItemPayload: { quantity: orderItem.quantity },
     });
   };
 

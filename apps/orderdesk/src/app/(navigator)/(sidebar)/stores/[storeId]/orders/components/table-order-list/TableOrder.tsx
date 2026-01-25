@@ -2,25 +2,17 @@ import { CardContent } from "@spaceorder/ui/components/card";
 import {
   nextStatusMap,
   OrderStatus,
-  ResponseOrderWithItem,
+  SummarizedOrderWithItem,
 } from "@spaceorder/db";
 import { Badge } from "@spaceorder/ui/components/badge";
-import {
-  FetchOrderUniqueParams,
-  UpdateOwnerOrderPayload,
-} from "@spaceorder/api/core/owner-order/httpOwnerOrder";
-import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
+import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-order/httpOwnerOrder";
 import { BADGE_BY_ORDER_STATUS } from "@spaceorder/ui/constants/badgeByOrderStatus.const";
 import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
+import { useParams } from "next/navigation";
 
-export default function TableOrder({
-  orderId,
-  storeId,
-  tableId,
-}: FetchOrderUniqueParams) {
-  const { data: order } = useSuspenseWithAuth<ResponseOrderWithItem>(
-    `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`
-  );
+type TableOrderProps = { order: SummarizedOrderWithItem; tableId: string };
+export default function TableOrder({ order, tableId }: TableOrderProps) {
+  const params = useParams<{ storeId: string }>();
   const { updateOwnerOrder } = useOwnerOrder();
 
   const isFinishStatus =
@@ -33,7 +25,6 @@ export default function TableOrder({
   };
 
   const pushNextOrderStatus = async () => {
-    // 상태 전이 맵: 현재 상태 -> 다음 상태
     if (order.status) {
       const nextStatus = nextStatusMap[order.status];
       if (!nextStatus) {
@@ -44,7 +35,7 @@ export default function TableOrder({
         status: nextStatus,
       };
       return await updateOwnerOrder.mutateAsync({
-        params: { storeId, tableId, orderId },
+        params: { storeId: params.storeId, tableId, orderId: order.publicId },
         updateOrderPayload: orderPayload,
       });
     }

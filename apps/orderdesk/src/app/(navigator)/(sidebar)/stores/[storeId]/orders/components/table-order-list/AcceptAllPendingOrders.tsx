@@ -3,20 +3,21 @@ import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate
 import { nextStatusMap, OrderStatus } from "@spaceorder/db";
 import { SummarizedOrderWithItem } from "@spaceorder/db/types/responseModel.type";
 import { Button } from "@spaceorder/ui/components/button";
+import { useParams } from "next/navigation";
 import React from "react";
-import { TableBoardProps } from "./TableOrderList";
 
 type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
   status: typeof OrderStatus.PENDING;
 };
 type AcceptAllPendingOrdersProps = {
   orders?: SummarizedOrderWithItem[];
-} & TableBoardProps;
+  tableId: string;
+};
 export default function AcceptAllPendingOrders({
   orders,
-  storeId,
   tableId,
 }: AcceptAllPendingOrdersProps) {
+  const params = useParams<{ storeId: string }>();
   const [isError, setIsError] = React.useState(false);
   const { updateOwnerOrder } = useOwnerOrder();
 
@@ -42,7 +43,11 @@ export default function AcceptAllPendingOrders({
           };
 
           return updateOwnerOrder.mutateAsync({
-            params: { storeId, tableId, orderId: order.publicId },
+            params: {
+              storeId: params.storeId,
+              tableId,
+              orderId: order.publicId,
+            },
             updateOrderPayload: orderPayload,
           });
         })

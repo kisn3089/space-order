@@ -82,7 +82,7 @@ export const columns: ColumnDef<ResponseOrderItemWithOrderId>[] = [
     accessorKey: "totalPrice",
     header: () => <div className="text-right w-full">가격</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("totalPrice"));
+      const amount = parseInt(row.getValue("totalPrice"));
       const formatted = new Intl.NumberFormat("ko-KR", {
         currency: "KRW",
       }).format(amount);

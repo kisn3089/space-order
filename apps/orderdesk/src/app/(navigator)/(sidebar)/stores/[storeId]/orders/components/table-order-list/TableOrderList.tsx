@@ -1,9 +1,4 @@
-import {
-  ALIVE_SESSION,
-  ORDER_ITEMS,
-  OrderStatus,
-  SummarizedTableWithSessions,
-} from "@spaceorder/db";
+import { OrderStatus, SummarizedTableWithSessions } from "@spaceorder/db";
 import {
   Card,
   CardDescription,
@@ -13,7 +8,6 @@ import {
 } from "@spaceorder/ui/components/card";
 import TableOrder from "./TableOrder";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
-import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
 import { ErrorBoundary } from "react-error-boundary";
 import { useParams, useRouter } from "next/navigation";
@@ -21,27 +15,22 @@ import ErrorFallback from "@/components/ErrorFallback";
 import TableErrorFallback from "./TableErrorFallback";
 import AcceptAllPendingOrders from "./AcceptAllPendingOrders";
 
-export type TableBoardProps = {
-  storeId: string;
-  tableId: string;
+type TableBoardProps = {
+  sanitizedTable: SummarizedTableWithSessions;
 };
 
-export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
-  const params = useParams<{ tableId: string }>();
-  const { data: tableWithSessions } =
-    useSuspenseWithAuth<SummarizedTableWithSessions>(
-      `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
-    );
-  const { tableNumber, section, tableSessions } = tableWithSessions;
+export default function TableOrderList({ sanitizedTable }: TableBoardProps) {
+  const params = useParams<{ storeId: string; tableId: string }>();
+  const { tableNumber, section, tableSessions } = sanitizedTable;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
   const tableSession = tableSessions ? tableSessions[0] : null;
 
   const { push } = useRouter();
   const tableClickEvent = () => {
-    push(`/stores/${storeId}/orders/${tableId}`);
+    push(`/stores/${params.storeId}/orders/${sanitizedTable.publicId}`);
   };
 
-  const isActiveTable = tableWithSessions.isActive === true;
+  const isActiveTable = sanitizedTable.isActive === true;
   const tableInactivateStyle = isActiveTable
     ? ""
     : "opacity-20 cursor-not-allowed";
@@ -54,7 +43,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
 
   return (
     <Card
-      className={`w-full min-h-[200px] flex flex-col cursor-pointer transition-shadow duration-300 ${sessionActiveStyle} ${tableInactivateStyle} ${params.tableId === tableId ? selectedTableStyle : ""} max-h-[300px]`}
+      className={`w-full min-h-[200px] flex flex-col cursor-pointer transition-shadow duration-300 ${sessionActiveStyle} ${tableInactivateStyle} ${params.tableId === sanitizedTable.publicId ? selectedTableStyle : ""} max-h-[300px]`}
       onClick={() => (isActiveTable ? tableClickEvent() : null)}
     >
       <CardHeader className="flex flex-row justify-between gap-1 p-2">
@@ -68,8 +57,7 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
           <div className="px-2">
             <AcceptAllPendingOrders
               orders={tableSession?.orders}
-              storeId={storeId}
-              tableId={tableId}
+              tableId={sanitizedTable.publicId}
             />
           </div>
         </ActivityRender>
@@ -86,9 +74,8 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
               >
                 <TableOrder
                   key={order.publicId}
-                  tableId={tableWithSessions.publicId}
-                  orderId={order.publicId}
-                  storeId={storeId}
+                  order={order}
+                  tableId={sanitizedTable.publicId}
                 />
               </ErrorBoundary>
             ))}

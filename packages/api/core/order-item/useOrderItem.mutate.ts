@@ -26,6 +26,7 @@ export default function useOrderItem({ storeId, tableId }: UseOrderItemParams) {
       queryClient.invalidateQueries({
         queryKey: [`/stores/order-summary`],
       });
+
       queryClient.invalidateQueries({
         queryKey: [
           `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,

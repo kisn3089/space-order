@@ -25,7 +25,7 @@ export default function TableOrderDetail({
 
   const { data: tableWithSessions, isRefetching } =
     useSuspenseWithAuth<ResponseTableWithSessions>(fetchUrl, {
-      queryOptions: { queryKey: [fetchUrl], refetchOnMount: "always" },
+      queryOptions: { queryKey: [fetchUrl] },
     });
 
   const { tableSessions } = tableWithSessions;
@@ -35,13 +35,15 @@ export default function TableOrderDetail({
   }
 
   const { orders } = tableSession;
-  const mergedCalcuratedPriceByQuntity = orders.flatMap((order) => {
-    return order.orderItems.map((item) => ({
-      ...item,
-      totalPrice: item.price * item.quantity,
-      orderId: order.publicId,
-    }));
-  });
+  const mergedCalcuratedPriceByQuntity = orders.flatMap((order) =>
+    order.orderItems.map((item) => {
+      return {
+        ...item,
+        totalPrice: item.price * item.quantity,
+        orderId: order.publicId,
+      };
+    })
+  );
 
   const totalPrice = sumFromObjects(
     mergedCalcuratedPriceByQuntity,

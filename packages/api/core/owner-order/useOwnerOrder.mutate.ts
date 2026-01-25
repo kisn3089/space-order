@@ -18,11 +18,12 @@ type CreateOwnerOrderParams = {
   params: FetchOrderParams;
   createOrderData: CreateOwnerOrderPayload;
 };
-type UpdateOwnerOrderParams = {
+export type UpdateOwnerOrderParams = {
   params: FetchOrderUniqueParams;
   updateOrderPayload: UpdateOwnerOrderPayload;
 };
-export default function useOwnerOrder() {
+type UseOwnerOrderOptions = { stayQueryCached?: boolean };
+export default function useOwnerOrder(options?: UseOwnerOrderOptions) {
   const queryClient = useQueryClient();
 
   const createOwnerOrder = useMutation({
@@ -36,6 +37,10 @@ export default function useOwnerOrder() {
     mutationFn: ({ params, updateOrderPayload }: UpdateOwnerOrderParams) =>
       httpOrder.updateOwnerOrder(params, updateOrderPayload),
     onSuccess: (_, variables) => {
+      if (options?.stayQueryCached) {
+        return;
+      }
+
       const { storeId, tableId, orderId } = variables.params;
       queryClient.invalidateQueries({
         queryKey: [
@@ -47,9 +52,6 @@ export default function useOwnerOrder() {
           `/owner/stores/${storeId}/tables/${tableId}/orders/${orderId}`,
         ],
       });
-    },
-    onError: (error) => {
-      alert("이미 완료되었거나 취소된 주문은 수정할 수 없습니다.");
     },
   });
 

@@ -1,5 +1,9 @@
 import { CardContent } from "@spaceorder/ui/components/card";
-import { OrderStatus, ResponseOrderWithItem } from "@spaceorder/db";
+import {
+  nextStatusMap,
+  OrderStatus,
+  ResponseOrderWithItem,
+} from "@spaceorder/db";
 import { Badge } from "@spaceorder/ui/components/badge";
 import {
   FetchOrderUniqueParams,
@@ -8,14 +12,6 @@ import {
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import { BADGE_BY_ORDER_STATUS } from "@spaceorder/ui/constants/badgeByOrderStatus.const";
 import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
-
-const nextStatusMap: Record<OrderStatus, OrderStatus | null> = {
-  [OrderStatus.PENDING]: OrderStatus.ACCEPTED,
-  [OrderStatus.ACCEPTED]: OrderStatus.PREPARING,
-  [OrderStatus.PREPARING]: OrderStatus.COMPLETED,
-  [OrderStatus.COMPLETED]: null, // 완료 상태는 다음 상태 없음
-  [OrderStatus.CANCELLED]: null, // 취소 상태는 다음 상태 없음
-} as const;
 
 export default function TableOrder({
   orderId,
@@ -45,26 +41,12 @@ export default function TableOrder({
         return;
       }
       const orderPayload: UpdateOwnerOrderPayload = {
-        // orderItems: orderList.orderItems.map((orderItem) => ({
-        //   menuName: orderItem.menuName,
-        //   options: orderItem.options,
-        //   quantity: orderItem.quantity,
-        //   menuPublicId: "emhvr5chzxzwa8vd98j0uuds",
-        // })),
-        // memo: "time",
         status: nextStatus,
-        // totalPrice: orderList?.totalPrice,
       };
-      /** 다음 주문 상태로 전이 */
-      const result = await updateOwnerOrder.mutateAsync({
-        params: {
-          storeId: storeId,
-          tableId,
-          orderId,
-        },
+      return await updateOwnerOrder.mutateAsync({
+        params: { storeId, tableId, orderId },
         updateOrderPayload: orderPayload,
       });
-      console.log("결과: ", result);
     }
   };
 

@@ -4,7 +4,6 @@ import {
   OrderStatus,
   SummarizedTableWithSessions,
 } from "@spaceorder/db";
-import { Button } from "@spaceorder/ui/components/button";
 import {
   Card,
   CardDescription,
@@ -20,8 +19,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useParams, useRouter } from "next/navigation";
 import ErrorFallback from "@/components/ErrorFallback";
 import TableErrorFallback from "./TableErrorFallback";
+import AcceptAllPendingOrders from "./AcceptAllPendingOrders";
 
-type TableBoardProps = {
+export type TableBoardProps = {
   storeId: string;
   tableId: string;
 };
@@ -35,17 +35,6 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
   const { tableNumber, section, tableSessions } = tableWithSessions;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
   const tableSession = tableSessions ? tableSessions[0] : null;
-
-  const acceptEveryPendingOrders = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-
-    const filterPendingStatusInOrders = tableSession?.orders?.filter(
-      (order) => order.status === OrderStatus.PENDING
-    );
-
-    console.log("filterPendingStatusInOrders: ", filterPendingStatusInOrders);
-    console.log("모든 주문 수락했어요!");
-  };
 
   const { push } = useRouter();
   const tableClickEvent = () => {
@@ -77,9 +66,11 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
       <div className="h-full overflow-y-auto scrollbar-hide relative">
         <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
           <div className="px-2">
-            <Button onClick={acceptEveryPendingOrders} className="w-full">
-              {"모든 주문 수락"}
-            </Button>
+            <AcceptAllPendingOrders
+              orders={tableSession?.orders}
+              storeId={storeId}
+              tableId={tableId}
+            />
           </div>
         </ActivityRender>
         <div className="flex flex-col gap-y-1 p-2">

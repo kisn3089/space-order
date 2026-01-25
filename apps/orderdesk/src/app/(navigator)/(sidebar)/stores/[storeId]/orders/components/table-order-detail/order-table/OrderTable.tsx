@@ -56,7 +56,6 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
 
     setRowSelection({});
     setEditingData(null);
-    // TODO: 테이블 변경점 포착 시 API 호출 로직을 여기에 추가해야 함
   };
 
   const RowClickEvent = (
@@ -64,16 +63,14 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
     row: Row<ResponseOrderItemWithOrderId>
   ) => {
     const isSelected = row.getIsSelected();
-    // 상위 table 태그의 clearSelection 이벤트 방지
     e.stopPropagation();
-    // 이미 선택된 row를 클릭하면 해제, 아니면 단일 선택
     if (isSelected) {
       row.toggleSelected(false);
       detectChanges();
     } else {
       table.resetRowSelection();
       row.toggleSelected(true);
-      // 선택 시 원본 데이터 복사하여 editingData에 저장
+
       setEditingData(row.original);
     }
   };

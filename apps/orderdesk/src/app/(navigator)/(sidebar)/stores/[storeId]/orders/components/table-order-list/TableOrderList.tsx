@@ -37,10 +37,6 @@ export default function TableOrderList({ sanitizedTable }: TableBoardProps) {
   const sessionActiveStyle = tableSession ? "hover:bg-accent" : "";
   const selectedTableStyle = "shadow-lg shadow-destructive/50";
 
-  const findPendingStatusInOrders = tableSession?.orders?.find(
-    (order) => order.status === OrderStatus.PENDING
-  );
-
   return (
     <Card
       className={`w-full min-h-[200px] flex flex-col cursor-pointer transition-shadow duration-300 ${sessionActiveStyle} ${tableInactivateStyle} ${params.tableId === sanitizedTable.publicId ? selectedTableStyle : ""} max-h-[300px]`}
@@ -53,14 +49,12 @@ export default function TableOrderList({ sanitizedTable }: TableBoardProps) {
         </ActivityRender>
       </CardHeader>
       <div className="h-full overflow-y-auto scrollbar-hide relative">
-        <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
-          <div className="px-2">
-            <AcceptAllPendingOrders
-              orders={tableSession?.orders}
-              tableId={sanitizedTable.publicId}
-            />
-          </div>
-        </ActivityRender>
+        <div className="px-2">
+          <AcceptAllPendingOrders
+            orders={tableSession?.orders}
+            tableId={sanitizedTable.publicId}
+          />
+        </div>
         <div className="flex flex-col gap-y-1 p-2">
           <ActivityRender mode={tableSession ? "visible" : "hidden"}>
             {tableSession?.orders?.map((order) => (

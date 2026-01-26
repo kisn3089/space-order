@@ -20,5 +20,5 @@ async function fetchOrderSummary(): Promise<SummarizedOrdersFromStore> {
 export const httpStores = {
   fetchList,
   fetchUnique,
-  fetchStoreWithOrders: fetchOrderSummary,
+  fetchOrderSummary,
 };

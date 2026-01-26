@@ -1,11 +1,6 @@
 import { TableCell } from "@spaceorder/ui/components/table";
 import { columns } from "../columns";
 import { Button } from "@spaceorder/ui/components/button";
-import { AlertDialogWrapper } from "@spaceorder/ui/components/alert-dialog/AlertDialogWrapper";
-import { AlertDialogAction } from "@spaceorder/ui/components/alert-dialog/alert-dialog";
-
-const dialogTitle = "해당 기능은 준비 중입니다.";
-const dialogDescription = "업데이트를 기다려주세요!";
 
 type EditControllerProps = {
   setChanges: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -25,19 +20,14 @@ export default function EditController({
         >
           삭제
         </Button>
-        <AlertDialogWrapper
-          title={dialogTitle}
-          description={dialogDescription}
-          renderFooter={() => <AlertDialogAction>확인</AlertDialogAction>}
+        <Button
+          className="font-semibold"
+          variant={"outline"}
+          onClick={(e) => e.stopPropagation()}
+          disabled
         >
-          <Button
-            className="font-semibold"
-            variant={"outline"}
-            onClick={(e) => e.stopPropagation()}
-          >
-            메뉴 변경
-          </Button>
-        </AlertDialogWrapper>
+          메뉴 변경
+        </Button>
         <Button
           className="font-semibold"
           variant={"default"}

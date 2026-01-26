@@ -25,6 +25,9 @@ export default function AcceptAllPendingOrders({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.stopPropagation();
+    if (isError) {
+      setIsError(false);
+    }
     const filterPendingStatusInOrders = orders?.filter(
       (order): order is FilteredPendingStatus =>
         order.status === OrderStatus.PENDING

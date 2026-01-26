@@ -8,7 +8,12 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 
-import { Table, TableBody, TableRow } from "@spaceorder/ui/components/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@spaceorder/ui/components/table";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import OrderTableHeader from "./OrderTableHeader";
@@ -50,7 +55,7 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
     },
   });
 
-  const detectChanges = () => {
+  const clearSelection = () => {
     const selectedRowKeys = Object.keys(rowSelection);
     if (selectedRowKeys.length === 0) return;
 
@@ -66,7 +71,7 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
     e.stopPropagation();
     if (isSelected) {
       row.toggleSelected(false);
-      detectChanges();
+      clearSelection();
     } else {
       table.resetRowSelection();
       row.toggleSelected(true);
@@ -91,12 +96,12 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
   };
 
   return (
-    <Table className="h-full" onClick={detectChanges}>
+    <Table className="h-full" onClick={clearSelection}>
       <OrderTableHeader table={table} />
       <TableBody>
         <ActivityRender
           mode={isLoading ? "hidden" : "visible"}
-          fallback={<LoadingFallback />}
+          fallback={<LoadingFallback columns={columns} />}
         >
           {table.getRowModel().rows.map((row) => {
             const isSelected = row.getIsSelected();
@@ -130,12 +135,12 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
   );
 }
 
-function LoadingFallback() {
+function LoadingFallback<Data>({ columns }: { columns: ColumnDef<Data>[] }) {
   return (
-    <tr>
-      <td>
+    <TableRow>
+      <TableCell colSpan={columns.length}>
         <LoadingSpinner />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

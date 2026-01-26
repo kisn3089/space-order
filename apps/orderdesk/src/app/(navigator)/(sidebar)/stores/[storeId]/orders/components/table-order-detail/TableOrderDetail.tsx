@@ -35,7 +35,7 @@ export default function TableOrderDetail({
   }
 
   const { orders } = tableSession;
-  const mergedCalcuratedPriceByQuntity = orders.flatMap((order) =>
+  const mergedCalculatedPriceByQuantity = orders.flatMap((order) =>
     order.orderItems.map((item) => {
       return {
         ...item,
@@ -46,7 +46,7 @@ export default function TableOrderDetail({
   );
 
   const totalPrice = sumFromObjects(
-    mergedCalcuratedPriceByQuntity,
+    mergedCalculatedPriceByQuantity,
     (orderItem) => orderItem.totalPrice
   );
 
@@ -66,7 +66,7 @@ export default function TableOrderDetail({
     >
       <OrderTable
         columns={columns}
-        data={mergedCalcuratedPriceByQuntity}
+        data={mergedCalculatedPriceByQuantity}
         isLoading={isRefetching}
       />
     </TableOrderDetailLayout>

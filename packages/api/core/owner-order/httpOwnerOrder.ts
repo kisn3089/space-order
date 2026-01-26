@@ -20,11 +20,11 @@ async function createOwnerOrder(
   { storeId, tableId }: FetchOrderParams,
   createOrderPayload: CreateOwnerOrderPayload
 ): Promise<ResponseOrderWithItem> {
-  const reponse = await http.post<ResponseOrderWithItem>(
+  const response = await http.post<ResponseOrderWithItem>(
     `${prefix(storeId, tableId)}`,
     createOrderPayload
   );
-  return reponse.data;
+  return response.data;
 }
 
 export type FetchOrderParams = {

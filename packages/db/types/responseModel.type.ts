@@ -42,26 +42,3 @@ export type ResponseSessionsWithOrders = ResponseTableSession & {
 export type ResponseTableWithSessions = ResponseTable & {
   tableSessions: ResponseSessionsWithOrders[];
 };
-
-export type SummarizedOrderItem = Pick<
-  ResponseOrderItem,
-  "publicId" | "menuName" | "quantity"
->;
-export type SummarizedOrder = Pick<ResponseOrder, "publicId" | "status">;
-export type SummarizedTableSession = Pick<
-  ResponseTableSession,
-  "publicId" | "expiresAt"
->;
-
-export type SummarizedOrderWithItem = SummarizedOrder & {
-  orderItems: SummarizedOrderItem[];
-};
-export type SummarizedSessionWithOrders = SummarizedTableSession & {
-  orders: SummarizedOrderWithItem[];
-};
-export type SummarizedTableWithSessions = ResponseTable & {
-  tableSessions?: SummarizedSessionWithOrders[];
-};
-export type SummarizedOrdersFromStore = ResponseStore & {
-  tables: SummarizedTableWithSessions[];
-};

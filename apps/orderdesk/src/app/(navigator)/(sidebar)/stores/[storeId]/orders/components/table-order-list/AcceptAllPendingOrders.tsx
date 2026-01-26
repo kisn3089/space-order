@@ -1,7 +1,10 @@
 import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-order/httpOwnerOrder";
 import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
-import { nextStatusMap, OrderStatus } from "@spaceorder/db";
-import { SummarizedOrderWithItem } from "@spaceorder/db/types/responseModel.type";
+import {
+  nextStatusMap,
+  OrderStatus,
+  SummarizedOrderWithItem,
+} from "@spaceorder/db";
 import { Button } from "@spaceorder/ui/components/button";
 import { useParams } from "next/navigation";
 import React from "react";

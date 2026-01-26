@@ -23,6 +23,7 @@ import useOrderItemTable from "../../../hooks/useOrderItemTable";
 import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
 
 export type ResponseOrderItemWithOrderId = ResponseOrderItem & {
+  totalPrice: number;
   orderId: string;
 };
 interface DataTableProps {

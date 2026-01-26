@@ -22,13 +22,13 @@ import OrderTableCells from "./OrderTableCells";
 import useOrderItemTable from "../../../hooks/useOrderItemTable";
 import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
 
-export type ResponseOrderItemWithOrderId = ResponseOrderItem & {
+export type ResponseOrderItemWithOrderIdAndPrice = ResponseOrderItem & {
   totalPrice: number;
   orderId: string;
 };
 interface DataTableProps {
-  columns: ColumnDef<ResponseOrderItemWithOrderId>[];
-  data: ResponseOrderItemWithOrderId[];
+  columns: ColumnDef<ResponseOrderItemWithOrderIdAndPrice>[];
+  data: ResponseOrderItemWithOrderIdAndPrice[];
   isLoading?: boolean;
 }
 /** TODO: 컴포넌트 재사용 가능성 높은니 추상화 필요 */
@@ -36,7 +36,7 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
   const { removeById, update } = useOrderItemTable();
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [editingData, setEditingData] =
-    useState<ResponseOrderItemWithOrderId | null>(null);
+    useState<ResponseOrderItemWithOrderIdAndPrice | null>(null);
 
   const table = useReactTable({
     data,
@@ -66,7 +66,7 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
 
   const RowClickEvent = (
     e: React.MouseEvent<HTMLTableRowElement>,
-    row: Row<ResponseOrderItemWithOrderId>
+    row: Row<ResponseOrderItemWithOrderIdAndPrice>
   ) => {
     const isSelected = row.getIsSelected();
     e.stopPropagation();

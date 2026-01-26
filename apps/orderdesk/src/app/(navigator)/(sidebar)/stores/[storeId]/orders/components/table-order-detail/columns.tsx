@@ -3,15 +3,15 @@
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@spaceorder/ui/components/badge";
-import { ResponseOrderItemWithOrderId } from "./order-table/OrderTable";
+import { ResponseOrderItemWithOrderIdAndPrice } from "./order-table/OrderTable";
 
 interface TableMeta {
-  editingData: ResponseOrderItemWithOrderId | null;
+  editingData: ResponseOrderItemWithOrderIdAndPrice | null;
   updateEditingQuantity: (delta: number) => void;
   resetEditing: () => void;
 }
 
-export const columns: ColumnDef<ResponseOrderItemWithOrderId>[] = [
+export const columns: ColumnDef<ResponseOrderItemWithOrderIdAndPrice>[] = [
   {
     accessorKey: "name",
     header: "메뉴명",
@@ -26,6 +26,10 @@ export const columns: ColumnDef<ResponseOrderItemWithOrderId>[] = [
                 {Object.entries(orderOptions).map(([key, value]) => (
                   <Badge
                     key={key}
+                    /**
+                     * 메뉴 옵션은 requiredOpions, customOptions로 나뉘지만, 주문 시 구분하지 않기 때문에
+                     * requiredOptions, customOptions 두 가지 케이스 모두 처리할 수 있도록 함
+                     */
                   >{`${key}: ${value?.options ?? value}`}</Badge>
                 ))}
               </>

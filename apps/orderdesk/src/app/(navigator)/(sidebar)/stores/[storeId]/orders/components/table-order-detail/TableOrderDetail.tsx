@@ -4,16 +4,20 @@ import { Button } from "@spaceorder/ui/components/button";
 import { sumFromObjects, transCurrencyFormat } from "@spaceorder/api";
 import { AlertDialogWrapper } from "@spaceorder/ui/components/alert-dialog/AlertDialogWrapper";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
-import {
-  ALIVE_SESSION,
-  ORDER_ITEMS,
-  ResponseTableWithSessions,
-} from "@spaceorder/db";
+
 import PaymentDialog from "./PaymentDialog";
-import { OrderTable } from "./order-table/OrderTable";
+import {
+  OrderTable,
+  ResponseOrderItemWithOrderIdAndPrice,
+} from "./order-table/OrderTable";
 import { columns } from "./columns";
 import TableOrderDetailLayout from "./TableOrderDetailLayout";
 import EmptyOrderDetail from "./EmptyOrderDetail";
+import {
+  ALIVE_SESSION,
+  ORDER_ITEMS,
+} from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
+import { ResponseTableWithSessions } from "@spaceorder/db/types/responseModel.type";
 
 export default function TableOrderDetail({
   params,
@@ -35,15 +39,16 @@ export default function TableOrderDetail({
   }
 
   const { orders } = tableSession;
-  const mergedCalculatedPriceByQuantity = orders.flatMap((order) =>
-    order.orderItems.map((item) => {
-      return {
-        ...item,
-        totalPrice: item.price * item.quantity,
-        orderId: order.publicId,
-      };
-    })
-  );
+  const mergedCalculatedPriceByQuantity: ResponseOrderItemWithOrderIdAndPrice[] =
+    orders.flatMap((order) =>
+      order.orderItems.map((item) => {
+        return {
+          ...item,
+          totalPrice: item.price * item.quantity,
+          orderId: order.publicId,
+        };
+      })
+    );
 
   const totalPrice = sumFromObjects(
     mergedCalculatedPriceByQuantity,

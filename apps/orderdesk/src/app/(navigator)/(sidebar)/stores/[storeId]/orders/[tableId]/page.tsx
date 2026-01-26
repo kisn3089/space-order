@@ -4,6 +4,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import TableOrderDetail from "../components/table-order-detail/TableOrderDetail";
 import ErrorFallback from "@/components/ErrorFallback";
 import { Suspense } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function TableOrderDetailPage({
   params,
@@ -19,7 +20,7 @@ export default function TableOrderDetailPage({
           </ErrorFallback>
         )}
       >
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingSpinner />}>
           <TableOrderDetail params={params} />
         </Suspense>
       </ErrorBoundary>
@@ -30,7 +31,9 @@ export default function TableOrderDetailPage({
 function ErrorFallbackComponent() {
   return (
     <div className="h-full grid place-items-center">
-      <p>해당 테이블의 주문 내역을 찾을 수 없습니다.</p>
+      <p className="font-semibold">
+        해당 테이블의 주문 내역을 찾을 수 없습니다.
+      </p>
     </div>
   );
 }

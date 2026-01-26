@@ -9,6 +9,24 @@ function prefix(storeId: string, tableId: string) {
   return `/owner/stores/${storeId}/tables/${tableId}/orders`;
 }
 
+export type CreateOwnerOrderPayload = {
+  orderItems: Array<
+    { menuPublicId: string } & Pick<ResponseOrderItem, "quantity"> &
+      Partial<Pick<ResponseOrderItem, "menuName" | "options">>
+  >;
+  memo?: string;
+};
+async function createOwnerOrder(
+  { storeId, tableId }: FetchOrderParams,
+  createOrderPayload: CreateOwnerOrderPayload
+): Promise<ResponseOrderWithItem> {
+  const response = await http.post<ResponseOrderWithItem>(
+    `${prefix(storeId, tableId)}`,
+    createOrderPayload
+  );
+  return response.data;
+}
+
 export type FetchOrderParams = {
   storeId: string;
   tableId: string;
@@ -37,25 +55,6 @@ async function fetchUnique({
   return response.data;
 }
 
-export type CreateOwnerOrderPayload = {
-  orderItems: Array<
-    { menuPublicId: string } & Pick<ResponseOrderItem, "quantity"> &
-      Partial<Pick<ResponseOrderItem, "menuName" | "options">>
-  >;
-  memo?: string;
-  totalPrice?: number;
-};
-async function createOwnerOrder(
-  { storeId, tableId }: FetchOrderParams,
-  createOrderPayload: CreateOwnerOrderPayload
-): Promise<ResponseOrderWithItem> {
-  const reponse = await http.post<ResponseOrderWithItem>(
-    `${prefix(storeId, tableId)}`,
-    createOrderPayload
-  );
-  return reponse.data;
-}
-
 export type UpdateOwnerOrderPayload = Partial<
   CreateOwnerOrderPayload & {
     status: OrderStatus;
@@ -73,9 +72,9 @@ async function updateOwnerOrder(
   return response.data;
 }
 
-export const httpOrders = {
+export const httpOrder = {
+  createOwnerOrder,
   fetchList,
   fetchUnique,
-  createOwnerOrder,
   updateOwnerOrder,
 };

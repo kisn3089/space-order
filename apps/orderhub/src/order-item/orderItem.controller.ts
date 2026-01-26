@@ -122,7 +122,7 @@ export class OrderItemController {
       orderItemPublicId,
       updateOrderItemDto,
       client,
-      cachedOrderItem
+      cachedOrderItem,
     );
   }
 
@@ -131,7 +131,13 @@ export class OrderItemController {
     ZodValidation({ params: orderItemParamsSchema }),
     OrderItemWritePermission,
   )
-  async delete(@Param('orderItemId') orderItemPublicId: string): Promise<void> {
-    return await this.orderItemService.deleteOrderItem(orderItemPublicId);
+  async delete(
+    @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
+    @Param('orderItemId') orderItemPublicId: string,
+  ): Promise<void> {
+    return await this.orderItemService.deleteOrderItem(
+      orderItemPublicId,
+      cachedOrderItem,
+    );
   }
 }

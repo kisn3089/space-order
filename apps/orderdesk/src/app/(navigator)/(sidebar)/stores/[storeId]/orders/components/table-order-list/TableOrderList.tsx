@@ -1,10 +1,4 @@
-import {
-  OrderStatus,
-  ResponseTableWithSessions,
-  TABLE_QUERY_FILTER_CONST,
-  TABLE_QUERY_INCLUDE_CONST,
-} from "@spaceorder/db";
-import { Button } from "@spaceorder/ui/components/button";
+import { OrderStatus, SummarizedTableWithSessions } from "@spaceorder/db";
 import {
   Card,
   CardDescription,
@@ -14,56 +8,39 @@ import {
 } from "@spaceorder/ui/components/card";
 import TableOrder from "./TableOrder";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
-import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import SessionExpireTime from "@/app/common/orders/SessionExpireTime";
 import { ErrorBoundary } from "react-error-boundary";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ErrorFallback from "@/components/ErrorFallback";
 import TableErrorFallback from "./TableErrorFallback";
+import AcceptAllPendingOrders from "./AcceptAllPendingOrders";
 
 type TableBoardProps = {
-  storeId: string;
-  tableId: string;
+  sanitizedTable: SummarizedTableWithSessions;
 };
-const { ALIVE_SESSION } = TABLE_QUERY_FILTER_CONST;
-const { ORDER_ITEMS } = TABLE_QUERY_INCLUDE_CONST;
 
-export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
-  const { data: table } = useSuspenseWithAuth<ResponseTableWithSessions>(
-    `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`
-  );
-  const { tableNumber, section, tableSessions } = table;
+export default function TableOrderList({ sanitizedTable }: TableBoardProps) {
+  const params = useParams<{ storeId: string; tableId: string }>();
+  const { tableNumber, section, tableSessions } = sanitizedTable;
   /** 서버에서 최신의 tableSession 하나를 배열 형태로 응답한다. */
   const tableSession = tableSessions ? tableSessions[0] : null;
 
-  const findPendingStatusInOrders = tableSession?.orders?.find(
-    (order) => order.status === OrderStatus.PENDING
-  );
-
-  const acceptEveryPendingOrders = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-
-    const filterPendingStatusInOrders = tableSession?.orders?.filter(
-      (order) => order.status === OrderStatus.PENDING
-    );
-
-    console.log("filterPendingStatusInOrders: ", filterPendingStatusInOrders);
-    console.log("모든 주문 수락했어요!");
-  };
-
   const { push } = useRouter();
-  const tableClickEvnet = () => {
-    push(`/stores/${storeId}/orders/${tableId}`);
+  const tableClickEvent = () => {
+    push(`/stores/${params.storeId}/orders/${sanitizedTable.publicId}`);
   };
 
-  const isActiveTable = table.isActive === true;
-  const selectableStyle = isActiveTable ? "" : "opacity-20 cursor-not-allowed";
+  const isActiveTable = sanitizedTable.isActive === true;
+  const tableInactivateStyle = isActiveTable
+    ? ""
+    : "opacity-20 cursor-not-allowed";
   const sessionActiveStyle = tableSession ? "hover:bg-accent" : "";
+  const selectedTableStyle = "shadow-lg shadow-destructive/50";
 
   return (
     <Card
-      className={`w-full min-h-[200px] flex flex-col cursor-pointer ${sessionActiveStyle} ${selectableStyle} max-h-[300px]`}
-      onClick={() => (isActiveTable ? tableClickEvnet() : null)}
+      className={`w-full min-h-[200px] flex flex-col cursor-pointer transition-shadow duration-300 ${sessionActiveStyle} ${tableInactivateStyle} ${params.tableId === sanitizedTable.publicId ? selectedTableStyle : ""} max-h-[300px]`}
+      onClick={() => (isActiveTable ? tableClickEvent() : null)}
     >
       <CardHeader className="flex flex-row justify-between gap-1 p-2">
         <CardTitle>{tableNumber}</CardTitle>
@@ -72,13 +49,12 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
         </ActivityRender>
       </CardHeader>
       <div className="h-full overflow-y-auto scrollbar-hide relative">
-        <ActivityRender mode={findPendingStatusInOrders ? "visible" : "hidden"}>
-          <div className="px-2">
-            <Button onClick={acceptEveryPendingOrders} className="w-full">
-              {"모든 주문 수락"}
-            </Button>
-          </div>
-        </ActivityRender>
+        <div className="px-2">
+          <AcceptAllPendingOrders
+            orders={tableSession?.orders}
+            tableId={sanitizedTable.publicId}
+          />
+        </div>
         <div className="flex flex-col gap-y-1 p-2">
           <ActivityRender mode={tableSession ? "visible" : "hidden"}>
             {tableSession?.orders?.map((order) => (
@@ -92,9 +68,8 @@ export default function TableOrderList({ storeId, tableId }: TableBoardProps) {
               >
                 <TableOrder
                   key={order.publicId}
-                  tableId={table.publicId}
-                  orderId={order.publicId}
-                  storeId={storeId}
+                  order={order}
+                  tableId={sanitizedTable.publicId}
                 />
               </ErrorBoundary>
             ))}

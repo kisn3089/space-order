@@ -1,7 +1,7 @@
 import {
   HealthCheckResponse,
   httpMe,
-  useCancellableAsync,
+  useCancelableAsync,
 } from "@spaceorder/api";
 import {
   AlertDialogAction,
@@ -11,7 +11,8 @@ import { Spinner } from "@spaceorder/ui/components/spinner";
 import { SetStateAction } from "react";
 
 export default function PaymentDialog(
-  setOpen: (value: SetStateAction<boolean>) => void
+  setOpen: (value: SetStateAction<boolean>) => void,
+  transformedTotalPrice: string
 ) {
   const payment = async (
     signal: AbortSignal,
@@ -25,7 +26,7 @@ export default function PaymentDialog(
     return result;
   };
 
-  const paymentTransaction = useCancellableAsync<
+  const paymentTransaction = useCancelableAsync<
     [React.MouseEvent<HTMLButtonElement>],
     HealthCheckResponse
   >(payment);
@@ -47,8 +48,7 @@ export default function PaymentDialog(
             {"결제 처리 중..."}
           </>
         ) : (
-          `${"q"}원 결제`
-          // `${transformedTotalPrice}원 결제`
+          `${transformedTotalPrice}원 결제`
         )}
       </AlertDialogAction>
     </>

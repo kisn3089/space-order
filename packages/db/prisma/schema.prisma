@@ -71,7 +71,6 @@ model Store {
   addressDetail   String?  @map("address_detail")
   businessHours   String?  @map("business_hours")
   description     String?  @db.Text
-  tableCount      Int      @default(0) @map("table_count")
   isOpen          Boolean  @default(false) @map("is_open")
   acceptedMessage String?  @map("accepted_message") @db.VarChar(500)
   createdAt       DateTime @default(now()) @map("created_at")

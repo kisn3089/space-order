@@ -49,7 +49,7 @@ export class OrderItemService {
 
   private findMenuFields(menuId: MenuId, client: Owner) {
     return {
-      where: { ...menuId, store: { ownerId: client.id } },
+      where: { ...menuId, store: { ownerId: client.id }, deletedAt: null },
       select: {
         id: true,
         name: true,
@@ -68,10 +68,18 @@ export class OrderItemService {
   }
 
   private validateMenuOptions(
-    findMenu: Pick<Menu, 'requiredOptions' | 'customOptions'>,
+    {
+      requiredOptions,
+      customOptions,
+    }: Pick<Menu, 'requiredOptions' | 'customOptions'>,
     options: CreateOrderItemDto['options'],
   ): void {
-    if (options && !(findMenu.requiredOptions || findMenu.customOptions)) {
+    if (!options) return;
+
+    const requiredMenuSet = new Set(Object.keys(requiredOptions || {}));
+    const customMenuSet = new Set(Object.keys(customOptions || {}));
+
+    if (options && !(requiredOptions || customOptions)) {
       throw new HttpException(
         exceptionContentsIs('ORDER_ITEM_OPTIONS_INVALID'),
         HttpStatus.BAD_REQUEST,

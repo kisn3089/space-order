@@ -78,7 +78,7 @@ export class OrderService {
 
       /** TODO: 별도의 클래스로 분리 [checkMenuValidation] */
       const findMenuList = await tx.menu.findMany({
-        where: { publicId: { in: menuPublicIds } },
+        where: { publicId: { in: menuPublicIds }, deletedAt: null },
         select: {
           publicId: true,
           name: true,

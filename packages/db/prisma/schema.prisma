@@ -145,13 +145,21 @@ model Menu {
   sortOrder   Int      @default(0) @map("sort_order")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
   /**
-   * required_options Json 필요 예)
-   * 사이즈: [스몰, 라지], 구분: [ice, hot]
+   * { "사이즈": ["스몰", "라지"], "종류": ["ice", "hot"] }
+   * 주문 시 데이터 구조 { "사이즈": "라지", "종류": "아이스" }
    * 필수 요소에는 사업자가 메뉴 생성 시 기본값 설정하도록 해야 한다.
    */
   requiredOptions Json?   @map("required_options")
-  /** custom_options Json 필요 예) 얼음: ["적게", "많이"] */
+  /** 
+   * {
+   *    "얼음": {
+   *      "options": ["많이", "적게"],
+   *      "trigger": ["아이스"]
+   *    }
+   *  }
+   */
   customOptions Json?   @map("custom_options")
 
   // MVP 기능은 아니기 때문에 일단 보류

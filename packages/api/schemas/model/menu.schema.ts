@@ -40,5 +40,5 @@ export const createMenuSchema = z
   .strict();
 
 export const updateMenuSchema = createMenuSchema
-  .extend({ isAvailable: z.boolean() })
+  .extend({ isAvailable: z.boolean(), deletedAt: z.date().nullable() })
   .partial();

@@ -1,26 +1,17 @@
 import z from "zod";
 import { commonSchema } from "../common";
 import { ORDER_ITEM_QUERY_FILTER_KEYS } from "@spaceorder/db";
+import { MenuCustomOption, MenuOption } from "./menu.schema";
 
-const createOptionsSchema = z.record(
-  z.string(),
-  z.union([
-    z.string(),
-    z
-      .object({
-        options: z.string(),
-        trigger: z.string().optional(),
-      })
-      .strict(),
-  ])
-);
+const optionItemSchema = z.record(z.string(), z.string());
 
 export const createOrderItemSchema = z
   .object({
     menuPublicId: commonSchema.cuid2("Menu"),
     quantity: z.number().min(1, "수량은 최소 1 이상이어야 합니다."),
     menuName: z.string().optional(),
-    options: createOptionsSchema.optional(),
+    requiredOptions: optionItemSchema.optional(),
+    customOptions: optionItemSchema.optional(),
   })
   .strict();
 
@@ -38,3 +29,8 @@ export const orderItemQuerySchema = z.discriminatedUnion("filter", [
   orderItemFilterQuerySchema,
   z.object({ filter: z.undefined() }),
 ]);
+
+export type OptionsSnapshot = {
+  requiredOptions?: Record<string, MenuOption>;
+  customOptions?: Record<string, MenuCustomOption>;
+};

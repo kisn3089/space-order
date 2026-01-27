@@ -10,8 +10,36 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderItemDto, UpdateOrderItemDto } from './orderItem.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
+import { ExtendedMap } from 'src/utils/helper/extendMap';
+import {
+  MenuCustomOption,
+  MenuOption,
+  MenuOptions,
+  menuOptionsSchema,
+} from '@spaceorder/api/schemas/model/menu.schema';
+import { OptionsSnapshot } from '@spaceorder/api/schemas/model/orderItem.schema';
+import { validateEmptyObject } from '@spaceorder/api/utils/validateEmptyObject';
 
 type MenuId = { id: bigint } | { publicId: string };
+type JsonMenuOptions = Pick<Menu, 'requiredOptions' | 'customOptions'>;
+type CreateItemPayloadOptions = Pick<
+  CreateOrderItemDto,
+  'requiredOptions' | 'customOptions'
+>;
+type ValidatedMenuOptionsReturn<
+  Option extends MenuOption[] | MenuCustomOption,
+> = {
+  optionsSnapshot: Record<
+    string,
+    Option extends MenuOption[] ? MenuOption : MenuCustomOption
+  >;
+  optionsPrice: number;
+};
+type GetValidatedMenuOptionsSnapshotReturn = {
+  optionsSnapshot?: OptionsSnapshot;
+  optionsPrice: number;
+};
+
 @Injectable()
 export class OrderItemService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -23,25 +51,33 @@ export class OrderItemService {
     createPayload: CreateOrderItemDto,
     client: Owner,
   ): Promise<ResponseOrderItem> {
+    const { menuPublicId, requiredOptions, customOptions, quantity } =
+      createPayload;
     const [findMenu, findOrder] = await Promise.all([
       this.prismaService.menu.findFirstOrThrow(
-        this.findMenuFields({ publicId: createPayload.menuPublicId }, client),
+        this.findMenuFields({ publicId: menuPublicId }, client),
       ),
       this.prismaService.order.findFirstOrThrow(
         this.findOrderFields(orderPublicId),
       ),
     ]);
 
-    this.validateMenuOptions(findMenu, createPayload.options);
+    const { optionsPrice, optionsSnapshot } =
+      this.getValidatedMenuOptionsSnapshot(findMenu, {
+        requiredOptions,
+        customOptions,
+      });
 
     return await this.prismaService.orderItem.create({
       data: {
         menuId: findMenu.id,
         menuName: findMenu.name,
-        price: findMenu.price,
-        quantity: createPayload.quantity,
+        basePrice: findMenu.price,
+        unitPrice: findMenu.price + optionsPrice,
+        optionsPrice,
+        quantity,
         orderId: findOrder.id,
-        ...(createPayload.options ? { options: createPayload.options } : {}),
+        optionsSnapshot,
       },
       omit: this.orderItemOmit,
     });
@@ -67,24 +103,134 @@ export class OrderItemService {
     };
   }
 
-  private validateMenuOptions(
-    {
-      requiredOptions,
-      customOptions,
-    }: Pick<Menu, 'requiredOptions' | 'customOptions'>,
-    options: CreateOrderItemDto['options'],
-  ): void {
-    if (!options) return;
+  private parseMenuOptions(menu: JsonMenuOptions): MenuOptions {
+    return menuOptionsSchema.parse({
+      requiredOptions: menu.requiredOptions,
+      customOptions: menu.customOptions,
+    });
+  }
 
-    const requiredMenuSet = new Set(Object.keys(requiredOptions || {}));
-    const customMenuSet = new Set(Object.keys(customOptions || {}));
+  getValidatedMenuOptionsSnapshot(
+    menuOptions: JsonMenuOptions,
+    payloadOptions: CreateItemPayloadOptions,
+  ): GetValidatedMenuOptionsSnapshotReturn {
+    const parsedMenuOptions: MenuOptions = this.parseMenuOptions(menuOptions);
+    const {
+      customOptions: payloadCustomOptions,
+      requiredOptions: payloadRequiredOptions,
+    } = payloadOptions;
 
-    if (options && !(requiredOptions || customOptions)) {
+    /** 필수 옵션의 수와, payload의 수가 다르면 예외 처리 */
+    const requiredMenuOptionsKeys = Object.keys(
+      parsedMenuOptions.requiredOptions || {},
+    );
+    const payloadRequiredOptionsKeys = Object.keys(
+      payloadRequiredOptions || {},
+    );
+    if (requiredMenuOptionsKeys.length !== payloadRequiredOptionsKeys.length) {
       throw new HttpException(
-        exceptionContentsIs('ORDER_ITEM_OPTIONS_INVALID'),
+        {
+          ...exceptionContentsIs('MENU_OPTIONS_REQUIRED'),
+          details: {
+            missingRequiredOptions: requiredMenuOptionsKeys,
+          },
+        },
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    /** Menu는 custom 옵션은 없는데, payload의 custom 옵션이 있다면 예외 처리 */
+    const payloadCustomOptionsKeys = Object.keys(payloadCustomOptions || {});
+    if (
+      !parsedMenuOptions.customOptions &&
+      payloadCustomOptionsKeys.length > 0
+    ) {
+      throw new HttpException(
+        {
+          ...exceptionContentsIs('MENU_OPTIONS_SHOULD_BE_EMPTY'),
+          details: {
+            shouldBeEmptyOptions: payloadCustomOptionsKeys,
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (requiredMenuOptionsKeys.length === 0) {
+      return { optionsPrice: 0 };
+    }
+
+    const {
+      optionsPrice: requiredOptionsPrice,
+      optionsSnapshot: requiredOptionsSnapshot,
+    } = this.getValidatedMenuOptions<MenuOption[]>(
+      parsedMenuOptions.requiredOptions,
+      payloadRequiredOptions,
+    );
+
+    const {
+      optionsPrice: customOptionsPrice,
+      optionsSnapshot: customOptionsSnapshot,
+    } = this.getValidatedMenuOptions<MenuCustomOption>(
+      parsedMenuOptions.customOptions,
+      payloadCustomOptions,
+    );
+
+    return {
+      optionsSnapshot: {
+        ...(!validateEmptyObject(requiredOptionsSnapshot) && {
+          requiredOptions: requiredOptionsSnapshot,
+        }),
+        ...(!validateEmptyObject(customOptionsSnapshot) && {
+          customOptions: customOptionsSnapshot,
+        }),
+      },
+      optionsPrice: requiredOptionsPrice + customOptionsPrice,
+    };
+  }
+
+  private getValidatedMenuOptions<
+    ValidMenuOption extends MenuOption[] | MenuCustomOption,
+  >(
+    menuOption: Record<string, ValidMenuOption> | null,
+    payloadOption: CreateItemPayloadOptions[
+      | 'requiredOptions'
+      | 'customOptions'] = {},
+  ): ValidatedMenuOptionsReturn<ValidMenuOption> {
+    const menuOptionsMap = new ExtendedMap<string, ValidMenuOption>(
+      Object.entries(menuOption || {}),
+    );
+    const payloadMenuMap = new Map<string, string>(
+      Object.entries(payloadOption || {}),
+    );
+
+    menuOptionsMap.setException('MENU_OPTIONS_INVALID');
+
+    const validatedOptions = { optionsPrice: 0, optionsSnapshot: {} };
+    payloadMenuMap.forEach((payloadValue, payloadKey) => {
+      const menuOptions = menuOptionsMap.getOrThrow(payloadKey);
+      const optionArray = Array.isArray(menuOptions)
+        ? menuOptions
+        : menuOptions.options;
+
+      const findOption = optionArray.find(
+        (option) => option.key === payloadValue,
+      );
+
+      if (!findOption) {
+        throw new HttpException(
+          {
+            ...exceptionContentsIs('MENU_OPTIONS_INVALID'),
+            details: { invalidRequiredOption: payloadValue },
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      validatedOptions.optionsPrice += findOption.price;
+      validatedOptions.optionsSnapshot[payloadKey] = findOption;
+    });
+    return validatedOptions;
   }
 
   async getOrderItemList<T extends Prisma.OrderItemFindManyArgs>(
@@ -105,8 +251,9 @@ export class OrderItemService {
     client: Owner,
     cachedOrderItem: OrderItem,
   ): Promise<ResponseOrderItem> {
-    const { menuPublicId, options, quantity } = updatePayload;
-    if (!menuPublicId && !options) {
+    const { menuPublicId, requiredOptions, customOptions, quantity } =
+      updatePayload;
+    if (!menuPublicId && !requiredOptions && !customOptions) {
       return await this.prismaService.orderItem.update({
         where: { publicId: orderItemPublicId },
         data: updatePayload,
@@ -121,16 +268,22 @@ export class OrderItemService {
       this.findMenuFields(menuId, client),
     );
 
-    this.validateMenuOptions(findMenu, options);
+    const { optionsPrice, optionsSnapshot } =
+      this.getValidatedMenuOptionsSnapshot(findMenu, {
+        requiredOptions,
+        customOptions,
+      });
 
     return await this.prismaService.orderItem.update({
       where: { publicId: orderItemPublicId },
       data: {
         menu: { connect: { id: findMenu.id } },
         menuName: findMenu.name,
-        price: findMenu.price,
+        basePrice: findMenu.price,
+        unitPrice: findMenu.price + optionsPrice,
+        optionsPrice,
         quantity,
-        options,
+        optionsSnapshot,
       },
       omit: this.orderItemOmit,
     });

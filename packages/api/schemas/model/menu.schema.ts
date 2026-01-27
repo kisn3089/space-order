@@ -6,6 +6,42 @@ const menuIdParamsSchema = z
   .object({ menuId: commonSchema.cuid2("Menu") })
   .strict();
 
+const optionSchema = z
+  .object({
+    key: z.string(),
+    description: z.string().optional(),
+    price: z.number(),
+  })
+  .strict();
+export type MenuOption = z.infer<typeof optionSchema>;
+
+const requiredOptionsSchema = z.record(z.string(), z.array(optionSchema));
+export type MenuRequiredOptions = z.infer<typeof requiredOptionsSchema>;
+
+const triggerSchema = z
+  .object({
+    group: z.string(),
+    in: z.array(z.string()),
+  })
+  .strict();
+
+const customOptionValueSchema = z
+  .object({
+    options: z.array(optionSchema),
+    trigger: z.array(triggerSchema).optional(),
+  })
+  .strict();
+export type MenuCustomOption = z.infer<typeof customOptionValueSchema>;
+
+const customOptionsSchema = z.record(z.string(), customOptionValueSchema);
+export type MenuCustomOptions = z.infer<typeof customOptionsSchema>;
+
+export const menuOptionsSchema = z.object({
+  requiredOptions: requiredOptionsSchema.nullable(),
+  customOptions: customOptionsSchema.nullable(),
+});
+export type MenuOptions = z.infer<typeof menuOptionsSchema>;
+
 export const mergedStoreIdAndMenuIdParamsSchema =
   storeIdParamsSchema.merge(menuIdParamsSchema);
 
@@ -26,16 +62,8 @@ export const createMenuSchema = z
       .max(20, "카테고리 이름은 최대 20자까지 가능합니다.")
       .optional(),
     sortOrder: z.number().min(0, "정렬 순서는 0 이상이어야 합니다.").optional(),
-    requiredOptions: z.record(z.string(), z.string().array()).optional(),
-    customOptions: z
-      .record(
-        z.string(),
-        z.object({
-          trigger: z.string().array().optional(),
-          options: z.string().array(),
-        })
-      )
-      .optional(),
+    requiredOptions: requiredOptionsSchema.optional(),
+    customOptions: customOptionsSchema.optional(),
   })
   .strict();
 

@@ -62,9 +62,17 @@ const EXCEPTION_CONTENTS = {
     message: '요청한 메뉴가 존재하지 않습니다.',
   },
   /** ---Order Item--- */
-  ORDER_ITEM_OPTIONS_INVALID: {
-    code: 'ORDER_ITEM_OPTIONS_INVALID',
-    message: '해당 메뉴는 옵션 설정이 되어있지 않습니다.',
+  MENU_OPTIONS_INVALID: {
+    code: 'MENU_OPTIONS_INVALID',
+    message: '잘못된 옵션 값입니다.',
+  },
+  MENU_OPTIONS_REQUIRED: {
+    code: 'MENU_OPTIONS_REQUIRED',
+    message: '해당 메뉴의 필수 옵션 값이 잘못되었습니다.',
+  },
+  MENU_OPTIONS_SHOULD_BE_EMPTY: {
+    code: 'MENU_OPTIONS_SHOULD_BE_EMPTY',
+    message: '해당 메뉴는 선택 옵션 값이 존재할 수 없습니다.',
   },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {

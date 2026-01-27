@@ -6,5 +6,6 @@ import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder'
 @Module({
   controllers: [OrderItemController],
   providers: [OrderItemService, QueryParamsBuilderService],
+  exports: [OrderItemService],
 })
 export class OrderItemModule {}

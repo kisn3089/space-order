@@ -13,6 +13,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderDto } from './order.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
+import { OrderItemService } from 'src/order-item/orderItem.service';
 
 type MenuValidationFields = Pick<
   Menu,
@@ -46,6 +47,7 @@ export class OrderService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly tableSessionService: TableSessionService,
+    private readonly orderItemService: OrderItemService,
   ) {}
 
   private orderIncludeOrOmit = {
@@ -138,22 +140,19 @@ export class OrderService {
     const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
       createOrderDto.orderItems.map((orderItem) => {
         const menu = menuMap.getOrThrow(orderItem.menuPublicId);
-        if (
-          orderItem.options &&
-          !(menu.requiredOptions || menu.customOptions)
-        ) {
-          throw new HttpException(
-            exceptionContentsIs('ORDER_ITEM_OPTIONS_INVALID'),
-            HttpStatus.BAD_REQUEST,
-          );
-        }
+        const { optionsPrice, optionsSnapshot } =
+          this.orderItemService.getValidatedMenuOptionsSnapshot(menu, {
+            requiredOptions: orderItem.requiredOptions,
+            customOptions: orderItem.customOptions,
+          });
 
         return {
           menu: { connect: { publicId: orderItem.menuPublicId } },
           menuName: menu.name,
-          price: menu.price,
+          basePrice: menu.price,
+          unitPrice: menu.price + optionsPrice,
           quantity: orderItem.quantity,
-          ...(orderItem.options ? { options: orderItem.options } : {}),
+          optionsSnapshot,
         };
       });
 

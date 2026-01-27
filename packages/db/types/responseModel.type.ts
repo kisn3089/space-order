@@ -3,6 +3,7 @@ import type {
   Order,
   OrderItem,
   Owner,
+  Prisma,
   Store,
   Table,
   TableSession,
@@ -28,7 +29,13 @@ export type ResponseOrder = Omit<
   "id" | "storeId" | "tableId" | "tableSessionId"
 >;
 
-export type ResponseOrderItem = Omit<OrderItem, "id" | "orderId" | "menuId">;
+type SanitizedOrderItem = Omit<OrderItem, "id" | "orderId" | "menuId">;
+export type ResponseOrderItem<Option extends "Narrow" | "Wide" = "Wide"> =
+  Option extends "Narrow"
+    ? Omit<SanitizedOrderItem, "optionsSnapshot"> & {
+        optionsSnapshot?: OptionsSnapshot | null;
+      }
+    : SanitizedOrderItem;
 
 export type ResponseMenu = Omit<Menu, "id" | "storeId">;
 

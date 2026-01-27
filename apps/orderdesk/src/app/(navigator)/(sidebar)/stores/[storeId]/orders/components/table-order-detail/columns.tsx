@@ -16,7 +16,8 @@ export const columns: ColumnDef<ResponseOrderItemWithOrderIdAndPrice>[] = [
     accessorKey: "name",
     header: "메뉴명",
     cell: ({ row }) => {
-      const orderOptions = row.original.options;
+      const orderOptions = row.original.optionsSnapshot;
+      console.log("orderOptions: ", orderOptions);
 
       return (
         <div className="flex flex-col gap-2">

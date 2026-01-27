@@ -22,10 +22,11 @@ import OrderTableCells from "./OrderTableCells";
 import useOrderItemTable from "../../../hooks/useOrderItemTable";
 import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
 
-export type ResponseOrderItemWithOrderIdAndPrice = ResponseOrderItem & {
-  totalPrice: number;
-  orderId: string;
-};
+export type ResponseOrderItemWithOrderIdAndPrice =
+  ResponseOrderItem<"Narrow"> & {
+    totalPrice: number;
+    orderId: string;
+  };
 interface DataTableProps {
   columns: ColumnDef<ResponseOrderItemWithOrderIdAndPrice>[];
   data: ResponseOrderItemWithOrderIdAndPrice[];

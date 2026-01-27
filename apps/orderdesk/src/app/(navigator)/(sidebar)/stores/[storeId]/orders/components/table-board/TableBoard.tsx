@@ -13,7 +13,7 @@ export default function TableBoard() {
     { onSuccess: setCache }
   );
 
-  const tableCount = store.tableCount ?? 0;
+  const tableCount = store.tables.length ?? 0;
   return (
     <TableBoardLayout count={tableCount}>
       {store.tables.map((sanitizedTable) => {

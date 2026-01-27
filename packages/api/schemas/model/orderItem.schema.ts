@@ -1,7 +1,6 @@
 import z from "zod";
 import { commonSchema } from "../common";
 import { ORDER_ITEM_QUERY_FILTER_KEYS } from "@spaceorder/db";
-import { MenuCustomOption, MenuOption } from "./menu.schema";
 
 const optionItemSchema = z.record(z.string(), z.string());
 
@@ -29,8 +28,3 @@ export const orderItemQuerySchema = z.discriminatedUnion("filter", [
   orderItemFilterQuerySchema,
   z.object({ filter: z.undefined() }),
 ]);
-
-export type OptionsSnapshot = {
-  requiredOptions?: Record<string, MenuOption>;
-  customOptions?: Record<string, MenuCustomOption>;
-};

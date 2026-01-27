@@ -7,6 +7,7 @@ import type {
   Table,
   TableSession,
 } from "@prisma/client";
+import { OptionsSnapshot } from "./menuOptions.type";
 
 /** TODO: query의 include 값에 따라 타입이 동적 할당되도록 유틸 함수 만들자. */
 export type ExtendedResponseTable = ResponseTable & {

@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   Menu,
+  MenuCustomOption,
+  MenuOption,
+  OptionsSnapshot,
   OrderItem,
   OrderStatus,
   Owner,
@@ -11,14 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderItemDto, UpdateOrderItemDto } from './orderItem.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
-import {
-  MenuCustomOption,
-  MenuOption,
-  MenuOptions,
-  menuOptionsSchema,
-} from '@spaceorder/api/schemas/model/menu.schema';
-import { OptionsSnapshot } from '@spaceorder/api/schemas/model/orderItem.schema';
-import { validateEmptyObject } from '@spaceorder/api/utils/validateEmptyObject';
+import { menuOptionsSchema } from '@spaceorder/api/schemas/model/menu.schema';
 
 type MenuId = { id: bigint } | { publicId: string };
 type JsonMenuOptions = Pick<Menu, 'requiredOptions' | 'customOptions'>;
@@ -36,10 +32,12 @@ type ValidatedMenuOptionsReturn<
   optionsPrice: number;
 };
 type GetValidatedMenuOptionsSnapshotReturn = {
-  optionsSnapshot?: OptionsSnapshot;
+  optionsSnapshot?: {
+    customOptions?: Record<string, MenuCustomOption> | undefined;
+    requiredOptions?: Record<string, MenuOption> | undefined;
+  };
   optionsPrice: number;
 };
-
 @Injectable()
 export class OrderItemService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -103,7 +101,7 @@ export class OrderItemService {
     };
   }
 
-  private parseMenuOptions(menu: JsonMenuOptions): MenuOptions {
+  private parseMenuOptions(menu: JsonMenuOptions): OptionsSnapshot {
     return menuOptionsSchema.parse({
       requiredOptions: menu.requiredOptions,
       customOptions: menu.customOptions,
@@ -114,7 +112,8 @@ export class OrderItemService {
     menuOptions: JsonMenuOptions,
     payloadOptions: CreateItemPayloadOptions,
   ): GetValidatedMenuOptionsSnapshotReturn {
-    const parsedMenuOptions: MenuOptions = this.parseMenuOptions(menuOptions);
+    const parsedMenuOptions: OptionsSnapshot =
+      this.parseMenuOptions(menuOptions);
     const {
       customOptions: payloadCustomOptions,
       requiredOptions: payloadRequiredOptions,
@@ -132,7 +131,7 @@ export class OrderItemService {
         {
           ...exceptionContentsIs('MENU_OPTIONS_REQUIRED'),
           details: {
-            missingRequiredOptions: requiredMenuOptionsKeys,
+            missingRequiredOptions: payloadRequiredOptions,
           },
         },
         HttpStatus.BAD_REQUEST,
@@ -178,12 +177,8 @@ export class OrderItemService {
 
     return {
       optionsSnapshot: {
-        ...(!validateEmptyObject(requiredOptionsSnapshot) && {
-          requiredOptions: requiredOptionsSnapshot,
-        }),
-        ...(!validateEmptyObject(customOptionsSnapshot) && {
-          customOptions: customOptionsSnapshot,
-        }),
+        requiredOptions: requiredOptionsSnapshot,
+        customOptions: customOptionsSnapshot,
       },
       optionsPrice: requiredOptionsPrice + customOptionsPrice,
     };

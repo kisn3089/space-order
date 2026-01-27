@@ -1,6 +1,13 @@
 import z from "zod";
 import { commonSchema } from "../common";
 import { storeIdParamsSchema } from "./store.schema";
+import {
+  MenuCustomOption,
+  MenuCustomOptions,
+  MenuOption,
+  MenuRequiredOptions,
+  OptionsSnapshot,
+} from "@spaceorder/db/types/menuOptions.type";
 
 const menuIdParamsSchema = z
   .object({ menuId: commonSchema.cuid2("Menu") })
@@ -12,11 +19,12 @@ const optionSchema = z
     description: z.string().optional(),
     price: z.number(),
   })
-  .strict();
-export type MenuOption = z.infer<typeof optionSchema>;
+  .strict() satisfies z.ZodType<MenuOption>;
 
-const requiredOptionsSchema = z.record(z.string(), z.array(optionSchema));
-export type MenuRequiredOptions = z.infer<typeof requiredOptionsSchema>;
+const requiredOptionsSchema = z.record(
+  z.string(),
+  z.array(optionSchema)
+) satisfies z.ZodType<MenuRequiredOptions>;
 
 const triggerSchema = z
   .object({
@@ -30,17 +38,17 @@ const customOptionValueSchema = z
     options: z.array(optionSchema),
     trigger: z.array(triggerSchema).optional(),
   })
-  .strict();
-export type MenuCustomOption = z.infer<typeof customOptionValueSchema>;
+  .strict() satisfies z.ZodType<MenuCustomOption>;
 
-const customOptionsSchema = z.record(z.string(), customOptionValueSchema);
-export type MenuCustomOptions = z.infer<typeof customOptionsSchema>;
+const customOptionsSchema = z.record(
+  z.string(),
+  customOptionValueSchema
+) satisfies z.ZodType<MenuCustomOptions>;
 
 export const menuOptionsSchema = z.object({
   requiredOptions: requiredOptionsSchema.nullable(),
   customOptions: customOptionsSchema.nullable(),
-});
-export type MenuOptions = z.infer<typeof menuOptionsSchema>;
+}) satisfies z.ZodType<OptionsSnapshot>;
 
 export const mergedStoreIdAndMenuIdParamsSchema =
   storeIdParamsSchema.merge(menuIdParamsSchema);

@@ -1,7 +1,12 @@
 import { Request } from 'express';
 import { CanActivate } from '@nestjs/common/interfaces/features/can-activate.interface';
 import { ExecutionContext } from '@nestjs/common/interfaces/features/execution-context.interface';
-import { OrderItem, Owner, TableSessionStatus } from '@spaceorder/db';
+import {
+  OrderItem,
+  OrderStatus,
+  Owner,
+  TableSessionStatus,
+} from '@spaceorder/db';
 import { OrderItemService } from 'src/order-item/orderItem.service';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { HttpException, HttpStatus } from '@nestjs/common';
@@ -61,6 +66,13 @@ export class OrderItemWritePermission extends OrderItemPermission {
           order: {
             publicId: orderId,
             table: { store: { ownerId: client.id } },
+            status: {
+              in: [
+                OrderStatus.ACCEPTED,
+                OrderStatus.PREPARING,
+                OrderStatus.PENDING,
+              ],
+            },
           },
           ...(orderItemId ? { publicId: orderItemId } : {}),
         },

@@ -52,7 +52,7 @@ export class OrderItemController {
   @Post()
   @UseGuards(
     ZodValidation({ params: orderIdParamsSchema, body: createOrderItemSchema }),
-    OrderItemPermission,
+    OrderItemWritePermission,
   )
   async create(
     @Client() client: Owner,

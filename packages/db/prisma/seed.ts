@@ -1,4 +1,5 @@
-import { PrismaClient, AdminRole, Store } from "@prisma/client";
+import { PrismaClient, AdminRole } from "@prisma/client";
+import type { Store } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
@@ -120,7 +121,7 @@ async function main() {
   // Store1 메뉴 (카페)
   const createMenus = [
     {
-      publicId: "rbay46e0wjrj7n1h1q2ain87",
+      publicId: "rbay46e0wjrj7n1h1q2ain8",
       name: "아메리카노",
       price: 4500,
       description: "신선한 원두로 내린 아메리카노",
@@ -157,54 +158,74 @@ async function main() {
       },
     },
     {
-      publicId: "ohovsqjy5mavzgk1xu187xwk",
+      publicId: "ohovsqjy5mavzgk1xu187xw",
       name: "카페라떼",
       price: 5000,
       description: "부드러운 우유와 에스프레소의 조화",
       category: "커피",
       isAvailable: true,
-      sortOrder: 2,
+      sortOrder: 3,
       imageUrl:
         "https://images.unsplash.com/photo-1729364983489-d4d569978fd7?q=80&w=1296&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      publicId: "hjpomrh123401gpnvrdl0zip",
+      publicId: "hjpomrh123401gpnvrdl0zi",
       name: "카푸치노",
       price: 5000,
       description: "풍부한 거품의 카푸치노",
       category: "커피",
       isAvailable: true,
-      sortOrder: 3,
+      sortOrder: 4,
       imageUrl:
         "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      publicId: "lwhdq1qwcmckm3k4nni89b19",
+      publicId: "lwhdq1qwcmckm3k4nni89b1",
       name: "크로와상",
       price: 3500,
       description: "버터 풍미 가득한 크로와상",
-      category: "베이커리",
+      category: "디저트",
       isAvailable: true,
-      sortOrder: 4,
+      sortOrder: 1,
       imageUrl:
         "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2148&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      publicId: "d5ghdt3wai43i3jhf3dyk7pj",
+      publicId: "d5ghdt3wai43i3jhf3dyk7p",
       name: "치즈케이크",
       price: 6500,
       description: "부드러운 뉴욕 스타일 치즈케이크",
       category: "디저트",
       isAvailable: true,
-      sortOrder: 5,
+      sortOrder: 2,
       imageUrl:
         "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
+    {
+      publicId: "tq2qu2n7aayzxzf837cto4a",
+      name: "드립 커피",
+      price: 4600,
+      description: "최고급 원두로 내린 드립 커피",
+      category: "커피",
+      isAvailable: true,
+      sortOrder: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      customOptions: {
+        얼음: {
+          options: [
+            { key: "많이", price: 500 },
+            { key: "적게", price: 500 },
+          ],
+        },
+      },
+    },
   ];
 
-  const [menu1, menu2] = [store1, store2].map((store) =>
+  const [menu1, menu2] = [store1, store2].map((store, index) =>
     createMenus.map((menu) => ({
       ...menu,
+      publicId: `${menu.publicId}${index}`,
       storeId: store.id,
     }))
   );
@@ -224,7 +245,7 @@ async function main() {
         floor: 1,
         section: "창가",
         isActive: true,
-        qrCode: `/stores/${store.id}/tables/ue14s3rhgdrci9lnua1eqd58/session`,
+        qrCode: `/stores/${store.publicId}/tables/ue14s3rhgdrci9lnua1eqd58/session`,
         description: null,
       },
       {
@@ -236,7 +257,7 @@ async function main() {
         floor: 1,
         section: "입구",
         isActive: true,
-        qrCode: `/stores/${store.id}/tables/oa5zcc6kl8du8g9z7zvqjrkg/session`,
+        qrCode: `/stores/${store.publicId}/tables/oa5zcc6kl8du8g9z7zvqjrkg/session`,
         description: null,
       },
       {
@@ -248,7 +269,7 @@ async function main() {
         floor: 2,
         section: null,
         isActive: true,
-        qrCode: `/stores/${store.id}/tables/bpfvgpx5ch1qnm6i5d8fa75y/session`,
+        qrCode: `/stores/${store.publicId}/tables/bpfvgpx5ch1qnm6i5d8fa75y/session`,
         description: null,
       },
       {
@@ -260,7 +281,7 @@ async function main() {
         floor: 2,
         section: null,
         isActive: false,
-        qrCode: `/stores/${store.id}/tables/lhc7159zorfjk1ojs4g77yzr/session`,
+        qrCode: `/stores/${store.publicId}/tables/lhc7159zorfjk1ojs4g77yzr/session`,
         description: null,
       },
       {
@@ -272,7 +293,7 @@ async function main() {
         floor: 1,
         section: null,
         isActive: true,
-        qrCode: `/stores/${store.id}/tables/n0e72gbtnstf9d96bur1im92/session`,
+        qrCode: `/stores/${store.publicId}/tables/n0e72gbtnstf9d96bur1im92/session`,
         description: null,
       },
     ];
@@ -280,6 +301,7 @@ async function main() {
 
   await prisma.table.createMany({
     data: tablesList(store1),
+    skipDuplicates: true,
   });
 
   console.log("✅ Menus created");

@@ -21,6 +21,8 @@ import EditController from "./EditController";
 import OrderTableCells from "./OrderTableCells";
 import useOrderItemTable from "../../../hooks/useOrderItemTable";
 import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
+import { OptionSnapshotValue } from "@spaceorder/db/types/menuOptions.type";
+import { Badge } from "@spaceorder/ui/components/badge";
 
 export type ResponseOrderItemWithOrderIdAndPrice = ResponseOrderItem & {
   totalPrice: number;
@@ -114,6 +116,22 @@ export function OrderTable({ columns, data, isLoading }: DataTableProps) {
                 onClick={(e) => RowClickEvent(e, row)}
                 className="flex flex-col"
               >
+                <ActivityRender
+                  mode={row.original.optionsSnapshot ? "visible" : "hidden"}
+                >
+                  <TableCell className="flex gap-1 flex-wrap pt-4 px-4 pb-0">
+                    <OptionsSnapshotBadge
+                      options={row.original.optionsSnapshot?.requiredOptions}
+                      isSelected={isSelected}
+                      type="required"
+                    />
+                    <OptionsSnapshotBadge
+                      options={row.original.optionsSnapshot?.customOptions}
+                      isSelected={isSelected}
+                      type="custom"
+                    />
+                  </TableCell>
+                </ActivityRender>
                 <OrderTableCells row={row} />
                 <ActivityRender mode={isSelected ? "visible" : "hidden"}>
                   <EditController
@@ -143,5 +161,30 @@ function LoadingFallback<Data>({ columns }: { columns: ColumnDef<Data>[] }) {
         <LoadingSpinner />
       </TableCell>
     </TableRow>
+  );
+}
+
+function OptionsSnapshotBadge({
+  options,
+  isSelected,
+  type,
+}: {
+  options: OptionSnapshotValue | undefined;
+  isSelected: boolean;
+  type: "required" | "custom";
+}) {
+  const entries = Object.entries(options || {});
+  if (entries.length === 0) return null;
+
+  return (
+    <>
+      {entries.map(([key, value]) => (
+        <Badge
+          key={key}
+          className="whitespace-pre-wrap text-center"
+          variant={type === "required" ? "destructive" : "default"}
+        >{`${key}: ${value.key} ${isSelected && value.price !== 0 ? `\n${value.price}` : ""}`}</Badge>
+      ))}
+    </>
   );
 }

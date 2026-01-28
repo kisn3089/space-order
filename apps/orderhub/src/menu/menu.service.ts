@@ -44,10 +44,10 @@ export class MenuService {
     });
   }
 
-  async deleteMenu(menuId: string): Promise<void> {
-    await this.prismaService.menu.delete({
+  async softDeleteMenu(menuId: string): Promise<void> {
+    await this.prismaService.menu.update({
       where: { publicId: menuId },
-      omit: this.menuOmit,
+      data: { deletedAt: new Date() },
     });
   }
 }

@@ -1,4 +1,5 @@
 import { PrismaClient, AdminRole } from "@prisma/client";
+import type { Store } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
@@ -64,7 +65,21 @@ async function main() {
       businessNumber: "123-45-67890",
     },
   });
-  console.log("✅ Owners created:", { owner1: owner1.email });
+  const owner2 = await prisma.owner.upsert({
+    where: { email: "test@test.com" },
+    update: {},
+    create: {
+      email: "test@test.com",
+      password: ownerPassword,
+      name: "테스트",
+      phone: "010-1234-5678",
+      businessNumber: "123-45-67891",
+    },
+  });
+  console.log("✅ Owners created:", {
+    owner1: owner1.email,
+    owner2: owner2.email,
+  });
   // ==================== Store 데이터 ====================
   console.log("📝 Creating stores...");
   const store1 = await prisma.store.upsert({
@@ -79,77 +94,216 @@ async function main() {
       phone: "02-1234-5678",
       businessHours: "월-금: 09:00-22:00, 주말: 10:00-20:00",
       description: "개발용 테스트 카페입니다.",
-      tableCount: 10,
       isOpen: true,
     },
   });
-  console.log("✅ Stores created:", { store1: store1.name });
+  const store2 = await prisma.store.upsert({
+    where: { publicId: "w5o48ydoexledyv5sosd4kcw" },
+    update: {},
+    create: {
+      publicId: "w5o48ydoexledyv5sosd4kcw",
+      ownerId: owner2.id,
+      name: "테스트 카페",
+      address: "서울시 용산구 212",
+      addressDetail: "1층",
+      phone: "02-1111-5678",
+      businessHours: "월-금: 09:00-22:00, 주말: 10:00-20:00",
+      description: "테스트 카페입니다.",
+      isOpen: true,
+    },
+  });
+  console.log("✅ Stores created:", {
+    store1: store1.name,
+    store2: store2.name,
+  });
   // ==================== Menu 데이터 ====================
   console.log("📝 Creating menus...");
   // Store1 메뉴 (카페)
+  const createMenus = [
+    {
+      publicId: "rbay46e0wjrj7n1h1q2ain8",
+      name: "아메리카노",
+      price: 4500,
+      description: "신선한 원두로 내린 아메리카노",
+      category: "커피",
+      isAvailable: true,
+      sortOrder: 1,
+      imageUrl:
+        "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      requiredOptions: {
+        원두: [
+          { key: "케냐", price: 1000 },
+          { key: "코스타리코", price: 500 },
+        ],
+        종류: [
+          { key: "아이스", price: 0 },
+          { key: "핫", price: 0 },
+        ],
+      },
+      customOptions: {
+        카페인: {
+          options: [
+            { key: "진하게", price: 1000 },
+            { key: "연하게", price: 0 },
+          ],
+          trigger: [{ group: "원두", in: ["케냐", "코스타리코"] }],
+        },
+        얼음: {
+          options: [
+            { key: "많이", price: 0 },
+            { key: "적게", price: 0 },
+          ],
+          trigger: [{ group: "종류", in: ["아이스"] }],
+        },
+      },
+    },
+    {
+      publicId: "ohovsqjy5mavzgk1xu187xw",
+      name: "카페라떼",
+      price: 5000,
+      description: "부드러운 우유와 에스프레소의 조화",
+      category: "커피",
+      isAvailable: true,
+      sortOrder: 3,
+      imageUrl:
+        "https://images.unsplash.com/photo-1729364983489-d4d569978fd7?q=80&w=1296&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "hjpomrh123401gpnvrdl0zi",
+      name: "카푸치노",
+      price: 5000,
+      description: "풍부한 거품의 카푸치노",
+      category: "커피",
+      isAvailable: true,
+      sortOrder: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "lwhdq1qwcmckm3k4nni89b1",
+      name: "크로와상",
+      price: 3500,
+      description: "버터 풍미 가득한 크로와상",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 1,
+      imageUrl:
+        "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2148&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "d5ghdt3wai43i3jhf3dyk7p",
+      name: "치즈케이크",
+      price: 6500,
+      description: "부드러운 뉴욕 스타일 치즈케이크",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "tq2qu2n7aayzxzf837cto4a",
+      name: "드립 커피",
+      price: 4600,
+      description: "최고급 원두로 내린 드립 커피",
+      category: "커피",
+      isAvailable: true,
+      sortOrder: 2,
+      imageUrl:
+        "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      customOptions: {
+        얼음: {
+          options: [
+            { key: "많이", price: 500 },
+            { key: "적게", price: 500 },
+          ],
+        },
+      },
+    },
+  ];
+
+  const [menu1, menu2] = [store1, store2].map((store, index) =>
+    createMenus.map((menu) => ({
+      ...menu,
+      publicId: `${menu.publicId}${index}`,
+      storeId: store.id,
+    }))
+  );
   await prisma.menu.createMany({
-    data: [
-      {
-        storeId: store1.id,
-        name: "아메리카노",
-        price: 4500,
-        description: "신선한 원두로 내린 아메리카노",
-        category: "커피",
-        isAvailable: true,
-        sortOrder: 1,
-        imageUrl:
-          "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        requiredOptions: { 사이즈: ["톨", "그란데", "벤티"] },
-        customOptions: { 얼음: ["없음", "적게", "많이"] },
-        // 추후 커스텀 컬럼 필요함 예) 얼음 적게, 많이, 없음 등
-      },
-      {
-        storeId: store1.id,
-        name: "카페라떼",
-        price: 5000,
-        description: "부드러운 우유와 에스프레소의 조화",
-        category: "커피",
-        isAvailable: true,
-        sortOrder: 2,
-        imageUrl:
-          "https://images.unsplash.com/photo-1729364983489-d4d569978fd7?q=80&w=1296&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        storeId: store1.id,
-        name: "카푸치노",
-        price: 5000,
-        description: "풍부한 거품의 카푸치노",
-        category: "커피",
-        isAvailable: true,
-        sortOrder: 3,
-        imageUrl:
-          "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        storeId: store1.id,
-        name: "크로와상",
-        price: 3500,
-        description: "버터 풍미 가득한 크로와상",
-        category: "베이커리",
-        isAvailable: true,
-        sortOrder: 4,
-        imageUrl:
-          "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2148&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        storeId: store1.id,
-        name: "치즈케이크",
-        price: 6500,
-        description: "부드러운 뉴욕 스타일 치즈케이크",
-        category: "디저트",
-        isAvailable: true,
-        sortOrder: 5,
-        imageUrl:
-          "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-    ],
+    data: [...menu1, ...menu2],
     skipDuplicates: true, // 중복 무시
   });
+
+  const tablesList = (store: Store) => {
+    return [
+      {
+        publicId: "ue14s3rhgdrci9lnua1eqd58",
+        storeId: store.id,
+        tableNumber: 1,
+        name: "문 뒤",
+        seats: 2,
+        floor: 1,
+        section: "창가",
+        isActive: true,
+        qrCode: `/stores/${store.publicId}/tables/ue14s3rhgdrci9lnua1eqd58/session`,
+        description: null,
+      },
+      {
+        publicId: "oa5zcc6kl8du8g9z7zvqjrkg",
+        storeId: store.id,
+        tableNumber: 2,
+        name: "문 앞",
+        seats: 2,
+        floor: 1,
+        section: "입구",
+        isActive: true,
+        qrCode: `/stores/${store.publicId}/tables/oa5zcc6kl8du8g9z7zvqjrkg/session`,
+        description: null,
+      },
+      {
+        publicId: "bpfvgpx5ch1qnm6i5d8fa75y",
+        storeId: store.id,
+        tableNumber: 3,
+        name: "중앙",
+        seats: 4,
+        floor: 2,
+        section: null,
+        isActive: true,
+        qrCode: `/stores/${store.publicId}/tables/bpfvgpx5ch1qnm6i5d8fa75y/session`,
+        description: null,
+      },
+      {
+        publicId: "lhc7159zorfjk1ojs4g77yzr",
+        storeId: store.id,
+        tableNumber: 4,
+        name: null,
+        seats: 4,
+        floor: 2,
+        section: null,
+        isActive: false,
+        qrCode: `/stores/${store.publicId}/tables/lhc7159zorfjk1ojs4g77yzr/session`,
+        description: null,
+      },
+      {
+        publicId: "n0e72gbtnstf9d96bur1im92",
+        storeId: store.id,
+        tableNumber: 5,
+        name: null,
+        seats: 6,
+        floor: 1,
+        section: null,
+        isActive: true,
+        qrCode: `/stores/${store.publicId}/tables/n0e72gbtnstf9d96bur1im92/session`,
+        description: null,
+      },
+    ];
+  };
+
+  await prisma.table.createMany({
+    data: tablesList(store1),
+    skipDuplicates: true,
+  });
+
   console.log("✅ Menus created");
   console.log("\n🎉 Seeding completed successfully!");
   console.log("\n📋 Test Accounts:");

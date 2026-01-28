@@ -19,7 +19,7 @@ export type FetchOrderItemUnique = FetchOrderItemParams & {
 async function updateOrderItem(
   { orderId, orderItemId }: FetchOrderItemUnique,
   updateOrderItemPayload: UpdateOrderItemPayload
-) {
+): Promise<ResponseOrderItem> {
   const response = await http.patch<ResponseOrderItem>(
     `${prefix(orderId)}/${orderItemId}`,
     updateOrderItemPayload
@@ -27,7 +27,10 @@ async function updateOrderItem(
   return response.data;
 }
 
-async function removeOrderItem({ orderId, orderItemId }: FetchOrderItemUnique) {
+async function removeOrderItem({
+  orderId,
+  orderItemId,
+}: FetchOrderItemUnique): Promise<void> {
   const response = await http.delete<void>(`${prefix(orderId)}/${orderItemId}`);
   return response.data;
 }

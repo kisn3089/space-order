@@ -44,7 +44,7 @@ export default function TableOrderDetail({
       order.orderItems.map((item) => {
         return {
           ...item,
-          totalPrice: item.price * item.quantity,
+          totalPrice: item.unitPrice * item.quantity,
           orderId: order.publicId,
         };
       })

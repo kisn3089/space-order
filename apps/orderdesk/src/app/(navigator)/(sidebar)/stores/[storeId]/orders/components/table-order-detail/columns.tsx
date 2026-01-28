@@ -2,7 +2,6 @@
 
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@spaceorder/ui/components/badge";
 import { ResponseOrderItemWithOrderIdAndPrice } from "./order-table/OrderTable";
 
 interface TableMeta {
@@ -16,28 +15,7 @@ export const columns: ColumnDef<ResponseOrderItemWithOrderIdAndPrice>[] = [
     accessorKey: "name",
     header: "메뉴명",
     cell: ({ row }) => {
-      const orderOptions = row.original.options;
-
-      return (
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-1 flex-wrap">
-            {orderOptions && (
-              <>
-                {Object.entries(orderOptions).map(([key, value]) => (
-                  <Badge
-                    key={key}
-                    /**
-                     * 메뉴 옵션은 requiredOpions, customOptions로 나뉘지만, 주문 시 구분하지 않기 때문에
-                     * requiredOptions, customOptions 두 가지 케이스 모두 처리할 수 있도록 함
-                     */
-                  >{`${key}: ${value?.options ?? value}`}</Badge>
-                ))}
-              </>
-            )}
-          </div>
-          {row.original.menuName}
-        </div>
-      );
+      return <div className="flex flex-col gap-2">{row.original.menuName}</div>;
     },
   },
   {

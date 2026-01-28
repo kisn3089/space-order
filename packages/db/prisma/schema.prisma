@@ -71,7 +71,6 @@ model Store {
   addressDetail   String?  @map("address_detail")
   businessHours   String?  @map("business_hours")
   description     String?  @db.Text
-  tableCount      Int      @default(0) @map("table_count")
   isOpen          Boolean  @default(false) @map("is_open")
   acceptedMessage String?  @map("accepted_message") @db.VarChar(500)
   createdAt       DateTime @default(now()) @map("created_at")
@@ -145,13 +144,27 @@ model Menu {
   sortOrder   Int      @default(0) @map("sort_order")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
   /**
-   * required_options Json 필요 예)
-   * 사이즈: [스몰, 라지], 구분: [ice, hot]
-   * 필수 요소에는 사업자가 메뉴 생성 시 기본값 설정하도록 해야 한다.
+   * {
+   *    "종류": [
+   *     {"key": "아이스", "description": "시원하게 드셔보세요.", "price": 0 },
+   *     {"key": "핫", "description": "따뜻하게 드셔보세요.", "price": 0 },
+   *   ],
+   *  }
    */
   requiredOptions Json?   @map("required_options")
-  /** custom_options Json 필요 예) 얼음: ["적게", "많이"] */
+  /** 
+   * {
+   *     "카페인": {
+   *       "options": [
+   *           {"key": "진하게", "description": "카페인을 진하게 즐겨", "price": 1000 },
+   *           {"key": "연하게", "description": "카페인을 연하게 즐겨", "price": 0 },
+   *       ],
+   *       "trigger": [{ "group": "원두", "in": ["케냐", "코스타리코"] }]
+   *     },
+   * }
+   */
   customOptions Json?   @map("custom_options")
 
   // MVP 기능은 아니기 때문에 일단 보류
@@ -225,23 +238,27 @@ model Order {
    * 예) 아이스 아메리카노 얼음 적게 하나
    */
 model OrderItem {
-  id        BigInt   @id @default(autoincrement())
-  publicId  String   @unique @default(cuid(2)) @map("public_id")
-  orderId   BigInt   @map("order_id")
-  menuId    BigInt   @map("menu_id")
-  menuName  String   @map("menu_name")
-  price     Int
-  quantity  Int      @default(1)
+  id                BigInt   @id @default(autoincrement())
+  publicId          String   @unique @default(cuid(2)) @map("public_id")
+  orderId           BigInt   @map("order_id")
+  menuId            BigInt   @map("menu_id")
+  menuName          String   @map("menu_name")
+  basePrice         Int      @map("base_price")
+  optionsPrice      Int      @default(0) @map("options_price")
+  unitPrice         Int      @map("unit_price")
+  quantity          Int      @default(1)
   /*
    * 고객이 선택한 필수 및 선택 옵션들
-   * 예) { "사이즈": "라지", "얼음": "적게" }
-  */
-  options   Json?
-  createdAt DateTime @default(now()) @map("created_at")
+   * 예) { "requiredOptions": { "사이즈": "라지" }, "customOptions": { "얼음": "적게" } }
+   */
+  optionsSnapshot   Json? @map("options_snapshot")
+  createdAt         DateTime @default(now()) @map("created_at")
 
   order Order @relation(fields: [orderId], references: [id])
   menu  Menu  @relation(fields: [menuId], references: [id])
 
+  @@index([orderId])
+  @@index([menuId])
   @@map("order_item")
 }
 /**

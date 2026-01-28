@@ -1,4 +1,4 @@
-import { OrderStatus, SummarizedTableWithSessions } from "@spaceorder/db";
+import { SummarizedTableWithSessions } from "@spaceorder/db";
 import {
   Card,
   CardDescription,

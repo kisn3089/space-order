@@ -9,10 +9,15 @@ function prefix(storeId: string, tableId: string) {
   return `/owner/stores/${storeId}/tables/${tableId}/orders`;
 }
 
+type ItemOption = Record<string, string>;
+type OrderItemOption = {
+  requiredOptions?: ItemOption;
+  customOptions?: ItemOption;
+};
 export type CreateOwnerOrderPayload = {
   orderItems: Array<
     { menuPublicId: string } & Pick<ResponseOrderItem, "quantity"> &
-      Partial<Pick<ResponseOrderItem, "menuName" | "options">>
+      Partial<Pick<ResponseOrderItem, "menuName"> & OrderItemOption>
   >;
   memo?: string;
 };

@@ -1,10 +1,54 @@
 import z from "zod";
 import { commonSchema } from "../common";
 import { storeIdParamsSchema } from "./store.schema";
+import {
+  MenuCustomOptionValue,
+  MenuCustomOption,
+  MenuOption,
+  MenuRequiredOption,
+  MenuOptionValue,
+} from "@spaceorder/db";
 
 const menuIdParamsSchema = z
   .object({ menuId: commonSchema.cuid2("Menu") })
   .strict();
+
+const optionSchema = z
+  .object({
+    key: z.string(),
+    description: z.string().optional(),
+    price: z.number(),
+  })
+  .strict() satisfies z.ZodType<MenuOptionValue>;
+
+const requiredOptionsSchema = z.record(
+  z.string(),
+  z.array(optionSchema)
+) satisfies z.ZodType<MenuRequiredOption>;
+
+const triggerSchema = z
+  .object({
+    group: z.string(),
+    in: z.array(z.string()),
+  })
+  .strict();
+
+const customOptionValueSchema = z
+  .object({
+    options: z.array(optionSchema),
+    trigger: z.array(triggerSchema).optional(),
+  })
+  .strict() satisfies z.ZodType<MenuCustomOptionValue>;
+
+const customOptionsSchema = z.record(
+  z.string(),
+  customOptionValueSchema
+) satisfies z.ZodType<MenuCustomOption>;
+
+export const menuOptionsSchema = z.object({
+  requiredOptions: requiredOptionsSchema.nullable(),
+  customOptions: customOptionsSchema.nullable(),
+}) satisfies z.ZodType<MenuOption>;
 
 export const mergedStoreIdAndMenuIdParamsSchema =
   storeIdParamsSchema.merge(menuIdParamsSchema);
@@ -26,16 +70,8 @@ export const createMenuSchema = z
       .max(20, "카테고리 이름은 최대 20자까지 가능합니다.")
       .optional(),
     sortOrder: z.number().min(0, "정렬 순서는 0 이상이어야 합니다.").optional(),
-    requiredOptions: z.record(z.string(), z.string().array()).optional(),
-    customOptions: z
-      .record(
-        z.string(),
-        z.object({
-          trigger: z.string().array().optional(),
-          options: z.string().array(),
-        })
-      )
-      .optional(),
+    requiredOptions: requiredOptionsSchema.optional(),
+    customOptions: customOptionsSchema.optional(),
   })
   .strict();
 

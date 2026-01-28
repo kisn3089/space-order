@@ -13,13 +13,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderDto } from './order.controller';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
+import { OrderItemService } from 'src/order-item/orderItem.service';
 
 type MenuValidationFields = Pick<
   Menu,
   'publicId' | 'name' | 'price' | 'requiredOptions' | 'customOptions'
 >;
 type CreateOrderReturn = {
-  createdOrder: ResponseOrderWithItem;
+  createdOrder: ResponseOrderWithItem<'Wide'>;
   updatedTableSession: ResponseTableSession;
 };
 
@@ -46,6 +47,7 @@ export class OrderService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly tableSessionService: TableSessionService,
+    private readonly orderItemService: OrderItemService,
   ) {}
 
   private orderIncludeOrOmit = {
@@ -78,7 +80,7 @@ export class OrderService {
 
       /** TODO: 별도의 클래스로 분리 [checkMenuValidation] */
       const findMenuList = await tx.menu.findMany({
-        where: { publicId: { in: menuPublicIds } },
+        where: { publicId: { in: menuPublicIds }, deletedAt: null },
         select: {
           publicId: true,
           name: true,
@@ -138,22 +140,20 @@ export class OrderService {
     const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
       createOrderDto.orderItems.map((orderItem) => {
         const menu = menuMap.getOrThrow(orderItem.menuPublicId);
-        if (
-          orderItem.options &&
-          !(menu.requiredOptions || menu.customOptions)
-        ) {
-          throw new HttpException(
-            exceptionContentsIs('ORDER_ITEM_OPTIONS_INVALID'),
-            HttpStatus.BAD_REQUEST,
-          );
-        }
+        const { optionsPrice, optionsSnapshot } =
+          this.orderItemService.getValidatedMenuOptionsSnapshot(menu, {
+            requiredOptions: orderItem.requiredOptions,
+            customOptions: orderItem.customOptions,
+          });
 
         return {
           menu: { connect: { publicId: orderItem.menuPublicId } },
           menuName: menu.name,
-          price: menu.price,
+          basePrice: menu.price,
+          unitPrice: menu.price + optionsPrice,
+          optionsPrice,
           quantity: orderItem.quantity,
-          ...(orderItem.options ? { options: orderItem.options } : {}),
+          optionsSnapshot,
         };
       });
 
@@ -177,7 +177,7 @@ export class OrderService {
 
   async getOrderList(
     principal: ParamsPrincipal,
-  ): Promise<ResponseOrderWithItem[]> {
+  ): Promise<ResponseOrderWithItem<'Wide'>[]> {
     return await this.prismaService.order.findMany({
       where: this.whereRecordByPrincipal(principal),
       ...this.orderIncludeOrOmit,
@@ -220,7 +220,7 @@ export class OrderService {
 
   async getOrderUnique(
     principal: ParamsPrincipal & PublicOrderId,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.prismaService.order.findFirstOrThrow({
       where: {
         publicId: principal.orderPublicId,
@@ -233,7 +233,7 @@ export class OrderService {
   async partialUpdateOrder(
     principal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     const whereByPrincipal = this.whereRecordByPrincipal(principal);
     const updateOrder = updateOrderDto;
 
@@ -246,7 +246,7 @@ export class OrderService {
 
   async cancelOrder(
     principal: ParamsPrincipal & PublicOrderId,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.prismaService.order.update({
       where: {
         publicId: principal.orderPublicId,

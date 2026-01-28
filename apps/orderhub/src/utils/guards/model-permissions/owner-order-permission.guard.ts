@@ -6,7 +6,7 @@ import { TableService } from 'src/table/table.service';
 
 type RequestWithClientAndOrderAndTable = Request & {
   user: Owner;
-  order: ResponseOrderWithItem | null;
+  order: ResponseOrderWithItem<'Wide'> | null;
   table: Table | null;
 };
 
@@ -44,7 +44,7 @@ export class OwnerOrderPermission implements CanActivate {
   ) {
     const { storeId, tableId, orderId } = params;
     if (orderId) {
-      const findOrder: ResponseOrderWithItem =
+      const findOrder: ResponseOrderWithItem<'Wide'> =
         await this.validateTableWithOrder(
           { storeId, tableId, orderId },
           client,
@@ -67,7 +67,7 @@ export class OwnerOrderPermission implements CanActivate {
     params: { storeId: string; tableId: string; orderId: string },
     client: Owner,
     type: 'OWNER' | 'WRITE' = 'OWNER',
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.orderService.getOrderUnique({
       type,
       params: {

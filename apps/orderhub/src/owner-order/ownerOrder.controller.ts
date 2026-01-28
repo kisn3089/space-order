@@ -42,7 +42,7 @@ export class OwnerOrderController {
   async create(
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     const { createdOrder } = await this.orderService.createOrder(
       { tableId },
       createOrderDto,
@@ -60,7 +60,7 @@ export class OwnerOrderController {
     @Client() client: Owner,
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
-  ): Promise<ResponseOrderWithItem[]> {
+  ): Promise<ResponseOrderWithItem<'Wide'>[]> {
     return await this.orderService.getOrderList({
       type: 'OWNER',
       params: {
@@ -74,8 +74,8 @@ export class OwnerOrderController {
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
   getUnique(
-    @CachedOrderByGuard() cachedOrder: ResponseOrderWithItem,
-  ): ResponseOrderWithItem {
+    @CachedOrderByGuard() cachedOrder: ResponseOrderWithItem<'Wide'>,
+  ): ResponseOrderWithItem<'Wide'> {
     return cachedOrder;
   }
 
@@ -90,7 +90,7 @@ export class OwnerOrderController {
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.orderService.partialUpdateOrder(
       {
         type: 'OWNER',
@@ -115,7 +115,7 @@ export class OwnerOrderController {
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
     @Param('orderId') orderId: string,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.orderService.cancelOrder({
       type: 'OWNER',
       params: {

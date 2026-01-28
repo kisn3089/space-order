@@ -40,7 +40,7 @@ export class OrderController {
     @Session() tableSession: SessionWithTable,
     @Body() createOrderDto: CreateOrderDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     const { createdOrder, updatedTableSession } =
       await this.orderService.createOrder({ tableSession }, createOrderDto);
 
@@ -57,7 +57,7 @@ export class OrderController {
   @Get()
   async getList(
     @Session() tableSession: SessionWithTable,
-  ): Promise<ResponseOrderWithItem[]> {
+  ): Promise<ResponseOrderWithItem<'Wide'>[]> {
     return await this.orderService.getOrderList({
       type: 'CUSTOMER',
       params: { tableSession },
@@ -69,7 +69,7 @@ export class OrderController {
   async getUnique(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.orderService.getOrderUnique({
       type: 'CUSTOMER',
       params: { tableSession },
@@ -85,7 +85,7 @@ export class OrderController {
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.orderService.partialUpdateOrder(
       { type: 'CUSTOMER', params: { tableSession }, orderPublicId: orderId },
       updateOrderDto,
@@ -97,7 +97,7 @@ export class OrderController {
   async cancel(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.orderService.cancelOrder({
       type: 'CUSTOMER',
       params: { tableSession },

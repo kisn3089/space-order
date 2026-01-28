@@ -32,7 +32,11 @@ export class MenuPermission implements CanActivate {
 
     if (menuId) {
       const findMenuWithOwnerId = await this.menuService.getMenuUnique({
-        where: { publicId: menuId, store: { publicId: storeId } },
+        where: {
+          publicId: menuId,
+          store: { publicId: storeId },
+          deletedAt: null,
+        },
         include: { store: { select: { ownerId: true } } },
       });
       if (findMenuWithOwnerId.store.ownerId === client.id) {

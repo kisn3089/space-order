@@ -53,7 +53,10 @@ export class MenuController {
     @Param('storeId') storeId: string,
   ): Promise<ResponseMenu[]> {
     return await this.menuService.getMenuList({
-      where: { store: { publicId: storeId, owner: { id: client.id } } },
+      where: {
+        store: { publicId: storeId, owner: { id: client.id } },
+        deletedAt: null,
+      },
       omit: this.menuService.menuOmit,
     });
   }
@@ -89,6 +92,6 @@ export class MenuController {
     MenuPermission,
   )
   async delete(@Param('menuId') menuId: string): Promise<void> {
-    await this.menuService.deleteMenu(menuId);
+    await this.menuService.softDeleteMenu(menuId);
   }
 }

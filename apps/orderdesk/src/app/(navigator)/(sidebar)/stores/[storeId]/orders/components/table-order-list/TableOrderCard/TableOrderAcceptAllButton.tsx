@@ -1,43 +1,39 @@
+"use client";
+
+import React from "react";
+import { Button } from "@spaceorder/ui/components/button";
+import { nextStatusMap, OrderStatus, SummarizedOrderWithItem } from "@spaceorder/db";
 import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-order/httpOwnerOrder";
 import useOwnerOrder, {
   UpdateOwnerOrderParams,
 } from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
-import {
-  nextStatusMap,
-  OrderStatus,
-  SummarizedOrderWithItem,
-} from "@spaceorder/db";
-import { Button } from "@spaceorder/ui/components/button";
-import { useParams } from "next/navigation";
-import React from "react";
+import { useTableOrderContext } from "./TableOrderContext";
 
 type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
   status: typeof OrderStatus.PENDING;
 };
-type AcceptAllPendingOrdersProps = {
-  orders?: SummarizedOrderWithItem[];
-  tableId: string;
-};
-export default function AcceptAllPendingOrders({
-  orders,
-  tableId,
-}: AcceptAllPendingOrdersProps) {
-  const params = useParams<{ storeId: string }>();
+
+export function TableOrderAcceptAllButton() {
+  const {
+    state: { session },
+    meta: { storeId, tableId },
+  } = useTableOrderContext();
+
   const [failedUpdateItems, setFailedUpdateItems] = React.useState<
     UpdateOwnerOrderParams[]
   >([]);
   const { updateOwnerOrder } = useOwnerOrder();
 
-  const filterPendingStatusInOrders = orders?.filter(
+  const pendingOrders = session?.orders?.filter(
     (order): order is FilteredPendingStatus =>
       order.status === OrderStatus.PENDING
   );
 
-  if (!filterPendingStatusInOrders?.length) {
+  if (!pendingOrders?.length) {
     return null;
   }
 
-  const acceptEveryPendingOrders = async (
+  const acceptAllPendingOrders = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.stopPropagation();
@@ -45,7 +41,7 @@ export default function AcceptAllPendingOrders({
       setFailedUpdateItems([]);
     }
 
-    const updateOrderItems = filterPendingStatusInOrders.map((order) => {
+    const updateOrderItems = pendingOrders.map((order) => {
       const nextStatus = nextStatusMap[order.status];
       const orderPayload: UpdateOwnerOrderPayload = {
         status: nextStatus,
@@ -53,7 +49,7 @@ export default function AcceptAllPendingOrders({
 
       return {
         params: {
-          storeId: params.storeId,
+          storeId,
           tableId,
           orderId: order.publicId,
         },
@@ -83,12 +79,14 @@ export default function AcceptAllPendingOrders({
     failedUpdateItems.length > 0 ? "destructive" : "default";
 
   return (
-    <Button
-      onClick={acceptEveryPendingOrders}
-      variant={buttonVariant}
-      className="w-full font-semibold"
-    >
-      {contentOrError}
-    </Button>
+    <div className="px-2">
+      <Button
+        onClick={acceptAllPendingOrders}
+        variant={buttonVariant}
+        className="w-full font-semibold"
+      >
+        {contentOrError}
+      </Button>
+    </div>
   );
 }

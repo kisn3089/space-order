@@ -86,7 +86,7 @@ export default function AcceptAllPendingOrders({
     <Button
       onClick={acceptEveryPendingOrders}
       variant={buttonVariant}
-      className="w-full"
+      className="w-full font-semibold"
     >
       {contentOrError}
     </Button>

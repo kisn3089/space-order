@@ -7,7 +7,7 @@ import {
   MenuOption,
   MenuRequiredOption,
   MenuOptionValue,
-} from "@spaceorder/db/types/menuOptions.type";
+} from "@spaceorder/db";
 
 const menuIdParamsSchema = z
   .object({ menuId: commonSchema.cuid2("Menu") })
@@ -76,5 +76,5 @@ export const createMenuSchema = z
   .strict();
 
 export const updateMenuSchema = createMenuSchema
-  .extend({ isAvailable: z.boolean(), deletedAt: z.date().nullable() })
+  .extend({ isAvailable: z.boolean() })
   .partial();

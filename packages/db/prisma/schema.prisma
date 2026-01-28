@@ -148,8 +148,8 @@ model Menu {
   /**
    * {
    *    "종류": [
-   *     {"key": "아이스", "descrption": "시원하게 드셔보세요.", "price": 0 },
-   *     {"key": "핫", "descrption": "따뜻하게 드셔보세요.", "price": 0 },
+   *     {"key": "아이스", "description": "시원하게 드셔보세요.", "price": 0 },
+   *     {"key": "핫", "description": "따뜻하게 드셔보세요.", "price": 0 },
    *   ],
    *  }
    */
@@ -158,8 +158,8 @@ model Menu {
    * {
    *     "카페인": {
    *       "options": [
-   *           {"key": "진하게", "descrption": "카페인을 진하게 즐겨", "price": 1000 },
-   *           {"key": "연하게", "descrption": "카페인을 연하게 즐겨", "price": 0 },
+   *           {"key": "진하게", "description": "카페인을 진하게 즐겨", "price": 1000 },
+   *           {"key": "연하게", "description": "카페인을 연하게 즐겨", "price": 0 },
    *       ],
    *       "trigger": [{ "group": "원두", in: ["케냐", "코스타리코"] }]
    *     },

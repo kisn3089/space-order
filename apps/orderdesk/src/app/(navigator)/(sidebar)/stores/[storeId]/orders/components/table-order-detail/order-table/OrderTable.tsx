@@ -183,7 +183,7 @@ function OptionsSnapshotBadge({
           key={key}
           className="whitespace-pre-wrap text-center"
           variant={type === "required" ? "destructive" : "default"}
-        >{`${key}: ${value.key} \n${isSelected && value.price !== 0 ? value.price : ""}`}</Badge>
+        >{`${key}: ${value.key} ${isSelected && value.price !== 0 ? `\n${value.price}` : ""}`}</Badge>
       ))}
     </>
   );

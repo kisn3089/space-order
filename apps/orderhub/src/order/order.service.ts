@@ -20,7 +20,7 @@ type MenuValidationFields = Pick<
   'publicId' | 'name' | 'price' | 'requiredOptions' | 'customOptions'
 >;
 type CreateOrderReturn = {
-  createdOrder: ResponseOrderWithItem;
+  createdOrder: ResponseOrderWithItem<'Wide'>;
   updatedTableSession: ResponseTableSession;
 };
 
@@ -151,6 +151,7 @@ export class OrderService {
           menuName: menu.name,
           basePrice: menu.price,
           unitPrice: menu.price + optionsPrice,
+          optionsPrice,
           quantity: orderItem.quantity,
           optionsSnapshot,
         };
@@ -176,7 +177,7 @@ export class OrderService {
 
   async getOrderList(
     principal: ParamsPrincipal,
-  ): Promise<ResponseOrderWithItem[]> {
+  ): Promise<ResponseOrderWithItem<'Wide'>[]> {
     return await this.prismaService.order.findMany({
       where: this.whereRecordByPrincipal(principal),
       ...this.orderIncludeOrOmit,
@@ -219,7 +220,7 @@ export class OrderService {
 
   async getOrderUnique(
     principal: ParamsPrincipal & PublicOrderId,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.prismaService.order.findFirstOrThrow({
       where: {
         publicId: principal.orderPublicId,
@@ -232,7 +233,7 @@ export class OrderService {
   async partialUpdateOrder(
     principal: ParamsPrincipal & PublicOrderId,
     updateOrderDto: UpdateOrderDto,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     const whereByPrincipal = this.whereRecordByPrincipal(principal);
     const updateOrder = updateOrderDto;
 
@@ -245,7 +246,7 @@ export class OrderService {
 
   async cancelOrder(
     principal: ParamsPrincipal & PublicOrderId,
-  ): Promise<ResponseOrderWithItem> {
+  ): Promise<ResponseOrderWithItem<'Wide'>> {
     return await this.prismaService.order.update({
       where: {
         publicId: principal.orderPublicId,

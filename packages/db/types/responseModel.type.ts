@@ -9,10 +9,8 @@ import type {
 } from "@prisma/client";
 import { OrderItemOptionSnapshot } from "./menuOptions.type";
 
-/** TODO: query의 include 값에 따라 타입이 동적 할당되도록 유틸 함수 만들자. */
 export type ExtendedResponseTable = ResponseTable & {
   tableSessions?: ResponseTableSession[];
-  store?: ResponseStore;
   orders?: Array<ResponseOrder & { orderItems?: ResponseOrderItem[] }>;
 };
 
@@ -40,10 +38,11 @@ export type ResponseMenu = Omit<Menu, "id" | "storeId">;
 
 export type ResponseStore = Omit<Store, "id" | "ownerId">;
 
-export type ResponseOrderWithItem = ResponseOrder & {
-  orderItems: ResponseOrderItem[];
-};
-export type ResponseSessionsWithOrders = ResponseTableSession & {
+export type ResponseOrderWithItem<Option extends "Narrow" | "Wide" = "Narrow"> =
+  ResponseOrder & {
+    orderItems: ResponseOrderItem<Option>[];
+  };
+type ResponseSessionsWithOrders = ResponseTableSession & {
   orders: ResponseOrderWithItem[];
 };
 export type ResponseTableWithSessions = ResponseTable & {

@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   Menu,
   MenuCustomOptionValue,
-  MenuCustomOption,
   MenuOption,
   MenuOptionValue,
   OrderItem,
@@ -24,19 +23,14 @@ type CreateItemPayloadOptions = Pick<
   CreateOrderItemDto,
   'requiredOptions' | 'customOptions'
 >;
-type ValidatedMenuOptionsReturn<
-  Option extends MenuOptionValue[] | MenuCustomOptionValue,
-> = {
-  optionsSnapshot: Record<
-    string,
-    Option extends MenuOptionValue[] ? MenuOptionValue : MenuCustomOptionValue
-  >;
+type ValidatedMenuOptionsReturn = {
+  optionsSnapshot: OptionSnapshotValue;
   optionsPrice: number;
 };
 type GetValidatedMenuOptionsSnapshotReturn = {
   optionsSnapshot?: {
-    requiredOptions?: OptionSnapshotValue | undefined;
-    customOptions?: MenuCustomOption | undefined;
+    requiredOptions?: OptionSnapshotValue;
+    customOptions?: OptionSnapshotValue;
   };
   optionsPrice: number;
 };
@@ -139,7 +133,7 @@ export class OrderItemService {
       );
     }
 
-    /** Menu는 custom 옵션은 없는데, payload의 custom 옵션이 있다면 예외 처리 */
+    /** Menu에는 custom 옵션이 없는데, payload의 custom 옵션이 있다면 예외 처리 */
     const payloadCustomOptionsKeys = Object.keys(payloadCustomOptions || {});
     if (
       !parsedMenuOptions.customOptions &&
@@ -154,10 +148,6 @@ export class OrderItemService {
         },
         HttpStatus.BAD_REQUEST,
       );
-    }
-
-    if (requiredMenuOptionsKeys.length === 0) {
-      return { optionsPrice: 0 };
     }
 
     const {
@@ -176,11 +166,20 @@ export class OrderItemService {
       payloadCustomOptions,
     );
 
+    const mergedOptionsSnapshot = {
+      ...requiredOptionsSnapshot,
+      ...customOptionsSnapshot,
+    };
+
     return {
-      optionsSnapshot: {
-        requiredOptions: requiredOptionsSnapshot,
-        customOptions: customOptionsSnapshot,
-      },
+      ...(Object.keys(mergedOptionsSnapshot).length
+        ? {
+            optionsSnapshot: {
+              requiredOptions: requiredOptionsSnapshot,
+              customOptions: customOptionsSnapshot,
+            },
+          }
+        : undefined),
       optionsPrice: requiredOptionsPrice + customOptionsPrice,
     };
   }
@@ -192,7 +191,7 @@ export class OrderItemService {
     payloadOption: CreateItemPayloadOptions[
       | 'requiredOptions'
       | 'customOptions'] = {},
-  ): ValidatedMenuOptionsReturn<ValidMenuOption> {
+  ): ValidatedMenuOptionsReturn {
     const menuOptionsMap = new ExtendedMap<string, ValidMenuOption>(
       Object.entries(menuOption || {}),
     );

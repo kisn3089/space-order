@@ -33,8 +33,8 @@ type ValidatedMenuOptionsReturn<
 };
 type GetValidatedMenuOptionsSnapshotReturn = {
   optionsSnapshot?: {
-    customOptions?: Record<string, MenuCustomOption> | undefined;
     requiredOptions?: Record<string, MenuOption> | undefined;
+    customOptions?: Record<string, MenuCustomOption> | undefined;
   };
   optionsPrice: number;
 };
@@ -48,7 +48,7 @@ export class OrderItemService {
     orderPublicId: string,
     createPayload: CreateOrderItemDto,
     client: Owner,
-  ): Promise<ResponseOrderItem> {
+  ): Promise<ResponseOrderItem<'Wide'>> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       createPayload;
     const [findMenu, findOrder] = await Promise.all([
@@ -245,7 +245,7 @@ export class OrderItemService {
     updatePayload: UpdateOrderItemDto,
     client: Owner,
     cachedOrderItem: OrderItem,
-  ): Promise<ResponseOrderItem> {
+  ): Promise<ResponseOrderItem<'Wide'>> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       updatePayload;
     if (!menuPublicId && !requiredOptions && !customOptions) {

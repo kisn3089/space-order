@@ -30,7 +30,7 @@ export type ResponseOrder = Omit<
 >;
 
 type SanitizedOrderItem = Omit<OrderItem, "id" | "orderId" | "menuId">;
-export type ResponseOrderItem<Option extends "Narrow" | "Wide" = "Wide"> =
+export type ResponseOrderItem<Option extends "Narrow" | "Wide" = "Narrow"> =
   Option extends "Narrow"
     ? Omit<SanitizedOrderItem, "optionsSnapshot"> & {
         optionsSnapshot?: OptionsSnapshot | null;

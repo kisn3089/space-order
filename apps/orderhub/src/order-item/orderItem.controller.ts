@@ -58,7 +58,7 @@ export class OrderItemController {
     @Client() client: Owner,
     @Param('orderId') orderPublicId: string,
     @Body() createOrderItemDto: CreateOrderItemDto,
-  ): Promise<ResponseOrderItem> {
+  ): Promise<ResponseOrderItem<'Wide'>> {
     return await this.orderItemService.createOrderItem(
       orderPublicId,
       createOrderItemDto,
@@ -74,7 +74,7 @@ export class OrderItemController {
   async getList(
     @Param('orderId') orderPublicId: string,
     @Query() query?: OrderItemQueryParams,
-  ): Promise<ResponseOrderItem[]> {
+  ): Promise<ResponseOrderItem<'Wide'>[]> {
     const { filter } = this.queryParamsBuilder.build({
       query,
       filterRecord: ORDER_ITEM_FILTER_RECORD,
@@ -94,7 +94,7 @@ export class OrderItemController {
   async getUnique(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
-  ): Promise<ResponseOrderItem> {
+  ): Promise<ResponseOrderItem<'Wide'>> {
     return await this.orderItemService.getOrderItemUnique({
       where: {
         order: { publicId: orderPublicId },
@@ -117,7 +117,7 @@ export class OrderItemController {
     @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
     @Param('orderItemId') orderItemPublicId: string,
     @Body() updateOrderItemDto: UpdateOrderItemDto,
-  ): Promise<ResponseOrderItem> {
+  ): Promise<ResponseOrderItem<'Wide'>> {
     return await this.orderItemService.partialUpdateOrderItem(
       orderItemPublicId,
       updateOrderItemDto,

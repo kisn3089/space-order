@@ -19,8 +19,8 @@ export type FetchOrderItemUnique = FetchOrderItemParams & {
 async function updateOrderItem(
   { orderId, orderItemId }: FetchOrderItemUnique,
   updateOrderItemPayload: UpdateOrderItemPayload
-): Promise<ResponseOrderItem<"Narrow">> {
-  const response = await http.patch<ResponseOrderItem<"Narrow">>(
+): Promise<ResponseOrderItem> {
+  const response = await http.patch<ResponseOrderItem>(
     `${prefix(orderId)}/${orderItemId}`,
     updateOrderItemPayload
   );

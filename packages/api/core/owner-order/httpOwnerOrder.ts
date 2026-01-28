@@ -11,8 +11,8 @@ function prefix(storeId: string, tableId: string) {
 
 export type CreateOwnerOrderPayload = {
   orderItems: Array<
-    { menuPublicId: string } & Pick<ResponseOrderItem<"Narrow">, "quantity"> &
-      Partial<Pick<ResponseOrderItem<"Narrow">, "menuName" | "optionsSnapshot">>
+    { menuPublicId: string } & Pick<ResponseOrderItem, "quantity"> &
+      Partial<Pick<ResponseOrderItem, "menuName" | "optionsSnapshot">>
   >;
   memo?: string;
 };

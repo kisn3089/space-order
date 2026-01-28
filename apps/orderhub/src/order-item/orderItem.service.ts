@@ -121,12 +121,17 @@ export class OrderItemService {
     const payloadRequiredOptionsKeys = Object.keys(
       payloadRequiredOptions || {},
     );
+
     if (requiredMenuOptionsKeys.length !== payloadRequiredOptionsKeys.length) {
+      const missingRequiredOptionsKeys = requiredMenuOptionsKeys.filter(
+        (key) => !payloadRequiredOptionsKeys.includes(key),
+      );
+
       throw new HttpException(
         {
           ...exceptionContentsIs('MENU_OPTIONS_REQUIRED'),
           details: {
-            missingRequiredOptions: payloadRequiredOptions,
+            missingRequiredOptions: missingRequiredOptionsKeys,
           },
         },
         HttpStatus.BAD_REQUEST,
@@ -201,7 +206,10 @@ export class OrderItemService {
 
     menuOptionsMap.setException('MENU_OPTIONS_INVALID');
 
-    const validatedOptions = { optionsPrice: 0, optionsSnapshot: {} };
+    const validatedOptions: ValidatedMenuOptionsReturn = {
+      optionsPrice: 0,
+      optionsSnapshot: {},
+    };
     payloadMenuMap.forEach((payloadValue, payloadKey) => {
       const menuOptions = menuOptionsMap.getOrThrow(payloadKey);
       const optionArray = Array.isArray(menuOptions)
@@ -216,7 +224,7 @@ export class OrderItemService {
         throw new HttpException(
           {
             ...exceptionContentsIs('MENU_OPTIONS_INVALID'),
-            details: { invalidRequiredOption: payloadValue },
+            details: { key: payloadKey, invalidOption: payloadValue },
           },
           HttpStatus.BAD_REQUEST,
         );

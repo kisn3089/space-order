@@ -161,7 +161,7 @@ model Menu {
    *           {"key": "진하게", "description": "카페인을 진하게 즐겨", "price": 1000 },
    *           {"key": "연하게", "description": "카페인을 연하게 즐겨", "price": 0 },
    *       ],
-   *       "trigger": [{ "group": "원두", in: ["케냐", "코스타리코"] }]
+   *       "trigger": [{ "group": "원두", "in": ["케냐", "코스타리코"] }]
    *     },
    * }
    */
@@ -249,8 +249,8 @@ model OrderItem {
   quantity          Int      @default(1)
   /*
    * 고객이 선택한 필수 및 선택 옵션들
-   * 예) { "사이즈": "라지", "얼음": "적게" }
-  */
+   * 예) { "requiredOptions": { "사이즈": "라지" }, "customOptions": { "얼음": "적게" } }
+   */
   optionsSnapshot   Json? @map("options_snapshot")
   createdAt         DateTime @default(now()) @map("created_at")
 

@@ -21,7 +21,7 @@ export interface TableOrderState {
     | undefined
     ? T | null
     : never;
-  isActive: boolean;
+  isActivatedTable: boolean;
   isSelected: boolean;
 }
 

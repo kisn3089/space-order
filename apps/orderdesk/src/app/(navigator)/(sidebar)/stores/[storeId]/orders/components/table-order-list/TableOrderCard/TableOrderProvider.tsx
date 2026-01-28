@@ -24,20 +24,19 @@ export function TableOrderProvider({
   const { updateOwnerOrder } = useOwnerOrder();
 
   const session = table.tableSessions?.[0] ?? null;
-  const isActive = table.isActive === true;
+  const isActivatedTable = table.isActive === true;
   const isSelected = params.tableId === table.publicId;
 
   const navigateToTable = useCallback(() => {
-    if (isActive) {
+    if (isActivatedTable) {
       push(`/stores/${params.storeId}/orders/${table.publicId}`);
     }
-  }, [isActive, push, params.storeId, table.publicId]);
+  }, [isActivatedTable, push, params.storeId, table.publicId]);
 
   const updateOrderStatus = useCallback(
     async (orderId: string, currentStatus: OrderStatus) => {
       const nextStatus = nextStatusMap[currentStatus];
       if (!nextStatus) {
-        console.log("더 이상 전이할 상태가 없습니다.");
         return;
       }
 
@@ -58,7 +57,7 @@ export function TableOrderProvider({
       state: {
         table,
         session,
-        isActive,
+        isActivatedTable,
         isSelected,
       },
       actions: {
@@ -73,7 +72,7 @@ export function TableOrderProvider({
     [
       table,
       session,
-      isActive,
+      isActivatedTable,
       isSelected,
       navigateToTable,
       updateOrderStatus,
@@ -82,6 +81,8 @@ export function TableOrderProvider({
   );
 
   return (
-    <TableOrderContext value={contextValue}>{children}</TableOrderContext>
+    <TableOrderContext.Provider value={contextValue}>
+      {children}
+    </TableOrderContext.Provider>
   );
 }

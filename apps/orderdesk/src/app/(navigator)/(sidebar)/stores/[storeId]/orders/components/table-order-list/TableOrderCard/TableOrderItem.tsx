@@ -37,10 +37,10 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
           {BADGE_BY_ORDER_STATUS[order.status].label}
         </Badge>
       </div>
-      {order.orderItems.map((orderItem, i) => (
+      {order.orderItems.map((orderItem) => (
         <div
           className="flex justify-between text-sm/5"
-          key={`${orderItem.menuName}-${i}`}
+          key={orderItem.publicId}
         >
           <p>{orderItem.menuName}</p>
           <p>{orderItem.quantity}</p>

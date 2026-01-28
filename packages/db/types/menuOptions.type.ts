@@ -1,19 +1,24 @@
-export type MenuOption = {
+export type MenuOptionValue = {
   key: string;
   description?: string;
   price: number;
 };
 
-export type MenuRequiredOptions = Record<string, MenuOption[]>;
-
-export type MenuCustomOption = {
-  options: MenuOption[];
+export type MenuCustomOptionValue = {
+  options: MenuOptionValue[];
   trigger?: { group: string; in: string[] }[];
 };
 
-export type MenuCustomOptions = Record<string, MenuCustomOption>;
+export type MenuRequiredOption = Record<string, MenuOptionValue[]>;
+export type MenuCustomOption = Record<string, MenuCustomOptionValue>;
 
-export type OptionsSnapshot = {
-  requiredOptions: MenuRequiredOptions | null;
-  customOptions: MenuCustomOptions | null;
+export type MenuOption = {
+  requiredOptions: MenuRequiredOption | null;
+  customOptions: MenuCustomOption | null;
+};
+
+export type OptionSnapshotValue = Record<string, MenuOptionValue>;
+export type OrderItemOptionSnapshot = {
+  requiredOptions?: OptionSnapshotValue;
+  customOptions?: OptionSnapshotValue;
 };

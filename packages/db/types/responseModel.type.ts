@@ -3,12 +3,11 @@ import type {
   Order,
   OrderItem,
   Owner,
-  Prisma,
   Store,
   Table,
   TableSession,
 } from "@prisma/client";
-import { OptionsSnapshot } from "./menuOptions.type";
+import { OrderItemOptionSnapshot } from "./menuOptions.type";
 
 /** TODO: query의 include 값에 따라 타입이 동적 할당되도록 유틸 함수 만들자. */
 export type ExtendedResponseTable = ResponseTable & {
@@ -33,7 +32,7 @@ type SanitizedOrderItem = Omit<OrderItem, "id" | "orderId" | "menuId">;
 export type ResponseOrderItem<Option extends "Narrow" | "Wide" = "Narrow"> =
   Option extends "Narrow"
     ? Omit<SanitizedOrderItem, "optionsSnapshot"> & {
-        optionsSnapshot?: OptionsSnapshot | null;
+        optionsSnapshot?: OrderItemOptionSnapshot | null;
       }
     : SanitizedOrderItem;
 

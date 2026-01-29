@@ -6,7 +6,7 @@ import {
 import { flexRender, Header, Table } from "@tanstack/react-table";
 
 type OrderTableHeaderProps<TData> = { table: Table<TData> };
-export default function OrderTableHeader<TData>({
+export function OrderTableHeader<TData>({
   table,
 }: OrderTableHeaderProps<TData>) {
   return (

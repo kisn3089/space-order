@@ -1,0 +1,124 @@
+"use client";
+
+import { useState } from "react";
+import { sumFromObjects } from "@spaceorder/api";
+import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
+import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
+import {
+  ALIVE_SESSION,
+  ORDER_ITEMS,
+} from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
+import { ResponseTableWithSessions } from "@spaceorder/db/types/responseModel.type";
+import {
+  OrderDetailContext,
+  type OrderDetailContextValue,
+} from "./OrderDetailContext";
+import { OrderItemWithIdAndPrice } from "./OrderDetailTable";
+
+interface OrderDetailProviderProps {
+  params: { storeId: string; tableId: string };
+  children: React.ReactNode;
+}
+
+export function OrderDetailProvider({
+  params,
+  children,
+}: OrderDetailProviderProps) {
+  const { storeId, tableId } = params;
+  const fetchUrl = `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`;
+
+  const { data: tableWithSessions, isRefetching } =
+    useSuspenseWithAuth<ResponseTableWithSessions>(fetchUrl, {
+      queryOptions: { queryKey: [fetchUrl] },
+    });
+
+  const { updateOrderItem, removeOrderItem } = useOrderItem({
+    storeId,
+    tableId,
+  });
+
+  const [editingItem, setEditingItem] =
+    useState<OrderItemWithIdAndPrice | null>(null);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+
+  // 주문 아이템 데이터 가공
+  const { tableSessions } = tableWithSessions;
+  const tableSession = tableSessions ? tableSessions[0] : null;
+  const orders = tableSession?.orders ?? [];
+
+  const orderItems: OrderItemWithIdAndPrice[] = orders.flatMap((order) =>
+    order.orderItems.map((item) => ({
+      ...item,
+      totalPrice: item.unitPrice * item.quantity,
+      orderId: order.publicId,
+    }))
+  );
+
+  const totalPrice = sumFromObjects(orderItems, (item) => item.totalPrice);
+
+  // Actions
+  const updateEditingQuantity = (delta: number) => {
+    setEditingItem((prev) =>
+      prev ? { ...prev, quantity: Math.max(1, prev.quantity + delta) } : null
+    );
+  };
+
+  const resetSelection = () => {
+    setRowSelection({});
+    setEditingItem(null);
+  };
+
+  const handleUpdateOrderItem = async () => {
+    if (!editingItem) return;
+
+    await updateOrderItem.mutateAsync({
+      params: {
+        orderId: editingItem.orderId,
+        orderItemId: editingItem.publicId,
+      },
+      updateOrderItemPayload: { quantity: editingItem.quantity },
+    });
+    resetSelection();
+  };
+
+  const handleRemoveOrderItem = async () => {
+    if (!editingItem) return;
+
+    await removeOrderItem.mutateAsync({
+      params: {
+        orderId: editingItem.orderId,
+        orderItemId: editingItem.publicId,
+      },
+    });
+    resetSelection();
+  };
+
+  const contextValue: OrderDetailContextValue = {
+    state: {
+      tableWithSessions,
+      orderItems,
+      totalPrice,
+      editingItem,
+      rowSelection,
+    },
+    actions: {
+      setEditingItem,
+      setRowSelection,
+      updateEditingQuantity,
+      resetSelection,
+      updateOrderItem: handleUpdateOrderItem,
+      removeOrderItem: handleRemoveOrderItem,
+    },
+    meta: {
+      storeId,
+      tableId,
+      isRefetching,
+    },
+  };
+
+  return (
+    <OrderDetailContext.Provider value={contextValue}>
+      {children}
+    </OrderDetailContext.Provider>
+  );
+}

@@ -1,4 +1,5 @@
-import PaymentControlbar from "./PaymentControlbar";
+import { OrderDetailControlbar } from "./order-detail/OrderDetailControlbar";
+import { OrderDetailFooter } from "./order-detail/OrderDetailFooter";
 
 type TableOrderDetailLayoutProps = {
   children: React.ReactNode;
@@ -11,9 +12,10 @@ export default function TableOrderDetailLayout({
   return (
     <>
       {children}
-      <footer className="flex flex-col gap-2 p-2">
-        <PaymentControlbar>{renderPayment}</PaymentControlbar>
-      </footer>
+      <OrderDetailFooter>
+        <OrderDetailControlbar />
+        {renderPayment}
+      </OrderDetailFooter>
     </>
   );
 }

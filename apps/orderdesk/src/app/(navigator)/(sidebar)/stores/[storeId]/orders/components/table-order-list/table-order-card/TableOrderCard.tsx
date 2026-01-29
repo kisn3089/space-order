@@ -2,7 +2,7 @@
 
 import { Card } from "@spaceorder/ui/components/card";
 import { useTableOrderContext } from "./TableOrderContext";
-import ButtonWrapper from "@spaceorder/ui/components/ButtonWrapper";
+import ConditionalLink from "@/components/ConditionalLink";
 
 interface TableOrderCardProps {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ interface TableOrderCardProps {
 export function TableOrderCard({ children }: TableOrderCardProps) {
   const {
     state: { isActivatedTable, isSelected, session },
-    actions: { navigateToTable },
+    meta: { storeId, tableId },
   } = useTableOrderContext();
 
   const inactiveStyle = !isActivatedTable
@@ -21,12 +21,17 @@ export function TableOrderCard({ children }: TableOrderCardProps) {
   const selectedStyle = isSelected ? "shadow-lg shadow-destructive/50" : "";
 
   return (
-    <ButtonWrapper onClick={navigateToTable} disabled={!isActivatedTable}>
+    <ConditionalLink
+      condition={isActivatedTable}
+      href={`/stores/${storeId}/orders/${tableId}`}
+      shallow={true}
+      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+    >
       <Card
-        className={`w-full h-full min-h-[200px] flex flex-col transition-shadow duration-300 ${sessionActiveStyle} ${inactiveStyle} ${selectedStyle} max-h-[300px]`}
+        className={`w-full h-full min-h-[200px] flex flex-col transition-shadow duration-300 ${sessionActiveStyle} ${inactiveStyle} ${selectedStyle}`}
       >
         {children}
       </Card>
-    </ButtonWrapper>
+    </ConditionalLink>
   );
 }

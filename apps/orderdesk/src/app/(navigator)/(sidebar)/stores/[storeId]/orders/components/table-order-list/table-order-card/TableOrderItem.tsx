@@ -21,7 +21,7 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
     order.status === OrderStatus.CANCELLED;
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+    e.preventDefault();
     updateOrderStatus(order.publicId, order.status);
   };
 

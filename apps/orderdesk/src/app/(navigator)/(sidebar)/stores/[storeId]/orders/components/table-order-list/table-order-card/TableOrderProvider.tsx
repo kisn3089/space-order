@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import type { SummarizedTableWithSessions } from "@spaceorder/db";
 import { nextStatusMap, OrderStatus } from "@spaceorder/db";
 import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
@@ -19,18 +19,11 @@ export function TableOrderProvider({
   children,
 }: TableOrderProviderProps) {
   const params = useParams<{ storeId: string; tableId: string }>();
-  const { push } = useRouter();
   const { updateOwnerOrder } = useOwnerOrder();
 
   const session = table.tableSessions?.[0] ?? null;
   const isActivatedTable = table.isActive === true;
   const isSelected = params.tableId === table.publicId;
-
-  const navigateToTable = () => {
-    if (isActivatedTable) {
-      push(`/stores/${params.storeId}/orders/${table.publicId}`);
-    }
-  };
 
   const updateOrderStatus = async (
     orderId: string,
@@ -58,10 +51,7 @@ export function TableOrderProvider({
       isActivatedTable,
       isSelected,
     },
-    actions: {
-      navigateToTable,
-      updateOrderStatus,
-    },
+    actions: { updateOrderStatus },
     meta: {
       storeId: params.storeId,
       tableId: table.publicId,

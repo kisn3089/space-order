@@ -9,7 +9,7 @@ import type {
 /**
  * TableOrder Compound Component의 Context 인터페이스
  * - state: 테이블 및 세션 관련 상태
- * - actions: 주문 상태 변경, 네비게이션 등의 액션
+ * - actions: 주문 상태 변경 등의 액션
  * - meta: storeId, tableId 등 메타 정보
  */
 
@@ -27,7 +27,6 @@ export interface TableOrderState {
 
 // Actions
 export interface TableOrderActions {
-  navigateToTable: () => void;
   updateOrderStatus: (
     orderId: string,
     status: SummarizedOrderWithItem["status"]

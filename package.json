@@ -16,9 +16,11 @@
     "dev:orderhub": "docker-compose -f apps/orderhub/docker-compose.yml",
     "build:order": "turbo run build --filter=@spaceorder/order",
     "build:orderdesk": "turbo run build --filter=@spaceorder/orderdesk",
-    "build:orderhub": "turbo run build --filter=@spaceorder/orderhub"
+    "build:orderhub": "turbo run build --filter=@spaceorder/orderhub",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "turbo": "^2.6.1",
     "typescript": "5.9.2"

@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useGlobalTimer } from "./GlobalTimerContext";
 import {
   formatTime,
@@ -14,7 +13,7 @@ export default function SessionExpireTime({
 }) {
   const currentTime = useGlobalTimer();
 
-  const remainingMinutes: string | number = useMemo(() => {
+  const remainingMinutes: string | number = (() => {
     if (!expiresAt) return "";
 
     const expiryTime = new Date(expiresAt).getTime();
@@ -23,7 +22,7 @@ export default function SessionExpireTime({
     if (timeDiff < 0) return "만료";
 
     return Math.ceil(timeDiff / (1000 * 60));
-  }, [expiresAt, currentTime]);
+  })();
 
   const isExpiringSoon =
     typeof remainingMinutes === "number"

@@ -17,7 +17,7 @@ export default function OrdersLayout({
     <section className="antialiased h-full grid place-items-center gap-2 grid-cols-[2fr_minmax(380px,1fr)] px-6 pb-4">
       <Suspense fallback={<LoadingSkeleton />}>
         <ClientPreventUntilFetch>
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full w-full">
             <Suspense fallback={<LoadingSkeleton />}>
               <TableBoard />
             </Suspense>

@@ -18,14 +18,12 @@ export default function TableBoard() {
   return (
     <TableBoardLayout count={tableCount}>
       <GlobalTimerProvider>
-        {store.tables.map((sanitizedTable) => {
-          return (
-            <TableOrderList
-              key={sanitizedTable.publicId}
-              sanitizedTable={sanitizedTable}
-            />
-          );
-        })}
+        {store.tables.map((sanitizedTable) => (
+          <TableOrderList
+            key={sanitizedTable.publicId}
+            sanitizedTable={sanitizedTable}
+          />
+        ))}
       </GlobalTimerProvider>
     </TableBoardLayout>
   );

@@ -13,7 +13,7 @@ import {
   OrderDetailContext,
   type OrderDetailContextValue,
 } from "./OrderDetailContext";
-import { OrderItemWithIdAndPrice } from "./OrderDetailTable";
+import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
 
 interface OrderDetailProviderProps {
   params: { storeId: string; tableId: string };
@@ -38,7 +38,7 @@ export function OrderDetailProvider({
   });
 
   const [editingItem, setEditingItem] =
-    useState<OrderItemWithIdAndPrice | null>(null);
+    useState<OrderItemWithSummarizedOrder | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   // 주문 아이템 데이터 가공
@@ -46,14 +46,18 @@ export function OrderDetailProvider({
   const tableSession = tableSessions ? tableSessions[0] : null;
   const orders = tableSession?.orders ?? [];
 
-  const orderItems: OrderItemWithIdAndPrice[] = orders.flatMap((order) =>
+  const orderItems: OrderItemWithSummarizedOrder[] = orders.flatMap((order) =>
     order.orderItems.map((item) => ({
       ...item,
       totalPrice: item.unitPrice * item.quantity,
       orderId: order.publicId,
+      orderStatus: order.status,
     }))
   );
 
+  const isCompletedEditingOrderStatus =
+    editingItem?.orderStatus === "COMPLETED" ||
+    editingItem?.orderStatus === "CANCELLED";
   const totalPrice = sumFromObjects(orderItems, (item) => item.totalPrice);
 
   // Actions
@@ -99,6 +103,7 @@ export function OrderDetailProvider({
       orderItems,
       totalPrice,
       editingItem,
+      isCompletedEditingOrderStatus,
       rowSelection,
     },
     actions: {

@@ -5,18 +5,26 @@ import { tableOrderColumns } from "../tableOrderColumns";
 import { useOrderDetailContext } from "./OrderDetailContext";
 import { OrderTable } from "./order-table";
 import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
+import { OrderStatus } from "@spaceorder/db/index";
 
-export type OrderItemWithIdAndPrice = ResponseOrderItem & {
+export type OrderItemWithSummarizedOrder = ResponseOrderItem & {
   totalPrice: number;
   orderId: string;
+  orderStatus: OrderStatus;
 };
 export function OrderDetailTable() {
   const {
-    state: { orderItems, editingItem, rowSelection },
+    state: {
+      orderItems,
+      editingItem,
+      rowSelection,
+      isCompletedEditingOrderStatus,
+    },
     actions: { setRowSelection, updateEditingQuantity, resetSelection },
   } = useOrderDetailContext();
 
   const tableMeta = {
+    isCompletedEditingOrderStatus,
     editingData: editingItem,
     updateEditingQuantity,
     resetEditing: resetSelection,

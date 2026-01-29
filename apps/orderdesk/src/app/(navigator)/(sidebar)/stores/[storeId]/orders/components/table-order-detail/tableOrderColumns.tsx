@@ -2,17 +2,18 @@
 
 import { Button } from "@spaceorder/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { OrderItemWithIdAndPrice } from "./order-detail/OrderDetailTable";
+import { OrderItemWithSummarizedOrder } from "./order-detail/OrderDetailTable";
 import { transCurrencyFormat } from "@spaceorder/api/utils/priceFormatter";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 
 interface TableMeta {
-  editingData: OrderItemWithIdAndPrice | null;
+  isCompletedEditingOrderStatus: boolean;
+  editingData: OrderItemWithSummarizedOrder | null;
   updateEditingQuantity: (delta: number) => void;
   resetEditing: () => void;
 }
 
-export const tableOrderColumns: ColumnDef<OrderItemWithIdAndPrice>[] = [
+export const tableOrderColumns: ColumnDef<OrderItemWithSummarizedOrder>[] = [
   {
     accessorKey: "name",
     header: "메뉴명",
@@ -38,9 +39,11 @@ export const tableOrderColumns: ColumnDef<OrderItemWithIdAndPrice>[] = [
         meta.updateEditingQuantity(1);
       };
 
+      const disabledCondition = meta.isCompletedEditingOrderStatus;
       return (
         <div className="flex items-center justify-center gap-2 w-full">
           <ChangeQuantityButton
+            disabled={disabledCondition}
             aria-label="수량 감소"
             isSelected={isSelected}
             callback={decreaseQuantity}
@@ -49,11 +52,12 @@ export const tableOrderColumns: ColumnDef<OrderItemWithIdAndPrice>[] = [
           </ChangeQuantityButton>
           <span className="tabular-nums">{displayQuantity}</span>
           <ChangeQuantityButton
+            disabled={disabledCondition}
             aria-label="수량 증가"
             isSelected={isSelected}
             callback={increaseQuantity}
           >
-            -
+            +
           </ChangeQuantityButton>
         </div>
       );

@@ -11,6 +11,7 @@ export function OrderTableControlbar({
   isSelected,
 }: OrderTableControlbarProps) {
   const {
+    state: { isCompletedEditingOrderStatus },
     actions: { updateOrderItem, removeOrderItem },
   } = useOrderDetailContext();
 
@@ -24,12 +25,14 @@ export function OrderTableControlbar({
     removeOrderItem();
   };
 
+  const disabledCondition = isCompletedEditingOrderStatus;
   const textBold = "font-semibold";
   return (
     <ActivityRender mode={isSelected ? "visible" : "hidden"}>
       <TableCell colSpan={tableOrderColumns.length} className="p-0">
         <div className="w-full grid grid-cols-[1fr_2fr_3fr] gap-2 p-2">
           <Button
+            disabled={disabledCondition}
             className={textBold}
             variant={"destructive"}
             onClick={handleRemove}
@@ -40,6 +43,7 @@ export function OrderTableControlbar({
             메뉴 변경
           </Button>
           <Button
+            disabled={disabledCondition}
             className={textBold}
             variant={"default"}
             onClick={handleUpdate}

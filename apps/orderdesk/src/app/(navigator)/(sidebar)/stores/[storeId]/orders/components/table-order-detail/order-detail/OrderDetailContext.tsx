@@ -2,7 +2,7 @@
 
 import { createContext, use } from "react";
 import type { ResponseTableWithSessions } from "@spaceorder/db/types/responseModel.type";
-import { OrderItemWithIdAndPrice } from "./OrderDetailTable";
+import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
 
 /**
  * TableOrderDetail Compound Component의 Context 인터페이스
@@ -14,15 +14,16 @@ import { OrderItemWithIdAndPrice } from "./OrderDetailTable";
 // State
 export interface OrderDetailState {
   tableWithSessions: ResponseTableWithSessions;
-  orderItems: OrderItemWithIdAndPrice[];
+  orderItems: OrderItemWithSummarizedOrder[];
   totalPrice: number;
-  editingItem: OrderItemWithIdAndPrice | null;
+  editingItem: OrderItemWithSummarizedOrder | null;
+  isCompletedEditingOrderStatus: boolean;
   rowSelection: Record<string, boolean>;
 }
 
 // Actions
 export interface OrderDetailActions {
-  setEditingItem: (item: OrderItemWithIdAndPrice | null) => void;
+  setEditingItem: (item: OrderItemWithSummarizedOrder | null) => void;
   setRowSelection: React.Dispatch<
     React.SetStateAction<Record<string, boolean>>
   >;

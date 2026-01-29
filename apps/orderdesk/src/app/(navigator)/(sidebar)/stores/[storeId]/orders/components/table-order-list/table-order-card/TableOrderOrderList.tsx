@@ -17,7 +17,7 @@ export function TableOrderOrderList() {
       <ActivityRender mode={session ? "visible" : "hidden"}>
         {session?.orders?.map((order) => (
           <ErrorBoundary
-            fallbackRender={orderItemFallbackRender}
+            FallbackComponent={OrderItemFallbackRender}
             key={order.publicId}
           >
             <TableOrderItem key={order.publicId} order={order} />
@@ -28,7 +28,7 @@ export function TableOrderOrderList() {
   );
 }
 
-function orderItemFallbackRender(args: FallbackProps) {
+function OrderItemFallbackRender(args: FallbackProps) {
   return (
     <ErrorFallback {...args}>
       <TableErrorFallback />

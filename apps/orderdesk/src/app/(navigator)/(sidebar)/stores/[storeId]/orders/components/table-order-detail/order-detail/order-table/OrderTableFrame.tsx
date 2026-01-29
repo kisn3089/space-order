@@ -1,6 +1,5 @@
 import { Table } from "@spaceorder/ui/components/table";
 import { useOrderDetailContext } from "../OrderDetailContext";
-import ButtonWrapper from "@spaceorder/ui/components/ButtonWrapper";
 
 interface OrderTableFrameProps {
   children: React.ReactNode;
@@ -8,19 +7,18 @@ interface OrderTableFrameProps {
 
 export function OrderTableFrame({ children }: OrderTableFrameProps) {
   const {
-    state: { rowSelection },
+    state: { editingItem },
     actions: { resetSelection },
   } = useOrderDetailContext();
 
   const clearSelection = () => {
-    const selectedRowKeys = Object.keys(rowSelection);
-    if (selectedRowKeys.length === 0) return;
+    if (!editingItem) return;
     resetSelection();
   };
 
   return (
-    <ButtonWrapper onClick={clearSelection}>
-      <Table className="h-full">{children}</Table>
-    </ButtonWrapper>
+    <Table onClick={clearSelection} className="h-full">
+      {children}
+    </Table>
   );
 }

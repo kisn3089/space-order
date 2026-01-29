@@ -8,15 +8,15 @@ datasource db {
 }
 
 enum AdminRole {
-  /** 
+  /**
    * 모든 권한을 소유한 관리자
    */
   SUPER
-  /** 
+  /**
    * 일부 기능을 write 권한을 소유한 관리자
    */
   SUPPORT
-  /** 
+  /**
    * Readonly 권한만 소유한 관리자
    */
   VIEWER
@@ -92,23 +92,23 @@ model Table {
   id          BigInt   @id @default(autoincrement())
   publicId    String   @unique @default(cuid(2)) @map("public_id")
   storeId     BigInt   @map("store_id")
-  tableNumber    Int   @map("table_number")
-  /** 
-   * 테이블 이름 (예: "창가 테이블", "VIP룸") 
+  tableNumber Int      @map("table_number")
+  /**
+   * 테이블 이름 (예: "창가 테이블", "VIP룸")
    */
-  name        String? 
+  name        String?
   seats       Int      @default(4)
-  /** 
+  /**
    * 층수 (1층, 2층 등)
    */
-  floor       Int?     
-  /** 
-   * 구역 (예: "A구역", "야외", "룸") 
+  floor       Int?
+  /**
+   * 구역 (예: "A구역", "야외", "룸")
    */
-  section     String?  
-  isActive    Boolean  @default(true) @map("is_active") 
-  qrCode      String   @unique @map("qr_code") 
-  description String?  @db.VarChar(500) 
+  section     String?
+  isActive    Boolean  @default(true) @map("is_active")
+  qrCode      String   @unique @map("qr_code")
+  description String?  @db.VarChar(500)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -120,52 +120,52 @@ model Table {
   @@map("table")
 }
 
-  /**
-   * 사장님이 등록하는 매장 메뉴이자, 고객이 주문할 때 선택하는 메뉴
-   */
+/**
+ * 사장님이 등록하는 매장 메뉴이자, 고객이 주문할 때 선택하는 메뉴
+ */
 model Menu {
-  id          BigInt   @id @default(autoincrement())
-  publicId    String   @unique @default(cuid(2)) @map("public_id")
-  storeId     BigInt   @map("store_id")
-  name        String
-  price       Int
-  description String?  @db.VarChar(500)
-  imageUrl    String?  @map("image_url") @db.VarChar(500)
-  isAvailable Boolean  @default(true) @map("is_available")
-  /** 
-    * 메뉴 카테고리 (예: 음료, 디저트, 식사 등)
-    * orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }]
-    */
-  category    String?
+  id              BigInt    @id @default(autoincrement())
+  publicId        String    @unique @default(cuid(2)) @map("public_id")
+  storeId         BigInt    @map("store_id")
+  name            String
+  price           Int
+  description     String?   @db.VarChar(500)
+  imageUrl        String?   @map("image_url") @db.VarChar(500)
+  isAvailable     Boolean   @default(true) @map("is_available")
   /**
-    * 메뉴 순서 정렬을 위한 필드
-    * data: { sortOrder: 0 } 최상단 배치
-    */
-  sortOrder   Int      @default(0) @map("sort_order")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-  /**
-   * {
-   *    "종류": [
-   *     {"key": "아이스", "description": "시원하게 드셔보세요.", "price": 0 },
-   *     {"key": "핫", "description": "따뜻하게 드셔보세요.", "price": 0 },
-   *   ],
-   *  }
+   * 메뉴 카테고리 (예: 음료, 디저트, 식사 등)
+   * orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }]
    */
-  requiredOptions Json?   @map("required_options")
-  /** 
+  category        String?
+  /**
+   * 메뉴 순서 정렬을 위한 필드
+   * data: { sortOrder: 0 } 최상단 배치
+   */
+  sortOrder       Int       @default(0) @map("sort_order")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+  /**
    * {
-   *     "카페인": {
-   *       "options": [
-   *           {"key": "진하게", "description": "카페인을 진하게 즐겨", "price": 1000 },
-   *           {"key": "연하게", "description": "카페인을 연하게 즐겨", "price": 0 },
-   *       ],
-   *       "trigger": [{ "group": "원두", "in": ["케냐", "코스타리코"] }]
-   *     },
+   * "종류": [
+   * {"key": "아이스", "description": "시원하게 드셔보세요.", "price": 0 },
+   * {"key": "핫", "description": "따뜻하게 드셔보세요.", "price": 0 },
+   * ],
    * }
    */
-  customOptions Json?   @map("custom_options")
+  requiredOptions Json?     @map("required_options")
+  /**
+   * {
+   * "카페인": {
+   * "options": [
+   * {"key": "진하게", "description": "카페인을 진하게 즐겨", "price": 1000 },
+   * {"key": "연하게", "description": "카페인을 연하게 즐겨", "price": 0 },
+   * ],
+   * "trigger": [{ "group": "원두", "in": ["케냐", "코스타리코"] }]
+   * },
+   * }
+   */
+  customOptions   Json?     @map("custom_options")
 
   // MVP 기능은 아니기 때문에 일단 보류
   // switchMenu ice_americano 선택 시 상세 페이지에서 변경 가능한 메뉴(예시: 스타벅스) hot_americano 등으로 변경할 수 있도록 menu 선택지 제공
@@ -177,44 +177,45 @@ model Menu {
 }
 
 enum OrderStatus {
-  /** 
+  /**
    * 주문을 접수하기 전 상태 @default
    */
   PENDING
-  /** 
+  /**
    * 주문을 수락한 상태로 조리에 들어가기 직전 상태
    */
   ACCEPTED
-  /** 
+  /**
    * 조리가 진행 중인 상태
    */
   PREPARING
-  /** 
+  /**
    * 조리가 완료되어 픽업 및 서빙이 완료된 상태
    */
   COMPLETED
-  /** 
+  /**
    * 주문이 취소된 상태, 복구할 수 없음, PENDING 상태로 되돌아감
    */
   CANCELLED
 }
-  /*
-   * 고객이 주문하는 단위
-   * 예) 아이스 아메리카노 얼음 적게 하나, 라떼 사이즈 라지 하나
-   */
+
+/**
+ * 고객이 주문하는 단위
+ * 예) 아이스 아메리카노 얼음 적게 하나, 라떼 사이즈 라지 하나
+ */
 model Order {
   id              BigInt      @id @default(autoincrement())
   publicId        String      @unique @default(cuid(2)) @map("public_id")
   storeId         BigInt      @map("store_id")
-  tableId         BigInt     @map("table_id")
-  tableSessionId  BigInt     @map("table_session_id")
+  tableId         BigInt      @map("table_id")
+  tableSessionId  BigInt      @map("table_session_id")
   status          OrderStatus @default(PENDING)
-  /*
+  /**
    * 메뉴마다의 요청사항과 별개로 고객이 남기는 요청사항
    * 예) 해장국 덜 맵게 해주세요.
    */
   memo            String?     @db.VarChar(500)
-  /*
+  /**
    * 고객이 주문을 취소한 이유
    */
   cancelledReason String?     @map("cancelled_reason")
@@ -223,9 +224,9 @@ model Order {
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  store        Store         @relation(fields: [storeId], references: [id], onDelete: Restrict)
-  table        Table         @relation(fields: [tableId], references: [id], onDelete: Restrict)
-  tableSession TableSession  @relation(fields: [tableSessionId], references: [id], onDelete: Restrict)
+  store        Store        @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  table        Table        @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  tableSession TableSession @relation(fields: [tableSessionId], references: [id], onDelete: Restrict)
   orderItems   OrderItem[]
 
   @@index([tableSessionId])
@@ -233,26 +234,26 @@ model Order {
   @@map("order")
 }
 
-  /*
-   * 고객이 수량, 옵션과 함께 메뉴를 선택하는 단위
-   * 예) 아이스 아메리카노 얼음 적게 하나
-   */
+/**
+ * 고객이 수량, 옵션과 함께 메뉴를 선택하는 단위
+ * 예) 아이스 아메리카노 얼음 적게 하나
+ */
 model OrderItem {
-  id                BigInt   @id @default(autoincrement())
-  publicId          String   @unique @default(cuid(2)) @map("public_id")
-  orderId           BigInt   @map("order_id")
-  menuId            BigInt   @map("menu_id")
-  menuName          String   @map("menu_name")
-  basePrice         Int      @map("base_price")
-  optionsPrice      Int      @default(0) @map("options_price")
-  unitPrice         Int      @map("unit_price")
-  quantity          Int      @default(1)
-  /*
+  id              BigInt   @id @default(autoincrement())
+  publicId        String   @unique @default(cuid(2)) @map("public_id")
+  orderId         BigInt   @map("order_id")
+  menuId          BigInt   @map("menu_id")
+  menuName        String   @map("menu_name")
+  basePrice       Int      @map("base_price")
+  optionsPrice    Int      @default(0) @map("options_price")
+  unitPrice       Int      @map("unit_price")
+  quantity        Int      @default(1)
+  /**
    * 고객이 선택한 필수 및 선택 옵션들
    * 예) { "requiredOptions": { "사이즈": "라지" }, "customOptions": { "얼음": "적게" } }
    */
-  optionsSnapshot   Json? @map("options_snapshot")
-  createdAt         DateTime @default(now()) @map("created_at")
+  optionsSnapshot Json?    @map("options_snapshot")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   order Order @relation(fields: [orderId], references: [id])
   menu  Menu  @relation(fields: [menuId], references: [id])
@@ -261,52 +262,56 @@ model OrderItem {
   @@index([menuId])
   @@map("order_item")
 }
+
 /**
  * 테이블 세션 상태 관리
  * activeSession 만료 시간을 테이블에서 보여줘야 하고 연장 기능도 필요하다.
  * 기본 세션 시간은 2시간으로 고정하고 연장하는 방식으로 한다.
  */
 enum TableSessionStatus {
-  /** 
+  /**
    * 세션은 생성되었지만 주문 대기 상태
    */
   WAITING_ORDER
-  /** 
-   * 테이블이 활성화되어 주문이 가능한 상태 
+  /**
+   * 테이블이 활성화되어 주문이 가능한 상태
    */
   ACTIVE
-  /** 
+  /**
    * 결제 대기 중인 상태
    */
   PAYMENT_PENDING
-  /** 
-   * 세션이 종료된 상태 (결제 완료 또는 만료) 
+  /**
+   * 세션이 종료된 상태 (결제 완료 또는 만료)
    */
   CLOSED
 }
 
 model TableSession {
-  id              BigInt             @id @default(autoincrement())
-  publicId        String             @unique @default(cuid(2)) @map("public_id")
-  tableId         BigInt             @map("table_id")
-  status          TableSessionStatus @default(WAITING_ORDER)
+  id       BigInt             @id @default(autoincrement())
+  publicId String             @unique @default(cuid(2)) @map("public_id")
+  tableId  BigInt             @map("table_id")
+  status   TableSessionStatus @default(WAITING_ORDER)
 
-  /** 세션 관리 */
-  sessionToken    String             @unique @default(cuid(2)) @map("session_token")
-  activatedAt     DateTime           @default(now()) @map("activated_at")
-  expiresAt       DateTime           @map("expires_at")
-  closedAt        DateTime?          @map("closed_at")
+  /**
+   * 세션 관리
+   */
+  sessionToken String    @unique @default(cuid(2)) @map("session_token")
+  activatedAt  DateTime  @default(now()) @map("activated_at")
+  expiresAt    DateTime  @map("expires_at")
+  closedAt     DateTime? @map("closed_at")
 
-  /** 결제 정보
+  /**
+   * 결제 정보
    * 결제를 orderItem 단위로 하는 것을 고려하면 별도의 Payment 모델이 필요하다.
    */
-  paidAmount      Int                @default(0) @map("paid_amount")
+  paidAmount Int @default(0) @map("paid_amount")
 
-  createdAt       DateTime           @default(now()) @map("created_at")
-  updatedAt       DateTime           @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  table           Table              @relation(fields: [tableId], references: [id])
-  orders          Order[]
+  table  Table   @relation(fields: [tableId], references: [id])
+  orders Order[]
 
   @@index([tableId, activatedAt])
   @@index([sessionToken])

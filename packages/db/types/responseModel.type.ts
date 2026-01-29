@@ -15,7 +15,6 @@ export type ExtendedResponseTable = ResponseTable & {
 };
 
 export type ResponseOwner = Omit<Owner, "id" | "refreshToken" | "password">;
-// type OwnerRole = "owner" | "admin";
 
 export type ResponseTable = Omit<Table, "id" | "storeId">;
 

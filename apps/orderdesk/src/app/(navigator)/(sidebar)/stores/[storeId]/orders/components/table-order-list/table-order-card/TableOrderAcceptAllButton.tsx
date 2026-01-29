@@ -87,12 +87,12 @@ export function TableOrderAcceptAllButton() {
     failedUpdateItems.length > 0 ? "destructive" : "default";
 
   return (
-    <div className="px-2">
+    <div className="px-2 pt-1">
       <Button
         disabled={isPending}
         onClick={acceptAllPendingOrders}
         variant={buttonVariant}
-        className="w-full font-semibold"
+        className="w-full font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-live="polite"
       >
         {isPending ? <Spinner /> : contentOrError}

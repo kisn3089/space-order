@@ -1,5 +1,5 @@
 import { SummarizedTableWithSessions } from "@spaceorder/db";
-import { TableOrderCard } from "./TableOrderCard";
+import { TableOrderCard } from "./table-order-card";
 
 type TableBoardProps = {
   sanitizedTable: SummarizedTableWithSessions;

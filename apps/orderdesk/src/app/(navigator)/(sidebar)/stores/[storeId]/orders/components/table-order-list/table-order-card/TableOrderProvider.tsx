@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { SummarizedTableWithSessions } from "@spaceorder/db";
 import { nextStatusMap, OrderStatus } from "@spaceorder/db";
@@ -27,58 +26,47 @@ export function TableOrderProvider({
   const isActivatedTable = table.isActive === true;
   const isSelected = params.tableId === table.publicId;
 
-  const navigateToTable = useCallback(() => {
+  const navigateToTable = () => {
     if (isActivatedTable) {
       push(`/stores/${params.storeId}/orders/${table.publicId}`);
     }
-  }, [isActivatedTable, push, params.storeId, table.publicId]);
+  };
 
-  const updateOrderStatus = useCallback(
-    async (orderId: string, currentStatus: OrderStatus) => {
-      const nextStatus = nextStatusMap[currentStatus];
-      if (!nextStatus) {
-        return;
-      }
+  const updateOrderStatus = async (
+    orderId: string,
+    currentStatus: OrderStatus
+  ) => {
+    const nextStatus = nextStatusMap[currentStatus];
+    if (!nextStatus) {
+      return;
+    }
 
-      await updateOwnerOrder.mutateAsync({
-        params: {
-          storeId: params.storeId,
-          tableId: table.publicId,
-          orderId,
-        },
-        updateOrderPayload: { status: nextStatus },
-      });
-    },
-    [updateOwnerOrder, params.storeId, table.publicId]
-  );
-
-  const contextValue = useMemo<TableOrderContextValue>(
-    () => ({
-      state: {
-        table,
-        session,
-        isActivatedTable,
-        isSelected,
-      },
-      actions: {
-        navigateToTable,
-        updateOrderStatus,
-      },
-      meta: {
+    await updateOwnerOrder.mutateAsync({
+      params: {
         storeId: params.storeId,
         tableId: table.publicId,
+        orderId,
       },
-    }),
-    [
+      updateOrderPayload: { status: nextStatus },
+    });
+  };
+
+  const contextValue: TableOrderContextValue = {
+    state: {
       table,
       session,
       isActivatedTable,
       isSelected,
+    },
+    actions: {
       navigateToTable,
       updateOrderStatus,
-      params.storeId,
-    ]
-  );
+    },
+    meta: {
+      storeId: params.storeId,
+      tableId: table.publicId,
+    },
+  };
 
   return (
     <TableOrderContext.Provider value={contextValue}>

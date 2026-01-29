@@ -2,7 +2,7 @@
 
 import { Card } from "@spaceorder/ui/components/card";
 import { useTableOrderContext } from "./TableOrderContext";
-import ButtonWrapper from "@spaceorder/ui/components/ClickableButtonWrapper";
+import ButtonWrapper from "@spaceorder/ui/components/ButtonWrapper";
 
 interface TableOrderCardProps {
   children: React.ReactNode;

@@ -5,7 +5,7 @@ import { Badge } from "@spaceorder/ui/components/badge";
 import { BADGE_BY_ORDER_STATUS } from "@spaceorder/ui/constants/badgeByOrderStatus.const";
 import { OrderStatus, SummarizedOrderWithItem } from "@spaceorder/db";
 import { useTableOrderContext } from "./TableOrderContext";
-import ButtonWrapper from "@spaceorder/ui/components/ClickableButtonWrapper";
+import ButtonWrapper from "@spaceorder/ui/components/ButtonWrapper";
 
 interface TableOrderItemProps {
   order: SummarizedOrderWithItem;

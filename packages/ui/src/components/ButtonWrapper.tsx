@@ -9,7 +9,7 @@ export default function ButtonWrapper({
   return (
     <button
       type="button"
-      className={`w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl ${className}`}
+      className={`w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg cursor-pointer ${className}`}
       {...restArgs}
     >
       {children}

@@ -1,5 +1,7 @@
-function padZero(num: number): string {
-  return num.toString().padStart(2, "0");
+function make2digit(minutes: number): string {
+  return new Intl.NumberFormat("ko-KR", { minimumIntegerDigits: 2 }).format(
+    minutes
+  );
 }
 
 export function formatTime(minutes: string | number): string {
@@ -10,7 +12,7 @@ export function formatTime(minutes: string | number): string {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
 
-  return `${padZero(hours)}:${padZero(mins)}`;
+  return `${make2digit(hours)}:${make2digit(mins)}`;
 }
 
 /**

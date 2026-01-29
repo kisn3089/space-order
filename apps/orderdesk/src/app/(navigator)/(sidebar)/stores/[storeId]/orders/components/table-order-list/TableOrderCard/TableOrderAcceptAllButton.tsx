@@ -1,13 +1,18 @@
 "use client";
 
-import React from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@spaceorder/ui/components/button";
-import { nextStatusMap, OrderStatus, SummarizedOrderWithItem } from "@spaceorder/db";
+import {
+  nextStatusMap,
+  OrderStatus,
+  SummarizedOrderWithItem,
+} from "@spaceorder/db";
 import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-order/httpOwnerOrder";
 import useOwnerOrder, {
   UpdateOwnerOrderParams,
 } from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
 import { useTableOrderContext } from "./TableOrderContext";
+import { Spinner } from "@spaceorder/ui/components/spinner";
 
 type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
   status: typeof OrderStatus.PENDING;
@@ -19,7 +24,8 @@ export function TableOrderAcceptAllButton() {
     meta: { storeId, tableId },
   } = useTableOrderContext();
 
-  const [failedUpdateItems, setFailedUpdateItems] = React.useState<
+  const [isPending, startTransition] = useTransition();
+  const [failedUpdateItems, setFailedUpdateItems] = useState<
     UpdateOwnerOrderParams[]
   >([]);
   const { updateOwnerOrder } = useOwnerOrder();
@@ -58,17 +64,19 @@ export function TableOrderAcceptAllButton() {
     });
 
     const failedOrderItems: UpdateOwnerOrderParams[] = [];
-    await Promise.all(
-      updateOrderItems.map((updateItem) =>
-        updateOwnerOrder.mutateAsync(updateItem).catch(() => {
-          failedOrderItems.push(updateItem);
-        })
-      )
-    );
+    startTransition(async () => {
+      await Promise.all(
+        updateOrderItems.map((updateItem) =>
+          updateOwnerOrder.mutateAsync(updateItem).catch(() => {
+            failedOrderItems.push(updateItem);
+          })
+        )
+      );
 
-    if (failedOrderItems.length > 0) {
-      setFailedUpdateItems(failedOrderItems);
-    }
+      if (failedOrderItems.length > 0) {
+        setFailedUpdateItems(failedOrderItems);
+      }
+    });
   };
 
   const contentOrError =
@@ -81,11 +89,13 @@ export function TableOrderAcceptAllButton() {
   return (
     <div className="px-2">
       <Button
+        disabled={isPending}
         onClick={acceptAllPendingOrders}
         variant={buttonVariant}
         className="w-full font-semibold"
+        aria-live="polite"
       >
-        {contentOrError}
+        {isPending ? <Spinner /> : contentOrError}
       </Button>
     </div>
   );

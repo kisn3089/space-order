@@ -2,6 +2,7 @@
 
 import { Card } from "@spaceorder/ui/components/card";
 import { useTableOrderContext } from "./TableOrderContext";
+import ButtonWrapper from "@spaceorder/ui/components/ClickableButtonWrapper";
 
 interface TableOrderCardProps {
   children: React.ReactNode;
@@ -20,11 +21,12 @@ export function TableOrderCard({ children }: TableOrderCardProps) {
   const selectedStyle = isSelected ? "shadow-lg shadow-destructive/50" : "";
 
   return (
-    <Card
-      className={`w-full min-h-[200px] flex flex-col cursor-pointer transition-shadow duration-300 ${sessionActiveStyle} ${inactiveStyle} ${selectedStyle} max-h-[300px]`}
-      onClick={() => (isActivatedTable ? navigateToTable() : null)}
-    >
-      {children}
-    </Card>
+    <ButtonWrapper onClick={navigateToTable} disabled={!isActivatedTable}>
+      <Card
+        className={`w-full h-full min-h-[200px] flex flex-col transition-shadow duration-300 ${sessionActiveStyle} ${inactiveStyle} ${selectedStyle} max-h-[300px]`}
+      >
+        {children}
+      </Card>
+    </ButtonWrapper>
   );
 }

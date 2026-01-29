@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 import ErrorFallback from "@/components/ErrorFallback";
 import TableErrorFallback from "../TableErrorFallback";
@@ -17,11 +17,7 @@ export function TableOrderOrderList() {
       <ActivityRender mode={session ? "visible" : "hidden"}>
         {session?.orders?.map((order) => (
           <ErrorBoundary
-            fallbackRender={(args) => (
-              <ErrorFallback {...args}>
-                <TableErrorFallback />
-              </ErrorFallback>
-            )}
+            fallbackRender={orderItemFallbackRender}
             key={order.publicId}
           >
             <TableOrderItem key={order.publicId} order={order} />
@@ -29,5 +25,13 @@ export function TableOrderOrderList() {
         ))}
       </ActivityRender>
     </div>
+  );
+}
+
+function orderItemFallbackRender(args: FallbackProps) {
+  return (
+    <ErrorFallback {...args}>
+      <TableErrorFallback />
+    </ErrorFallback>
   );
 }

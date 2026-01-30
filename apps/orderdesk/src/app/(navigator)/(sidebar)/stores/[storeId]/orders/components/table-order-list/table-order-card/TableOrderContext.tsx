@@ -16,7 +16,9 @@ import type {
 // State
 export interface TableOrderState {
   table: SummarizedTableWithSessions;
-  session: SummarizedTableWithSessions["tableSessions"] extends (infer T)[]
+  session: SummarizedTableWithSessions["tableSessions"] extends
+    | (infer T)[]
+    | undefined
     ? T | null
     : never;
   isActivatedTable: boolean;

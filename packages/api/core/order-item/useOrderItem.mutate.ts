@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   FetchOrderItemUnique,
   httpOrderItems,
@@ -8,9 +12,28 @@ import {
   ALIVE_SESSION,
   ORDER_ITEMS,
 } from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
+import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
 
 type UseOrderItemParams = { storeId: string; tableId: string };
-export default function useOrderItem({ storeId, tableId }: UseOrderItemParams) {
+type UseOrderItemReturn = {
+  updateOrderItem: UseMutationResult<
+    ResponseOrderItem,
+    Error,
+    {
+      params: FetchOrderItemUnique;
+      updateOrderItemPayload: UpdateOrderItemPayload;
+    }
+  >;
+  removeOrderItem: UseMutationResult<
+    void,
+    Error,
+    { params: FetchOrderItemUnique }
+  >;
+};
+export default function useOrderItem({
+  storeId,
+  tableId,
+}: UseOrderItemParams): UseOrderItemReturn {
   const queryClient = useQueryClient();
 
   const updateOrderItem = useMutation({

@@ -5,6 +5,7 @@ import { SummarizedOrdersFromStore } from "@spaceorder/db";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import TableBoardLayout from "../table-order-list/TableOrderListLayout";
 import { useSetCacheFromStoreWithOrders } from "../../hooks/useSetCacheFromStoreWithOrders";
+import { GlobalTimerProvider } from "@/app/common/orders/GlobalTimerContext";
 
 export default function TableBoard() {
   const setCache = useSetCacheFromStoreWithOrders();
@@ -15,15 +16,15 @@ export default function TableBoard() {
 
   const tableCount = store.tables.length ?? 0;
   return (
-    <TableBoardLayout count={tableCount}>
-      {store.tables.map((sanitizedTable) => {
-        return (
+    <GlobalTimerProvider>
+      <TableBoardLayout count={tableCount}>
+        {store.tables.map((sanitizedTable) => (
           <TableOrderList
             key={sanitizedTable.publicId}
             sanitizedTable={sanitizedTable}
           />
-        );
-      })}
-    </TableBoardLayout>
+        ))}
+      </TableBoardLayout>
+    </GlobalTimerProvider>
   );
 }

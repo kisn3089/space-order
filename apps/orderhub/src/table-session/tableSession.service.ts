@@ -278,7 +278,7 @@ export class TableSessionService {
 
       const totalAmount = sumFromObjects<OrderItem>(
         flatMappedOrderItems,
-        (orderItems) => orderItems.price * orderItems.quantity,
+        (orderItems) => orderItems.unitPrice * orderItems.quantity,
       );
 
       return await tx.tableSession.update({

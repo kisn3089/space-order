@@ -23,8 +23,7 @@
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    "../../packages/api/core/axios/http.ts"
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

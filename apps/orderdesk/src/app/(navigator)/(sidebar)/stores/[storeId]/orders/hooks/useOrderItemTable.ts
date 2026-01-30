@@ -2,7 +2,7 @@
 
 import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
 import { useParams } from "next/navigation";
-import { ResponseOrderItemWithOrderIdAndPrice } from "../components/table-order-detail/order-table/OrderTable";
+import { OrderItemWithSummarizedOrder } from "../components/table-order-detail/order-detail/OrderDetailTable";
 
 export default function useOrderItemTable() {
   const { storeId, tableId } = useParams<{
@@ -15,9 +15,7 @@ export default function useOrderItemTable() {
     tableId,
   });
 
-  const update = async (
-    orderItem: ResponseOrderItemWithOrderIdAndPrice | null
-  ) => {
+  const update = async (orderItem: OrderItemWithSummarizedOrder | null) => {
     if (!orderItem) return;
 
     return await updateOrderItem.mutateAsync({
@@ -29,9 +27,7 @@ export default function useOrderItemTable() {
     });
   };
 
-  const removeById = async (
-    orderItem: ResponseOrderItemWithOrderIdAndPrice | null
-  ) => {
+  const removeById = async (orderItem: OrderItemWithSummarizedOrder | null) => {
     if (!orderItem) return;
 
     return await removeOrderItem.mutateAsync({

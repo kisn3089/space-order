@@ -27,10 +27,10 @@ export default function AuthenticationProvider({
 }: AuthenticationProviderProps) {
   const [authInfo, setAuthInfo] = React.useState<AuthInfo>(defaultAuth);
 
-  const signOut = React.useCallback(() => {
+  const signOut = () => {
     clientSignOut();
     setAuthInfo(defaultAuth);
-  }, [clientSignOut]);
+  };
 
   return (
     <AuthInfoContext.Provider

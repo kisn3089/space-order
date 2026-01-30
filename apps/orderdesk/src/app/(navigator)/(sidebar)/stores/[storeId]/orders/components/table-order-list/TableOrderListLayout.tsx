@@ -10,7 +10,7 @@ export default function TableBoardLayout({
 
   return (
     <div
-      className={`w-full h-full grid grid-cols-[minmax(200px,_300px)_minmax(200px,_300px)] ${tableBoardMaxHeight} gap-3 min-w-[410px]`}
+      className={`w-full h-full grid grid-cols-2 ${tableBoardMaxHeight} gap-3 min-w-[410px]`}
     >
       {children}
     </div>

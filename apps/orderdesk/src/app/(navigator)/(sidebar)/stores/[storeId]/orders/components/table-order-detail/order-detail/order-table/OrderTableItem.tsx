@@ -1,7 +1,7 @@
 import { TableCell } from "@spaceorder/ui/components/table";
 import { flexRender, Row } from "@tanstack/react-table";
 
-export default function OrderTableCells<TData>({ row }: { row: Row<TData> }) {
+export function OrderTableItem<TData>({ row }: { row: Row<TData> }) {
   return (
     <TableCell className="grid grid-cols-[2fr_1fr_1fr] cursor-pointer min-h-16 animate-fade-in-up">
       {row.getVisibleCells().map((cell) => (

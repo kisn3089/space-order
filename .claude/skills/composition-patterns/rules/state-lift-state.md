@@ -111,7 +111,7 @@ function ForwardMessageDialog() {
 }
 
 function ForwardButton() {
-  const { actions } = use(Composer.Context)
+  const { actions } = useContext(Composer.Context)
   return <Button onPress={actions.submit}>Forward</Button>
 }
 ```

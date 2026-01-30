@@ -1,10 +1,10 @@
-import Link, { LinkProps } from "next/link";
+import Link from "next/link";
+import { ComponentPropsWithoutRef } from "react";
 
 type ConditionalLinkProps = {
   children: React.ReactNode;
   condition: boolean;
-} & Omit<LinkProps, "shallow"> &
-  React.LinkHTMLAttributes<HTMLAnchorElement>;
+} & Omit<ComponentPropsWithoutRef<typeof Link>, "shallow">;
 
 export default function ConditionalLink({
   children,

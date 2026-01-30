@@ -13,7 +13,7 @@ enum AdminRole {
    */
   SUPER
   /**
-   * 일부 기능을 write 권한을 소유한 관리자
+   * 일부 기능에 대한 write 권한을 소유한 관리자
    */
   SUPPORT
   /**
@@ -194,7 +194,7 @@ enum OrderStatus {
    */
   COMPLETED
   /**
-   * 주문이 취소된 상태, 복구할 수 없음, PENDING 상태로 되돌아감
+   * 주문이 취소된 상태, 복구할 수 없음
    */
   CANCELLED
 }

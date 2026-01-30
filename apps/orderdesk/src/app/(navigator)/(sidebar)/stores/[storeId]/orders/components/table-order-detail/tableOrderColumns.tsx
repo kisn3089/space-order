@@ -1,18 +1,19 @@
 "use client";
 
 import { Button } from "@spaceorder/ui/components/button";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, RowData } from "@tanstack/react-table";
 import { OrderItemWithSummarizedOrder } from "./order-detail/OrderDetailTable";
 import { transCurrencyFormat } from "@spaceorder/api/utils/priceFormatter";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 
-interface TableMeta {
-  isEditingFinalizedOrder: boolean;
-  editingData: OrderItemWithSummarizedOrder | null;
-  updateEditingQuantity: (delta: number) => void;
-  resetEditing: () => void;
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    isEditingFinalizedOrder: boolean;
+    editingData: TData | null;
+    updateEditingQuantity: (delta: number) => void;
+    resetEditing: () => void;
+  }
 }
-
 export const tableOrderColumns: ColumnDef<OrderItemWithSummarizedOrder>[] = [
   {
     accessorKey: "name",
@@ -26,7 +27,9 @@ export const tableOrderColumns: ColumnDef<OrderItemWithSummarizedOrder>[] = [
     header: () => <div className="text-center w-full">수량</div>,
     cell: ({ row, table }) => {
       const isSelected = row.getIsSelected();
-      const meta = table.options.meta as TableMeta;
+      const meta = table.options.meta;
+      if (!meta) return null;
+
       const displayQuantity =
         isSelected && meta.editingData
           ? meta.editingData.quantity

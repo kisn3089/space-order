@@ -24,7 +24,6 @@ export function TableOrderCard({ children }: TableOrderCardProps) {
     <ConditionalLink
       condition={isActivatedTable}
       href={`/stores/${storeId}/orders/${tableId}`}
-      shallow={true}
       className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
     >
       <Card

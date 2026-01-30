@@ -3,7 +3,7 @@ import Link, { LinkProps } from "next/link";
 type ConditionalLinkProps = {
   children: React.ReactNode;
   condition: boolean;
-} & LinkProps &
+} & Omit<LinkProps, "shallow"> &
   React.LinkHTMLAttributes<HTMLAnchorElement>;
 
 export default function ConditionalLink({

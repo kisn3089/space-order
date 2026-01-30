@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, use } from "react";
+import { createContext, useContext } from "react";
 import type { ResponseTableWithSessions } from "@spaceorder/db/types/responseModel.type";
 import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
 
@@ -52,7 +52,7 @@ export const OrderDetailContext = createContext<OrderDetailContextValue | null>(
 );
 
 export function useOrderDetailContext() {
-  const context = use(OrderDetailContext);
+  const context = useContext(OrderDetailContext);
   if (!context) {
     throw new Error(
       "useOrderDetailContext must be used within a OrderDetailProvider"

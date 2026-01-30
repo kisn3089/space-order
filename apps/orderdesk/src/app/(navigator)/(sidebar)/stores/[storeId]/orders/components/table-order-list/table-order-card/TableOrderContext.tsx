@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, use } from "react";
+import { createContext, useContext } from "react";
 import type {
   SummarizedOrderWithItem,
   SummarizedTableWithSessions,
@@ -49,7 +49,7 @@ export const TableOrderContext = createContext<TableOrderContextValue | null>(
 );
 
 export function useTableOrderContext() {
-  const context = use(TableOrderContext);
+  const context = useContext(TableOrderContext);
   if (!context) {
     throw new Error(
       "useTableOrderContext must be used within a TableOrderProvider"

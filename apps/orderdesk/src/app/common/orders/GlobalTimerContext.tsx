@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const GlobalTimerContext = createContext<number>(Date.now());
 
@@ -28,5 +28,5 @@ export function GlobalTimerProvider({
 }
 
 export function useGlobalTimer() {
-  return use(GlobalTimerContext);
+  return useContext(GlobalTimerContext);
 }

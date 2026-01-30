@@ -37,25 +37,25 @@ function Composer({
         </Footer>
       )}
     </form>
-  )
+  );
 }
 ```
 
 **Correct (compound components with shared context):**
 
 ```tsx
-const ComposerContext = createContext<ComposerContextValue | null>(null)
+const ComposerContext = createContext<ComposerContextValue | null>(null);
 
 function ComposerProvider({ children, state, actions, meta }: ProviderProps) {
   return (
     <ComposerContext.Provider value={{ state, actions, meta }}>
       {children}
     </ComposerContext.Provider>
-  )
+  );
 }
 
 function ComposerFrame({ children }: { children: React.ReactNode }) {
-  return <form>{children}</form>
+  return <form>{children}</form>;
 }
 
 function ComposerInput() {
@@ -63,21 +63,21 @@ function ComposerInput() {
     state,
     actions: { update },
     meta: { inputRef },
-  } = use(ComposerContext)
+  } = useContext(ComposerContext);
   return (
     <TextInput
       ref={inputRef}
       value={state.input}
       onChangeText={(text) => update((s) => ({ ...s, input: text }))}
     />
-  )
+  );
 }
 
 function ComposerSubmit() {
   const {
     actions: { submit },
-  } = use(ComposerContext)
-  return <Button onPress={submit}>Send</Button>
+  } = useContext(ComposerContext);
+  return <Button onPress={submit}>Send</Button>;
 }
 
 // Export as compound component
@@ -91,7 +91,7 @@ const Composer = {
   Attachments: ComposerAttachments,
   Formatting: ComposerFormatting,
   Emojis: ComposerEmojis,
-}
+};
 ```
 
 **Usage:**

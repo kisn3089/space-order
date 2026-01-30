@@ -1,5 +1,5 @@
 ---
-description: PR 템플릿 기반으로 git history를 분석하여 PR 설명 자동 생성
+description: PR 템플릿 기반으로 git history를 분석하여 PR 설명을 자동 생성
 allowed-tools: Bash(git:*), Read
 argument-hint: [base-branch]
 ---
@@ -41,17 +41,17 @@ git diff <base-branch>...HEAD
 
 **변경 유형 감지 (커밋 prefix 기반):**
 
-| Prefix                   | 변경 유형                               |
-| ------------------------ | --------------------------------------- |
-| `feat:`, `*/feat:`       | ✨ 새로운 기능 (New feature)            |
-| `fix:`, `*/fix:`         | 🐛 버그 수정 (Bug fix)                  |
-| `refactor:`, `refector:` | 🎨 코드 리팩토링 (Code refactoring)     |
-| `ui:`, `style:`          | 🎨 프론트엔드 UI/UX (Frontend UI/UX)    |
-| `docs:`                  | 📚 문서 업데이트 (Documentation update) |
-| `test:`                  | 🧪 테스트 관련 (Test related)           |
-| `perf:`                  | ⚡ 성능 개선 (Performance improvement)  |
-| `chore:`, `lint:`        | 🔧 설정 변경 (Configuration change)     |
-| `docker:`                | 🐳 Docker 관련 (Docker related)         |
+| Prefix             | 변경 유형                               |
+| ------------------ | --------------------------------------- |
+| `feat:`, `*/feat:` | ✨ 새로운 기능 (New feature)            |
+| `fix:`, `*/fix:`   | 🐛 버그 수정 (Bug fix)                  |
+| `refactor:`        | 🎨 코드 리팩토링 (Code refactoring)     |
+| `ui:`, `style:`    | 🎨 프론트엔드 UI/UX (Frontend UI/UX)    |
+| `docs:`            | 📚 문서 업데이트 (Documentation update) |
+| `test:`            | 🧪 테스트 관련 (Test related)           |
+| `perf:`            | ⚡ 성능 개선 (Performance improvement)  |
+| `chore:`, `lint:`  | 🔧 설정 변경 (Configuration change)     |
+| `docker:`          | 🐳 Docker 관련 (Docker related)         |
 
 **영향 범위 감지 (파일 경로 기반):**
 

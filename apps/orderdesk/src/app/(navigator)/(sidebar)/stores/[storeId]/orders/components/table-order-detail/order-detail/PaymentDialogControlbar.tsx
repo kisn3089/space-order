@@ -6,7 +6,7 @@ import {
   AlertDialogCancel,
 } from "@spaceorder/ui/components/alert-dialog/alert-dialog";
 import { Spinner } from "@spaceorder/ui/components/spinner";
-import { SetStateAction } from "react";
+import { SetStateAction, useState } from "react";
 
 interface PaymentDialogControlbarProps {
   children: React.ReactNode;
@@ -17,6 +17,8 @@ export default function PaymentDialogControlbar({
   children,
   setOpen,
 }: PaymentDialogControlbarProps) {
+  const [isError, setIsError] = useState(false);
+
   const payment = async (
     signal: AbortSignal,
     e: React.MouseEvent<HTMLButtonElement>
@@ -34,8 +36,14 @@ export default function PaymentDialogControlbar({
   >(payment);
 
   const tryPayment = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    await paymentTransaction(e);
-    setOpen(false);
+    try {
+      setIsError(false);
+      await paymentTransaction(e);
+      setOpen(false);
+    } catch {
+      e.preventDefault();
+      setIsError(true);
+    }
   };
 
   return (
@@ -45,13 +53,18 @@ export default function PaymentDialogControlbar({
       </AlertDialogCancel>
       <AlertDialogAction
         onClick={tryPayment}
+        className={
+          isError
+            ? "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40"
+            : ""
+        }
         disabled={paymentTransaction.isPending}
       >
         <ActivityRender
           mode={paymentTransaction.isPending ? "hidden" : "visible"}
           fallback={<LoadingTransaction />}
         >
-          {children}
+          {isError ? "결제 실패, 다시 시도" : children}
         </ActivityRender>
       </AlertDialogAction>
     </>

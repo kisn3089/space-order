@@ -16,15 +16,15 @@ export default function TableBoard() {
 
   const tableCount = store.tables.length ?? 0;
   return (
-    <TableBoardLayout count={tableCount}>
-      <GlobalTimerProvider>
+    <GlobalTimerProvider>
+      <TableBoardLayout count={tableCount}>
         {store.tables.map((sanitizedTable) => (
           <TableOrderList
             key={sanitizedTable.publicId}
             sanitizedTable={sanitizedTable}
           />
         ))}
-      </GlobalTimerProvider>
-    </TableBoardLayout>
+      </TableBoardLayout>
+    </GlobalTimerProvider>
   );
 }

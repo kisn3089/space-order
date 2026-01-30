@@ -1,7 +1,5 @@
 function make2digit(minutes: number): string {
-  return new Intl.NumberFormat("ko-KR", { minimumIntegerDigits: 2 }).format(
-    minutes
-  );
+  return minutes.toString().padStart(2, "0");
 }
 
 export function formatTime(minutes: number): string {

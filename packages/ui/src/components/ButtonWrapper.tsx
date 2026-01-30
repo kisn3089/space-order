@@ -8,7 +8,6 @@ export default function ButtonWrapper({
   const { className, ...restArgs } = args;
   return (
     <button
-      type="button"
       className={`w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg cursor-pointer ${className}`}
       {...restArgs}
     >

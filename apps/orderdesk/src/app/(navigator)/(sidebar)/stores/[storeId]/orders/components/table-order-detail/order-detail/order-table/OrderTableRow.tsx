@@ -33,7 +33,7 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
     }
   };
 
-  const IgnoreTabKey = (e: React.KeyboardEvent<HTMLTableRowElement>) => {
+  const ignoreTabKey = (e: React.KeyboardEvent<HTMLTableRowElement>) => {
     if (e.key === "Tab") {
       return;
     }
@@ -48,7 +48,7 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
       role="button"
       tabIndex={isSelected ? -1 : 0}
       onKeyDown={
-        isSelected && !isEditingFinalizedOrder ? undefined : IgnoreTabKey
+        isSelected && !isEditingFinalizedOrder ? undefined : ignoreTabKey
       }
       onClick={handleRowClick}
       data-state={isSelected && "selected"}

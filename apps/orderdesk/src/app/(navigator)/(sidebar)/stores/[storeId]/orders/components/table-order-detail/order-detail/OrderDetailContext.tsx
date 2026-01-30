@@ -17,7 +17,7 @@ export interface OrderDetailState {
   orderItems: OrderItemWithSummarizedOrder[];
   totalPrice: number;
   editingItem: OrderItemWithSummarizedOrder | null;
-  isCompletedEditingOrderStatus: boolean;
+  isEditingFinalizedOrder: boolean;
   rowSelection: Record<string, boolean>;
 }
 

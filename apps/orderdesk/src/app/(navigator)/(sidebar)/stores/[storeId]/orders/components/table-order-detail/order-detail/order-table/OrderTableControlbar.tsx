@@ -11,7 +11,7 @@ export function OrderTableControlbar({
   isSelected,
 }: OrderTableControlbarProps) {
   const {
-    state: { isCompletedEditingOrderStatus },
+    state: { isEditingFinalizedOrder },
     actions: { updateOrderItem, removeOrderItem },
   } = useOrderDetailContext();
 
@@ -25,7 +25,7 @@ export function OrderTableControlbar({
     removeOrderItem();
   };
 
-  const disabledCondition = isCompletedEditingOrderStatus;
+  const disabledCondition = isEditingFinalizedOrder;
   const textBold = "font-semibold";
   return (
     <ActivityRender mode={isSelected ? "visible" : "hidden"}>

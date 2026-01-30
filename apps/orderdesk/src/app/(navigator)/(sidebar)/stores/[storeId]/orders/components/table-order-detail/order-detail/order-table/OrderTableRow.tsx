@@ -10,7 +10,7 @@ interface OrderTableRowProps {
 }
 export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
   const {
-    state: { isCompletedEditingOrderStatus },
+    state: { isEditingFinalizedOrder },
     actions: { resetSelection, setEditingItem },
   } = useOrderDetailContext();
 
@@ -48,7 +48,7 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
       role="button"
       tabIndex={isSelected ? -1 : 0}
       onKeyDown={
-        isSelected && !isCompletedEditingOrderStatus ? undefined : IgnoreTabKey
+        isSelected && !isEditingFinalizedOrder ? undefined : IgnoreTabKey
       }
       onClick={handleRowClick}
       data-state={isSelected && "selected"}

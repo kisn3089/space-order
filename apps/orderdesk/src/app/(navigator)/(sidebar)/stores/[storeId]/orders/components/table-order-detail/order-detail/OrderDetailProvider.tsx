@@ -55,7 +55,7 @@ export function OrderDetailProvider({
     }))
   );
 
-  const isCompletedEditingOrderStatus =
+  const isEditingFinalizedOrder =
     editingItem?.orderStatus === "COMPLETED" ||
     editingItem?.orderStatus === "CANCELLED";
   const totalPrice = sumFromObjects(orderItems, (item) => item.totalPrice);
@@ -103,7 +103,7 @@ export function OrderDetailProvider({
       orderItems,
       totalPrice,
       editingItem,
-      isCompletedEditingOrderStatus,
+      isEditingFinalizedOrder,
       rowSelection,
     },
     actions: {

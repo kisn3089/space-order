@@ -14,17 +14,12 @@ export type OrderItemWithSummarizedOrder = ResponseOrderItem & {
 };
 export function OrderDetailTable() {
   const {
-    state: {
-      orderItems,
-      editingItem,
-      rowSelection,
-      isCompletedEditingOrderStatus,
-    },
+    state: { orderItems, editingItem, rowSelection, isEditingFinalizedOrder },
     actions: { setRowSelection, updateEditingQuantity, resetSelection },
   } = useOrderDetailContext();
 
   const tableMeta = {
-    isCompletedEditingOrderStatus,
+    isEditingFinalizedOrder,
     editingData: editingItem,
     updateEditingQuantity,
     resetEditing: resetSelection,

@@ -7,7 +7,7 @@ import { transCurrencyFormat } from "@spaceorder/api/utils/priceFormatter";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 
 interface TableMeta {
-  isCompletedEditingOrderStatus: boolean;
+  isEditingFinalizedOrder: boolean;
   editingData: OrderItemWithSummarizedOrder | null;
   updateEditingQuantity: (delta: number) => void;
   resetEditing: () => void;
@@ -39,7 +39,7 @@ export const tableOrderColumns: ColumnDef<OrderItemWithSummarizedOrder>[] = [
         meta.updateEditingQuantity(1);
       };
 
-      const disabledCondition = meta.isCompletedEditingOrderStatus;
+      const disabledCondition = meta.isEditingFinalizedOrder;
       return (
         <div className="flex items-center justify-center gap-2 w-full">
           <ChangeQuantityButton

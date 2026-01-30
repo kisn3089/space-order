@@ -6,12 +6,16 @@ import { BADGE_BY_ORDER_STATUS } from "@spaceorder/ui/constants/badgeByOrderStat
 import { OrderStatus, SummarizedOrderWithItem } from "@spaceorder/db";
 import { useTableOrderContext } from "./TableOrderContext";
 import ButtonWrapper from "@spaceorder/ui/components/ButtonWrapper";
+import { useState } from "react";
+import { Button } from "@spaceorder/ui/components/button";
+import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 
 interface TableOrderItemProps {
   order: SummarizedOrderWithItem;
 }
 
 export function TableOrderItem({ order }: TableOrderItemProps) {
+  const [isError, setIsError] = useState(false);
   const {
     actions: { updateOrderStatus },
   } = useTableOrderContext();
@@ -20,9 +24,15 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
     order.status === OrderStatus.COMPLETED ||
     order.status === OrderStatus.CANCELLED;
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    updateOrderStatus(order.publicId, order.status);
+    if (isError) setIsError(false);
+
+    try {
+      await updateOrderStatus(order.publicId, order.status);
+    } catch {
+      setIsError(true);
+    }
   };
 
   return (
@@ -30,6 +40,15 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
       <CardContent
         className={`rounded-lg bg-accent ${!isFinishStatus ? "hover:bg-background" : ""} border p-2 font-semibold flex flex-col justify-center`}
       >
+        <ActivityRender mode={isError ? "visible" : "hidden"}>
+          <Button
+            className="w-full mb-2"
+            variant={"destructive"}
+            onClick={handleClick}
+          >
+            다시 시도
+          </Button>
+        </ActivityRender>
         <div className="flex justify-center">
           <Badge
             variant={BADGE_BY_ORDER_STATUS[order.status].badgeVariant}

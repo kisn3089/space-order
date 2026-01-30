@@ -42,7 +42,7 @@ export function TableOrderAcceptAllButton() {
   const acceptAllPendingOrders = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
-    e.stopPropagation();
+    e.preventDefault();
     if (failedUpdateItems.length > 0) {
       setFailedUpdateItems([]);
     }

@@ -4,11 +4,7 @@ function make2digit(minutes: number): string {
   );
 }
 
-export function formatTime(minutes: string | number): string {
-  if (typeof minutes === "string") {
-    return minutes;
-  }
-
+export function formatTime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
 

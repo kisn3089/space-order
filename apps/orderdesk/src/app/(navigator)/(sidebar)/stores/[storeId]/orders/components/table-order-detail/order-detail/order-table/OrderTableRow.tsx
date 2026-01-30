@@ -37,7 +37,10 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
     if (e.key === "Tab") {
       return;
     }
-    handleRowClick(e);
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault(); // Space 키의 스크롤 방지
+      handleRowClick(e);
+    }
   };
 
   return (

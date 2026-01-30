@@ -1,6 +1,6 @@
 import Link, { LinkProps } from "next/link";
 
-type TableOrderCardProviderProps = {
+type ConditionalLinkProps = {
   children: React.ReactNode;
   condition: boolean;
 } & LinkProps &
@@ -10,7 +10,7 @@ export default function ConditionalLink({
   children,
   condition,
   ...props
-}: TableOrderCardProviderProps) {
+}: ConditionalLinkProps) {
   if (condition) {
     return <Link {...props}>{children}</Link>;
   }

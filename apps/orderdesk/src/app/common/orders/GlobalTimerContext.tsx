@@ -28,9 +28,5 @@ export function GlobalTimerProvider({
 }
 
 export function useGlobalTimer() {
-  const context = use(GlobalTimerContext);
-  if (!context) {
-    throw new Error("useGlobalTimer must be used within a GlobalTimerProvider");
-  }
-  return context;
+  return use(GlobalTimerContext);
 }

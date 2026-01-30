@@ -33,7 +33,9 @@ export default function SessionExpireTime({
     <p
       className={`w-full text-center font-semibold text-sm ${isExpiringSoon ? "text-destructive" : ""}`}
     >
-      {formatTime(remainingMinutes)}
+      {typeof remainingMinutes === "number"
+        ? formatTime(remainingMinutes)
+        : remainingMinutes}
     </p>
   );
 }

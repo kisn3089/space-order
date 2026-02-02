@@ -1,135 +1,75 @@
-# Turborepo starter
+#### ① Clone the repository
 
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```bash
+# Clone the main repository
+git clone https://github.com/Tencent/WeKnora.git
+cd space-order
 ```
 
-## What's inside?
+#### ② Configure environment variables
 
-This Turborepo includes the following packages/apps:
+```bash
+# Copy example env file
+cp .env.example .env
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+# Edit .env and set required values
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+#### ③ Start the services (include Ollama)
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+Check the images that need to be started in the .env file.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+./scripts/start_all.sh
 ```
 
-### Develop
+### 🌐 Access Services
 
-To develop all apps and packages, run the following command:
+Once started, services will be available at:
 
-```
-cd my-turborepo
+- orderdesk [Web UI]: `http://localhost:3001`
+- orderhub [Backend API]: `http://localhost:8080`
+- Swagger API docs: `http://localhost:8080/docs`
+- Prisma Studio: `http://localhost:5555`
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+### Web UI Interface
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+<table>
+  <tr>
+    <td colspan="2"><b>주문 현황 페이지</b><br/><img src="./docs/images/board-wide-view.png" alt="주문 현황 페이지"></td>
+  </tr>
+  <tr>
+    <td><b>주문 상태 업데이트 실패</b><br/><img src="./docs/images/failed-order-status-update.png" alt="주문 상태 업데이트 실패"></td>
+    <td><b>선택한 테이블의 상세한 주문 내역을 확인</b><br/><img src="./docs/images/detail-selected.png" alt="선택한 테이블의 상세한 주문 내역을 확인"></td>
+  </tr>
+</table>
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+**주문 현황 페이지:** Support for creating FAQ and document knowledge base types, with multiple import methods including drag-and-drop, folder import, and URL import. Automatically identifies document structures and extracts core knowledge to establish indexes. Supports tag management and online entry. The system clearly displays processing progress and document status, achieving efficient knowledge base management.
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+**주문 상태 업데이트 실패:** Support for ReACT Agent mode that can use built-in tools to retrieve knowledge bases, call user-configured MCP tools and web search tools to access external services, providing comprehensive summary reports through multiple iterations and reflection. Supports cross-knowledge base retrieval, allowing selection of multiple knowledge bases for simultaneous retrieval.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+**선택한 테이블의 상세한 주문 내역을 확인:** Support for configuring Agent models, normal mode models, retrieval thresholds, and online Prompt configuration, with precise control over multi-turn conversation behavior and retrieval execution methods. The conversation input box supports Agent mode/normal mode switching, enabling/disabling web search, and selecting conversation models.
 
-### Remote Caching
+**Development Advantages:**
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+- ✅ Frontend modifications auto hot-reload (no restart needed)
+- ✅ Backend modifications quick restart (5-10 seconds, supports Air hot-reload)
+- ✅ No need to rebuild Docker images
+- ✅ Support IDE breakpoint debugging
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### 📁 Directory Structure
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+WeKnora/
+├── client/      # go client
+├── cmd/         # Main entry point
+├── config/      # Configuration files
+├── docker/      # docker images files
+├── docreader/   # Document parsing app
+├── docs/        # Project documentation
+├── frontend/    # Frontend app
+├── internal/    # Core business logic
+├── mcp-server/  # MCP server
+├── migrations/  # DB migration scripts
+└── scripts/     # Shell scripts
 ```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)

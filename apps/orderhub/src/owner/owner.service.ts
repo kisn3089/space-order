@@ -26,10 +26,6 @@ export class OwnerService {
     return await this.prismaService.owner.findMany(args);
   }
 
-  /**
-   * This method is used for validating owner sign-in
-   * For user-facing endpoints, use @class OwnerResponseDto instead.
-   */
   async getOwnerUnique<T extends Prisma.OwnerFindFirstOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.OwnerFindFirstOrThrowArgs>,
   ): Promise<Prisma.OwnerGetPayload<T>> {

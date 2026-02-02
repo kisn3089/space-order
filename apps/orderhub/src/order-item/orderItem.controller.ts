@@ -9,6 +9,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { OrderItemService } from './orderItem.service';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import {
@@ -31,6 +40,9 @@ import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder'
 import { ORDER_ITEM_FILTER_RECORD } from './order-item-query.const';
 import { Client } from 'src/decorators/client.decorator';
 import { CachedOrderItemByGuard } from 'src/decorators/cache/orderItem.decorator';
+import { OrderItemResponseDto } from './dto/orderItemResponse.dto';
+import { paramsDocs } from 'src/docs/params.docs';
+import { orderItemDocs } from 'src/docs/orderItem.docs';
 
 export class CreateOrderItemDto extends createZodDto(createOrderItemSchema) {}
 export class UpdateOrderItemDto extends createZodDto(
@@ -41,6 +53,8 @@ type OrderItemQueryParams = {
   filter?: keyof typeof ORDER_ITEM_FILTER_RECORD;
 };
 
+@ApiTags('Order Items')
+@ApiBearerAuth()
 @Controller('orders/:orderId/order-items')
 @UseGuards(JwtAuthGuard)
 export class OrderItemController {
@@ -54,6 +68,15 @@ export class OrderItemController {
     ZodValidation({ params: orderIdParamsSchema, body: createOrderItemSchema }),
     OrderItemWritePermission,
   )
+  @ApiOperation({ summary: orderItemDocs.create.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiBody({ type: CreateOrderItemDto })
+  @ApiResponse({
+    ...orderItemDocs.create.successResponse,
+    type: OrderItemResponseDto,
+  })
+  @ApiResponse(orderItemDocs.badRequestResponse)
+  @ApiResponse(orderItemDocs.unauthorizedResponse)
   async create(
     @Client() client: Owner,
     @Param('orderId') orderPublicId: string,
@@ -71,6 +94,13 @@ export class OrderItemController {
     ZodValidation({ params: orderIdParamsSchema, query: orderItemQuerySchema }),
     OrderItemPermission,
   )
+  @ApiOperation({ summary: orderItemDocs.getList.summary })
+  @ApiQuery({ name: 'filter', required: false, description: '필터 옵션' })
+  @ApiResponse({
+    ...orderItemDocs.getList.successResponse,
+    type: [OrderItemResponseDto],
+  })
+  @ApiResponse(orderItemDocs.unauthorizedResponse)
   async getList(
     @Param('orderId') orderPublicId: string,
     @Query() query?: OrderItemQueryParams,
@@ -91,6 +121,15 @@ export class OrderItemController {
     ZodValidation({ params: orderItemParamsSchema }),
     OrderItemPermission,
   )
+  @ApiOperation({ summary: orderItemDocs.getUnique.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiParam(paramsDocs.orderItemId)
+  @ApiResponse({
+    ...orderItemDocs.getUnique.successResponse,
+    type: OrderItemResponseDto,
+  })
+  @ApiResponse(orderItemDocs.unauthorizedResponse)
+  @ApiResponse(orderItemDocs.notFoundResponse)
   async getUnique(
     @Param('orderId') orderPublicId: string,
     @Param('orderItemId') orderItemPublicId: string,
@@ -112,6 +151,16 @@ export class OrderItemController {
     }),
     OrderItemWritePermission,
   )
+  @ApiOperation({ summary: orderItemDocs.update.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiParam(paramsDocs.orderItemId)
+  @ApiBody({ type: UpdateOrderItemDto })
+  @ApiResponse({
+    ...orderItemDocs.update.successResponse,
+  })
+  @ApiResponse(orderItemDocs.badRequestResponse)
+  @ApiResponse(orderItemDocs.unauthorizedResponse)
+  @ApiResponse(orderItemDocs.notFoundResponse)
   async partialUpdate(
     @Client() client: Owner,
     @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
@@ -131,6 +180,12 @@ export class OrderItemController {
     ZodValidation({ params: orderItemParamsSchema }),
     OrderItemWritePermission,
   )
+  @ApiOperation({ summary: orderItemDocs.delete.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiParam(paramsDocs.orderItemId)
+  @ApiResponse(orderItemDocs.delete.successResponse)
+  @ApiResponse(orderItemDocs.unauthorizedResponse)
+  @ApiResponse(orderItemDocs.notFoundResponse)
   async delete(
     @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
     @Param('orderItemId') orderItemPublicId: string,

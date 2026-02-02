@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,7 +8,7 @@ import { encrypt } from 'src/utils/lib/crypt';
 export class AdminService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createAdminDto: CreateAdminDto) {
+  async createAdmin(createAdminDto: CreateAdminDto) {
     const hashedPassword = await encrypt(createAdminDto.password);
     const createdAdmin = await this.prismaService.admin.create({
       data: {
@@ -19,35 +19,17 @@ export class AdminService {
     return createdAdmin;
   }
 
-  async findAll() {
+  async getAdminList() {
     return await this.prismaService.admin.findMany({});
   }
 
-  async findOne(publicId: string) {
-    const admin = await this.prismaService.admin.findUnique({
+  async getAdminUnique(publicId: string) {
+    return await this.prismaService.admin.findUniqueOrThrow({
       where: { publicId },
     });
-
-    if (!admin) {
-      throw new NotFoundException(`Not Found Admin`);
-    }
-
-    return admin;
   }
 
-  async findByEmail(email: string) {
-    const admin = await this.prismaService.admin.findUnique({
-      where: { email },
-    });
-
-    if (!admin) {
-      throw new NotFoundException(`Not Found Admin`);
-    }
-
-    return admin;
-  }
-
-  async update(publicId: string, updateAdminDto: UpdateAdminDto) {
+  async partialUpdateAdmin(publicId: string, updateAdminDto: UpdateAdminDto) {
     return await this.prismaService.admin.update({
       where: { publicId },
       data: updateAdminDto,
@@ -66,14 +48,7 @@ export class AdminService {
     });
   }
 
-  async remove(publicId: string) {
-    /**
-     * 전역 catch 이전에 먼저 처리된다.
-     * const admin = await this.prismaService.admin.findUnique({ where: { id } });
-     * if (!admin) {
-     *    throw new NotFoundException(`관리자 ID ${id}를 찾을 수 없습니다.`);
-     * }
-     */
+  async deleteAdmin(publicId: string) {
     return await this.prismaService.admin.delete({
       where: { publicId },
     });

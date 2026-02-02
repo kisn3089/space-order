@@ -10,6 +10,14 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MenuService } from './menu.service';
 import type { Menu, Owner, ResponseMenu } from '@spaceorder/db';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
@@ -25,10 +33,14 @@ import {
   storeIdParamsSchema,
   updateMenuSchema,
 } from '@spaceorder/api/schemas';
+import { menuDocs } from 'src/docs/menu.docs';
+import { paramsDocs } from 'src/docs/params.docs';
 
 export class CreateMenuDto extends createZodDto(createMenuSchema) {}
 export class UpdateMenuDto extends createZodDto(updateMenuSchema) {}
 
+@ApiTags('Menus')
+@ApiBearerAuth()
 @Controller('stores/:storeId/menus')
 @UseGuards(JwtAuthGuard)
 export class MenuController {
@@ -39,6 +51,12 @@ export class MenuController {
     ZodValidation({ params: storeIdParamsSchema, body: createMenuSchema }),
     MenuPermission,
   )
+  @ApiOperation({ summary: menuDocs.create.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiBody({ type: CreateMenuDto })
+  @ApiResponse({ ...menuDocs.create.successResponse, type: MenuResponseDto })
+  @ApiResponse(menuDocs.badRequestResponse)
+  @ApiResponse(menuDocs.unauthorizedResponse)
   async create(
     @Param('storeId') storeId: string,
     @Body() createMenuDto: CreateMenuDto,
@@ -48,6 +66,10 @@ export class MenuController {
 
   @Get()
   @UseGuards(ZodValidation({ params: storeIdParamsSchema }), MenuPermission)
+  @ApiOperation({ summary: menuDocs.getList.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiResponse({ ...menuDocs.getList.successResponse, type: [MenuResponseDto] })
+  @ApiResponse(menuDocs.unauthorizedResponse)
   async getList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
@@ -67,6 +89,12 @@ export class MenuController {
     MenuPermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: menuDocs.getUnique.summary })
+  @ApiParam(paramsDocs.menuId)
+  @ApiParam(paramsDocs.storeId)
+  @ApiResponse({ ...menuDocs.getUnique.successResponse, type: MenuResponseDto })
+  @ApiResponse(menuDocs.unauthorizedResponse)
+  @ApiResponse(menuDocs.notFoundResponse)
   getUnique(@CachedMenuByGuard() cachedMenu: Menu): MenuResponseDto {
     return new MenuResponseDto(cachedMenu);
   }
@@ -79,6 +107,14 @@ export class MenuController {
     }),
     MenuPermission,
   )
+  @ApiOperation({ summary: menuDocs.update.summary })
+  @ApiParam(paramsDocs.menuId)
+  @ApiParam(paramsDocs.storeId)
+  @ApiBody({ type: UpdateMenuDto })
+  @ApiResponse({ ...menuDocs.update.successResponse, type: MenuResponseDto })
+  @ApiResponse(menuDocs.badRequestResponse)
+  @ApiResponse(menuDocs.unauthorizedResponse)
+  @ApiResponse(menuDocs.notFoundResponse)
   async partialUpdate(
     @Param('menuId') menuId: string,
     @Body() updateMenuDto: UpdateMenuDto,
@@ -91,6 +127,12 @@ export class MenuController {
     ZodValidation({ params: mergedStoreIdAndMenuIdParamsSchema }),
     MenuPermission,
   )
+  @ApiOperation({ summary: menuDocs.delete.summary })
+  @ApiParam(paramsDocs.menuId)
+  @ApiParam(paramsDocs.storeId)
+  @ApiResponse(menuDocs.delete.successResponse)
+  @ApiResponse(menuDocs.unauthorizedResponse)
+  @ApiResponse(menuDocs.notFoundResponse)
   async delete(@Param('menuId') menuId: string): Promise<void> {
     await this.menuService.softDeleteMenu(menuId);
   }

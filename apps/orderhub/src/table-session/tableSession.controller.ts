@@ -147,16 +147,18 @@ export class TableSessionController {
     @Param('tableId') tablePublicId: string,
     @Param('sessionId') sessionId: string,
     @Query() query?: SessionQueryParams,
-  ): Promise<ResponseTableSession> {
+  ): Promise<TableSessionResponseDto> {
     const { include } = this.queryParamsBuilder.build({
       query,
       includeRecord: SESSION_INCLUDE_RECORD,
     });
 
-    return await this.tableSessionService.getSessionUnique({
-      where: { publicId: sessionId, table: { publicId: tablePublicId } },
-      ...include,
-    });
+    return new TableSessionResponseDto(
+      await this.tableSessionService.getSessionUnique({
+        where: { publicId: sessionId, table: { publicId: tablePublicId } },
+        ...include,
+      }),
+    );
   }
 
   @Patch()

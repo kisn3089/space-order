@@ -1,6 +1,7 @@
 import type { TableSession, TableSessionStatus } from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { TableResponseDto } from 'src/table/dto/tableResponse.dto';
 
 export class TableSessionResponseDto {
   @ApiProperty({ description: '세션 고유 ID' })
@@ -43,6 +44,9 @@ export class TableSessionResponseDto {
 
   @Exclude()
   tableId: bigint;
+
+  @Exclude()
+  table: TableResponseDto[];
 
   constructor(partial: Partial<TableSession>) {
     Object.assign(this, partial);

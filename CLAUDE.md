@@ -16,10 +16,10 @@ Turborepo monorepo for a restaurant ordering system using pnpm workspaces.
 
 - `@spaceorder/db` - Prisma schema, types, and client (MySQL) - **Single Source of Truth for database**
 - `@spaceorder/api` - React Query hooks and axios HTTP client
-- `@spaceorder/auth` - Zod schemas for authentication
+- `@spaceorder/auth` - Zod schemas and JWT utilities (jwt-decode)
 - `@spaceorder/ui` - Radix UI component library with Tailwind CSS v4
 - `@spaceorder/lintconfig` - ESLint 9 FlatConfig
-- `@spaceorder/tsconfig` - Shared TypeScript configs
+- `@spaceorder/tsconfig` - Shared TypeScript configs (base, nextjs, react-library)
 
 ## Commands
 
@@ -48,6 +48,7 @@ pnpm --filter=@spaceorder/db prisma:reset      # Reset database
 # Testing (orderhub only)
 pnpm --filter=orderhub test        # Run unit tests
 pnpm --filter=orderhub test:watch  # Watch mode
+pnpm --filter=orderhub test:cov    # Coverage report
 pnpm --filter=orderhub test:e2e    # E2E tests
 
 # Filter syntax for specific packages
@@ -64,19 +65,31 @@ All database configuration lives in `apps/orderhub/.env`. The `@spaceorder/db` p
 ```typescript
 // Import types and client
 import { PrismaClient } from "@spaceorder/db";
-import type { Admin, Order, OrderStatus } from "@spaceorder/db";
+import type { Admin, Order, OrderStatus, Table, TableSession } from "@spaceorder/db";
 ```
 
-**Models:** Admin, Owner, Store, Menu, Order, OrderItem
+**Models:** Admin, Owner, Store, Table, Menu, Order, OrderItem, TableSession
 
-**Enums:** AdminRole (SUPER, SUPPORT, VIEWER), OrderStatus (PENDING, ACCEPTED, PREPARING, COMPLETED, CANCELLED)
+**Enums:**
+
+- `AdminRole` - SUPER, SUPPORT, VIEWER
+- `OrderStatus` - PENDING, ACCEPTED, PREPARING, COMPLETED, CANCELLED
+- `TableSessionStatus` - WAITING_ORDER, ACTIVE, PAYMENT_PENDING, CLOSED
+
+**Key Design Patterns:**
+
+- BigInt primary keys with cuid2 public IDs
+- Soft delete for Menu (deletedAt)
+- JSON fields for menu options and order item snapshots
 
 Always run `prisma:generate` after schema changes.
 
 ### Backend (orderhub)
 
 - CommonJS module system (not ESM)
-- JWT access/refresh token auth with cookies
+- **API Documentation:** Swagger UI at `/docs`
+- **Modules:** Admin, Owner, Store, Menu, Order, OrderItem, Table, TableSession, Token, Me
+- JWT access/refresh token auth with HTTP-only cookies
 - Custom decorators: `@ZodValidation()`, `@CurrentUser()`
 - Guards: LocalAuthGuard, JwtAuthGuard, JwtRefreshAuthGuard
 - BigInt serialization configured in `src/main.ts`
@@ -87,15 +100,20 @@ Always run `prisma:generate` after schema changes.
 - ESM module system (`"type": "module"`)
 - Tailwind CSS v4 with PostCSS
 - `orderdesk` has `transpilePackages: ["@spaceorder/ui"]`
+- `orderdesk` uses React Table v8 for data tables, React Hook Form for forms
 
 ### Package Dependencies
 
 ```text
 order → @spaceorder/ui
 orderdesk → @spaceorder/api, @spaceorder/db, @spaceorder/ui, @spaceorder/auth
-orderhub → @spaceorder/db, @spaceorder/api, @spaceorder/auth
+orderhub → @spaceorder/db, @spaceorder/api
 @spaceorder/api → @spaceorder/db, @spaceorder/auth
 ```
+
+## Git Hooks
+
+**husky** is configured with a pre-push hook that runs `pnpm build` to ensure all packages build successfully before pushing.
 
 ## TypeScript Standards
 
@@ -115,10 +133,12 @@ async getMenuById<T = PublicMenu>(...): Promise<PublicMenu & T> {
 
 Central config in `apps/orderhub/.env`:
 
-- `DATABASE_URL` - MySQL connection
-- `SERVER_PORT` - Backend port (8080)
-- `JWT_ACCESS_TOKEN_SECRET`, `JWT_ACCESS_TOKEN_EXPIRATION_MS`
-- `JWT_REFRESH_TOKEN_SECRET`, `JWT_REFRESH_TOKEN_EXPIRATION_MS`
+- `DATABASE_URL` - MySQL connection string
+- `SERVER_PORT` - Backend port (default: 8080)
+- `JWT_ACCESS_TOKEN_SECRET`, `JWT_ACCESS_TOKEN_EXPIRATION_MS` (default: 1 hour)
+- `JWT_REFRESH_TOKEN_SECRET`, `JWT_REFRESH_TOKEN_EXPIRATION_MS` (default: 7 days)
+- `JWT_ISSUER` - Token issuer URL
+- `JWT_AUDIENCE` - Token audience identifier
 
 ## Troubleshooting
 
@@ -128,3 +148,4 @@ Central config in `apps/orderhub/.env`:
 | Type imports not working    | Ensure `@spaceorder/db` is in `dependencies`, not `devDependencies` |
 | Module resolution errors    | `pnpm install` at root                                              |
 | Hot-reload not working      | Check nodemon is watching `src/` directory                          |
+| Build fails on push         | husky pre-push hook runs `pnpm build` - fix build errors first      |

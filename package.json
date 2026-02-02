@@ -17,7 +17,8 @@
     "build:order": "turbo run build --filter=@spaceorder/order",
     "build:orderdesk": "turbo run build --filter=@spaceorder/orderdesk",
     "build:orderhub": "turbo run build --filter=@spaceorder/orderhub",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prisma:studio": "dotenv -e apps/orderhub/.env -- prisma studio"
   },
   "devDependencies": {
     "husky": "^9.1.7",

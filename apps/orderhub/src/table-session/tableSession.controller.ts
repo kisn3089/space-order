@@ -101,8 +101,8 @@ export class TableSessionController {
   @ApiBearerAuth()
   @ApiOperation({ summary: tableSessionDocs.getList.summary })
   @ApiParam(paramsDocs.tableId)
-  @ApiQuery(paramsDocs.query.filter)
-  @ApiQuery(paramsDocs.query.include)
+  @ApiQuery(paramsDocs.query.filter.session)
+  @ApiQuery(paramsDocs.query.include.orderItems)
   @ApiResponse({
     ...tableSessionDocs.getList.successResponse,
     type: [TableSessionResponseDto],
@@ -136,7 +136,7 @@ export class TableSessionController {
   @ApiOperation({ summary: tableSessionDocs.getUnique.summary })
   @ApiParam(paramsDocs.tableId)
   @ApiParam(paramsDocs.sessionId)
-  @ApiQuery(paramsDocs.query.include)
+  @ApiQuery(paramsDocs.query.include.orderItems)
   @ApiResponse({
     ...tableSessionDocs.getUnique.successResponse,
     type: TableSessionResponseDto,

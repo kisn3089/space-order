@@ -95,7 +95,7 @@ export class OrderItemController {
     OrderItemPermission,
   )
   @ApiOperation({ summary: orderItemDocs.getList.summary })
-  @ApiQuery(paramsDocs.query.filter)
+  @ApiQuery(paramsDocs.query.filter.orderItem)
   @ApiParam(paramsDocs.orderId)
   @ApiResponse({
     ...orderItemDocs.getList.successResponse,

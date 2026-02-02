@@ -95,8 +95,8 @@ export class TableController {
   )
   @ApiOperation({ summary: tableDocs.getList.summary })
   @ApiParam(paramsDocs.storeId)
-  @ApiQuery(paramsDocs.query.filter)
-  @ApiQuery(paramsDocs.query.include)
+  @ApiQuery(paramsDocs.query.filter.table)
+  @ApiQuery(paramsDocs.query.include.orderItems)
   @ApiResponse({
     ...tableDocs.getList.successResponse,
     type: [TableResponseDto],
@@ -137,8 +137,8 @@ export class TableController {
   @ApiOperation({ summary: tableDocs.getUnique.summary })
   @ApiParam(paramsDocs.storeId)
   @ApiParam(paramsDocs.tableId)
-  @ApiQuery(paramsDocs.query.filter)
-  @ApiQuery(paramsDocs.query.include)
+  @ApiQuery(paramsDocs.query.filter.table)
+  @ApiQuery(paramsDocs.query.include.orderItems)
   @ApiResponse({
     ...tableDocs.getUnique.successResponse,
     type: TableResponseDto,

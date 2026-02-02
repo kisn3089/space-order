@@ -1,3 +1,23 @@
+import {
+  ACTIVATED_TABLE,
+  ALIVE_SESSION,
+  ENDED_SESSION,
+  ORDER_ITEMS,
+  ORDERS,
+} from '@spaceorder/db';
+
+const baseFilter = {
+  name: 'filter',
+  required: false,
+  description: '필터 옵션',
+};
+
+const baseInclude = {
+  name: 'include',
+  required: false,
+  description: '포함할 리소스',
+};
+
 export const paramsDocs = {
   storeId: { name: 'storeId', description: '매장 고유 ID' },
   tableId: { name: 'tableId', description: '테이블 고유 ID' },
@@ -8,7 +28,19 @@ export const paramsDocs = {
   sessionId: { name: 'sessionId', description: '세션 고유 ID' },
   adminId: { name: 'adminId', description: '관리자 고유 ID' },
   query: {
-    filter: { name: 'filter', required: false, description: '필터 옵션' },
-    include: { name: 'include', required: false, description: '포함할 리소스' },
+    filter: {
+      base: baseFilter,
+      orderItem: { ...baseFilter, enum: [ALIVE_SESSION] },
+      session: { ...baseFilter, enum: [ALIVE_SESSION, ENDED_SESSION] },
+      table: {
+        ...baseFilter,
+        enum: [ALIVE_SESSION, ENDED_SESSION, ACTIVATED_TABLE],
+      },
+    },
+    include: {
+      base: baseInclude,
+      orders: { ...baseInclude, enum: [ORDERS] },
+      orderItems: { ...baseInclude, enum: [ORDERS, ORDER_ITEMS] },
+    },
   },
 };

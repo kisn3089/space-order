@@ -11,7 +11,18 @@ import {
   ClassSerializerInterceptor,
   Query,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TableService } from './table.service';
+import { tableDocs } from 'src/docs/table.docs';
+import { paramsDocs } from 'src/docs/params.docs';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
 import {
@@ -42,6 +53,9 @@ type TableQueryParams = {
 
 export class CreateTableDto extends createZodDto(createTableSchema) {}
 export class UpdateTableDto extends createZodDto(updateTableSchema) {}
+
+@ApiTags('Tables')
+@ApiBearerAuth()
 @Controller('stores/:storeId/tables')
 @UseGuards(JwtAuthGuard)
 export class TableController {
@@ -58,6 +72,15 @@ export class TableController {
     }),
     TablePermission,
   )
+  @ApiOperation({ summary: tableDocs.create.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiBody({ type: CreateTableDto })
+  @ApiResponse({
+    ...tableDocs.create.successResponse,
+    type: TableResponseDto,
+  })
+  @ApiResponse(tableDocs.badRequestResponse)
+  @ApiResponse(tableDocs.unauthorizedResponse)
   async create(
     @Param('storeId') storeId: string,
     @Body() createTableDto: CreateTableDto,
@@ -70,6 +93,15 @@ export class TableController {
     ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema }),
     TablePermission,
   )
+  @ApiOperation({ summary: tableDocs.getList.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiQuery(paramsDocs.query.filter.table)
+  @ApiQuery(paramsDocs.query.include.orderItems)
+  @ApiResponse({
+    ...tableDocs.getList.successResponse,
+    type: [TableResponseDto],
+  })
+  @ApiResponse(tableDocs.unauthorizedResponse)
   async getList(
     @Param('storeId') storeId: string,
     @Query() query?: TableQueryParams,
@@ -102,6 +134,17 @@ export class TableController {
     TablePermission,
   )
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: tableDocs.getUnique.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiQuery(paramsDocs.query.filter.table)
+  @ApiQuery(paramsDocs.query.include.orderItems)
+  @ApiResponse({
+    ...tableDocs.getUnique.successResponse,
+    type: TableResponseDto,
+  })
+  @ApiResponse(tableDocs.unauthorizedResponse)
+  @ApiResponse(tableDocs.notFoundResponse)
   async getUnique(
     @CachedTableByGuard() cachedTable: Table,
     @Param('storeId') storeId: string,
@@ -138,6 +181,17 @@ export class TableController {
     }),
     TablePermission,
   )
+  @ApiOperation({ summary: tableDocs.update.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiBody({ type: UpdateTableDto })
+  @ApiResponse({
+    ...tableDocs.update.successResponse,
+    type: TableResponseDto,
+  })
+  @ApiResponse(tableDocs.badRequestResponse)
+  @ApiResponse(tableDocs.unauthorizedResponse)
+  @ApiResponse(tableDocs.notFoundResponse)
   async partialUpdate(
     @Param('tableId') tableId: string,
     @Body() updateTableDto: UpdateTableDto,
@@ -150,6 +204,12 @@ export class TableController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     TablePermission,
   )
+  @ApiOperation({ summary: tableDocs.delete.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiResponse(tableDocs.delete.successResponse)
+  @ApiResponse(tableDocs.unauthorizedResponse)
+  @ApiResponse(tableDocs.notFoundResponse)
   async delete(@Param('tableId') tableId: string): Promise<void> {
     await this.tableService.deleteTable(tableId);
   }

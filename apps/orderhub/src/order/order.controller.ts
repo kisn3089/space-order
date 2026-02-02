@@ -10,6 +10,14 @@ import {
   UseGuards,
   Res,
 } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import {
@@ -26,16 +34,30 @@ import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { Session } from 'src/decorators/tableSession.decorator';
 import { responseCookie } from 'src/utils/cookies';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
+import { OrderWithItemsResponseDto } from './dto/orderResponse.dto';
+import { orderDocs } from 'src/docs/order.docs';
+import { paramsDocs } from 'src/docs/params.docs';
 
 export class CreateOrderDto extends createZodDto(createOrderSchema) {}
 export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}
 
+@ApiTags('Customer Orders')
+@ApiCookieAuth(COOKIE_TABLE.TABLE_SESSION)
 @Controller('customer/orders')
 @UseGuards(SessionAuth)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
+
   @Post()
   @UseGuards(ZodValidation({ body: createOrderSchema }))
+  @ApiOperation({ summary: orderDocs.create.summary })
+  @ApiBody({ type: CreateOrderDto })
+  @ApiResponse({
+    ...orderDocs.create.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(orderDocs.badRequestResponse)
+  @ApiResponse(orderDocs.unauthorizedResponse)
   async create(
     @Session() tableSession: SessionWithTable,
     @Body() createOrderDto: CreateOrderDto,
@@ -55,6 +77,12 @@ export class OrderController {
   }
 
   @Get()
+  @ApiOperation({ summary: orderDocs.getList.summary })
+  @ApiResponse({
+    ...orderDocs.getList.successResponse,
+    type: [OrderWithItemsResponseDto],
+  })
+  @ApiResponse(orderDocs.unauthorizedResponse)
   async getList(
     @Session() tableSession: SessionWithTable,
   ): Promise<ResponseOrderWithItem<'Wide'>[]> {
@@ -66,6 +94,14 @@ export class OrderController {
 
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
+  @ApiOperation({ summary: orderDocs.getUnique.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiResponse({
+    ...orderDocs.getUnique.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(orderDocs.unauthorizedResponse)
+  @ApiResponse(orderDocs.notFoundResponse)
   async getUnique(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
@@ -81,6 +117,16 @@ export class OrderController {
   @UseGuards(
     ZodValidation({ params: orderIdParamsSchema, body: updateOrderSchema }),
   )
+  @ApiOperation({ summary: orderDocs.update.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiBody({ type: UpdateOrderDto })
+  @ApiResponse({
+    ...orderDocs.update.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(orderDocs.badRequestResponse)
+  @ApiResponse(orderDocs.unauthorizedResponse)
+  @ApiResponse(orderDocs.notFoundResponse)
   async partialUpdate(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,
@@ -94,6 +140,14 @@ export class OrderController {
 
   @Delete(':orderId')
   @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
+  @ApiOperation({ summary: orderDocs.delete.summary })
+  @ApiParam(paramsDocs.orderId)
+  @ApiResponse({
+    ...orderDocs.delete.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(orderDocs.unauthorizedResponse)
+  @ApiResponse(orderDocs.notFoundResponse)
   async cancel(
     @Session() tableSession: SessionWithTable,
     @Param('orderId') orderId: string,

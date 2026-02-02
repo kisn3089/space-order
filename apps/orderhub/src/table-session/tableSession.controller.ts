@@ -12,7 +12,18 @@ import {
   ClassSerializerInterceptor,
   Query,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TableSessionService } from './tableSession.service';
+import { tableSessionDocs } from 'src/docs/tableSession.docs';
+import { paramsDocs } from 'src/docs/params.docs';
 import {
   sessionParamsSchema,
   sessionListQuerySchema,
@@ -42,6 +53,7 @@ type SessionQueryParams = {
   include?: keyof typeof SESSION_INCLUDE_RECORD;
 };
 
+@ApiTags('Table Sessions')
 @Controller('tables/:tableId/sessions')
 @UseInterceptors(ClassSerializerInterceptor)
 export class TableSessionController {
@@ -52,6 +64,12 @@ export class TableSessionController {
 
   @Post()
   @UseGuards(ZodValidation({ params: tableParamsSchema }))
+  @ApiOperation({ summary: tableSessionDocs.findOrCreate.summary })
+  @ApiParam(paramsDocs.tableId)
+  @ApiResponse({
+    ...tableSessionDocs.findOrCreate.successResponse,
+    type: TableSessionResponseDto,
+  })
   async findActivatedSessionOrCreate(
     @Param('tableId') tablePublicId: string,
     @Res({ passthrough: true }) response: Response,
@@ -80,6 +98,16 @@ export class TableSessionController {
       query: sessionListQuerySchema,
     }),
   )
+  @ApiBearerAuth()
+  @ApiOperation({ summary: tableSessionDocs.getList.summary })
+  @ApiParam(paramsDocs.tableId)
+  @ApiQuery(paramsDocs.query.filter.session)
+  @ApiQuery(paramsDocs.query.include.orderItems)
+  @ApiResponse({
+    ...tableSessionDocs.getList.successResponse,
+    type: [TableSessionResponseDto],
+  })
+  @ApiResponse(tableSessionDocs.unauthorizedResponse)
   async getList(
     @Param('tableId') tablePublicId: string,
     @Query() query?: SessionQueryParams,
@@ -104,20 +132,33 @@ export class TableSessionController {
       query: sessionUniqueQuerySchema,
     }),
   )
+  @ApiBearerAuth()
+  @ApiOperation({ summary: tableSessionDocs.getUnique.summary })
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.sessionId)
+  @ApiQuery(paramsDocs.query.include.orderItems)
+  @ApiResponse({
+    ...tableSessionDocs.getUnique.successResponse,
+    type: TableSessionResponseDto,
+  })
+  @ApiResponse(tableSessionDocs.unauthorizedResponse)
+  @ApiResponse(tableSessionDocs.notFoundResponse)
   async getUnique(
     @Param('tableId') tablePublicId: string,
     @Param('sessionId') sessionId: string,
     @Query() query?: SessionQueryParams,
-  ): Promise<ResponseTableSession> {
+  ): Promise<TableSessionResponseDto> {
     const { include } = this.queryParamsBuilder.build({
       query,
       includeRecord: SESSION_INCLUDE_RECORD,
     });
 
-    return await this.tableSessionService.getSessionUnique({
-      where: { publicId: sessionId, table: { publicId: tablePublicId } },
-      ...include,
-    });
+    return new TableSessionResponseDto(
+      await this.tableSessionService.getSessionUnique({
+        where: { publicId: sessionId, table: { publicId: tablePublicId } },
+        ...include,
+      }),
+    );
   }
 
   @Patch()
@@ -126,6 +167,14 @@ export class TableSessionController {
     ZodValidation({ params: tableParamsSchema, body: updateSessionSchema }),
     SessionPermission,
   )
+  @ApiCookieAuth(COOKIE_TABLE.TABLE_SESSION)
+  @ApiOperation({ summary: tableSessionDocs.update.summary })
+  @ApiParam(paramsDocs.tableId)
+  @ApiResponse({
+    ...tableSessionDocs.update.successResponse,
+    type: TableSessionResponseDto,
+  })
+  @ApiResponse(tableSessionDocs.sessionUnauthorizedResponse)
   async partialUpdate(
     @Session() tableSession: TableSession,
     @Body() updateSessionDto: UpdateTableSessionDto,

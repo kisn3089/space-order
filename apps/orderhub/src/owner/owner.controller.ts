@@ -10,7 +10,17 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { OwnerService } from './owner.service';
+import { ownerDocs } from 'src/docs/owner.docs';
+import { paramsDocs } from 'src/docs/params.docs';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { createZodDto } from 'nestjs-zod';
 import {
@@ -19,17 +29,15 @@ import {
   updateOwnerSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { ResponseOwner } from '@spaceorder/db';
+import type { ResponseOwner } from '@spaceorder/db';
 import { OwnerPermission } from 'src/utils/guards/model-permissions/owner-permission.guard';
 import { OwnerResponseDto } from './dto/ownerResponse.dto';
 
 export class CreateOwnerDto extends createZodDto(createOwnerSchema) {}
 export class UpdateOwnerDto extends createZodDto(updateOwnerSchema) {}
 
-/** TODO: Admin만 접근 가능하도록 Permission 데코레이터 추가 필요,
- * 본인의 데이터는 /me로 접근하도록 유도
- */
-
+@ApiTags('Owners')
+@ApiBearerAuth()
 @Controller('owners')
 @UseGuards(JwtAuthGuard)
 export class OwnerController {
@@ -37,11 +45,25 @@ export class OwnerController {
 
   @Post()
   @UseGuards(ZodValidation({ body: createOwnerSchema }))
+  @ApiOperation({ summary: ownerDocs.create.summary })
+  @ApiBody({ type: CreateOwnerDto })
+  @ApiResponse({
+    ...ownerDocs.create.successResponse,
+    type: OwnerResponseDto,
+  })
+  @ApiResponse(ownerDocs.badRequestResponse)
+  @ApiResponse(ownerDocs.unauthorizedResponse)
   async create(@Body() createOwnerDto: CreateOwnerDto): Promise<ResponseOwner> {
     return await this.ownerService.createOwner(createOwnerDto);
   }
 
   @Get()
+  @ApiOperation({ summary: ownerDocs.getList.summary })
+  @ApiResponse({
+    ...ownerDocs.getList.successResponse,
+    type: [OwnerResponseDto],
+  })
+  @ApiResponse(ownerDocs.unauthorizedResponse)
   async getList(): Promise<ResponseOwner[]> {
     return await this.ownerService.getOwnerList({
       omit: this.ownerService.ownerOmit,
@@ -51,6 +73,14 @@ export class OwnerController {
   @Get(':ownerId')
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: ownerDocs.getUnique.summary })
+  @ApiParam(paramsDocs.ownerId)
+  @ApiResponse({
+    ...ownerDocs.getUnique.successResponse,
+    type: OwnerResponseDto,
+  })
+  @ApiResponse(ownerDocs.unauthorizedResponse)
+  @ApiResponse(ownerDocs.notFoundResponse)
   async getUnique(
     @Param('ownerId') ownerId: string,
   ): Promise<OwnerResponseDto> {
@@ -69,6 +99,16 @@ export class OwnerController {
     }),
     OwnerPermission,
   )
+  @ApiOperation({ summary: ownerDocs.update.summary })
+  @ApiParam(paramsDocs.ownerId)
+  @ApiBody({ type: UpdateOwnerDto })
+  @ApiResponse({
+    ...ownerDocs.update.successResponse,
+    type: OwnerResponseDto,
+  })
+  @ApiResponse(ownerDocs.badRequestResponse)
+  @ApiResponse(ownerDocs.unauthorizedResponse)
+  @ApiResponse(ownerDocs.notFoundResponse)
   async partialUpdate(
     @Param('ownerId') ownerId: string,
     @Body() updateOwnerDto: UpdateOwnerDto,
@@ -78,6 +118,11 @@ export class OwnerController {
 
   @Delete(':ownerId')
   @UseGuards(ZodValidation({ params: ownerParamsSchema }), OwnerPermission)
+  @ApiOperation({ summary: ownerDocs.delete.summary })
+  @ApiParam(paramsDocs.ownerId)
+  @ApiResponse(ownerDocs.delete.successResponse)
+  @ApiResponse(ownerDocs.unauthorizedResponse)
+  @ApiResponse(ownerDocs.notFoundResponse)
   async delete(@Param('ownerId') ownerId: string): Promise<void> {
     await this.ownerService.deleteOwner(ownerId);
   }

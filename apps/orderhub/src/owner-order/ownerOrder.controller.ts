@@ -9,11 +9,21 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
   createOrderSchema,
   mergedStoreAndTableParamsSchema,
   orderParamsSchema,
   updateOrderSchema,
 } from '@spaceorder/api/schemas';
+import { ownerOrderDocs } from 'src/docs/ownerOrder.docs';
+import { paramsDocs } from 'src/docs/params.docs';
 import type { Owner, ResponseOrderWithItem } from '@spaceorder/db';
 import { CachedOrderByGuard } from 'src/decorators/cache/order.decorator';
 import { Client } from 'src/decorators/client.decorator';
@@ -25,7 +35,10 @@ import {
   OwnerOrderWritePermission,
 } from 'src/utils/guards/model-permissions/owner-order-permission.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
+import { OrderWithItemsResponseDto } from 'src/order/dto/orderResponse.dto';
 
+@ApiTags('Owner Orders')
+@ApiBearerAuth()
 @Controller('owner/stores/:storeId/tables/:tableId/orders')
 @UseGuards(JwtAuthGuard)
 export class OwnerOrderController {
@@ -39,6 +52,16 @@ export class OwnerOrderController {
     }),
     OwnerOrderPermission,
   )
+  @ApiOperation({ summary: ownerOrderDocs.create.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiBody({ type: CreateOrderDto })
+  @ApiResponse({
+    ...ownerOrderDocs.create.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(ownerOrderDocs.badRequestResponse)
+  @ApiResponse(ownerOrderDocs.unauthorizedResponse)
   async create(
     @Param('tableId') tableId: string,
     @Body() createOrderDto: CreateOrderDto,
@@ -56,6 +79,14 @@ export class OwnerOrderController {
     ZodValidation({ params: mergedStoreAndTableParamsSchema }),
     OwnerOrderPermission,
   )
+  @ApiOperation({ summary: ownerOrderDocs.getList.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiResponse({
+    ...ownerOrderDocs.getList.successResponse,
+    type: [OrderWithItemsResponseDto],
+  })
+  @ApiResponse(ownerOrderDocs.unauthorizedResponse)
   async getList(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
@@ -73,6 +104,16 @@ export class OwnerOrderController {
 
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
+  @ApiOperation({ summary: ownerOrderDocs.getUnique.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.orderId)
+  @ApiResponse({
+    ...ownerOrderDocs.getUnique.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(ownerOrderDocs.unauthorizedResponse)
+  @ApiResponse(ownerOrderDocs.notFoundResponse)
   getUnique(
     @CachedOrderByGuard() cachedOrder: ResponseOrderWithItem<'Wide'>,
   ): ResponseOrderWithItem<'Wide'> {
@@ -84,6 +125,18 @@ export class OwnerOrderController {
     ZodValidation({ params: orderParamsSchema, body: updateOrderSchema }),
     OwnerOrderWritePermission,
   )
+  @ApiOperation({ summary: ownerOrderDocs.update.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.orderId)
+  @ApiBody({ type: UpdateOrderDto })
+  @ApiResponse({
+    ...ownerOrderDocs.update.successResponse,
+    type: OrderWithItemsResponseDto,
+  })
+  @ApiResponse(ownerOrderDocs.badRequestResponse)
+  @ApiResponse(ownerOrderDocs.unauthorizedResponse)
+  @ApiResponse(ownerOrderDocs.notFoundResponse)
   async partialUpdate(
     @Client() client: Owner,
     @Param('storeId') storeId: string,
@@ -110,6 +163,13 @@ export class OwnerOrderController {
     ZodValidation({ params: orderParamsSchema }),
     OwnerOrderWritePermission,
   )
+  @ApiOperation({ summary: ownerOrderDocs.cancel.summary })
+  @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.orderId)
+  @ApiResponse(ownerOrderDocs.cancel.successResponse)
+  @ApiResponse(ownerOrderDocs.unauthorizedResponse)
+  @ApiResponse(ownerOrderDocs.notFoundResponse)
   async cancel(
     @Client() client: Owner,
     @Param('storeId') storeId: string,

@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpCode,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -35,7 +34,6 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post()
-  @HttpCode(201)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: adminDocs.create.summary })
   @ApiBody({ type: CreateAdminDto })
@@ -51,7 +49,6 @@ export class AdminController {
   }
 
   @Get()
-  @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: adminDocs.getList.summary })
   @ApiResponse({
@@ -65,7 +62,7 @@ export class AdminController {
   }
 
   @Get(':adminId')
-  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: adminDocs.getUnique.summary })
   @ApiParam(paramsDocs.adminId)
   @ApiResponse({
@@ -79,7 +76,6 @@ export class AdminController {
   }
 
   @Patch(':adminId')
-  @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: adminDocs.update.summary })
   @ApiParam(paramsDocs.adminId)
@@ -103,7 +99,6 @@ export class AdminController {
   }
 
   @Delete(':adminId')
-  @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: adminDocs.delete.summary })
   @ApiParam(paramsDocs.adminId)

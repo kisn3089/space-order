@@ -1,7 +1,7 @@
 import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
+  ApiCookieAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -10,7 +10,7 @@ import { TokenService } from './token.service';
 import { tokenDocs } from 'src/docs/token.docs';
 import { LocalSignInGuard } from '../utils/guards/local-sign-in.guard';
 import { Client } from '../decorators/client.decorator';
-import type { Owner } from '@spaceorder/db';
+import { COOKIE_TABLE, type Owner } from '@spaceorder/db';
 import type { Response } from 'express';
 import { JwtRefreshAuthGuard } from 'src/utils/guards/jwt-refresh-auth.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
@@ -44,7 +44,7 @@ export class TokenController {
 
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth(COOKIE_TABLE.REFRESH)
   @ApiOperation({ summary: tokenDocs.refresh.summary })
   @ApiResponse({
     ...tokenDocs.refresh.successResponse,

@@ -19,7 +19,7 @@ export class OrderItemResponseDto {
   @Expose()
   optionsPrice: number;
 
-  @ApiProperty({ description: '단가 (기본가격 + 옵션가격)' })
+  @ApiProperty({ description: '단가 (기본 가격 + 옵션 가격)' })
   @Expose()
   unitPrice: number;
 

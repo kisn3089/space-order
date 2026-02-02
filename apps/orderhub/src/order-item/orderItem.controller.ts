@@ -95,7 +95,8 @@ export class OrderItemController {
     OrderItemPermission,
   )
   @ApiOperation({ summary: orderItemDocs.getList.summary })
-  @ApiQuery({ name: 'filter', required: false, description: '필터 옵션' })
+  @ApiQuery(paramsDocs.query.filter)
+  @ApiParam(paramsDocs.orderId)
   @ApiResponse({
     ...orderItemDocs.getList.successResponse,
     type: [OrderItemResponseDto],
@@ -157,6 +158,7 @@ export class OrderItemController {
   @ApiBody({ type: UpdateOrderItemDto })
   @ApiResponse({
     ...orderItemDocs.update.successResponse,
+    type: UpdateOrderItemDto,
   })
   @ApiResponse(orderItemDocs.badRequestResponse)
   @ApiResponse(orderItemDocs.unauthorizedResponse)

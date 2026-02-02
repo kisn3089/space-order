@@ -42,7 +42,7 @@ export class CreateOrderDto extends createZodDto(createOrderSchema) {}
 export class UpdateOrderDto extends createZodDto(updateOrderSchema) {}
 
 @ApiTags('Customer Orders')
-@ApiCookieAuth()
+@ApiCookieAuth(COOKIE_TABLE.TABLE_SESSION)
 @Controller('customer/orders')
 @UseGuards(SessionAuth)
 export class OrderController {

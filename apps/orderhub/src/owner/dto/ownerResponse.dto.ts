@@ -27,9 +27,9 @@ export class OwnerResponseDto {
   @Expose()
   isActive: boolean;
 
-  @ApiProperty({ description: '마지막 로그인 시간' })
+  @ApiProperty({ description: '마지막 로그인 시간', nullable: true })
   @Expose()
-  lastLoginAt: Date;
+  lastLoginAt: Date | null;
 
   @ApiProperty({ description: '생성일' })
   @Expose()

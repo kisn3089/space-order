@@ -72,6 +72,7 @@ export class TableResponseDto extends TableDto {
     type: [OrderWithItemsResponseDto],
   })
   @Expose()
+  @Type(() => OrderWithItemsResponseDto)
   orders?: OrderWithItemsResponseDto[];
 
   @ApiProperty({

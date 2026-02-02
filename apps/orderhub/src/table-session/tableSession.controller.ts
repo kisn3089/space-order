@@ -165,7 +165,7 @@ export class TableSessionController {
     ZodValidation({ params: tableParamsSchema, body: updateSessionSchema }),
     SessionPermission,
   )
-  @ApiCookieAuth()
+  @ApiCookieAuth(COOKIE_TABLE.TABLE_SESSION)
   @ApiOperation({ summary: tableSessionDocs.update.summary })
   @ApiParam(paramsDocs.tableId)
   @ApiResponse({

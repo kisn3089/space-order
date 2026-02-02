@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
+import { COOKIE_TABLE } from '@spaceorder/db/constants/cookieTable.const';
 
 // BigInt serialization for JSON responses
 BigInt.prototype.toJSON = function () {
@@ -37,9 +38,31 @@ async function bootstrap() {
     .setDescription('Space Order 주문 관리 시스템 API 문서')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth(
+      COOKIE_TABLE.TABLE_SESSION,
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        name: COOKIE_TABLE.TABLE_SESSION,
+      },
+      COOKIE_TABLE.TABLE_SESSION,
+    )
+    .addCookieAuth(
+      COOKIE_TABLE.REFRESH,
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        name: COOKIE_TABLE.REFRESH,
+      },
+      COOKIE_TABLE.REFRESH,
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      withCredentials: true,
+    },
+  });
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 9090);

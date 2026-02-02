@@ -53,8 +53,8 @@ export class OwnerOrderController {
     OwnerOrderPermission,
   )
   @ApiOperation({ summary: ownerOrderDocs.create.summary })
-  @ApiParam(paramsDocs.tableId)
   @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
   @ApiBody({ type: CreateOrderDto })
   @ApiResponse({
     ...ownerOrderDocs.create.successResponse,
@@ -80,8 +80,8 @@ export class OwnerOrderController {
     OwnerOrderPermission,
   )
   @ApiOperation({ summary: ownerOrderDocs.getList.summary })
-  @ApiParam(paramsDocs.tableId)
   @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
   @ApiResponse({
     ...ownerOrderDocs.getList.successResponse,
     type: [OrderWithItemsResponseDto],
@@ -105,9 +105,9 @@ export class OwnerOrderController {
   @Get(':orderId')
   @UseGuards(ZodValidation({ params: orderParamsSchema }), OwnerOrderPermission)
   @ApiOperation({ summary: ownerOrderDocs.getUnique.summary })
-  @ApiParam(paramsDocs.orderId)
-  @ApiParam(paramsDocs.tableId)
   @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.orderId)
   @ApiResponse({
     ...ownerOrderDocs.getUnique.successResponse,
     type: OrderWithItemsResponseDto,
@@ -126,9 +126,9 @@ export class OwnerOrderController {
     OwnerOrderWritePermission,
   )
   @ApiOperation({ summary: ownerOrderDocs.update.summary })
-  @ApiParam(paramsDocs.orderId)
-  @ApiParam(paramsDocs.tableId)
   @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.orderId)
   @ApiBody({ type: UpdateOrderDto })
   @ApiResponse({
     ...ownerOrderDocs.update.successResponse,
@@ -164,9 +164,9 @@ export class OwnerOrderController {
     OwnerOrderWritePermission,
   )
   @ApiOperation({ summary: ownerOrderDocs.cancel.summary })
-  @ApiParam(paramsDocs.orderId)
-  @ApiParam(paramsDocs.tableId)
   @ApiParam(paramsDocs.storeId)
+  @ApiParam(paramsDocs.tableId)
+  @ApiParam(paramsDocs.orderId)
   @ApiResponse(ownerOrderDocs.cancel.successResponse)
   @ApiResponse(ownerOrderDocs.unauthorizedResponse)
   @ApiResponse(ownerOrderDocs.notFoundResponse)

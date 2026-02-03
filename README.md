@@ -1,3 +1,33 @@
+## 🏗️ Architecture
+
+![weknora-architecture.png](./docs/images/architecture.png)
+
+WeKnora employs a modern modular design to build a complete document understanding and retrieval pipeline. The system primarily includes document parsing, vector processing, retrieval engine, and large model inference as core modules, with each component being flexibly configurable and extendable.
+
+## 🎯 Key Features
+
+- **🤖 Agent Mode**: Support for ReACT Agent mode that can use built-in tools to retrieve knowledge bases, MCP tools, and web search tools to access external services, providing comprehensive summary reports through multiple iterations and reflection
+- **🔍 Precise Understanding**: Structured content extraction from PDFs, Word documents, images and more into unified semantic views
+- **🧠 Intelligent Reasoning**: Leverages LLMs to understand document context and user intent for accurate Q&A and multi-turn conversations
+- **📚 Multi-Type Knowledge Bases**: Support for FAQ and document knowledge base types, with folder import, URL import, tag management, and online entry capabilities
+- **🔧 Flexible Extension**: All components from parsing and embedding to retrieval and generation are decoupled for easy customization
+- **⚡ Efficient Retrieval**: Hybrid retrieval strategies combining keywords, vectors, and knowledge graphs, with cross-knowledge base retrieval support
+- **🌐 Web Search**: Support for extensible web search engines with built-in DuckDuckGo search engine
+- **🔌 MCP Tool Integration**: Support for extending Agent capabilities through MCP, with built-in uvx and npx launchers, supporting multiple transport methods
+- **⚙️ Conversation Strategy**: Support for configuring Agent models, normal mode models, retrieval thresholds, and Prompts, with precise control over multi-turn conversation behavior
+- **🎯 User-Friendly**: Intuitive web interface and standardized APIs for zero technical barriers
+- **🔒 Secure & Controlled**: Support for local deployment and private cloud, ensuring complete data sovereignty
+
+## 📊 Application Scenarios
+
+| Scenario                            | Applications                                                               | Core Value                                                    |
+| ----------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Enterprise Knowledge Management** | Internal document retrieval, policy Q&A, operation manual search           | Improve knowledge discovery efficiency, reduce training costs |
+| **Academic Research Analysis**      | Paper retrieval, research report analysis, scholarly material organization | Accelerate literature review, assist research decisions       |
+| **Product Technical Support**       | Product manual Q&A, technical documentation search, troubleshooting        | Enhance customer service quality, reduce support burden       |
+| **Legal & Compliance Review**       | Contract clause retrieval, regulatory policy search, case analysis         | Improve compliance efficiency, reduce legal risks             |
+| **Medical Knowledge Assistance**    | Medical literature retrieval, treatment guideline search, case analysis    | Support clinical decisions, improve diagnosis quality         |
+
 #### ① Clone the repository
 
 ```bash

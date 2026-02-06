@@ -7,7 +7,7 @@ import {
   Owner,
   TableSessionStatus,
 } from '@spaceorder/db';
-import { OrderItemService } from 'src/order-item/orderItem.service';
+import { OrderItemService } from 'src/owner/order-item/orderItem.service';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';

@@ -30,27 +30,26 @@ export class SessionService extends BaseSessionService {
     createSessionPayload: CreateSessionPayloadDto,
   ): Promise<SessionWithTable> {
     return await this.prismaService.$transaction(async (tx) => {
-      const activatedSession = await tx.tableSession.findFirst({
-        ...this.getActivatedSessionQuery(createSessionPayload.qrCode),
+      const activeSession = await tx.tableSession.findFirst({
+        ...this.buildActiveSessionQuery(createSessionPayload.qrCode),
         orderBy: { createdAt: 'desc' },
       });
 
-      const existSession = await this.validateSessionWithDeactivate(
+      const validSession = await this.validateSessionWithDeactivate(
         tx,
-        activatedSession,
+        activeSession,
       );
 
-      if (existSession) {
-        return existSession;
-      }
-
-      return await tx.tableSession.create(
-        this.createSession(createSessionPayload.qrCode),
+      return (
+        validSession ??
+        (await tx.tableSession.create(
+          this.createSession(createSessionPayload.qrCode),
+        ))
       );
     });
   }
 
-  protected getActivatedSessionQuery(qrCode: string) {
+  protected buildActiveSessionQuery(qrCode: string) {
     return {
       where: { table: { qrCode }, status: { in: ALIVE_SESSION_STATUSES } },
       include: INCLUDE_TABLE,
@@ -102,22 +101,22 @@ export class SessionService extends BaseSessionService {
     sessionToken: string,
   ): Promise<TableSession & { table: TableWithStoreContext }> {
     return await this.prismaService.tableSession.findFirstOrThrow({
-      where: {
-        sessionToken,
-        expiresAt: { gt: new Date() },
-        status: { in: ALIVE_SESSION_STATUSES },
-      },
+      where: this.buildSessionTokenQuery(sessionToken),
       include: INCLUDE_TABLE_STORE_MENUS,
     });
   }
 
   async getActiveSession(sessionToken: string): Promise<TableSession> {
     return await this.prismaService.tableSession.findFirstOrThrow({
-      where: {
-        sessionToken,
-        expiresAt: { gt: new Date() },
-        status: { in: ALIVE_SESSION_STATUSES },
-      },
+      where: this.buildSessionTokenQuery(sessionToken),
     });
+  }
+
+  private buildSessionTokenQuery(sessionToken: string) {
+    return {
+      sessionToken,
+      expiresAt: { gt: new Date() },
+      status: { in: ALIVE_SESSION_STATUSES },
+    } as const;
   }
 }

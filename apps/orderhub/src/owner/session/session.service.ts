@@ -42,24 +42,22 @@ export class SessionService extends BaseSessionService {
     tx: Tx,
     tableId: string,
   ): Promise<SessionWithTable> {
-    const activatedSession = await tx.tableSession.findFirst({
-      ...this.getActivatedSessionQuery(tableId),
+    const activeSession = await tx.tableSession.findFirst({
+      ...this.buildActiveSessionQuery(tableId),
       orderBy: { createdAt: 'desc' },
     });
 
-    const existSession = await this.validateSessionWithDeactivate(
+    const validSession = await this.validateSessionWithDeactivate(
       tx,
-      activatedSession,
+      activeSession,
     );
 
-    if (existSession) {
-      return existSession;
-    }
-
-    return await tx.tableSession.create(this.createSession(tableId));
+    return (
+      validSession ?? (await tx.tableSession.create(this.createSession(tableId)))
+    );
   }
 
-  protected getActivatedSessionQuery(tableId: string) {
+  protected buildActiveSessionQuery(tableId: string) {
     return {
       where: {
         table: { publicId: tableId, isActive: true },

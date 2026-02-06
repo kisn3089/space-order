@@ -34,26 +34,26 @@ export abstract class BaseSessionService {
     include: Prisma.TableSessionInclude;
   };
 
-  protected abstract getActivatedSessionQuery(identifier: string): {
+  protected abstract buildActiveSessionQuery(identifier: string): {
     where: Prisma.TableSessionWhereInput;
     include: Prisma.TableSessionInclude;
   };
 
   protected async validateSessionWithDeactivate(
     tx: Tx,
-    activatedSession: SessionWithTable | null,
+    activeSession: SessionWithTable | null,
   ): Promise<SessionWithTable | null> {
-    if (!activatedSession) {
+    if (!activeSession) {
       return null;
     }
 
-    isActivateTableOrThrow(activatedSession);
-    if (isSessionExpired(activatedSession)) {
-      await tx.tableSession.update(this.setSessionDeactivate(activatedSession));
+    isActivateTableOrThrow(activeSession);
+    if (isSessionExpired(activeSession)) {
+      await tx.tableSession.update(this.setSessionDeactivate(activeSession));
       return null;
     }
 
-    return activatedSession;
+    return activeSession;
   }
 
   protected setSessionDeactivate(

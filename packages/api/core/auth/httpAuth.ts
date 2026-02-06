@@ -8,7 +8,10 @@ const prefix = "/owner/v1/auth";
 async function createAccessToken(
   signInPayload: SignInPayload
 ): Promise<AxiosResponse<AccessToken>> {
-  const response = await http.post<AccessToken>(`${prefix}`, signInPayload);
+  const response = await http.post<AccessToken>(
+    `${prefix}/signin`,
+    signInPayload
+  );
   updateAxiosAuthorizationHeader(response.data.accessToken);
   return response;
 }

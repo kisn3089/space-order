@@ -1,17 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
-  Order,
   OrderStatus,
   Owner,
+  Prisma,
   PublicOrderWithItem,
   SessionWithTable,
   SummarizedOrdersByStore,
-  TableSession,
   TableSessionStatus,
 } from '@spaceorder/db';
 import { SessionService } from 'src/owner/session/session.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import {
   MENU_VALIDATION_FIELDS_SELECT,
   ORDER_ITEMS_WITH_OMIT_PRIVATE,
@@ -23,6 +21,7 @@ import {
 } from 'src/dto/order.dto';
 import { createOrderItemsWithValidMenu } from 'src/common/validate/order/create-order-item';
 import { ALIVE_SESSION_STATUSES } from 'src/common/query/session-query.const';
+import { validateOrderSessionToWrite } from 'src/common/validate/order/order-session-to-write';
 
 type TableIdParams = { tableId: string };
 type OrderIdParams = { orderId: string };
@@ -41,27 +40,27 @@ export class OwnerOrderService {
     createOrderDto: CreateOrderPayloadDto,
   ): Promise<PublicOrderWithItem<'Wide'>> {
     return await this.prismaService.$transaction(async (tx) => {
-      const getActivatedSessionOrCreated: SessionWithTable =
+      const session: SessionWithTable =
         await this.sessionService.txGetActivatedSessionOrCreate(tx, tableId);
 
       const menuPublicIds = createOrderDto.orderItems.map(
         (item) => item.menuPublicId,
       );
 
-      const findMenuList = await tx.menu.findMany({
+      const menus = await tx.menu.findMany({
         where: { publicId: { in: menuPublicIds }, deletedAt: null },
         select: MENU_VALIDATION_FIELDS_SELECT,
       });
 
-      const bulkCreateOrderItems = createOrderItemsWithValidMenu(
+      const orderItemsData = createOrderItemsWithValidMenu(
         createOrderDto,
-        findMenuList,
+        menus,
         menuPublicIds,
       );
 
-      if (getActivatedSessionOrCreated.status !== TableSessionStatus.ACTIVE) {
+      if (session.status !== TableSessionStatus.ACTIVE) {
         await this.sessionService.txableUpdateSession(
-          getActivatedSessionOrCreated,
+          session,
           { status: TableSessionStatus.ACTIVE },
           tx,
         );
@@ -69,10 +68,10 @@ export class OwnerOrderService {
 
       return await tx.order.create({
         data: {
-          storeId: getActivatedSessionOrCreated.table.storeId,
-          tableId: getActivatedSessionOrCreated.table.id,
-          tableSessionId: getActivatedSessionOrCreated.id,
-          orderItems: { create: bulkCreateOrderItems },
+          storeId: session.table.storeId,
+          tableId: session.table.id,
+          tableSessionId: session.id,
+          orderItems: { create: orderItemsData },
           memo: createOrderDto.memo,
         },
         ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
@@ -105,23 +104,14 @@ export class OwnerOrderService {
     storeId,
     tableId,
   }: StoreIdWithTableParams): Promise<PublicOrderWithItem<'Wide'>[]> {
-    const activeSession = await this.prismaService.tableSession.findFirst({
-      where: {
-        table: { publicId: tableId, store: { publicId: storeId } },
-        expiresAt: { gt: new Date() },
-        status: { in: ALIVE_SESSION_STATUSES },
-      },
-      select: { id: true },
-    });
-
-    if (!activeSession) {
-      return [];
-    }
-
     return await this.prismaService.order.findMany({
       where: {
+        table: { publicId: tableId },
         store: { publicId: storeId },
-        tableSessionId: activeSession.id,
+        tableSession: {
+          expiresAt: { gt: new Date() },
+          status: { in: ALIVE_SESSION_STATUSES },
+        },
       },
       ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
     });
@@ -164,74 +154,34 @@ export class OwnerOrderService {
   }
 
   async partialUpdateOrder(
-    { storeId, orderId }: StoreIdWithOrderParams,
+    params: StoreIdWithOrderParams,
     updatePayload: UpdateOrderPayloadDto,
   ): Promise<PublicOrderWithItem<'Wide'>> {
-    const order = await this.findOrderWithSession({ storeId, orderId });
+    return this.updateOrderWithValidation(params, updatePayload);
+  }
 
-    this.validateOrderAndSessionActive(order);
-
-    return await this.prismaService.order.update({
-      where: { store: { publicId: storeId }, publicId: orderId },
-      data: updatePayload,
-      ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
+  async cancelOrder(
+    params: StoreIdWithOrderParams,
+  ): Promise<PublicOrderWithItem<'Wide'>> {
+    return this.updateOrderWithValidation(params, {
+      status: OrderStatus.CANCELLED,
     });
   }
 
-  private async findOrderWithSession({
-    storeId,
-    orderId,
-  }: StoreIdWithOrderParams) {
-    return await this.prismaService.order.findFirst({
+  private async updateOrderWithValidation(
+    { storeId, orderId }: StoreIdWithOrderParams,
+    data: Prisma.OrderUpdateInput,
+  ): Promise<PublicOrderWithItem<'Wide'>> {
+    const order = await this.prismaService.order.findFirst({
       where: { publicId: orderId, store: { publicId: storeId } },
       include: { tableSession: true },
     });
-  }
 
-  private validateOrderAndSessionActive(
-    order: (Order & { tableSession: TableSession }) | null,
-  ) {
-    if (!order) {
-      throw new HttpException(
-        exceptionContentsIs('NOT_FOUND'),
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    if (order.status === OrderStatus.CANCELLED) {
-      throw new HttpException(
-        exceptionContentsIs('ORDER_ALREADY_CANCELLED'),
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    this.validateSessionActive(order.tableSession.status);
-    return true;
-  }
-
-  private validateSessionActive(status: TableSessionStatus) {
-    if (
-      status !== TableSessionStatus.ACTIVE &&
-      status !== TableSessionStatus.WAITING_ORDER
-    ) {
-      throw new HttpException(
-        exceptionContentsIs('SESSION_INACTIVE'),
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
-  async cancelOrder({
-    storeId,
-    orderId,
-  }: StoreIdWithOrderParams): Promise<PublicOrderWithItem<'Wide'>> {
-    const order = await this.findOrderWithSession({ storeId, orderId });
-
-    this.validateOrderAndSessionActive(order);
+    validateOrderSessionToWrite(order);
 
     return await this.prismaService.order.update({
-      where: { store: { publicId: storeId }, publicId: orderId },
-      data: { status: OrderStatus.CANCELLED },
+      where: { publicId: orderId, store: { publicId: storeId } },
+      data,
       ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
     });
   }

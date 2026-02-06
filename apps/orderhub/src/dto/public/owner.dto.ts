@@ -2,7 +2,7 @@ import type { Owner } from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 
-export class OwnerResponseDto {
+export class PublicOwnerDto {
   @ApiProperty({ description: '사용자 고유 ID' })
   @Expose()
   publicId: string;

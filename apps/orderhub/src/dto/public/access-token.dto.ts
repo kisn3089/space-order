@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseAccessToken } from '@spaceorder/api';
+import { AccessToken } from '@spaceorder/api';
 
-export class AccessTokenResponseDto {
+export class AccessTokenDto {
   @ApiProperty({ description: '액세스 토큰' })
   accessToken: string;
 
   @ApiProperty({ description: '토큰 만료 시간' })
   expiresAt: Date;
 
-  constructor(partial: Partial<ResponseAccessToken>) {
+  constructor(partial: Partial<AccessToken>) {
     Object.assign(this, partial);
   }
 }

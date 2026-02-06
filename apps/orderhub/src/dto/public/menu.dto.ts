@@ -2,7 +2,7 @@ import type { Menu, OrderItem, Store } from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 
-export class MenuResponseDto {
+export class PublicMenuDto {
   @ApiProperty({ description: '메뉴 고유 ID' })
   @Expose()
   publicId: string;

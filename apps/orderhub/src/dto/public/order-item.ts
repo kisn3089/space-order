@@ -2,7 +2,7 @@ import type { OrderItem } from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 
-export class OrderItemResponseDto {
+export class PublicOrderItemDto {
   @ApiProperty({ description: '주문 항목 고유 ID' })
   @Expose()
   publicId: string;
@@ -51,4 +51,19 @@ export class OrderItemResponseDto {
   constructor(partial: Partial<OrderItem>) {
     Object.assign(this, partial);
   }
+}
+
+/** 주문 항목 요약 DTO */
+export class SummarizedOrderItemDto {
+  @ApiProperty({ description: '주문 항목 고유 ID' })
+  @Expose()
+  publicId: string;
+
+  @ApiProperty({ description: '메뉴 이름' })
+  @Expose()
+  menuName: string;
+
+  @ApiProperty({ description: '수량' })
+  @Expose()
+  quantity: number;
 }

@@ -1,10 +1,10 @@
 import type { Order, OrderItem, OrderStatus } from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { OrderItemResponseDto } from 'src/order-item/dto/orderItemResponse.dto';
+import { PublicOrderItemDto, SummarizedOrderItemDto } from './order-item';
 
 /** 주문 응답 DTO */
-export class OrderResponseDto {
+export class PublicOrderDto {
   @ApiProperty({ description: '주문 고유 ID' })
   @Expose()
   publicId: string;
@@ -54,19 +54,38 @@ export class OrderResponseDto {
   }
 }
 
-/** 주문 + 주문 항목 응답 DTO */
-export class OrderWithItemsResponseDto extends OrderResponseDto {
+/** 주문 요약 DTO (항목 포함) */
+export class SummarizedOrderDto {
+  @ApiProperty({ description: '주문 고유 ID' })
+  @Expose()
+  publicId: string;
+
+  @ApiProperty({ description: '주문 상태' })
+  @Expose()
+  status: OrderStatus;
+
   @ApiProperty({
     description: '주문 항목 목록',
-    type: [OrderItemResponseDto],
+    type: [SummarizedOrderItemDto],
   })
   @Expose()
-  @Type(() => OrderItemResponseDto)
-  orderItems: OrderItemResponseDto[];
+  @Type(() => SummarizedOrderItemDto)
+  orderItems: SummarizedOrderItemDto[];
+}
+
+/** 주문 + 주문 항목 응답 DTO */
+export class PublicOrderWithItemsDto extends PublicOrderDto {
+  @ApiProperty({
+    description: '주문 항목 목록',
+    type: [PublicOrderItemDto],
+  })
+  @Expose()
+  @Type(() => PublicOrderItemDto)
+  orderItems: PublicOrderItemDto[];
 
   constructor(partial: Partial<Order & { orderItems: OrderItem[] }>) {
     super(partial);
     this.orderItems =
-      partial.orderItems?.map((item) => new OrderItemResponseDto(item)) ?? [];
+      partial.orderItems?.map((item) => new PublicOrderItemDto(item)) ?? [];
   }
 }

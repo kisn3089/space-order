@@ -2,7 +2,7 @@ import { Admin, AdminRole } from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 
-export class AdminResponseDto {
+export class PublicAdminDto {
   @ApiProperty({ description: '관리자 고유 ID' })
   @Expose()
   publicId: string;

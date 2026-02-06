@@ -1,20 +1,16 @@
 import {
-  ResponseOrder,
-  ResponseOrderItem,
-  ResponseStore,
-  ResponseTable,
-  ResponseTableSession,
-} from "./responseModel.type";
+  PublicOrder,
+  PublicOrderItem,
+  PublicTable,
+  PublicSession,
+} from "./publicModel.type";
 
 type SummarizedOrderItem = Pick<
-  ResponseOrderItem,
+  PublicOrderItem,
   "publicId" | "menuName" | "quantity"
 >;
-export type SummarizedOrder = Pick<ResponseOrder, "publicId" | "status">;
-type SummarizedTableSession = Pick<
-  ResponseTableSession,
-  "publicId" | "expiresAt"
->;
+export type SummarizedOrder = Pick<PublicOrder, "publicId" | "status">;
+type SummarizedTableSession = Pick<PublicSession, "publicId" | "expiresAt">;
 
 export type SummarizedOrderWithItem = SummarizedOrder & {
   orderItems: SummarizedOrderItem[];
@@ -22,9 +18,7 @@ export type SummarizedOrderWithItem = SummarizedOrder & {
 type SummarizedSessionWithOrders = SummarizedTableSession & {
   orders: SummarizedOrderWithItem[];
 };
-export type SummarizedTableWithSessions = ResponseTable & {
+export type SummarizedTableWithSessions = PublicTable & {
   tableSessions?: SummarizedSessionWithOrders[];
 };
-export type SummarizedOrdersFromStore = ResponseStore & {
-  tables: SummarizedTableWithSessions[];
-};
+export type SummarizedOrdersByStore = SummarizedTableWithSessions[];

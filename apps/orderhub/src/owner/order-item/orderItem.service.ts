@@ -41,7 +41,7 @@ export class OrderItemService {
     ]);
 
     validateOrderSessionToWrite(order);
-    validateMenuAvailableOrThrow(menu.isAvailable);
+    validateMenuAvailableOrThrow(menu);
 
     const { optionsPrice, optionsSnapshot } = getValidatedMenuOptionsSnapshot(
       menu,
@@ -142,7 +142,7 @@ export class OrderItemService {
         )
       : orderItem.menu;
 
-    validateMenuAvailableOrThrow(menu.isAvailable);
+    validateMenuAvailableOrThrow(menu);
 
     const { optionsPrice, optionsSnapshot } = getValidatedMenuOptionsSnapshot(
       menu,

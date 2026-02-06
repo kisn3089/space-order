@@ -22,7 +22,7 @@ export function createOrderItemsWithValidMenu(
   const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
     createOrderDto.orderItems.map((orderItem) => {
       const menu = menuMap.getOrThrow(orderItem.menuPublicId);
-      validateMenuAvailableOrThrow(menu.isAvailable);
+      validateMenuAvailableOrThrow(menu);
       const { optionsPrice, optionsSnapshot } = getValidatedMenuOptionsSnapshot(
         menu,
         {

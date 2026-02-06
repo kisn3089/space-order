@@ -6,7 +6,6 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactCompiler: true,
   reactStrictMode: false, // for devolopment convenience
   output: "standalone",
   experimental: {

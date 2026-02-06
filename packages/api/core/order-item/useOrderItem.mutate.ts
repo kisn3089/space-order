@@ -8,11 +8,7 @@ import {
   httpOrderItems,
   UpdateOrderItemPayload,
 } from "./httpOrderItem";
-import {
-  ALIVE_SESSION,
-  ORDER_ITEMS,
-} from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
-import { PublicOrderItem } from "@spaceorder/db/types/responseModel.type";
+import { PublicOrderItem } from "@spaceorder/db/types/publicModel.type";
 
 type UseOrderItemParams = { storeId: string; tableId: string };
 type UseOrderItemReturn = {
@@ -47,12 +43,12 @@ export default function useOrderItem({
     }) => httpOrderItems.updateOrderItem(params, updateOrderItemPayload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/stores/order-summary`],
+        queryKey: [`/owner/v1/stores/${storeId}/orders/board`],
       });
 
       queryClient.invalidateQueries({
         queryKey: [
-          `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
+          `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`,
         ],
       });
     },
@@ -64,11 +60,11 @@ export default function useOrderItem({
       httpOrderItems.removeOrderItem(params),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/stores/order-summary`],
+        queryKey: [`/owner/v1/stores/${storeId}/orders/board`],
       });
       queryClient.invalidateQueries({
         queryKey: [
-          `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`,
+          `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`,
         ],
       });
     },

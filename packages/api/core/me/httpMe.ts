@@ -9,6 +9,11 @@ async function fetchMe(): Promise<PublicOwner> {
   return response.data;
 }
 
+async function fetchUpdate(): Promise<PublicOwner> {
+  const response = await http.patch<PublicOwner>(`${prefix}`);
+  return response.data;
+}
+
 export type HealthCheckResponse = {
   status: string;
   timestamp: string;
@@ -22,5 +27,6 @@ async function fetchHealthCheck(
 
 export const httpMe = {
   fetchMe,
+  fetchUpdate,
   fetchHealthCheck,
 };

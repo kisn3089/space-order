@@ -1,24 +1,19 @@
-import { PublicStore, SummarizedOrdersByStore } from "@spaceorder/db";
+import { PublicStore } from "@spaceorder/db";
 import { http } from "../axios/http";
 
+const prefix = `/owner/v1/stores`;
+
 async function fetchList(): Promise<PublicStore[]> {
-  const response = await http.get<PublicStore[]>("/stores");
+  const response = await http.get<PublicStore[]>(`${prefix}`);
   return response.data;
 }
 
 async function fetchUnique(publicId: string): Promise<PublicStore> {
-  const response = await http.get<PublicStore>(`/stores/${publicId}`);
-  return response.data;
-}
-
-async function fetchOrderSummary(): Promise<SummarizedOrdersByStore> {
-  const response =
-    await http.get<SummarizedOrdersByStore>(`/stores/alive-orders`);
+  const response = await http.get<PublicStore>(`${prefix}/${publicId}`);
   return response.data;
 }
 
 export const httpStores = {
   fetchList,
   fetchUnique,
-  fetchOrderSummary,
 };

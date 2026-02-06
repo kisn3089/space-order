@@ -1,9 +1,9 @@
 import { PublicTable } from "@spaceorder/db";
 import { http } from "../axios/http";
-import { UpdateTable } from "../../schemas";
+import { UpdateTablePayload } from "../../schemas";
 
 function prefix(storeId: string) {
-  return `/stores/${storeId}/tables`;
+  return `/owner/v1/stores/${storeId}/tables`;
 }
 
 export type FetchTableListParams = { storeId: string };
@@ -25,27 +25,16 @@ async function fetchUnique({
 
 export type UpdateTableParams = {
   tableId: string;
-  updateTable: UpdateTable;
-  accessToken?: string;
+  updateTablePayload: UpdateTablePayload;
 } & FetchTableListParams;
 async function fetchUpdate({
   tableId,
   storeId,
-  updateTable,
-  accessToken,
+  updateTablePayload,
 }: UpdateTableParams): Promise<PublicTable> {
   const response = await http.patch<PublicTable>(
     `${prefix(storeId)}/${tableId}`,
-    updateTable,
-    {
-      ...(accessToken
-        ? {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        : {}),
-    }
+    updateTablePayload
   );
   return response.data;
 }

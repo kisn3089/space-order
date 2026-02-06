@@ -3,16 +3,12 @@ import { http, updateAxiosAuthorizationHeader } from "../axios/http";
 import { AccessToken, SignInPayload } from "./auth.type";
 import { COOKIE_TABLE } from "@spaceorder/db";
 
-const prefix = "/token";
+const prefix = "/owner/v1/auth";
 
-async function createAccessToken({
-  email,
-  password,
-}: SignInPayload): Promise<AxiosResponse<AccessToken>> {
-  const response = await http.post<AccessToken>(`${prefix}`, {
-    email,
-    password,
-  });
+async function createAccessToken(
+  signInPayload: SignInPayload
+): Promise<AxiosResponse<AccessToken>> {
+  const response = await http.post<AccessToken>(`${prefix}`, signInPayload);
   updateAxiosAuthorizationHeader(response.data.accessToken);
   return response;
 }
@@ -35,4 +31,4 @@ async function refreshAccessToken(
   return response;
 }
 
-export const httpToken = { createAccessToken, refreshAccessToken };
+export const httpAuth = { createAccessToken, refreshAccessToken };

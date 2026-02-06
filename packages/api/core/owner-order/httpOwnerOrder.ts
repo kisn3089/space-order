@@ -5,8 +5,8 @@ import {
 } from "@spaceorder/db";
 import { http } from "../axios";
 
-function prefix(storeId: string, tableId: string) {
-  return `/owner/stores/${storeId}/tables/${tableId}/orders`;
+function prefix(storeId: string) {
+  return `/owner/v1/stores/${storeId}`;
 }
 
 type ItemOption = Record<string, string>;
@@ -21,41 +21,19 @@ export type CreateOwnerOrderPayload = {
   >;
   memo?: string;
 };
-async function createOwnerOrder(
-  { storeId, tableId }: FetchOrderParams,
-  createOrderPayload: CreateOwnerOrderPayload
-): Promise<PublicOrderWithItem> {
-  const response = await http.post<PublicOrderWithItem>(
-    `${prefix(storeId, tableId)}`,
-    createOrderPayload
-  );
-  return response.data;
-}
 
-export type FetchOrderParams = {
+export type CreateOwnerOrderParams = {
   storeId: string;
   tableId: string;
 };
-async function fetchList({
-  storeId,
-  tableId,
-}: FetchOrderParams): Promise<PublicOrderWithItem[]> {
-  const response = await http.get<PublicOrderWithItem[]>(
-    `${prefix(storeId, tableId)}`
-  );
-  return response.data;
-}
 
-export type FetchOrderUniqueParams = FetchOrderParams & {
-  orderId: string;
-};
-async function fetchUnique({
-  storeId,
-  tableId,
-  orderId,
-}: FetchOrderUniqueParams): Promise<PublicOrderWithItem> {
-  const response = await http.get<PublicOrderWithItem>(
-    `${prefix(storeId, tableId)}/${orderId}`
+async function createOwnerOrder(
+  { storeId, tableId }: CreateOwnerOrderParams,
+  createOrderPayload: CreateOwnerOrderPayload
+): Promise<PublicOrderWithItem> {
+  const response = await http.post<PublicOrderWithItem>(
+    `${prefix(storeId)}/tables/${tableId}/orders`,
+    createOrderPayload
   );
   return response.data;
 }
@@ -66,12 +44,18 @@ export type UpdateOwnerOrderPayload = Partial<
     cancelledReason: string;
   }
 >;
+
+export type UpdateOwnerOrderParams = {
+  storeId: string;
+  orderId: string;
+};
+
 async function updateOwnerOrder(
-  { orderId, storeId, tableId }: FetchOrderUniqueParams,
+  { orderId, storeId }: UpdateOwnerOrderParams,
   updateOrderPayload: UpdateOwnerOrderPayload
 ) {
   const response = await http.patch<PublicOrderWithItem>(
-    `${prefix(storeId, tableId)}/${orderId}`,
+    `${prefix(storeId)}/orders/${orderId}`,
     updateOrderPayload
   );
   return response.data;
@@ -79,7 +63,5 @@ async function updateOwnerOrder(
 
 export const httpOrder = {
   createOwnerOrder,
-  fetchList,
-  fetchUnique,
   updateOwnerOrder,
 };

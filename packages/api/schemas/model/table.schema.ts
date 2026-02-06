@@ -30,7 +30,7 @@ export const updateTablePayloadSchema = createTablePayloadSchema
     isActive: z.boolean().optional(),
   });
 
-export type UpdateTable = z.infer<typeof updateTablePayloadSchema>;
+export type UpdateTablePayload = z.infer<typeof updateTablePayloadSchema>;
 
 export const tableParamsSchema = z
   .object({ tableId: commonSchema.cuid2("Table") })

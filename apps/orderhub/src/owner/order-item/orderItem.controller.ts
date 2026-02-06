@@ -21,24 +21,18 @@ import {
 import { OrderItemService } from './orderItem.service';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import {
-  orderItemParamsSchema,
-  orderIdParamsSchema,
+  storeIdAndOrderIdParamsSchema,
+  storeIdAndOrderItemIdParamsSchema,
 } from '@spaceorder/api/schemas';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import type { OrderItem, Owner, PublicOrderItem } from '@spaceorder/db';
+import type { PublicOrderItem } from '@spaceorder/db';
 import {
-  createOrderItemSchema,
+  createOrderItemPayloadSchema,
   orderItemQuerySchema,
-  partialUpdateOrderItemSchema,
+  partialUpdateOrderItemPayloadSchema,
 } from '@spaceorder/api/schemas/model/orderItem.schema';
-import {
-  OrderItemPermission,
-  OrderItemWritePermission,
-} from 'src/utils/guards/model-permissions/order-item-permission.guard';
 import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { ORDER_ITEM_FILTER_RECORD } from '../../common/query/order-item-query.const';
-import { Client } from 'src/decorators/client.decorator';
-import { CachedOrderItemByGuard } from 'src/decorators/cache/orderItem.decorator';
 import { paramsDocs } from 'src/docs/params.docs';
 import { orderItemDocs } from 'src/docs/orderItem.docs';
 import { PublicOrderItemDto } from 'src/dto/public/order-item';
@@ -46,6 +40,7 @@ import {
   CreateOrderItemPayloadDto,
   UpdateOrderItemPayloadDto,
 } from 'src/dto/order-item.dto';
+import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
 
 type OrderItemQueryParams = {
   filter?: keyof typeof ORDER_ITEM_FILTER_RECORD;
@@ -53,20 +48,23 @@ type OrderItemQueryParams = {
 
 @ApiTags('Order Items')
 @ApiBearerAuth()
-@Controller('orders/:orderId/order-items')
-@UseGuards(JwtAuthGuard)
+@Controller('stores/:storeId')
+@UseGuards(JwtAuthGuard, OwnerStoreGuard)
 export class OrderItemController {
   constructor(
     private readonly orderItemService: OrderItemService,
     private readonly queryParamsBuilder: QueryParamsBuilderService,
   ) {}
 
-  @Post()
+  @Post('orders/:orderId/order-items')
   @UseGuards(
-    ZodValidation({ params: orderIdParamsSchema, body: createOrderItemSchema }),
-    OrderItemWritePermission,
+    ZodValidation({
+      params: storeIdAndOrderIdParamsSchema,
+      body: createOrderItemPayloadSchema,
+    }),
   )
   @ApiOperation({ summary: orderItemDocs.create.summary })
+  @ApiParam(paramsDocs.storeId)
   @ApiParam(paramsDocs.orderId)
   @ApiBody({ type: CreateOrderItemPayloadDto })
   @ApiResponse({
@@ -76,32 +74,35 @@ export class OrderItemController {
   @ApiResponse(orderItemDocs.badRequestResponse)
   @ApiResponse(orderItemDocs.unauthorizedResponse)
   async create(
-    @Client() client: Owner,
-    @Param('orderId') orderPublicId: string,
-    @Body() createOrderItemDto: CreateOrderItemPayloadDto,
+    @Param('storeId') storeId: string,
+    @Param('orderId') orderId: string,
+    @Body() createOrderItemPayload: CreateOrderItemPayloadDto,
   ): Promise<PublicOrderItem<'Wide'>> {
     return await this.orderItemService.createOrderItem(
-      orderPublicId,
-      createOrderItemDto,
-      client,
+      { orderId, storeId },
+      createOrderItemPayload,
     );
   }
 
-  @Get()
+  @Get('orders/:orderId/order-items')
   @UseGuards(
-    ZodValidation({ params: orderIdParamsSchema, query: orderItemQuerySchema }),
-    OrderItemPermission,
+    ZodValidation({
+      params: storeIdAndOrderIdParamsSchema,
+      query: orderItemQuerySchema,
+    }),
   )
   @ApiOperation({ summary: orderItemDocs.getList.summary })
   @ApiQuery(paramsDocs.query.filter.orderItem)
+  @ApiParam(paramsDocs.storeId)
   @ApiParam(paramsDocs.orderId)
   @ApiResponse({
     ...orderItemDocs.getList.successResponse,
     type: [PublicOrderItemDto],
   })
   @ApiResponse(orderItemDocs.unauthorizedResponse)
-  async getList(
-    @Param('orderId') orderPublicId: string,
+  async lList(
+    @Param('storeId') storeId: string,
+    @Param('orderId') orderId: string,
     @Query() query?: OrderItemQueryParams,
   ): Promise<PublicOrderItem<'Wide'>[]> {
     const { filter } = this.queryParamsBuilder.build({
@@ -110,18 +111,17 @@ export class OrderItemController {
     });
 
     return await this.orderItemService.getOrderItemList({
-      where: { order: { publicId: orderPublicId, ...filter } },
-      omit: this.orderItemService.orderItemOmit,
+      where: {
+        order: { publicId: orderId, store: { publicId: storeId }, ...filter },
+      },
+      omit: this.orderItemService.omitPrivate,
     });
   }
 
-  @Get(':orderItemId')
-  @UseGuards(
-    ZodValidation({ params: orderItemParamsSchema }),
-    OrderItemPermission,
-  )
+  @Get('order-items/:orderItemId')
+  @UseGuards(ZodValidation({ params: storeIdAndOrderItemIdParamsSchema }))
   @ApiOperation({ summary: orderItemDocs.getUnique.summary })
-  @ApiParam(paramsDocs.orderId)
+  @ApiParam(paramsDocs.storeId)
   @ApiParam(paramsDocs.orderItemId)
   @ApiResponse({
     ...orderItemDocs.getUnique.successResponse,
@@ -130,28 +130,24 @@ export class OrderItemController {
   @ApiResponse(orderItemDocs.unauthorizedResponse)
   @ApiResponse(orderItemDocs.notFoundResponse)
   async getUnique(
-    @Param('orderId') orderPublicId: string,
-    @Param('orderItemId') orderItemPublicId: string,
+    @Param('storeId') storeId: string,
+    @Param('orderItemId') orderItemId: string,
   ): Promise<PublicOrderItem<'Wide'>> {
     return await this.orderItemService.getOrderItemUnique({
-      where: {
-        order: { publicId: orderPublicId },
-        publicId: orderItemPublicId,
-      },
-      omit: this.orderItemService.orderItemOmit,
+      where: { publicId: orderItemId, order: { store: { publicId: storeId } } },
+      omit: this.orderItemService.omitPrivate,
     });
   }
 
-  @Patch(':orderItemId')
+  @Patch('order-items/:orderItemId')
   @UseGuards(
     ZodValidation({
-      params: orderItemParamsSchema,
-      body: partialUpdateOrderItemSchema,
+      params: storeIdAndOrderItemIdParamsSchema,
+      body: partialUpdateOrderItemPayloadSchema,
     }),
-    OrderItemWritePermission,
   )
   @ApiOperation({ summary: orderItemDocs.update.summary })
-  @ApiParam(paramsDocs.orderId)
+  @ApiParam(paramsDocs.storeId)
   @ApiParam(paramsDocs.orderItemId)
   @ApiBody({ type: UpdateOrderItemPayloadDto })
   @ApiResponse({
@@ -162,37 +158,31 @@ export class OrderItemController {
   @ApiResponse(orderItemDocs.unauthorizedResponse)
   @ApiResponse(orderItemDocs.notFoundResponse)
   async partialUpdate(
-    @Client() client: Owner,
-    @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
-    @Param('orderItemId') orderItemPublicId: string,
+    @Param('storeId') storeId: string,
+    @Param('orderItemId') orderItemId: string,
     @Body() updateOrderItemDto: UpdateOrderItemPayloadDto,
   ): Promise<PublicOrderItem<'Wide'>> {
     return await this.orderItemService.partialUpdateOrderItem(
-      orderItemPublicId,
+      { orderItemId, storeId },
       updateOrderItemDto,
-      client,
-      cachedOrderItem,
     );
   }
 
-  @Delete(':orderItemId')
-  @UseGuards(
-    ZodValidation({ params: orderItemParamsSchema }),
-    OrderItemWritePermission,
-  )
+  @Delete('order-items/:orderItemId')
+  @UseGuards(ZodValidation({ params: storeIdAndOrderItemIdParamsSchema }))
   @ApiOperation({ summary: orderItemDocs.delete.summary })
-  @ApiParam(paramsDocs.orderId)
+  @ApiParam(paramsDocs.storeId)
   @ApiParam(paramsDocs.orderItemId)
   @ApiResponse(orderItemDocs.delete.successResponse)
   @ApiResponse(orderItemDocs.unauthorizedResponse)
   @ApiResponse(orderItemDocs.notFoundResponse)
   async delete(
-    @CachedOrderItemByGuard() cachedOrderItem: OrderItem,
-    @Param('orderItemId') orderItemPublicId: string,
+    @Param('storeId') storeId: string,
+    @Param('orderItemId') orderItemId: string,
   ): Promise<void> {
-    return await this.orderItemService.deleteOrderItem(
-      orderItemPublicId,
-      cachedOrderItem,
-    );
+    return await this.orderItemService.deleteOrderItem({
+      orderItemId,
+      storeId,
+    });
   }
 }

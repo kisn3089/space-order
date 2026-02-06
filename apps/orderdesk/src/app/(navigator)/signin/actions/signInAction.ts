@@ -1,7 +1,7 @@
 "use server";
 
 import { AxiosError } from "axios";
-import { ResponseAccessToken, httpToken } from "@spaceorder/api";
+import { AccessToken, httpAuth } from "@spaceorder/api";
 import parseCookieFromResponseHeader, {
   setCookieFromResponseHeader,
 } from "@/utils/parseCookieFromResponseHeader";
@@ -9,7 +9,7 @@ import parseCookieFromResponseHeader, {
 type ActionResponse =
   | {
       success: true;
-      data: ResponseAccessToken;
+      data: AccessToken;
     }
   | {
       success: false;
@@ -26,7 +26,7 @@ export default async function signInAction(
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const createdAccessToken = await httpToken.createAccessToken({
+    const createdAccessToken = await httpAuth.createAccessToken({
       email,
       password,
     });

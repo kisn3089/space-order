@@ -1,7 +1,7 @@
+import { httpAuth } from "@spaceorder/api/core/auth/httpAuth";
 import { isExpired } from "@spaceorder/auth";
 import { COOKIE_TABLE } from "@spaceorder/db/constants";
 import { NextRequest, NextResponse } from "next/server";
-import { httpToken } from "@spaceorder/api/core/token/httpToken";
 
 export async function middleware(req: NextRequest) {
   const refreshToken = req.cookies.get(COOKIE_TABLE.REFRESH);
@@ -15,7 +15,7 @@ export async function middleware(req: NextRequest) {
   if (!accessToken || isExpired(accessToken?.value)) {
     console.log("[middleware] refresh access token...");
     try {
-      const newAccessToken = await httpToken.refreshAccessToken(
+      const newAccessToken = await httpAuth.refreshAccessToken(
         refreshToken.value
       );
       const res = NextResponse.next();

@@ -9,7 +9,7 @@ import {
 } from "@spaceorder/db";
 import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-order/httpOwnerOrder";
 import useOwnerOrder, {
-  UpdateOwnerOrderParams,
+  UpdateOwnerOrder,
 } from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
 import { useTableOrderContext } from "./TableOrderContext";
 import { Spinner } from "@spaceorder/ui/components/spinner";
@@ -26,7 +26,7 @@ export function TableOrderAcceptAllButton() {
 
   const [isPending, startTransition] = useTransition();
   const [failedUpdateItems, setFailedUpdateItems] = useState<
-    UpdateOwnerOrderParams[]
+    UpdateOwnerOrder[]
   >([]);
   const { updateOwnerOrder } = useOwnerOrder();
 
@@ -63,7 +63,7 @@ export function TableOrderAcceptAllButton() {
       };
     });
 
-    const failedOrderItems: UpdateOwnerOrderParams[] = [];
+    const failedOrderItems: UpdateOwnerOrder[] = [];
     startTransition(async () => {
       await Promise.all(
         updateOrderItems.map((updateItem) =>

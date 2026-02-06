@@ -37,7 +37,6 @@ export function TableOrderProvider({
     await updateOwnerOrder.mutateAsync({
       params: {
         storeId: params.storeId,
-        tableId: table.publicId,
         orderId,
       },
       updateOrderPayload: { status: nextStatus },

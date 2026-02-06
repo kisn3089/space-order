@@ -5,15 +5,11 @@ import { sumFromObjects } from "@spaceorder/api";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
 import {
-  ALIVE_SESSION,
-  ORDER_ITEMS,
-} from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
-import { ResponseTableWithSessions } from "@spaceorder/db/types/responseModel.type";
-import {
   OrderDetailContext,
   type OrderDetailContextValue,
 } from "./OrderDetailContext";
 import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
+import { PublicTableWithSessions } from "@spaceorder/db/types";
 
 interface OrderDetailProviderProps {
   params: { storeId: string; tableId: string };
@@ -25,12 +21,10 @@ export function OrderDetailProvider({
   children,
 }: OrderDetailProviderProps) {
   const { storeId, tableId } = params;
-  const fetchUrl = `/stores/${storeId}/tables/${tableId}?include=${ORDER_ITEMS}&filter=${ALIVE_SESSION}`;
+  const fetchUrl = `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`;
 
   const { data: tableWithSessions, isRefetching } =
-    useSuspenseWithAuth<ResponseTableWithSessions>(fetchUrl, {
-      queryOptions: { queryKey: [fetchUrl] },
-    });
+    useSuspenseWithAuth<PublicTableWithSessions>(fetchUrl);
 
   const { updateOrderItem, removeOrderItem } = useOrderItem({
     storeId,

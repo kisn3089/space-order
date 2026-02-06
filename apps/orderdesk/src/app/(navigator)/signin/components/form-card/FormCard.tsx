@@ -10,7 +10,7 @@ import { Checkbox } from "@spaceorder/ui/components/checkbox";
 import { Label } from "@spaceorder/ui/components/label";
 import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
-import { SignInRequest, signInFormSchema } from "@spaceorder/api";
+import { SignInPayload, signInPayloadSchema } from "@spaceorder/api";
 import { useAuthInfo } from "@spaceorder/auth";
 
 export default function FormCard() {
@@ -22,15 +22,15 @@ export default function FormCard() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<SignInRequest>({
-    resolver: zodResolver(signInFormSchema),
+  } = useForm<SignInPayload>({
+    resolver: zodResolver(signInPayloadSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async ({ email, password }: SignInRequest) => {
+  const onSubmit = async ({ email, password }: SignInPayload) => {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);

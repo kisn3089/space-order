@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import TableBoard from "./components/table-board/TableBoard";
 import TableBoardLayout from "./components/table-order-list/TableOrderListLayout";
 import { Skeleton } from "@spaceorder/ui/components/skeleton";
-import { ClientPreventUntilFetch } from "@/components/PreventUntilFetch";
+import AwaitOrdersBoard from "./components/AwaitOrdersBoard";
 
 export const metadata: Metadata = {
   title: "Orders",
@@ -16,14 +16,14 @@ export default function OrdersLayout({
   return (
     <section className="antialiased h-full grid place-items-center gap-2 grid-cols-[2fr_minmax(380px,1fr)] px-6 pb-4">
       <Suspense fallback={<LoadingSkeleton />}>
-        <ClientPreventUntilFetch>
+        <AwaitOrdersBoard>
           <div className="flex flex-col h-full w-full">
             <Suspense fallback={<LoadingSkeleton />}>
               <TableBoard />
             </Suspense>
           </div>
           {children}
-        </ClientPreventUntilFetch>
+        </AwaitOrdersBoard>
       </Suspense>
     </section>
   );

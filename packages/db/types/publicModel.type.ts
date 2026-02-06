@@ -41,9 +41,3 @@ export type PublicOrderWithItem<Option extends "Narrow" | "Wide" = "Narrow"> =
   PublicOrder & {
     orderItems: PublicOrderItem<Option>[];
   };
-type PublicSessionsWithOrders = PublicSession & {
-  orders: PublicOrderWithItem[];
-};
-export type PublicTableWithSessions = PublicTable & {
-  tableSessions: PublicSessionsWithOrders[];
-};

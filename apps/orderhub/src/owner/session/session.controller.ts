@@ -26,10 +26,10 @@ import {
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicSession } from '@spaceorder/db';
 import type { z } from 'zod';
-import { PublicTableSessionDto } from '../../dto/public/session.dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { SessionService } from './session.service';
 import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { PublicTableSessionDto } from 'src/dto/public/table.dto';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionPayloadSchema>;
 

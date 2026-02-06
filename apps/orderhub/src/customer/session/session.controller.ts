@@ -21,13 +21,13 @@ import { type PublicSession, type TableSession } from '@spaceorder/db';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/session.decorator';
 import type { z } from 'zod';
-import {
-  SessionTokenDto,
-  TableWithStoreContextDto,
-  PublicTableSessionDto,
-} from '../../dto/public/session.dto';
+import { SessionTokenDto } from '../../dto/public/session.dto';
 import { SessionService } from './session.service';
 import { CreateSessionPayloadDto } from 'src/dto/session.dto';
+import {
+  PublicTableSessionDto,
+  TableWithStoreContextDto,
+} from 'src/dto/public/table.dto';
 
 export type UpdateCustomerTableSessionDto = z.infer<
   typeof updateCustomerSessionPayloadSchema

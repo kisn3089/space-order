@@ -1,10 +1,17 @@
-import type { SummarizedTableWithSessions, Table } from '@spaceorder/db';
+import type {
+  SummarizedTableWithSessions,
+  Table,
+  TableSession,
+  TableSessionStatus,
+  TableWithStoreContext,
+} from '@spaceorder/db';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { PublicStoreDto } from './store.dto';
 import { PublicOrderWithItemsDto } from './order.dto';
 import { TableSessionDto } from './table-session-base.dto';
 import { SummarizedTableSessionDto } from './session.dto';
+import { PublicMenuDto } from './menu.dto';
 
 export class TableDto {
   @ApiProperty({ description: '테이블 고유 ID' })
@@ -66,6 +73,15 @@ export class TableDto {
   }
 }
 
+export class PublicTableSessionDto extends TableSessionDto {
+  @Exclude()
+  table: PublicTableDto[];
+
+  constructor(partial: Partial<TableSession>) {
+    super(partial);
+  }
+}
+
 export class PublicTableDto extends TableDto {
   @ApiProperty({
     description: '주문 목록',
@@ -87,6 +103,73 @@ export class PublicTableDto extends TableDto {
 
   constructor(partial: Partial<Table>) {
     super(partial);
+  }
+}
+
+class StoreWithMenusDto extends PublicStoreDto {
+  @Expose()
+  @Type(() => PublicMenuDto)
+  menus: PublicMenuDto[];
+
+  constructor(partial: Partial<PublicStoreDto>) {
+    super(partial);
+    Object.assign(this, partial);
+  }
+}
+
+class TableWithStoreMenusDto extends TableDto {
+  @Expose()
+  @Type(() => StoreWithMenusDto)
+  declare store: StoreWithMenusDto;
+
+  constructor(partial: Partial<PublicTableDto>) {
+    super(partial);
+    Object.assign(this, partial);
+  }
+}
+
+export class TableWithStoreContextDto {
+  @Expose()
+  @Type(() => TableWithStoreMenusDto)
+  table: TableWithStoreMenusDto;
+
+  @Exclude()
+  publicId: string;
+
+  @Exclude()
+  status: TableSessionStatus;
+
+  @Exclude()
+  sessionToken: string;
+
+  @Exclude()
+  activatedAt: Date;
+
+  @Exclude()
+  expiresAt: Date;
+
+  @Exclude()
+  paidAmount: number;
+
+  @Exclude()
+  createdAt: Date;
+
+  @Exclude()
+  closedAt: Date | null;
+
+  @Exclude()
+  id: bigint;
+
+  @Exclude()
+  storeId: bigint;
+
+  @Exclude()
+  tableId: bigint;
+
+  constructor(
+    partial: Partial<TableSession & { table: TableWithStoreContext }>,
+  ) {
+    Object.assign(this, partial);
   }
 }
 

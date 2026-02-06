@@ -1,4 +1,4 @@
-export const tokenDocs = {
+export const authDocs = {
   signIn: {
     summary: '로그인을 수행하여 토큰을 발급',
     successResponse: {

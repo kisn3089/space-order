@@ -7,6 +7,13 @@ export const ownerOrderDocs = {
     summary: '주문 목록 조회 (점주)',
     successResponse: { status: 200, description: '주문 목록 반환' },
   },
+  getActiveSessionOrders: {
+    summary: '테이블 활성 세션 주문 목록 조회 (점주)',
+    successResponse: {
+      status: 200,
+      description: '활성 세션의 주문 목록 반환 (활성 세션이 없으면 빈 배열)',
+    },
+  },
   getUnique: {
     summary: '특정 주문 조회 (점주)',
     successResponse: { status: 200, description: '주문 정보 반환' },

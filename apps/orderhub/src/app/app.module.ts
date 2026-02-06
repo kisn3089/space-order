@@ -2,20 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TokenModule } from '../token/token.module';
 import { AdminModule } from '../admin/admin.module';
 import { OwnerModule } from '../owner/owner.module';
 import { MeModule } from 'src/me/me.module';
-import { TableModule } from 'src/table/table.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { TableSessionModule } from 'src/table-session/tableSession.module';
-import { StoreModule } from 'src/store/store.module';
-import { OrderModule } from 'src/order/order.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, RouterModule } from '@nestjs/core';
 import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
-import { MenuModule } from 'src/menu/menu.module';
-import { OrderItemModule } from 'src/order-item/orderItem.module';
-import { OwnerOrderModule } from 'src/owner-order/ownerOrder.module';
+import { CustomerModule } from 'src/customer/customer.module';
 
 @Module({
   imports: [
@@ -24,17 +17,16 @@ import { OwnerOrderModule } from 'src/owner-order/ownerOrder.module';
       envFilePath: ['.env'],
     }),
     PrismaModule, // PrismaModule is Global Module
-    AdminModule,
-    MenuModule,
-    OwnerModule,
-    OwnerOrderModule,
-    TokenModule,
-    StoreModule,
-    OrderModule,
-    OrderItemModule,
     MeModule,
-    TableModule,
-    TableSessionModule,
+    AdminModule,
+    OwnerModule,
+    CustomerModule,
+
+    RouterModule.register([
+      { path: 'admin/v1', module: AdminModule },
+      { path: 'owner/v1', module: OwnerModule },
+      { path: 'customer/v1', module: CustomerModule },
+    ]),
   ],
   controllers: [AppController],
   providers: [

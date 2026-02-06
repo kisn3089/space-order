@@ -22,9 +22,10 @@ import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { JwtAuthGuard } from '../utils/guards/jwt-auth.guard';
-import { AdminResponseDto } from './dto/adminResponse.dto';
+
 import { adminDocs } from 'src/docs/admin.docs';
 import { paramsDocs } from 'src/docs/params.docs';
+import { PublicAdminDto } from 'src/dto/public/admin.dto';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -39,13 +40,13 @@ export class AdminController {
   @ApiBody({ type: CreateAdminDto })
   @ApiResponse({
     ...adminDocs.create.successResponse,
-    type: AdminResponseDto,
+    type: PublicAdminDto,
   })
   @ApiResponse(adminDocs.badRequestResponse)
   @ApiResponse(adminDocs.unauthorizedResponse)
   async create(@Body() createAdminDto: CreateAdminDto) {
     const createdAdmin = await this.adminService.createAdmin(createAdminDto);
-    return new AdminResponseDto(createdAdmin);
+    return new PublicAdminDto(createdAdmin);
   }
 
   @Get()
@@ -53,12 +54,12 @@ export class AdminController {
   @ApiOperation({ summary: adminDocs.getList.summary })
   @ApiResponse({
     ...adminDocs.getList.successResponse,
-    type: [AdminResponseDto],
+    type: [PublicAdminDto],
   })
   @ApiResponse(adminDocs.unauthorizedResponse)
   async getList() {
     const admins = await this.adminService.getAdminList();
-    return admins.map((admin) => new AdminResponseDto(admin));
+    return admins.map((admin) => new PublicAdminDto(admin));
   }
 
   @Get(':adminId')
@@ -67,12 +68,12 @@ export class AdminController {
   @ApiParam(paramsDocs.adminId)
   @ApiResponse({
     ...adminDocs.getUnique.successResponse,
-    type: AdminResponseDto,
+    type: PublicAdminDto,
   })
   @ApiResponse(adminDocs.notFoundResponse)
   async getUnique(@Param('adminId') adminId: string) {
     const adminByPublicId = await this.adminService.getAdminUnique(adminId);
-    return new AdminResponseDto(adminByPublicId);
+    return new PublicAdminDto(adminByPublicId);
   }
 
   @Patch(':adminId')
@@ -82,7 +83,7 @@ export class AdminController {
   @ApiBody({ type: UpdateAdminDto })
   @ApiResponse({
     ...adminDocs.update.successResponse,
-    type: AdminResponseDto,
+    type: PublicAdminDto,
   })
   @ApiResponse(adminDocs.badRequestResponse)
   @ApiResponse(adminDocs.unauthorizedResponse)
@@ -95,7 +96,7 @@ export class AdminController {
       adminId,
       updateAdminDto,
     );
-    return new AdminResponseDto(updatedAdmin);
+    return new PublicAdminDto(updatedAdmin);
   }
 
   @Delete(':adminId')

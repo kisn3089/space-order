@@ -1,4 +1,4 @@
-import { ResponseTable } from "@spaceorder/db";
+import { PublicTable } from "@spaceorder/db";
 import { http } from "../axios/http";
 import { UpdateTable } from "../../schemas";
 
@@ -9,8 +9,8 @@ function prefix(storeId: string) {
 export type FetchTableListParams = { storeId: string };
 async function fetchList({
   storeId,
-}: FetchTableListParams): Promise<ResponseTable[]> {
-  const response = await http.get<ResponseTable[]>(prefix(storeId));
+}: FetchTableListParams): Promise<PublicTable[]> {
+  const response = await http.get<PublicTable[]>(prefix(storeId));
   return response.data;
 }
 
@@ -18,10 +18,8 @@ export type FetchTableUniqueParams = { tableId: string } & FetchTableListParams;
 async function fetchUnique({
   tableId,
   storeId,
-}: FetchTableUniqueParams): Promise<ResponseTable> {
-  const response = await http.get<ResponseTable>(
-    `${prefix(storeId)}/${tableId}`
-  );
+}: FetchTableUniqueParams): Promise<PublicTable> {
+  const response = await http.get<PublicTable>(`${prefix(storeId)}/${tableId}`);
   return response.data;
 }
 
@@ -35,8 +33,8 @@ async function fetchUpdate({
   storeId,
   updateTable,
   accessToken,
-}: UpdateTableParams): Promise<ResponseTable> {
-  const response = await http.patch<ResponseTable>(
+}: UpdateTableParams): Promise<PublicTable> {
+  const response = await http.patch<PublicTable>(
     `${prefix(storeId)}/${tableId}`,
     updateTable,
     {

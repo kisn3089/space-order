@@ -1,13 +1,13 @@
-import { ResponseOwner } from "@spaceorder/db";
+import { PublicOwner } from "@spaceorder/db";
 import { http } from "../axios/http";
 
-async function fetchList(): Promise<ResponseOwner[]> {
-  const response = await http.get<ResponseOwner[]>("/owners");
+async function fetchList(): Promise<PublicOwner[]> {
+  const response = await http.get<PublicOwner[]>("/owners");
   return response.data;
 }
 
-async function fetchUnique(publicId: string): Promise<ResponseOwner> {
-  const response = await http.get<ResponseOwner>(`/owners/${publicId}`);
+async function fetchUnique(publicId: string): Promise<PublicOwner> {
+  const response = await http.get<PublicOwner>(`/owners/${publicId}`);
   return response.data;
 }
 

@@ -1,18 +1,19 @@
 import z from "zod";
 import { commonSchema } from "../common";
 import { OrderStatus } from "../../../db";
-import { mergedStoreAndTableParamsSchema } from "./table.schema";
+import { tableParamsSchema } from "./table.schema";
 import { createOrderItemSchema } from "./orderItem.schema";
+import { storeIdParamsSchema } from "./store.schema";
+import { sessionTokenParamsSchema } from "./tableSession.schema";
 
-/**
- * orderItem은 order에 종속되므로 orderItem 관련 스키마는 order 스키마에 포함되어 정의됨
- * Params Schema
- */
 export const orderIdParamsSchema = z
   .object({
     orderId: commonSchema.cuid2("Order"),
   })
   .strict();
+
+export const sessionAndOrderIdParamsSchema =
+  sessionTokenParamsSchema.merge(orderIdParamsSchema);
 
 const orderItemIdParamsSchema = z
   .object({
@@ -24,18 +25,19 @@ export const orderItemParamsSchema = orderIdParamsSchema.merge(
   orderItemIdParamsSchema
 );
 
-export const orderParamsSchema =
-  mergedStoreAndTableParamsSchema.merge(orderIdParamsSchema);
+export const storeIdAndOrderIdParamsSchema =
+  storeIdParamsSchema.merge(orderIdParamsSchema);
 
-/**
- * Body Schema
- */
-export const createOrderSchema = z.object({
+export const storeIdAndOrderIdAndTableIdParamsSchema =
+  storeIdAndOrderIdParamsSchema.merge(tableParamsSchema);
+
+/** Body Schema */
+export const createOrderPayloadSchema = z.object({
   orderItems: createOrderItemSchema.array(),
   memo: z.string().max(50, "메모는 최대 50자까지 가능합니다.").optional(),
 });
 
-export const updateOrderSchema = createOrderSchema
+export const updateOrderPayloadSchema = createOrderPayloadSchema
   .omit({ orderItems: true })
   .extend({
     status: z.nativeEnum(OrderStatus),

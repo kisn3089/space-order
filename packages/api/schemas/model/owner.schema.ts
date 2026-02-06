@@ -1,7 +1,7 @@
 import z from "zod";
 import { commonSchema } from "../common";
 
-export const createOwnerSchema = z
+export const createOwnerPayloadSchema = z
   .object({
     email: z.string().email("유효한 이메일 주소를 입력해주세요."),
     password: z
@@ -25,13 +25,13 @@ export const createOwnerSchema = z
   })
   .strict();
 
-export const updateOwnerSchema = createOwnerSchema
+export const updateOwnerPayloadSchema = createOwnerPayloadSchema
   .omit({
     email: true,
     password: true,
   })
   .partial();
 
-export const ownerParamsSchema = z
+export const ownerIdParamsSchema = z
   .object({ ownerId: commonSchema.cuid2("Owner") })
   .strict();

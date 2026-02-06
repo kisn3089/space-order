@@ -1,11 +1,11 @@
-import { ResponseOwner } from "@spaceorder/db";
+import { PublicOwner } from "@spaceorder/db";
 import { http } from "../axios";
 import { AxiosRequestConfig } from "axios";
 
 const prefix = "/me";
 
-async function fetchMe(): Promise<ResponseOwner> {
-  const response = await http.get<ResponseOwner>(`${prefix}`);
+async function fetchMe(): Promise<PublicOwner> {
+  const response = await http.get<PublicOwner>(`${prefix}`);
   return response.data;
 }
 

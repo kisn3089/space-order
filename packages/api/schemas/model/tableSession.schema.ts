@@ -5,9 +5,21 @@ import {
   TableSessionStatus,
 } from "../../../db";
 import { commonSchema } from "../common";
+import { storeIdParamsSchema } from "./store.schema";
 
 // 32 bytes base64url encoding = 43 characters
 export const sessionTokenSchema = z.string().length(43);
+export const sessionTokenParamsSchema = z
+  .object({
+    sessionToken: sessionTokenSchema,
+  })
+  .strict();
+
+export const createSessionSchema = z
+  .object({
+    qrCode: commonSchema.cuid2("TableSession"),
+  })
+  .strict();
 
 export const updateReactivateSchema = z
   .object({ status: z.literal("REACTIVATE") })
@@ -20,7 +32,7 @@ export const updateDeactivateSchema = z
 export const updateActivateSchema = z
   .object({
     status: z.literal(TableSessionStatus.ACTIVE),
-    totalAmount: z
+    paidAmount: z
       .number()
       .min(0, "총 가격은 0원 이상이어야 합니다.")
       .optional(),
@@ -35,7 +47,7 @@ export const updateSessionPaymentSchema = z
   .object({ status: z.literal(TableSessionStatus.PAYMENT_PENDING) })
   .strict();
 
-export const updateSessionSchema = z.discriminatedUnion("status", [
+export const updateSessionPayloadSchema = z.discriminatedUnion("status", [
   updateReactivateSchema,
   updateDeactivateSchema,
   updateActivateSchema,
@@ -43,15 +55,21 @@ export const updateSessionSchema = z.discriminatedUnion("status", [
   updateSessionPaymentSchema,
 ]);
 
-const sessionIdSchema = z
+export const updateCustomerSessionPayloadSchema = z.discriminatedUnion(
+  "status",
+  [
+    updateActivateSchema,
+    updateExtendsExpireAtSchema,
+    updateSessionPaymentSchema,
+  ]
+);
+
+export const sessionIdSchema = z
   .object({ sessionId: commonSchema.cuid2("TableSession") })
   .strict();
 
-// table.schema.ts와의 순환 참조를 피하기 위해 직접 정의
-const tableIdParamsSchema = z
-  .object({ tableId: commonSchema.cuid2("Table") })
-  .strict();
-export const sessionParamsSchema = tableIdParamsSchema.merge(sessionIdSchema);
+export const storeIdAndSessionIdSchema =
+  storeIdParamsSchema.merge(sessionIdSchema);
 
 /** -------- Query --------- */
 const sessionFilterEnumSchema = z.enum([
@@ -73,7 +91,3 @@ export const sessionListQuerySchema = z.object({
   include: sessionIncludeEnumSchema.optional(),
   filter: sessionFilterEnumSchema.optional(),
 });
-
-export const sessionUniqueQuerySchema = z
-  .object({ include: sessionIncludeEnumSchema.optional() })
-  .optional();

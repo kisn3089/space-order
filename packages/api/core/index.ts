@@ -1,4 +1,4 @@
-export * from "./token";
+export * from "./auth";
 export * from "./owners";
 export * from "./stores";
 export * from "./tables";

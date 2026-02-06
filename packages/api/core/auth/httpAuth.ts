@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { http, updateAxiosAuthorizationHeader } from "../axios/http";
-import { ResponseAccessToken, SignInRequest } from "./token.type";
+import { AccessToken, SignInPayload } from "./auth.type";
 import { COOKIE_TABLE } from "@spaceorder/db";
 
 const prefix = "/token";
@@ -8,8 +8,8 @@ const prefix = "/token";
 async function createAccessToken({
   email,
   password,
-}: SignInRequest): Promise<AxiosResponse<ResponseAccessToken>> {
-  const response = await http.post<ResponseAccessToken>(`${prefix}`, {
+}: SignInPayload): Promise<AxiosResponse<AccessToken>> {
+  const response = await http.post<AccessToken>(`${prefix}`, {
     email,
     password,
   });
@@ -19,8 +19,8 @@ async function createAccessToken({
 
 async function refreshAccessToken(
   refreshToken?: string
-): Promise<AxiosResponse<ResponseAccessToken>> {
-  const response = await http.post<ResponseAccessToken>(
+): Promise<AxiosResponse<AccessToken>> {
+  const response = await http.post<AccessToken>(
     `${prefix}/refresh`,
     {},
     refreshToken

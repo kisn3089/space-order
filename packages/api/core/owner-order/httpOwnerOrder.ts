@@ -1,7 +1,7 @@
 import {
   OrderStatus,
-  ResponseOrderItem,
-  ResponseOrderWithItem,
+  PublicOrderItem,
+  PublicOrderWithItem,
 } from "@spaceorder/db";
 import { http } from "../axios";
 
@@ -16,16 +16,16 @@ type OrderItemOption = {
 };
 export type CreateOwnerOrderPayload = {
   orderItems: Array<
-    { menuPublicId: string } & Pick<ResponseOrderItem, "quantity"> &
-      Partial<Pick<ResponseOrderItem, "menuName"> & OrderItemOption>
+    { menuPublicId: string } & Pick<PublicOrderItem, "quantity"> &
+      Partial<Pick<PublicOrderItem, "menuName"> & OrderItemOption>
   >;
   memo?: string;
 };
 async function createOwnerOrder(
   { storeId, tableId }: FetchOrderParams,
   createOrderPayload: CreateOwnerOrderPayload
-): Promise<ResponseOrderWithItem> {
-  const response = await http.post<ResponseOrderWithItem>(
+): Promise<PublicOrderWithItem> {
+  const response = await http.post<PublicOrderWithItem>(
     `${prefix(storeId, tableId)}`,
     createOrderPayload
   );
@@ -39,8 +39,8 @@ export type FetchOrderParams = {
 async function fetchList({
   storeId,
   tableId,
-}: FetchOrderParams): Promise<ResponseOrderWithItem[]> {
-  const response = await http.get<ResponseOrderWithItem[]>(
+}: FetchOrderParams): Promise<PublicOrderWithItem[]> {
+  const response = await http.get<PublicOrderWithItem[]>(
     `${prefix(storeId, tableId)}`
   );
   return response.data;
@@ -53,8 +53,8 @@ async function fetchUnique({
   storeId,
   tableId,
   orderId,
-}: FetchOrderUniqueParams): Promise<ResponseOrderWithItem> {
-  const response = await http.get<ResponseOrderWithItem>(
+}: FetchOrderUniqueParams): Promise<PublicOrderWithItem> {
+  const response = await http.get<PublicOrderWithItem>(
     `${prefix(storeId, tableId)}/${orderId}`
   );
   return response.data;
@@ -70,7 +70,7 @@ async function updateOwnerOrder(
   { orderId, storeId, tableId }: FetchOrderUniqueParams,
   updateOrderPayload: UpdateOwnerOrderPayload
 ) {
-  const response = await http.patch<ResponseOrderWithItem>(
+  const response = await http.patch<PublicOrderWithItem>(
     `${prefix(storeId, tableId)}/${orderId}`,
     updateOrderPayload
   );

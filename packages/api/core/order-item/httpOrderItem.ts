@@ -1,4 +1,4 @@
-import { ResponseOrderItem } from "@spaceorder/db";
+import { PublicOrderItem } from "@spaceorder/db";
 import { http } from "../axios";
 import z from "zod";
 import { createOrderItemSchema } from "../../schemas/model/orderItem.schema";
@@ -19,8 +19,8 @@ export type FetchOrderItemUnique = FetchOrderItemParams & {
 async function updateOrderItem(
   { orderId, orderItemId }: FetchOrderItemUnique,
   updateOrderItemPayload: UpdateOrderItemPayload
-): Promise<ResponseOrderItem> {
-  const response = await http.patch<ResponseOrderItem>(
+): Promise<PublicOrderItem> {
+  const response = await http.patch<PublicOrderItem>(
     `${prefix(orderId)}/${orderItemId}`,
     updateOrderItemPayload
   );

@@ -12,12 +12,12 @@ import {
   ALIVE_SESSION,
   ORDER_ITEMS,
 } from "@spaceorder/db/constants/model-query-key/sessionQueryKey.const";
-import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
+import { PublicOrderItem } from "@spaceorder/db/types/responseModel.type";
 
 type UseOrderItemParams = { storeId: string; tableId: string };
 type UseOrderItemReturn = {
   updateOrderItem: UseMutationResult<
-    ResponseOrderItem,
+    PublicOrderItem,
     Error,
     {
       params: FetchOrderItemUnique;

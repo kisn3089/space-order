@@ -3,11 +3,7 @@ import {
   UseMutationResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  FetchOrderItemUnique,
-  httpOrderItems,
-  UpdateOrderItemPayload,
-} from "./httpOrderItem";
+import { httpOrderItems, UpdateOrderItemPayload } from "./httpOrderItem";
 import { PublicOrderItem } from "@spaceorder/db/types/publicModel.type";
 
 type UseOrderItemParams = { storeId: string; tableId: string };
@@ -16,15 +12,11 @@ type UseOrderItemReturn = {
     PublicOrderItem,
     Error,
     {
-      params: FetchOrderItemUnique;
+      orderItemId: string;
       updateOrderItemPayload: UpdateOrderItemPayload;
     }
   >;
-  removeOrderItem: UseMutationResult<
-    void,
-    Error,
-    { params: FetchOrderItemUnique }
-  >;
+  removeOrderItem: UseMutationResult<void, Error, { orderItemId: string }>;
 };
 export default function useOrderItem({
   storeId,
@@ -35,12 +27,16 @@ export default function useOrderItem({
   const updateOrderItem = useMutation({
     mutationKey: ["order-item", "update"],
     mutationFn: ({
-      params,
+      orderItemId,
       updateOrderItemPayload,
     }: {
-      params: FetchOrderItemUnique;
+      orderItemId: string;
       updateOrderItemPayload: UpdateOrderItemPayload;
-    }) => httpOrderItems.updateOrderItem(params, updateOrderItemPayload),
+    }) =>
+      httpOrderItems.updateOrderItem(
+        { storeId, orderItemId },
+        updateOrderItemPayload
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [`/owner/v1/stores/${storeId}/orders/board`],
@@ -56,8 +52,8 @@ export default function useOrderItem({
 
   const removeOrderItem = useMutation({
     mutationKey: ["order-item", "remove"],
-    mutationFn: ({ params }: { params: FetchOrderItemUnique }) =>
-      httpOrderItems.removeOrderItem(params),
+    mutationFn: ({ orderItemId }: { orderItemId: string }) =>
+      httpOrderItems.removeOrderItem({ storeId, orderItemId }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [`/owner/v1/stores/${storeId}/orders/board`],

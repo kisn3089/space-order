@@ -19,10 +19,7 @@ export default function useOrderItemTable() {
     if (!orderItem) return;
 
     return await updateOrderItem.mutateAsync({
-      params: {
-        orderId: orderItem.orderId,
-        orderItemId: orderItem.publicId,
-      },
+      orderItemId: orderItem.publicId,
       updateOrderItemPayload: { quantity: orderItem.quantity },
     });
   };
@@ -31,10 +28,7 @@ export default function useOrderItemTable() {
     if (!orderItem) return;
 
     return await removeOrderItem.mutateAsync({
-      params: {
-        orderId: orderItem.orderId,
-        orderItemId: orderItem.publicId,
-      },
+      orderItemId: orderItem.publicId,
     });
   };
 

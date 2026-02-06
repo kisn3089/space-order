@@ -12,27 +12,27 @@ export type UpdateOrderItemPayload = Partial<
   Omit<CreateOrderItemPayload, "menuName">
 >;
 
-type FetchOrderItemParams = { orderId: string };
-export type FetchOrderItemUnique = FetchOrderItemParams & {
+type FetchStoreIdParams = { storeId: string };
+type FetchOrderItemUnique = FetchStoreIdParams & {
   orderItemId: string;
 };
 async function updateOrderItem(
-  { orderId, orderItemId }: FetchOrderItemUnique,
+  { storeId, orderItemId }: FetchOrderItemUnique,
   updateOrderItemPayload: UpdateOrderItemPayload
 ): Promise<PublicOrderItem> {
   const response = await http.patch<PublicOrderItem>(
-    `${prefix(orderId)}/order-items/${orderItemId}`,
+    `${prefix(storeId)}/order-items/${orderItemId}`,
     updateOrderItemPayload
   );
   return response.data;
 }
 
 async function removeOrderItem({
-  orderId,
+  storeId,
   orderItemId,
 }: FetchOrderItemUnique): Promise<void> {
   const response = await http.delete<void>(
-    `${prefix(orderId)}/order-items/${orderItemId}`
+    `${prefix(storeId)}/order-items/${orderItemId}`
   );
   return response.data;
 }

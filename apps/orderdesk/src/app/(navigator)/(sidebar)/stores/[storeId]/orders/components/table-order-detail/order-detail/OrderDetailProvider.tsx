@@ -9,7 +9,7 @@ import {
   type OrderDetailContextValue,
 } from "./OrderDetailContext";
 import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
-import { PublicTableWithSessions } from "@spaceorder/db/types";
+import { PublicOrderWithItem } from "@spaceorder/db/types";
 
 interface OrderDetailProviderProps {
   params: { storeId: string; tableId: string };
@@ -23,8 +23,8 @@ export function OrderDetailProvider({
   const { storeId, tableId } = params;
   const fetchUrl = `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`;
 
-  const { data: tableWithSessions, isRefetching } =
-    useSuspenseWithAuth<PublicTableWithSessions>(fetchUrl);
+  const { data: orders, isRefetching } =
+    useSuspenseWithAuth<PublicOrderWithItem[]>(fetchUrl);
 
   const { updateOrderItem, removeOrderItem } = useOrderItem({
     storeId,
@@ -34,11 +34,6 @@ export function OrderDetailProvider({
   const [editingItem, setEditingItem] =
     useState<OrderItemWithSummarizedOrder | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-
-  // 주문 아이템 데이터 가공
-  const { tableSessions } = tableWithSessions;
-  const tableSession = tableSessions ? tableSessions[0] : null;
-  const orders = tableSession?.orders ?? [];
 
   const orderItems: OrderItemWithSummarizedOrder[] = orders.flatMap((order) =>
     order.orderItems.map((item) => ({
@@ -70,10 +65,7 @@ export function OrderDetailProvider({
     if (!editingItem) return;
 
     await updateOrderItem.mutateAsync({
-      params: {
-        orderId: editingItem.orderId,
-        orderItemId: editingItem.publicId,
-      },
+      orderItemId: editingItem.publicId,
       updateOrderItemPayload: { quantity: editingItem.quantity },
     });
     resetSelection();
@@ -83,17 +75,14 @@ export function OrderDetailProvider({
     if (!editingItem) return;
 
     await removeOrderItem.mutateAsync({
-      params: {
-        orderId: editingItem.orderId,
-        orderItemId: editingItem.publicId,
-      },
+      orderItemId: editingItem.publicId,
     });
     resetSelection();
   };
 
   const contextValue: OrderDetailContextValue = {
     state: {
-      tableWithSessions,
+      orders,
       orderItems,
       totalPrice,
       editingItem,

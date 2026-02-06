@@ -4,6 +4,7 @@ import { Menu } from '@spaceorder/db';
 
 export type MenuValidationFields = Pick<
   Menu,
+  | 'id'
   | 'publicId'
   | 'name'
   | 'price'

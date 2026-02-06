@@ -13,6 +13,7 @@ export const ORDER_ITEMS_WITH_OMIT_PRIVATE = {
 } as const;
 
 export const MENU_VALIDATION_FIELDS_SELECT = {
+  id: true,
   publicId: true,
   name: true,
   price: true,

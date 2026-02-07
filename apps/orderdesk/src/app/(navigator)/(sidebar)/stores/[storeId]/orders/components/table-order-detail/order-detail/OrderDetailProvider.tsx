@@ -23,8 +23,11 @@ export function OrderDetailProvider({
   const { storeId, tableId } = params;
   const fetchUrl = `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`;
 
-  const { data: orders, isRefetching } =
-    useSuspenseWithAuth<PublicOrderWithItem[]>(fetchUrl);
+  const { data: orders, isRefetching } = useSuspenseWithAuth<
+    PublicOrderWithItem[]
+  >(fetchUrl, {
+    queryOptions: { refetchOnMount: true, queryKey: [fetchUrl] },
+  });
 
   const { updateOrderItem, removeOrderItem } = useOrderItem({
     storeId,
@@ -35,14 +38,20 @@ export function OrderDetailProvider({
     useState<OrderItemWithSummarizedOrder | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  const orderItems: OrderItemWithSummarizedOrder[] = orders.flatMap((order) =>
-    order.orderItems.map((item) => ({
-      ...item,
-      totalPrice: item.unitPrice * item.quantity,
-      orderId: order.publicId,
-      orderStatus: order.status,
-    }))
-  );
+  const orderItems: OrderItemWithSummarizedOrder[] = orders
+    .filter(
+      (filteringOrder) =>
+        filteringOrder.status !== "CANCELLED" &&
+        filteringOrder.status !== "COMPLETED"
+    )
+    .flatMap((order) =>
+      order.orderItems.map((item) => ({
+        ...item,
+        totalPrice: item.unitPrice * item.quantity,
+        orderId: order.publicId,
+        orderStatus: order.status,
+      }))
+    );
 
   const isEditingFinalizedOrder =
     editingItem?.orderStatus === "COMPLETED" ||

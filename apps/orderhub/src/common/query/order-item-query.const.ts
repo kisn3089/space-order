@@ -1,16 +1,11 @@
-import {
-  ORDER_ITEM_QUERY_FILTER_KEYS,
-  TableSessionStatus,
-} from '@spaceorder/db';
-
-const createOrderItemAliveSessionFilter = () => ({
-  tableSession: {
-    status: TableSessionStatus.ACTIVE,
-    expiresAt: { gt: new Date() },
+export const ORDER_ITEMS_WITH_OMIT_PRIVATE = {
+  include: {
+    orderItems: { omit: { id: true, orderId: true, menuId: true } },
   },
-});
-
-export const ORDER_ITEM_FILTER_RECORD = {
-  [ORDER_ITEM_QUERY_FILTER_KEYS.ALIVE_SESSION]:
-    createOrderItemAliveSessionFilter,
+  omit: {
+    id: true,
+    storeId: true,
+    tableId: true,
+    tableSessionId: true,
+  },
 } as const;

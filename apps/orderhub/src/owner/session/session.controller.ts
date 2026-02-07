@@ -60,7 +60,7 @@ export class SessionController {
   @ApiResponse(tableSessionDocs.unauthorizedResponse)
   async list(
     @Param('storeId') storeId: string,
-  ): Promise<PublicSessionWithTable[]> {
+  ): Promise<PublicSessionWithTable<'Wide'>[]> {
     return await this.sessionService.getSessionList({
       where: { table: { store: { publicId: storeId } } },
       omit: SESSION_OMIT,
@@ -85,7 +85,7 @@ export class SessionController {
   async unique(
     @Param('storeId') storeId: string,
     @Param('sessionId') sessionId: string,
-  ): Promise<PublicSessionWithTable> {
+  ): Promise<PublicSessionWithTable<'Wide'>> {
     return await this.sessionService.getSessionUnique({
       where: { publicId: sessionId, table: { store: { publicId: storeId } } },
       omit: SESSION_OMIT,

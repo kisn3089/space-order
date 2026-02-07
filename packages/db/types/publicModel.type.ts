@@ -14,9 +14,11 @@ export type PublicOwner = Omit<Owner, "id" | "refreshToken" | "password">;
 export type PublicTable = Omit<Table, "id" | "storeId">;
 
 export type PublicSession = Omit<TableSession, "id" | "tableId">;
-export type PublicSessionWithTable = Omit<TableSession, "id" | "tableId"> & {
+export type PublicSessionWithTable<
+  Option extends "Narrow" | "Wide" = "Narrow",
+> = Omit<TableSession, "id" | "tableId"> & {
   table: PublicTable;
-  orders: Array<PublicOrder & { orderItems?: PublicOrderItem[] }>;
+  orders: Array<PublicOrder & { orderItems?: PublicOrderItem<Option>[] }>;
 };
 
 export type PublicOrder = Omit<

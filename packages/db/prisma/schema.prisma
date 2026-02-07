@@ -107,7 +107,7 @@ model Table {
    */
   section     String?
   isActive    Boolean  @default(true) @map("is_active")
-  qrCode      String   @unique @map("qr_code")
+  qrCode      String   @unique @default(cuid(2)) @map("qr_code")
   description String?  @db.VarChar(500)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

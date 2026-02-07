@@ -31,11 +31,8 @@ import {
   updateTablePayloadSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { ExtendedResponseTable, PublicTable } from '@spaceorder/db';
+import type { PublicTable } from '@spaceorder/db';
 import { PublicTableDto } from '../../dto/public/table.dto';
-import { TABLE_FILTER_RECORD } from '../../common/query/table-query.const';
-import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
-import { SESSION_INCLUDE_RECORD } from 'src/common/query/session-query.const';
 import {
   CreateTablePayloadDto,
   UpdateTablePayloadDto,
@@ -43,8 +40,7 @@ import {
 import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
 
 type ListQueryParams = {
-  filter?: keyof typeof TABLE_FILTER_RECORD;
-  include?: keyof typeof SESSION_INCLUDE_RECORD;
+  isActive?: boolean;
 };
 
 @ApiTags('Tables')
@@ -52,10 +48,7 @@ type ListQueryParams = {
 @Controller('stores/:storeId/tables')
 @UseGuards(JwtAuthGuard, OwnerStoreGuard)
 export class TableController {
-  constructor(
-    private readonly tableService: TableService,
-    private readonly queryParamsBuilder: QueryParamsBuilderService,
-  ) {}
+  constructor(private readonly tableService: TableService) {}
 
   @Post()
   @UseGuards(
@@ -96,22 +89,12 @@ export class TableController {
   async list(
     @Param('storeId') storeId: string,
     @Query() query?: ListQueryParams,
-  ): Promise<ExtendedResponseTable[]> {
-    const { filter, include } = this.queryParamsBuilder.build({
-      query,
-      includeRecord: SESSION_INCLUDE_RECORD,
-      filterRecord: TABLE_FILTER_RECORD,
-    });
-
-    const tableFilter = query?.filter === 'activated-table' ? filter : {};
-    const includeSession =
-      query?.filter !== 'activated-table' && include
-        ? { tableSessions: { ...(include ?? {}), ...(filter ?? {}) } }
-        : {};
-
+  ): Promise<PublicTable[]> {
     return await this.tableService.getTableList({
-      where: { store: { publicId: storeId }, ...tableFilter },
-      include: includeSession,
+      where: {
+        store: { publicId: storeId },
+        ...(query?.isActive === true ? { isActive: query.isActive } : {}),
+      },
       omit: this.tableService.omitPrivate,
     });
   }

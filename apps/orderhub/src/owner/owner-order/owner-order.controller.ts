@@ -43,7 +43,6 @@ import {
 } from 'src/dto/order.dto';
 import { SummarizedTableDto } from 'src/dto/public/table.dto';
 
-// /owner/v1 /stores/:storeId/orders/:orderId/order-items/:orderItemId
 @ApiTags('Owner Orders')
 @ApiBearerAuth()
 @Controller('stores/:storeId')

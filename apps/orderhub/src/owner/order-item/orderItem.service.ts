@@ -9,7 +9,7 @@ import {
 import { Tx } from 'src/utils/helper/transactionPipe';
 import { validateOrderSessionToWrite } from 'src/common/validate/order/order-session-to-write';
 import { validateMenuAvailableOrThrow } from 'src/common/validate/menu/available';
-import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/order-query.const';
+import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/menu-query.const';
 
 type StoreIdAndOrderIdParams = {
   storeId: string;
@@ -68,7 +68,7 @@ export class OrderItemService {
 
   private buildMenuQuery(menuId: string | bigint, storeId: string) {
     const menuIdField =
-      typeof menuId === 'string' ? { menuPublicId: menuId } : { id: menuId };
+      typeof menuId === 'string' ? { publicId: menuId } : { id: menuId };
 
     return {
       where: { ...menuIdField, store: { publicId: storeId }, deletedAt: null },

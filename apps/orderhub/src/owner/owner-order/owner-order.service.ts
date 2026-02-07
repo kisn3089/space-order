@@ -10,11 +10,8 @@ import {
 } from '@spaceorder/db';
 import { SessionService } from 'src/owner/session/session.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  MENU_VALIDATION_FIELDS_SELECT,
-  ORDER_ITEMS_WITH_OMIT_PRIVATE,
-  ORDER_SITUATION_PAYLOAD,
-} from 'src/common/query/order-query.const';
+import { ORDER_SITUATION_PAYLOAD } from 'src/common/query/order-query.const';
+import { ORDER_ITEMS_WITH_OMIT_PRIVATE } from 'src/common/query/order-item-query.const';
 import {
   CreateOrderPayloadDto,
   UpdateOrderPayloadDto,
@@ -22,6 +19,8 @@ import {
 import { createOrderItemsWithValidMenu } from 'src/common/validate/order/create-order-item';
 import { ALIVE_SESSION_STATUSES } from 'src/common/query/session-query.const';
 import { validateOrderSessionToWrite } from 'src/common/validate/order/order-session-to-write';
+import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/menu-query.const';
+import { TALBE_OMIT } from 'src/common/query/table-query.const';
 
 type TableIdParams = { tableId: string };
 type OrderIdParams = { orderId: string };
@@ -86,7 +85,7 @@ export class OwnerOrderService {
     return await this.prismaService.table.findMany({
       where: { store: { ownerId: client.id, publicId: storeId } },
       include: ORDER_SITUATION_PAYLOAD,
-      omit: { id: true, storeId: true },
+      omit: TALBE_OMIT,
     });
   }
 

@@ -5,7 +5,6 @@ import { LocalStrategy } from './auth/strategies/local-sign-in.strategy';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './auth/strategies/jwt-refresh-strategy';
 import { GenerateTokenService } from 'src/utils/jwt/token-config';
-import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { StoreController } from './store/store.controller';
@@ -44,7 +43,6 @@ import { OwnerOrderService } from './owner-order/owner-order.service';
     JwtStrategy,
     JwtRefreshStrategy,
     GenerateTokenService,
-    QueryParamsBuilderService,
   ],
 })
 export class OwnerModule {}

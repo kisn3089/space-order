@@ -13,10 +13,7 @@ export class MenuService {
     createPayload: CreateMenuPayloadDto,
   ): Promise<PublicMenu> {
     return await this.prismaService.menu.create({
-      data: {
-        store: { connect: { publicId: storeId } },
-        ...createPayload,
-      },
+      data: { store: { connect: { publicId: storeId } }, ...createPayload },
       omit: this.omitPrivate,
     });
   }

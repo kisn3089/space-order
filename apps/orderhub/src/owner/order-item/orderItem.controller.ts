@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -28,11 +27,8 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import type { PublicOrderItem } from '@spaceorder/db';
 import {
   createOrderItemPayloadSchema,
-  orderItemQuerySchema,
   partialUpdateOrderItemPayloadSchema,
 } from '@spaceorder/api/schemas/model/orderItem.schema';
-import { QueryParamsBuilderService } from 'src/utils/query-params/query-builder';
-import { ORDER_ITEM_FILTER_RECORD } from '../../common/query/order-item-query.const';
 import { paramsDocs } from 'src/docs/params.docs';
 import { orderItemDocs } from 'src/docs/orderItem.docs';
 import { PublicOrderItemDto } from 'src/dto/public/order-item';
@@ -42,19 +38,12 @@ import {
 } from 'src/dto/order-item.dto';
 import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
 
-type OrderItemQueryParams = {
-  filter?: keyof typeof ORDER_ITEM_FILTER_RECORD;
-};
-
 @ApiTags('Order Items')
 @ApiBearerAuth()
 @Controller('stores/:storeId')
 @UseGuards(JwtAuthGuard, OwnerStoreGuard)
 export class OrderItemController {
-  constructor(
-    private readonly orderItemService: OrderItemService,
-    private readonly queryParamsBuilder: QueryParamsBuilderService,
-  ) {}
+  constructor(private readonly orderItemService: OrderItemService) {}
 
   @Post('orders/:orderId/order-items')
   @UseGuards(
@@ -85,12 +74,7 @@ export class OrderItemController {
   }
 
   @Get('orders/:orderId/order-items')
-  @UseGuards(
-    ZodValidation({
-      params: storeIdAndOrderIdParamsSchema,
-      query: orderItemQuerySchema,
-    }),
-  )
+  @UseGuards(ZodValidation({ params: storeIdAndOrderIdParamsSchema }))
   @ApiOperation({ summary: orderItemDocs.getList.summary })
   @ApiQuery(paramsDocs.query.filter.orderItem)
   @ApiParam(paramsDocs.storeId)
@@ -100,19 +84,13 @@ export class OrderItemController {
     type: [PublicOrderItemDto],
   })
   @ApiResponse(orderItemDocs.unauthorizedResponse)
-  async lList(
+  async list(
     @Param('storeId') storeId: string,
     @Param('orderId') orderId: string,
-    @Query() query?: OrderItemQueryParams,
   ): Promise<PublicOrderItem<'Wide'>[]> {
-    const { filter } = this.queryParamsBuilder.build({
-      query,
-      filterRecord: ORDER_ITEM_FILTER_RECORD,
-    });
-
     return await this.orderItemService.getOrderItemList({
       where: {
-        order: { publicId: orderId, store: { publicId: storeId }, ...filter },
+        order: { publicId: orderId, store: { publicId: storeId } },
       },
       omit: this.orderItemService.omitPrivate,
     });

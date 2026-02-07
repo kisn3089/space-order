@@ -24,12 +24,17 @@ import {
   storeIdAndSessionIdSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { PublicSession } from '@spaceorder/db';
+import type { PublicSession, PublicSessionWithTable } from '@spaceorder/db';
 import type { z } from 'zod';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { SessionService } from './session.service';
 import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
 import { PublicTableSessionDto } from 'src/dto/public/table.dto';
+import {
+  ORDER_WITH_ITEMS_RECORD,
+  SESSION_OMIT,
+} from 'src/common/query/session-query.const';
+import { TALBE_OMIT } from 'src/common/query/table-query.const';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionPayloadSchema>;
 
@@ -53,10 +58,16 @@ export class SessionController {
     type: [PublicTableSessionDto],
   })
   @ApiResponse(tableSessionDocs.unauthorizedResponse)
-  async list(@Param('storeId') storeId: string): Promise<PublicSession[]> {
+  async list(
+    @Param('storeId') storeId: string,
+  ): Promise<PublicSessionWithTable[]> {
     return await this.sessionService.getSessionList({
       where: { table: { store: { publicId: storeId } } },
-      omit: { id: true, tableId: true },
+      omit: SESSION_OMIT,
+      include: {
+        table: { omit: TALBE_OMIT },
+        orders: ORDER_WITH_ITEMS_RECORD,
+      },
     });
   }
 
@@ -74,13 +85,15 @@ export class SessionController {
   async unique(
     @Param('storeId') storeId: string,
     @Param('sessionId') sessionId: string,
-  ): Promise<PublicTableSessionDto> {
-    return new PublicTableSessionDto(
-      await this.sessionService.getSessionUnique({
-        where: { publicId: sessionId, table: { store: { publicId: storeId } } },
-        omit: { id: true, tableId: true },
-      }),
-    );
+  ): Promise<PublicSessionWithTable> {
+    return await this.sessionService.getSessionUnique({
+      where: { publicId: sessionId, table: { store: { publicId: storeId } } },
+      omit: SESSION_OMIT,
+      include: {
+        table: { omit: TALBE_OMIT },
+        orders: ORDER_WITH_ITEMS_RECORD,
+      },
+    });
   }
 
   @Patch(':sessionId')

@@ -20,15 +20,9 @@ export class TableService {
     storeId: string,
     createTablePayload: CreateTablePayloadDto,
   ): Promise<PublicTable> {
-    // TODO: QR 코드 default(cuid2) DB 변경 필요
-    const tablePublicId = createId();
-    const qrCode = `/stores/${storeId}/tables/${tablePublicId}/session`;
     const createdTable = await this.prismaService.table.create({
       data: {
         ...createTablePayload,
-        publicId: tablePublicId,
-        qrCode,
-        seats: createTablePayload.seats ?? 4,
         store: { connect: { publicId: storeId } },
       },
       omit: this.omitPrivate,

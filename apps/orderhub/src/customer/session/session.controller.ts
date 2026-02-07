@@ -12,11 +12,7 @@ import {
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { tableSessionDocs } from 'src/docs/tableSession.docs';
 import { paramsDocs } from 'src/docs/params.docs';
-import {
-  tableParamsSchema,
-  updateCustomerSessionPayloadSchema,
-} from '@spaceorder/api/schemas';
-import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
+import { updateCustomerSessionPayloadSchema } from '@spaceorder/api/schemas';
 import { type PublicSession, type TableSession } from '@spaceorder/db';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import { Session } from 'src/decorators/session.decorator';
@@ -28,6 +24,7 @@ import {
   PublicTableSessionDto,
   TableWithStoreContextDto,
 } from 'src/dto/public/table.dto';
+import { plainToInstance } from 'class-transformer';
 
 export type UpdateCustomerTableSessionDto = z.infer<
   typeof updateCustomerSessionPayloadSchema
@@ -53,7 +50,9 @@ export class SessionController {
         createSessionPayload,
       );
 
-    return new SessionTokenDto(findOrCreatedSession);
+    return plainToInstance(SessionTokenDto, findOrCreatedSession, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Get(':sessionToken')
@@ -66,13 +65,7 @@ export class SessionController {
   }
 
   @Patch(':sessionToken')
-  @UseGuards(
-    SessionAuth,
-    ZodValidation({
-      params: tableParamsSchema,
-      body: updateCustomerSessionPayloadSchema,
-    }),
-  )
+  @UseGuards(SessionAuth)
   @ApiOperation({ summary: tableSessionDocs.update.summary })
   @ApiParam(paramsDocs.tableId)
   @ApiResponse({

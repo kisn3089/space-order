@@ -16,10 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
-import {
-  type SessionWithTable,
-  type PublicOrderWithItem,
-} from '@spaceorder/db';
+import type { PublicOrderWithItem, TableSession } from '@spaceorder/db';
 import {
   createOrderPayloadSchema,
   sessionAndOrderIdParamsSchema,
@@ -54,11 +51,11 @@ export class OrderController {
   @ApiResponse(orderDocs.badRequestResponse)
   @ApiResponse(orderDocs.unauthorizedResponse)
   async create(
-    @Session() tableSession: SessionWithTable,
+    @Session() tableSession: TableSession,
     @Body() createOrderPayload: CreateOrderPayloadDto,
   ): Promise<PublicOrderWithItem<'Wide'>> {
     return await this.orderService.createOrder(
-      { tableSession },
+      tableSession,
       createOrderPayload,
     );
   }
@@ -72,9 +69,9 @@ export class OrderController {
   })
   @ApiResponse(orderDocs.unauthorizedResponse)
   async list(
-    @Session() tableSession: SessionWithTable,
+    @Session() tableSession: TableSession,
   ): Promise<PublicOrderWithItem<'Wide'>[]> {
-    return await this.orderService.getOrderList({ tableSession });
+    return await this.orderService.getOrderList(tableSession);
   }
 
   @Get(':orderId')
@@ -86,7 +83,7 @@ export class OrderController {
   })
   @ApiResponse(orderDocs.unauthorizedResponse)
   async unique(
-    @Session() tableSession: SessionWithTable,
+    @Session() tableSession: TableSession,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem<'Wide'>> {
     return await this.orderService.getOrderUnique({ tableSession, orderId });
@@ -103,7 +100,7 @@ export class OrderController {
   @ApiResponse(orderDocs.unauthorizedResponse)
   @ApiResponse(orderDocs.notFoundResponse)
   async delete(
-    @Session() tableSession: SessionWithTable,
+    @Session() tableSession: TableSession,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem<'Wide'>> {
     return await this.orderService.cancelOrder({

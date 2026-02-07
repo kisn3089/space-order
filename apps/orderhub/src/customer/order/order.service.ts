@@ -2,20 +2,18 @@ import { Injectable } from '@nestjs/common';
 import {
   OrderStatus,
   PublicOrderWithItem,
-  SessionWithTable,
+  TableSession,
   TableSessionStatus,
 } from '@spaceorder/db';
 import { SessionService } from '../session/session.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  MENU_VALIDATION_FIELDS_SELECT,
-  ORDER_ITEMS_WITH_OMIT_PRIVATE,
-} from 'src/common/query/order-query.const';
+import { ORDER_ITEMS_WITH_OMIT_PRIVATE } from 'src/common/query/order-item-query.const';
 import { createOrderItemsWithValidMenu } from 'src/common/validate/order/create-order-item';
 import { CreateOrderPayloadDto } from 'src/dto/order.dto';
+import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/menu-query.const';
 
 type OrderIdParams = { orderId: string };
-type SessionParams = { tableSession: SessionWithTable };
+type SessionParams = { tableSession: TableSession };
 
 @Injectable()
 export class OrderService {
@@ -25,20 +23,24 @@ export class OrderService {
   ) {}
 
   async createOrder(
-    { tableSession }: SessionParams,
+    tableSession: TableSession,
     createOrderPayload: CreateOrderPayloadDto,
   ): Promise<PublicOrderWithItem<'Wide'>> {
     return await this.prismaService.$transaction(async (tx) => {
-      const getActivatedSessionOrCreated: SessionWithTable = tableSession;
-
       const menuPublicIds = createOrderPayload.orderItems.map(
         (item) => item.menuPublicId,
       );
 
-      const findMenuList = await tx.menu.findMany({
-        where: { publicId: { in: menuPublicIds }, deletedAt: null },
-        select: MENU_VALIDATION_FIELDS_SELECT,
-      });
+      const [findMenuList, table] = await Promise.all([
+        tx.menu.findMany({
+          where: { publicId: { in: menuPublicIds }, deletedAt: null },
+          select: MENU_VALIDATION_FIELDS_SELECT,
+        }),
+        tx.table.findUniqueOrThrow({
+          where: { id: tableSession.tableId },
+          select: { storeId: true },
+        }),
+      ]);
 
       const bulkCreateOrderItems = createOrderItemsWithValidMenu(
         createOrderPayload,
@@ -46,9 +48,9 @@ export class OrderService {
         menuPublicIds,
       );
 
-      if (getActivatedSessionOrCreated.status !== TableSessionStatus.ACTIVE) {
+      if (tableSession.status !== TableSessionStatus.ACTIVE) {
         await this.sessionService.txUpdateSession(
-          getActivatedSessionOrCreated,
+          tableSession,
           { status: TableSessionStatus.ACTIVE },
           tx,
         );
@@ -56,9 +58,9 @@ export class OrderService {
 
       return await tx.order.create({
         data: {
-          storeId: getActivatedSessionOrCreated.table.storeId,
-          tableId: getActivatedSessionOrCreated.table.id,
-          tableSessionId: getActivatedSessionOrCreated.id,
+          storeId: table.storeId,
+          tableId: tableSession.tableId,
+          tableSessionId: tableSession.id,
           orderItems: { create: bulkCreateOrderItems },
           memo: createOrderPayload.memo,
         },
@@ -67,9 +69,9 @@ export class OrderService {
     });
   }
 
-  async getOrderList({
-    tableSession,
-  }: SessionParams): Promise<PublicOrderWithItem<'Wide'>[]> {
+  async getOrderList(
+    tableSession: TableSession,
+  ): Promise<PublicOrderWithItem<'Wide'>[]> {
     return await this.prismaService.order.findMany({
       where: this.whereSessionIdRecord({ tableSession }),
       ...ORDER_ITEMS_WITH_OMIT_PRIVATE,

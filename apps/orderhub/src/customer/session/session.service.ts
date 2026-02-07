@@ -15,7 +15,7 @@ import {
   ALIVE_SESSION_STATUSES,
   TWENTY_MINUTE,
   INCLUDE_TABLE,
-  INCLUDE_TABLE_STORE_MENUS,
+  INCLUDE_TABLE_STORE_AVAILABLE_MENUS,
 } from 'src/common/query/session-query.const';
 import { generateSecureSessionToken } from 'src/utils/lib/crypt';
 import { BaseSessionService } from 'src/common/services/base-session.service';
@@ -64,7 +64,7 @@ export class SessionService extends BaseSessionService {
         sessionToken,
         expiresAt: TWENTY_MINUTE(),
       },
-      include: INCLUDE_TABLE_STORE_MENUS,
+      include: INCLUDE_TABLE,
     };
   }
 
@@ -102,7 +102,7 @@ export class SessionService extends BaseSessionService {
   ): Promise<TableSession & { table: TableWithStoreContext }> {
     return await this.prismaService.tableSession.findFirstOrThrow({
       where: this.buildSessionTokenQuery(sessionToken),
-      include: INCLUDE_TABLE_STORE_MENUS,
+      include: INCLUDE_TABLE_STORE_AVAILABLE_MENUS,
     });
   }
 

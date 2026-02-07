@@ -7,7 +7,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { sessionTokenSchema } from '@spaceorder/api/schemas';
-import { TableSession } from '@spaceorder/db';
+import { SessionWithTable, TableSession } from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { SessionService } from 'src/customer/session/session.service';
 
@@ -17,6 +17,7 @@ type RequestWithClient = Request & {
 };
 /**
  * @access Session
+ * @type TableSession
  * @description Guard to check permission to access the session and cache the result.
  */
 @Injectable()

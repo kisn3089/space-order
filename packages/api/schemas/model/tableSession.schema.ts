@@ -17,7 +17,7 @@ export const sessionTokenParamsSchema = z
 
 export const createSessionSchema = z
   .object({
-    qrCode: commonSchema.cuid2("TableSession"),
+    qrCode: commonSchema.cuid2("Table"),
   })
   .strict();
 

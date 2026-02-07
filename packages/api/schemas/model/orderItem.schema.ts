@@ -1,6 +1,5 @@
 import z from "zod";
 import { commonSchema } from "../common";
-import { ORDER_ITEM_QUERY_FILTER_KEYS } from "@spaceorder/db";
 
 const optionItemSchema = z.record(z.string(), z.string());
 
@@ -18,13 +17,3 @@ export const partialUpdateOrderItemPayloadSchema = createOrderItemPayloadSchema
   .omit({ menuName: true })
   .partial()
   .strict();
-
-/** -------- Query --------- */
-const orderItemFilterQuerySchema = z.object({
-  filter: z.literal(ORDER_ITEM_QUERY_FILTER_KEYS.ALIVE_SESSION),
-});
-
-export const orderItemQuerySchema = z.discriminatedUnion("filter", [
-  orderItemFilterQuerySchema,
-  z.object({ filter: z.undefined() }),
-]);

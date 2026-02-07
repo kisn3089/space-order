@@ -9,16 +9,15 @@ import type {
 } from "@prisma/client";
 import { OrderItemOptionSnapshot } from "./menuOptions.type";
 
-export type ExtendedResponseTable = PublicTable & {
-  tableSessions?: PublicSession[];
-  orders?: Array<PublicOrder & { orderItems?: PublicOrderItem[] }>;
-};
-
 export type PublicOwner = Omit<Owner, "id" | "refreshToken" | "password">;
 
 export type PublicTable = Omit<Table, "id" | "storeId">;
 
 export type PublicSession = Omit<TableSession, "id" | "tableId">;
+export type PublicSessionWithTable = Omit<TableSession, "id" | "tableId"> & {
+  table: PublicTable;
+  orders: Array<PublicOrder & { orderItems?: PublicOrderItem[] }>;
+};
 
 export type PublicOrder = Omit<
   Order,

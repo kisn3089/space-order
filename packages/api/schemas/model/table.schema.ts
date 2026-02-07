@@ -1,7 +1,6 @@
 import z from "zod";
 import { storeIdParamsSchema } from "./store.schema";
 import { commonSchema } from "../common";
-import { sessionIncludeQuerySchema } from "./tableSession.schema";
 
 export const createTablePayloadSchema = z
   .object({
@@ -40,19 +39,10 @@ export const storeIdAndTableIdParamsSchema =
   storeIdParamsSchema.merge(tableParamsSchema);
 
 /** -------- Query --------- */
-// include가 있으면 filter는 session filter만 가능
-const tableWithIncludeQuerySchema = z.object({
-  include: sessionIncludeQuerySchema.include.optional(),
-  filter: sessionIncludeQuerySchema.filter.optional(),
-});
+const booleanStringSchema = z
+  .enum(["true", "false"])
+  .transform((v) => v === "true");
 
-// include가 없으면 filter=activated-table 가능
-const tableWithoutIncludeQuerySchema = z.object({
-  include: z.undefined(),
-  filter: z.literal("activated-table").optional(),
+export const tableListQuerySchema = z.object({
+  isActive: booleanStringSchema.optional(),
 });
-
-export const tableListQuerySchema = z.union([
-  tableWithIncludeQuerySchema,
-  tableWithoutIncludeQuerySchema,
-]);

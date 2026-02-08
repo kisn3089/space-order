@@ -1,7 +1,7 @@
 import { PublicOwner } from "@spaceorder/db";
-import { http } from "../axios/http";
+import { http } from "../../axios";
 
-const prefix = "/owner/v1/owners";
+const prefix = "/identity/v1/owners";
 
 async function fetchList(): Promise<PublicOwner[]> {
   const response = await http.get<PublicOwner[]>(`${prefix}`);

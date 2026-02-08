@@ -1,15 +1,16 @@
 import { AxiosResponse } from "axios";
 import { http, updateAxiosAuthorizationHeader } from "../axios/http";
 import { AccessToken, SignInPayload } from "./auth.type";
-import { COOKIE_TABLE } from "@spaceorder/db";
+import { COOKIE_TABLE, TokenPayload } from "@spaceorder/db";
 
-const prefix = "/owner/v1/auth";
+const prefix = "/auth/v1";
 
 async function createAccessToken(
-  signInPayload: SignInPayload
+  signInPayload: SignInPayload,
+  role: TokenPayload["role"]
 ): Promise<AxiosResponse<AccessToken>> {
   const response = await http.post<AccessToken>(
-    `${prefix}/signin`,
+    `${prefix}/${role}/signin`,
     signInPayload
   );
   updateAxiosAuthorizationHeader(response.data.accessToken);

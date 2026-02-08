@@ -26,10 +26,13 @@ export default async function signInAction(
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const createdAccessToken = await httpAuth.createAccessToken({
-      email,
-      password,
-    });
+    const createdAccessToken = await httpAuth.createAccessToken(
+      {
+        email,
+        password,
+      },
+      "owner"
+    );
 
     const cookieFromResponseHeader = createdAccessToken.headers["set-cookie"];
     if (cookieFromResponseHeader) {

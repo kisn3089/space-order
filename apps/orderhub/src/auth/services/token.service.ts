@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
-import { Admin, Owner, TokenPayload } from '@spaceorder/db';
+import { Admin, Owner, TokenPayload, User } from '@spaceorder/db';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
 import { responseCookie } from 'src/utils/cookies';
 
@@ -29,12 +29,12 @@ export class TokenService {
     };
   }
 
-  generateToken(user: Owner | Admin, response: Response) {
+  generateToken(user: User, response: Response, role: TokenPayload['role']) {
     const tokenPayload: TokenPayload = {
       sub: user.publicId.toString(),
       email: user.email,
       username: user.name,
-      role: 'role' in user ? 'admin' : 'owner',
+      role,
       iss: this.configService.get('JWT_ISSUER'),
       aud: this.configService.get('JWT_AUDIENCE'),
       typ: `Bearer`,

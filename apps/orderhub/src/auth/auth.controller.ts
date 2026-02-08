@@ -13,6 +13,7 @@ import {
   type Admin,
   COOKIE_TABLE,
   type Owner,
+  type TokenPayload,
   type User,
 } from '@spaceorder/db';
 import type { Response } from 'express';
@@ -22,6 +23,7 @@ import { signInPayloadSchema } from '@spaceorder/api/schemas';
 import { AccessTokenDto } from 'src/dto/public/access-token.dto';
 import { SignInPayloadDto } from 'src/dto/auth.dto';
 import { Client } from 'src/decorators/client.decorator';
+import { Jwt } from 'src/decorators/jwt.decorator';
 
 @ApiTags('Auth')
 @Controller()
@@ -42,7 +44,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<AccessTokenDto> {
     return new AccessTokenDto(
-      await this.authService.createToken(owner, response),
+      await this.authService.createToken(owner, response, 'owner'),
     );
   }
 
@@ -60,7 +62,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<AccessTokenDto> {
     return new AccessTokenDto(
-      await this.authService.createToken(admin, response),
+      await this.authService.createToken(admin, response, 'admin'),
     );
   }
 
@@ -75,10 +77,11 @@ export class AuthController {
   @ApiResponse(authDocs.unauthorizedResponse)
   async createTokenByRefreshToken(
     @Client() user: User,
+    @Jwt() jwt: TokenPayload,
     @Res({ passthrough: true }) response: Response,
   ): Promise<AccessTokenDto> {
     return new AccessTokenDto(
-      await this.authService.createToken(user, response),
+      await this.authService.createToken(user, response, jwt.role),
     );
   }
 }

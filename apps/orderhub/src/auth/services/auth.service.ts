@@ -25,11 +25,13 @@ export class AuthService {
     private readonly adminService: AdminService,
   ) {}
 
-  async createToken(user: User, response: Response): Promise<AccessToken> {
-    const { accessToken, expiresAt, refreshToken, tokenPayload } =
-      this.tokenService.generateToken(user, response);
-
-    const { role } = tokenPayload;
+  async createToken(
+    user: User,
+    response: Response,
+    role: TokenPayload['role'],
+  ): Promise<AccessToken> {
+    const { accessToken, expiresAt, refreshToken } =
+      this.tokenService.generateToken(user, response, role);
 
     const encryptedRefreshToken = await encrypt(refreshToken);
 

@@ -23,6 +23,8 @@ import { IdentityModule } from 'src/identity/identity.module';
     CustomerModule,
 
     RouterModule.register([
+      { path: 'auth/v1', module: AuthModule },
+      { path: 'identity/v1', module: IdentityModule },
       { path: 'owner/v1', module: OwnerModule },
       { path: 'customer/v1', module: CustomerModule },
     ]),

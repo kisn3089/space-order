@@ -24,7 +24,7 @@ import { SignInPayloadDto } from 'src/dto/auth.dto';
 import { Client } from 'src/decorators/client.decorator';
 
 @ApiTags('Auth')
-@Controller('auth/v1')
+@Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

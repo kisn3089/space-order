@@ -32,7 +32,7 @@ import { AdminAuthGuard } from 'src/auth/guards/admin-auth.guard';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
-@Controller('identity/v1/admins')
+@Controller('admins')
 @UseGuards(JwtAuthGuard, AdminAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class AdminController {

@@ -39,7 +39,7 @@ export class UpdateOwnerDto extends createZodDto(updateOwnerPayloadSchema) {}
 
 @ApiTags('Owners')
 @ApiBearerAuth()
-@Controller('identity/v1/owners')
+@Controller('owners')
 @UseGuards(JwtAuthGuard)
 export class OwnerController {
   constructor(private readonly ownerService: OwnerService) {}

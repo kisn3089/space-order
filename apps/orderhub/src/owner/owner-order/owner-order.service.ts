@@ -20,7 +20,7 @@ import { createOrderItemsWithValidMenu } from 'src/common/validate/order/create-
 import { ALIVE_SESSION_STATUSES } from 'src/common/query/session-query.const';
 import { validateOrderSessionToWrite } from 'src/common/validate/order/order-session-to-write';
 import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/menu-query.const';
-import { TALBE_OMIT } from 'src/common/query/table-query.const';
+import { TABLE_OMIT } from 'src/common/query/table-query.const';
 
 type TableIdParams = { tableId: string };
 type OrderIdParams = { orderId: string };
@@ -85,7 +85,7 @@ export class OwnerOrderService {
     return await this.prismaService.table.findMany({
       where: { store: { ownerId: client.id, publicId: storeId } },
       include: ORDER_SITUATION_PAYLOAD,
-      omit: TALBE_OMIT,
+      omit: TABLE_OMIT,
     });
   }
 

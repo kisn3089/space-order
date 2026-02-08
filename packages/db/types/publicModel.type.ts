@@ -1,4 +1,5 @@
 import type {
+  Admin,
   Menu,
   Order,
   OrderItem,
@@ -9,7 +10,9 @@ import type {
 } from "@prisma/client";
 import { OrderItemOptionSnapshot } from "./menuOptions.type";
 
+export type PublicAdmin = Omit<Admin, "id" | "refreshToken" | "password">;
 export type PublicOwner = Omit<Owner, "id" | "refreshToken" | "password">;
+export type PublicUser = PublicOwner | PublicAdmin;
 
 export type PublicTable = Omit<Table, "id" | "storeId">;
 

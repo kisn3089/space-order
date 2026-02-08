@@ -32,16 +32,16 @@ import type {
   SummarizedOrdersByStore,
 } from '@spaceorder/db';
 import { Client } from 'src/decorators/client.decorator';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { PublicOrderWithItemsDto } from 'src/dto/public/order.dto';
 import { OwnerOrderService } from './owner-order.service';
-import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
 import {
   CreateOrderPayloadDto,
   UpdateOrderPayloadDto,
 } from 'src/dto/order.dto';
 import { SummarizedTableDto } from 'src/dto/public/table.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Owner Orders')
 @ApiBearerAuth()

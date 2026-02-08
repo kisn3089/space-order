@@ -23,7 +23,6 @@ import {
   storeIdAndOrderIdParamsSchema,
   storeIdAndOrderItemIdParamsSchema,
 } from '@spaceorder/api/schemas';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import type { PublicOrderItem } from '@spaceorder/db';
 import {
   createOrderItemPayloadSchema,
@@ -36,7 +35,8 @@ import {
   CreateOrderItemPayloadDto,
   UpdateOrderItemPayloadDto,
 } from 'src/dto/order-item.dto';
-import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Order Items')
 @ApiBearerAuth()

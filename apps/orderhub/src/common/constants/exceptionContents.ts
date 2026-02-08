@@ -26,6 +26,11 @@ const EXCEPTION_CONTENTS = {
     code: 'SIGNIN_FAILED',
     message: '이메일 또는 비밀번호가 올바르지 않습니다.',
   },
+  /** ---Auth--- */
+  INVALID_ROLE: {
+    code: 'INVALID_ROLE',
+    message: '유효하지 않은 사용자 역할입니다.',
+  },
   /** ---Menu--- */
   MENU_NOT_AVAILABLE: {
     code: 'MENU_NOT_AVAILABLE',

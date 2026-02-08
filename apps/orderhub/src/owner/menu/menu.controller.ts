@@ -22,7 +22,6 @@ import {
 import { MenuService } from './menu.service';
 import type { Owner, PublicMenu } from '@spaceorder/db';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { Client } from 'src/decorators/client.decorator';
 import { PublicMenuDto } from '../../dto/public/menu.dto';
 import {
@@ -34,7 +33,8 @@ import {
 import { menuDocs } from 'src/docs/menu.docs';
 import { paramsDocs } from 'src/docs/params.docs';
 import { CreateMenuPayloadDto, UpdateMenuPayloadDto } from 'src/dto/menu.dto';
-import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Menus')
 @ApiBearerAuth()

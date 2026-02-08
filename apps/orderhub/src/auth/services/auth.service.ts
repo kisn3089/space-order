@@ -33,19 +33,11 @@ export class AuthService {
 
     const encryptedRefreshToken = await encrypt(refreshToken);
 
-    if (role === 'admin') {
-      await this.updateRefreshTokenByRole(
-        role,
-        user.publicId,
-        encryptedRefreshToken,
-      );
-    } else {
-      await this.updateRefreshTokenByRole(
-        role,
-        user.publicId,
-        encryptedRefreshToken,
-      );
-    }
+    await this.updateRefreshTokenByRole(
+      role,
+      user.publicId,
+      encryptedRefreshToken,
+    );
 
     return { accessToken, expiresAt };
   }
@@ -125,16 +117,11 @@ export class AuthService {
       }
 
       return user;
-    } catch (error: unknown) {
-      if (
-        error instanceof UnauthorizedException &&
-        error.message === 'INVALID PASSWORD'
-      ) {
-        throw new HttpException(
-          exceptionContentsIs('SIGNIN_FAILED'),
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
+    } catch {
+      throw new HttpException(
+        exceptionContentsIs('SIGNIN_FAILED'),
+        HttpStatus.UNAUTHORIZED,
+      );
     }
   }
 }

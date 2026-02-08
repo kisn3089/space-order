@@ -1,12 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { LocalStrategy } from './auth/strategies/local-sign-in.strategy';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
-import { JwtRefreshStrategy } from './auth/strategies/jwt-refresh-strategy';
-import { GenerateTokenService } from 'src/utils/jwt/token-config';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
 import { StoreController } from './store/store.controller';
 import { StoreService } from './store/store.service';
 import { MenuController } from './menu/menu.controller';
@@ -23,7 +17,6 @@ import { OwnerOrderService } from './owner-order/owner-order.service';
 @Module({
   imports: [PassportModule, JwtModule],
   controllers: [
-    AuthController,
     StoreController,
     MenuController,
     TableController,
@@ -32,17 +25,12 @@ import { OwnerOrderService } from './owner-order/owner-order.service';
     OwnerOrderController,
   ],
   providers: [
-    AuthService,
     StoreService,
     MenuService,
     TableService,
     SessionService,
     OrderItemService,
     OwnerOrderService,
-    LocalStrategy,
-    JwtStrategy,
-    JwtRefreshStrategy,
-    GenerateTokenService,
   ],
 })
 export class OwnerModule {}

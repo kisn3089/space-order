@@ -17,13 +17,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { StoreService } from './store.service';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { Client } from 'src/decorators/client.decorator';
 import type { Owner, PublicStore } from '@spaceorder/db';
 import { PublicStoreDto } from '../../dto/public/store.dto';
 import { storeDocs } from 'src/docs/store.docs';
 import { paramsDocs } from 'src/docs/params.docs';
-import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Stores')
 @ApiBearerAuth()

@@ -22,7 +22,6 @@ import {
 import { TableService } from './table.service';
 import { tableDocs } from 'src/docs/table.docs';
 import { paramsDocs } from 'src/docs/params.docs';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import {
   createTablePayloadSchema,
   storeIdAndTableIdParamsSchema,
@@ -37,7 +36,8 @@ import {
   CreateTablePayloadDto,
   UpdateTablePayloadDto,
 } from 'src/dto/table.dto';
-import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 type ListQueryParams = {
   isActive?: boolean;

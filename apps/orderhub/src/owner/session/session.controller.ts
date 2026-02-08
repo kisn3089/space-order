@@ -26,15 +26,15 @@ import {
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicSession, PublicSessionWithTable } from '@spaceorder/db';
 import type { z } from 'zod';
-import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { SessionService } from './session.service';
-import { OwnerStoreGuard } from 'src/utils/guards/model-permissions/owner-store.guard';
+import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
 import { PublicTableSessionDto } from 'src/dto/public/table.dto';
 import {
   ORDER_WITH_ITEMS_RECORD,
   SESSION_OMIT,
 } from 'src/common/query/session-query.const';
 import { TALBE_OMIT } from 'src/common/query/table-query.const';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionPayloadSchema>;
 

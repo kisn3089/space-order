@@ -23,21 +23,25 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     email: string,
     password: string,
   ): Promise<{ info: User | undefined }> {
-    const path = req.path; // '/auth/v1/owner/signin' or '/auth/v1/admin/signin'
+    const path = req.path;
 
     if (path.includes('/owner/')) {
       const user = await this.authService.validateSignInPayload(
         { email, password },
         'owner',
       );
-      return { info: user };
+      if (user) {
+        return { info: user };
+      }
     }
     if (path.includes('/admin/')) {
       const user = await this.authService.validateSignInPayload(
         { email, password },
         'admin',
       );
-      return { info: user };
+      if (user) {
+        return { info: user };
+      }
     }
     throw new UnauthorizedException();
   }

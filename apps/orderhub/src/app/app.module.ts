@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AdminModule } from '../admin/admin.module';
 import { OwnerModule } from '../owner/owner.module';
-import { MeModule } from 'src/me/me.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { APP_FILTER, RouterModule } from '@nestjs/core';
 import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
 import { CustomerModule } from 'src/customer/customer.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { IdentityModule } from 'src/identity/identity.module';
 
 @Module({
   imports: [
@@ -17,13 +17,12 @@ import { CustomerModule } from 'src/customer/customer.module';
       envFilePath: ['.env'],
     }),
     PrismaModule, // PrismaModule is Global Module
-    MeModule,
-    AdminModule,
+    AuthModule,
+    IdentityModule,
     OwnerModule,
     CustomerModule,
 
     RouterModule.register([
-      { path: 'admin/v1', module: AdminModule },
       { path: 'owner/v1', module: OwnerModule },
       { path: 'customer/v1', module: CustomerModule },
     ]),

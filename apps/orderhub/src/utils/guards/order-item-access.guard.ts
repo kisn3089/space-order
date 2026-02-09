@@ -1,27 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { TokenPayload, User } from '@spaceorder/db';
 import { AccessGuard } from './access.guard';
-import { isAdmin } from '../isAdmin';
 
 @Injectable()
-export class StoreAccessGuard extends AccessGuard {
+export class OrderItemAccessGuard extends AccessGuard {
   protected async proofCanAccess(
     user: { info: User; jwt: TokenPayload },
     params: Record<string, string>,
   ): Promise<boolean> {
-    const { jwt } = user;
-
-    if (isAdmin(jwt.role)) {
-      return true;
-    }
-
     const ownerId = user.info.id;
-    const storeId = params.storeId;
+    const orderItemId = params.orderItemId;
 
-    const store = await this.prisma.store.findFirst({
-      where: { publicId: storeId, ownerId },
+    const orderItem = await this.prisma.orderItem.findFirst({
+      where: { publicId: orderItemId, order: { store: { ownerId } } },
     });
 
-    return !!store;
+    return !!orderItem;
   }
 }

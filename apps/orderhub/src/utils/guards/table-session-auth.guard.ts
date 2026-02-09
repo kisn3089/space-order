@@ -31,17 +31,18 @@ export class SessionAuth implements CanActivate {
     const tokenValidation = sessionTokenSchema.safeParse(sessionToken);
 
     if (tokenValidation.success) {
-      const activeSession =
-        await this.prismaService.tableSession.findFirstOrThrow({
-          where: {
-            sessionToken: tokenValidation.data,
-            expiresAt: { gt: new Date() },
-            status: { in: ALIVE_SESSION_STATUSES },
-          },
-        });
+      const activeSession = await this.prismaService.tableSession.findFirst({
+        where: {
+          sessionToken: tokenValidation.data,
+          expiresAt: { gt: new Date() },
+          status: { in: ALIVE_SESSION_STATUSES },
+        },
+      });
 
-      request.session = activeSession;
-      return true;
+      if (activeSession) {
+        request.session = activeSession;
+        return true;
+      }
     }
 
     throw new HttpException(

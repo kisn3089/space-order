@@ -4,7 +4,7 @@ import AwaitFetch from "@/components/AwaitFetch";
 import { useSetCacheByStoreBoard } from "../hooks/useSetCacheByStoreBoard";
 import { LAST_ACCESSED_STORE_ID } from "@spaceorder/db/constants";
 
-export default function AwaitOrdersBoard({
+export default function AwaitOrdersSummary({
   children,
 }: {
   children: React.ReactNode;

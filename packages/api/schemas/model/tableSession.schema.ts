@@ -1,9 +1,5 @@
 import z from "zod";
-import {
-  SESSION_QUERY_FILTER_KEYS,
-  SESSION_QUERY_INCLUDE_KEYS,
-  TableSessionStatus,
-} from "../../../db";
+import { TableSessionStatus } from "../../../db";
 import { commonSchema } from "../common";
 import { storeIdParamsSchema } from "./store.schema";
 
@@ -17,7 +13,7 @@ export const sessionTokenParamsSchema = z
 
 export const createSessionSchema = z
   .object({
-    qrCode: commonSchema.cuid2("Table"),
+    qrCode: commonSchema.cuid2("QRCode"),
   })
   .strict();
 
@@ -34,9 +30,13 @@ export const updateActivateSchema = z
     status: z.literal(TableSessionStatus.ACTIVE),
     paidAmount: z
       .number()
-      .min(0, "총 가격은 0원 이상이어야 합니다.")
+      .min(0, "결제할 금액은 0원 이상이어야 합니다.")
       .optional(),
   })
+  .strict();
+
+export const updateCustomerActivateSchema = z
+  .object({ status: z.literal(TableSessionStatus.ACTIVE) })
   .strict();
 
 export const updateExtendsExpireAtSchema = z
@@ -58,7 +58,7 @@ export const updateSessionPayloadSchema = z.discriminatedUnion("status", [
 export const updateCustomerSessionPayloadSchema = z.discriminatedUnion(
   "status",
   [
-    updateActivateSchema,
+    updateCustomerActivateSchema,
     updateExtendsExpireAtSchema,
     updateSessionPaymentSchema,
   ]
@@ -70,24 +70,3 @@ export const sessionIdSchema = z
 
 export const storeIdAndSessionIdSchema =
   storeIdParamsSchema.merge(sessionIdSchema);
-
-/** -------- Query --------- */
-const sessionFilterEnumSchema = z.enum([
-  SESSION_QUERY_FILTER_KEYS.ALIVE_SESSION,
-  SESSION_QUERY_FILTER_KEYS.ENDED_SESSION,
-]);
-
-const sessionIncludeEnumSchema = z.enum([
-  SESSION_QUERY_INCLUDE_KEYS.ORDERS,
-  SESSION_QUERY_INCLUDE_KEYS.ORDER_ITEMS,
-]);
-
-export const sessionIncludeQuerySchema = {
-  include: sessionIncludeEnumSchema,
-  filter: sessionFilterEnumSchema,
-};
-
-export const sessionListQuerySchema = z.object({
-  include: sessionIncludeEnumSchema.optional(),
-  filter: sessionFilterEnumSchema.optional(),
-});

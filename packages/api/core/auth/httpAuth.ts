@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { http, updateAxiosAuthorizationHeader } from "../axios/http";
+import { http } from "../axios/http";
 import { AccessToken, SignInPayload } from "./auth.type";
 import { COOKIE_TABLE, TokenPayload } from "@spaceorder/db";
 
@@ -13,7 +13,6 @@ async function createAccessToken(
     `${prefix}/${role}/signin`,
     signInPayload
   );
-  updateAxiosAuthorizationHeader(response.data.accessToken);
   return response;
 }
 
@@ -31,7 +30,6 @@ async function refreshAccessToken(
         }
       : {}
   );
-  updateAxiosAuthorizationHeader(response.data.accessToken);
   return response;
 }
 

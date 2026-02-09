@@ -2,7 +2,10 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { PublicAdminDto } from 'src/dto/public/admin.dto';
 import { paramsDocs } from './params.docs';
-import { CreateAdminDto, UpdateAdminDto } from 'src/dto/admin.dto';
+import {
+  CreateAdminPayloadDto,
+  UpdateAdminPayloadDto,
+} from 'src/dto/admin.dto';
 
 const meta = {
   create: {
@@ -33,7 +36,7 @@ const meta = {
 export const DocsAdminCreate = () =>
   applyDecorators(
     ApiOperation({ summary: meta.create.summary }),
-    ApiBody({ type: CreateAdminDto }),
+    ApiBody({ type: CreateAdminPayloadDto }),
     ApiResponse({ ...meta.create.ok, type: PublicAdminDto }),
     ApiResponse(meta.badRequest),
     ApiResponse(meta.unauthorized),
@@ -58,7 +61,7 @@ export const DocsAdminUpdate = () =>
   applyDecorators(
     ApiOperation({ summary: meta.update.summary }),
     ApiParam(paramsDocs.adminId),
-    ApiBody({ type: UpdateAdminDto }),
+    ApiBody({ type: UpdateAdminPayloadDto }),
     ApiResponse({ ...meta.update.ok, type: PublicAdminDto }),
     ApiResponse(meta.badRequest),
     ApiResponse(meta.unauthorized),

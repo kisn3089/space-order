@@ -51,3 +51,9 @@ export class CreateAdminDto {
   @IsOptional()
   isActive?: boolean;
 }
+
+import { OmitType, PartialType } from '@nestjs/swagger';
+
+export class UpdateAdminDto extends PartialType(
+  OmitType(CreateAdminDto, ['password', 'email'] as const),
+) {}

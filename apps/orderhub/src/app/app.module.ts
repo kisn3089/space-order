@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OwnerModule } from '../owner/owner.module';
+import { StoreModule } from '../store/store.module';
+import { OrderModule } from '../order/order.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { APP_FILTER, RouterModule } from '@nestjs/core';
 import { GlobalExceptionFilter } from 'src/common/filters/exception.filter';
-import { CustomerModule } from 'src/customer/customer.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { IdentityModule } from 'src/identity/identity.module';
+import { InternalModule } from 'src/internal/internal.module';
 
 @Module({
   imports: [
@@ -16,17 +17,18 @@ import { IdentityModule } from 'src/identity/identity.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
-    PrismaModule, // PrismaModule is Global Module
+    PrismaModule,
+    InternalModule,
     AuthModule,
     IdentityModule,
-    OwnerModule,
-    CustomerModule,
+    StoreModule,
+    OrderModule,
 
     RouterModule.register([
       { path: 'auth/v1', module: AuthModule },
       { path: 'identity/v1', module: IdentityModule },
-      { path: 'owner/v1', module: OwnerModule },
-      { path: 'customer/v1', module: CustomerModule },
+      { path: 'stores/v1', module: StoreModule },
+      { path: 'orders/v1', module: OrderModule },
     ]),
   ],
   controllers: [AppController],

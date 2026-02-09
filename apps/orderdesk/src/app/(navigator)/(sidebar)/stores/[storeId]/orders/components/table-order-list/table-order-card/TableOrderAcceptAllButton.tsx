@@ -14,12 +14,14 @@ import useOrderByTable, {
   UpdateOrderByTable,
 } from "@spaceorder/api/core/order/order/useOrderByTable.mutate";
 import { UpdateOrderByTablePayload } from "@spaceorder/api/core/order/order/httpOrder";
+import { useParams } from "next/dist/client/components/navigation";
 
 type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
   status: typeof OrderStatus.PENDING;
 };
 
 export function TableOrderAcceptAllButton() {
+  const params = useParams<{ storeId: string }>();
   const {
     state: { session },
   } = useTableOrderContext();
@@ -28,7 +30,7 @@ export function TableOrderAcceptAllButton() {
   const [failedUpdateItems, setFailedUpdateItems] = useState<
     UpdateOrderByTable[]
   >([]);
-  const { updateOrderByTable } = useOrderByTable();
+  const { updateOrderByTable } = useOrderByTable(params.storeId);
 
   const pendingOrders = session?.orders?.filter(
     (order): order is FilteredPendingStatus =>

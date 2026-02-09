@@ -10,6 +10,12 @@ export default function useTableMutation() {
     },
     onSuccess: () => {
       const lastAccessedStoreId = localStorage.getItem(LAST_ACCESSED_STORE_ID);
+
+      if (!lastAccessedStoreId) {
+        /** 정상적인 흐름이라면 lastAccessedStoreId가 존재해야 합니다. */
+        throw new Error("No last accessed store ID found");
+      }
+
       queryClient.invalidateQueries({
         queryKey: [`/stores/v1/${lastAccessedStoreId}/tables`],
       });

@@ -4,7 +4,6 @@ import {
   httpOrder,
   UpdateOrderByTablePayload,
 } from "./httpOrder";
-import { LAST_ACCESSED_STORE_ID } from "@spaceorder/db";
 
 type CreateOrderByTable = {
   tableId: string;
@@ -15,7 +14,7 @@ export type UpdateOrderByTable = {
   updateOrderPayload: UpdateOrderByTablePayload;
 };
 
-export default function useOrderByTable() {
+export default function useOrderByTable(storeId: string) {
   const queryClient = useQueryClient();
 
   const createOrderByTable = useMutation({
@@ -29,9 +28,8 @@ export default function useOrderByTable() {
     mutationFn: ({ orderId, updateOrderPayload }: UpdateOrderByTable) =>
       httpOrder.updateOrderByTable(orderId, updateOrderPayload),
     onSuccess: () => {
-      const lastAccessedStoreId = localStorage.getItem(LAST_ACCESSED_STORE_ID);
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/stores/${lastAccessedStoreId}/orders/summary`],
+        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
       });
     },
   });

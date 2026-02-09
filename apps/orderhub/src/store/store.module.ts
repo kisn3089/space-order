@@ -9,6 +9,7 @@ import { TableController } from './table/table.controller';
 import { TableService } from './table/table.service';
 import { SessionController } from './session/session.controller';
 import { SessionService } from './session/session.service';
+import { CustomerSessionController } from './session/customer-session.controller';
 
 @Module({
   imports: [PassportModule, JwtModule],
@@ -17,6 +18,7 @@ import { SessionService } from './session/session.service';
     MenuController,
     TableController,
     SessionController,
+    CustomerSessionController,
   ],
   providers: [StoreService, MenuService, TableService, SessionService],
 })

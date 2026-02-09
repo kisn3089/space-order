@@ -1,17 +1,14 @@
 import { Controller, Post, Res, UseGuards } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiCookieAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './services/auth.service';
-import { authDocs } from 'src/docs/autu.docs';
+import {
+  DocsAdminSignIn,
+  DocsOwnerSignIn,
+  DocsRefreshToken,
+} from 'src/docs/auth.docs';
 import { LocalSignInGuard } from './guards/local-sign-in.guard';
 import {
   type Admin,
-  COOKIE_TABLE,
   type Owner,
   type TokenPayload,
   type User,
@@ -21,7 +18,6 @@ import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import { signInPayloadSchema } from '@spaceorder/api/schemas';
 import { AccessTokenDto } from 'src/dto/public/access-token.dto';
-import { SignInPayloadDto } from 'src/dto/auth.dto';
 import { Client } from 'src/decorators/client.decorator';
 import { Jwt } from 'src/decorators/jwt.decorator';
 
@@ -32,13 +28,7 @@ export class AuthController {
 
   @Post('owner/signin')
   @UseGuards(ZodValidation({ body: signInPayloadSchema }), LocalSignInGuard)
-  @ApiOperation({ summary: authDocs.signIn.summary })
-  @ApiBody({ type: SignInPayloadDto })
-  @ApiResponse({
-    ...authDocs.signIn.successResponse,
-    type: AccessTokenDto,
-  })
-  @ApiResponse(authDocs.unauthorizedResponse)
+  @DocsOwnerSignIn()
   async ownerSignIn(
     @Client() owner: Owner,
     @Res({ passthrough: true }) response: Response,
@@ -50,13 +40,7 @@ export class AuthController {
 
   @Post('admin/signin')
   @UseGuards(ZodValidation({ body: signInPayloadSchema }), LocalSignInGuard)
-  @ApiOperation({ summary: authDocs.signIn.summary })
-  @ApiBody({ type: SignInPayloadDto })
-  @ApiResponse({
-    ...authDocs.signIn.successResponse,
-    type: AccessTokenDto,
-  })
-  @ApiResponse(authDocs.unauthorizedResponse)
+  @DocsAdminSignIn()
   async adminSignIn(
     @Client() admin: Admin,
     @Res({ passthrough: true }) response: Response,
@@ -68,13 +52,7 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
-  @ApiCookieAuth(COOKIE_TABLE.REFRESH)
-  @ApiOperation({ summary: authDocs.refresh.summary })
-  @ApiResponse({
-    ...authDocs.refresh.successResponse,
-    type: AccessTokenDto,
-  })
-  @ApiResponse(authDocs.unauthorizedResponse)
+  @DocsRefreshToken()
   async createTokenByRefreshToken(
     @Client() user: User,
     @Jwt() jwt: TokenPayload,

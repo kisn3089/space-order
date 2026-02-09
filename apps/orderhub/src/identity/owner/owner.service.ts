@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { encrypt } from 'src/utils/lib/crypt';
-import { CreateOwnerDto, UpdateOwnerDto } from './owner.controller';
 import { Prisma, PublicOwner } from '@spaceorder/db';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  CreateOwnerPayloadDto,
+  UpdateOwnerPayloadDto,
+} from 'src/dto/owner.dto';
 
 @Injectable()
 export class OwnerService {
   constructor(private readonly prismaService: PrismaService) {}
   omitPrivate = { id: true, password: true, refreshToken: true } as const;
 
-  async createOwner(createOwnerPayload: CreateOwnerDto): Promise<PublicOwner> {
+  async createOwner(
+    createOwnerPayload: CreateOwnerPayloadDto,
+  ): Promise<PublicOwner> {
     const encryptedPassword = await encrypt(createOwnerPayload.password);
     const createdOwner = await this.prismaService.owner.create({
       data: { ...createOwnerPayload, password: encryptedPassword },
@@ -33,7 +38,7 @@ export class OwnerService {
 
   async partialUpdateOwner(
     publicId: string,
-    updateOwnerPayload: UpdateOwnerDto,
+    updateOwnerPayload: UpdateOwnerPayloadDto,
   ): Promise<PublicOwner> {
     return await this.prismaService.owner.update({
       where: { publicId: publicId },

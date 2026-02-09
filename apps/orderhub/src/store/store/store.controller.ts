@@ -9,24 +9,21 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { StoreService } from './store.service';
 import { Client } from 'src/decorators/client.decorator';
 import type { PublicStore, TokenPayload, User } from '@spaceorder/db';
-import { PublicStoreDto } from '../../dto/public/store.dto';
-import { storeDocs } from 'src/docs/store.docs';
-import { paramsDocs } from 'src/docs/params.docs';
+import {
+  DocsStoreCreate,
+  DocsStoreDelete,
+  DocsStoreGetList,
+  DocsStoreGetUnique,
+} from 'src/docs/store.docs';
 import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Jwt } from 'src/decorators/jwt.decorator';
 
-@ApiTags('Stores')
+@ApiTags('Store')
 @ApiBearerAuth()
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -35,19 +32,13 @@ export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
   @Post()
-  @ApiOperation({ summary: storeDocs.create.summary })
-  @ApiResponse(storeDocs.notImplementedResponse)
+  @DocsStoreCreate()
   create(): void {
     throw new NotImplementedException('This feature is not yet implemented');
   }
 
   @Get()
-  @ApiOperation({ summary: storeDocs.getList.summary })
-  @ApiResponse({
-    ...storeDocs.getList.successResponse,
-    type: [PublicStoreDto],
-  })
-  @ApiResponse(storeDocs.unauthorizedResponse)
+  @DocsStoreGetList()
   async list(
     @Client() user: User,
     @Jwt() jwt: TokenPayload,
@@ -60,14 +51,7 @@ export class StoreController {
 
   @Get(':storeId')
   @UseGuards(StoreAccessGuard)
-  @ApiOperation({ summary: storeDocs.getUnique.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiResponse({
-    ...storeDocs.getUnique.successResponse,
-    type: PublicStoreDto,
-  })
-  @ApiResponse(storeDocs.unauthorizedResponse)
-  @ApiResponse(storeDocs.notFoundResponse)
+  @DocsStoreGetUnique()
   async unique(
     @Client() user: User,
     @Jwt() jwt: TokenPayload,
@@ -84,9 +68,7 @@ export class StoreController {
 
   @Delete(':storeId')
   @UseGuards(StoreAccessGuard)
-  @ApiOperation({ summary: storeDocs.delete.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiResponse(storeDocs.notImplementedResponse)
+  @DocsStoreDelete()
   delete(): void {
     throw new NotImplementedException('This feature is not yet implemented');
   }

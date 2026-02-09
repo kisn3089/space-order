@@ -10,18 +10,15 @@ import {
   Query,
   HttpCode,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TableService } from './table.service';
-import { tableDocs } from 'src/docs/table.docs';
-import { paramsDocs } from 'src/docs/params.docs';
+import {
+  DocsTableCreate,
+  DocsTableDelete,
+  DocsTableGetList,
+  DocsTableGetUnique,
+  DocsTableUpdate,
+} from 'src/docs/table.docs';
 import {
   createTablePayloadSchema,
   storeIdAndTableIdParamsSchema,
@@ -31,7 +28,6 @@ import {
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type { PublicTable } from '@spaceorder/db';
-import { PublicTableDto } from '../../dto/public/table.dto';
 import {
   CreateTablePayloadDto,
   UpdateTablePayloadDto,
@@ -43,7 +39,7 @@ type ListQueryParams = {
   isActive?: boolean;
 };
 
-@ApiTags('Tables')
+@ApiTags('Table')
 @ApiBearerAuth()
 @Controller(':storeId/tables')
 @UseGuards(JwtAuthGuard, StoreAccessGuard)
@@ -57,15 +53,7 @@ export class TableController {
       body: createTablePayloadSchema,
     }),
   )
-  @ApiOperation({ summary: tableDocs.create.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiBody({ type: CreateTablePayloadDto })
-  @ApiResponse({
-    ...tableDocs.create.successResponse,
-    type: PublicTableDto,
-  })
-  @ApiResponse(tableDocs.badRequestResponse)
-  @ApiResponse(tableDocs.unauthorizedResponse)
+  @DocsTableCreate()
   async create(
     @Param('storeId') storeId: string,
     @Body() createTablePayload: CreateTablePayloadDto,
@@ -77,15 +65,7 @@ export class TableController {
   @UseGuards(
     ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema }),
   )
-  @ApiOperation({ summary: tableDocs.getList.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiQuery(paramsDocs.query.filter.table)
-  @ApiQuery(paramsDocs.query.include.orderItems)
-  @ApiResponse({
-    ...tableDocs.getList.successResponse,
-    type: [PublicTableDto],
-  })
-  @ApiResponse(tableDocs.unauthorizedResponse)
+  @DocsTableGetList()
   async list(
     @Param('storeId') storeId: string,
     @Query() query?: ListQueryParams,
@@ -101,17 +81,7 @@ export class TableController {
 
   @Get(':tableId')
   @UseGuards(ZodValidation({ params: storeIdAndTableIdParamsSchema }))
-  @ApiOperation({ summary: tableDocs.getUnique.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiParam(paramsDocs.tableId)
-  @ApiQuery(paramsDocs.query.filter.table)
-  @ApiQuery(paramsDocs.query.include.orderItems)
-  @ApiResponse({
-    ...tableDocs.getUnique.successResponse,
-    type: PublicTableDto,
-  })
-  @ApiResponse(tableDocs.unauthorizedResponse)
-  @ApiResponse(tableDocs.notFoundResponse)
+  @DocsTableGetUnique()
   async unique(
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
@@ -129,17 +99,7 @@ export class TableController {
       body: updateTablePayloadSchema,
     }),
   )
-  @ApiOperation({ summary: tableDocs.update.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiParam(paramsDocs.tableId)
-  @ApiBody({ type: UpdateTablePayloadDto })
-  @ApiResponse({
-    ...tableDocs.update.successResponse,
-    type: PublicTableDto,
-  })
-  @ApiResponse(tableDocs.badRequestResponse)
-  @ApiResponse(tableDocs.unauthorizedResponse)
-  @ApiResponse(tableDocs.notFoundResponse)
+  @DocsTableUpdate()
   async partialUpdate(
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,
@@ -154,12 +114,7 @@ export class TableController {
   @Delete(':tableId')
   @HttpCode(204)
   @UseGuards(ZodValidation({ params: storeIdAndTableIdParamsSchema }))
-  @ApiOperation({ summary: tableDocs.delete.summary })
-  @ApiParam(paramsDocs.storeId)
-  @ApiParam(paramsDocs.tableId)
-  @ApiResponse(tableDocs.delete.successResponse)
-  @ApiResponse(tableDocs.unauthorizedResponse)
-  @ApiResponse(tableDocs.notFoundResponse)
+  @DocsTableDelete()
   async delete(
     @Param('storeId') storeId: string,
     @Param('tableId') tableId: string,

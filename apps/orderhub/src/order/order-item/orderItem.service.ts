@@ -11,36 +11,29 @@ import { validateOrderSessionToWrite } from 'src/common/validate/order/order-ses
 import { validateMenuAvailableOrThrow } from 'src/common/validate/menu/available';
 import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/menu-query.const';
 
-type StoreIdAndOrderIdParams = {
-  storeId: string;
-  orderId: string;
-};
-type StoreIdAndOrderItemIdParams = {
-  storeId: string;
-  orderItemId: string;
-};
 @Injectable()
 export class OrderItemService {
   constructor(private readonly prismaService: PrismaService) {}
   readonly omitPrivate = { id: true, orderId: true, menuId: true } as const;
 
   async createOrderItem(
-    { orderId, storeId }: StoreIdAndOrderIdParams,
+    orderId: string,
     createPayload: CreateOrderItemPayloadDto,
   ): Promise<PublicOrderItem<'Wide'>> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       createPayload;
 
-    const [menu, order] = await Promise.all([
-      this.prismaService.menu.findFirstOrThrow(
-        this.buildMenuQuery(menuPublicId, storeId),
-      ),
-      this.prismaService.order.findFirstOrThrow(
-        this.buildOrderQuery(orderId, storeId),
-      ),
-    ]);
+    const order = await this.prismaService.order.findFirstOrThrow({
+      where: { publicId: orderId },
+      include: { tableSession: true, store: { select: { publicId: true } } },
+    });
 
     validateOrderSessionToWrite(order);
+
+    const menu = await this.prismaService.menu.findFirstOrThrow(
+      this.buildMenuQuery(menuPublicId, order.store.publicId),
+    );
+
     validateMenuAvailableOrThrow(menu);
 
     const { optionsPrice, optionsSnapshot } = getValidatedMenuOptionsSnapshot(
@@ -76,13 +69,6 @@ export class OrderItemService {
     };
   }
 
-  private buildOrderQuery(orderId: string, storeId: string) {
-    return {
-      where: { publicId: orderId, store: { publicId: storeId } },
-      include: { tableSession: true },
-    } as const;
-  }
-
   async getOrderItemList<T extends Prisma.OrderItemFindManyArgs>(
     args: Prisma.SelectSubset<T, Prisma.OrderItemFindManyArgs>,
   ): Promise<Prisma.OrderItemGetPayload<T>[]> {
@@ -98,16 +84,13 @@ export class OrderItemService {
   }
 
   async partialUpdateOrderItem(
-    { orderItemId, storeId }: StoreIdAndOrderItemIdParams,
+    orderItemId: string,
     updatePayload: UpdateOrderItemPayloadDto,
   ): Promise<PublicOrderItem<'Wide'>> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       updatePayload;
 
-    const whereCondition = {
-      publicId: orderItemId,
-      order: { store: { publicId: storeId } },
-    } as const;
+    const whereCondition = { publicId: orderItemId } as const;
 
     /** 메뉴에 관한 업데이트가 없을 때 */
     if (!menuPublicId && !requiredOptions && !customOptions) {
@@ -115,6 +98,7 @@ export class OrderItemService {
         where: whereCondition,
         include: { order: { include: { tableSession: true } } },
       });
+
       validateOrderSessionToWrite(orderItem.order);
 
       return await this.prismaService.orderItem.update({
@@ -124,12 +108,16 @@ export class OrderItemService {
       });
     }
 
-    /** 한 번의 쿼리로 orderItem + menu + order 모두 조회 */
     const orderItem = await this.prismaService.orderItem.findFirstOrThrow({
       where: whereCondition,
       include: {
         menu: { select: MENU_VALIDATION_FIELDS_SELECT },
-        order: { include: { tableSession: true } },
+        order: {
+          include: {
+            tableSession: true,
+            store: { select: { publicId: true } },
+          },
+        },
       },
     });
 
@@ -138,7 +126,7 @@ export class OrderItemService {
     /** menuPublicId가 있으면 새 메뉴 조회, 없으면 기존 메뉴 사용 */
     const menu = menuPublicId
       ? await this.prismaService.menu.findFirstOrThrow(
-          this.buildMenuQuery(menuPublicId, storeId),
+          this.buildMenuQuery(menuPublicId, orderItem.order.store.publicId),
         )
       : orderItem.menu;
 
@@ -167,16 +155,10 @@ export class OrderItemService {
     });
   }
 
-  async deleteOrderItem({
-    orderItemId,
-    storeId,
-  }: StoreIdAndOrderItemIdParams): Promise<void> {
+  async deleteOrderItem(orderItemId: string): Promise<void> {
     await this.prismaService.$transaction(async (tx) => {
       const parentOrder = await tx.order.findFirst({
-        where: {
-          orderItems: { some: { publicId: orderItemId } },
-          store: { publicId: storeId },
-        },
+        where: { orderItems: { some: { publicId: orderItemId } } },
         include: {
           tableSession: true,
           _count: { select: { orderItems: true } },

@@ -14,7 +14,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { OrderService } from './order.service';
 import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
 import type { PublicOrderWithItem, TableSession } from '@spaceorder/db';
 import {
@@ -28,11 +27,13 @@ import { PublicOrderWithItemsDto } from '../../dto/public/order.dto';
 import { orderDocs } from 'src/docs/order.docs';
 import { paramsDocs } from 'src/docs/params.docs';
 import { CreateOrderPayloadDto } from 'src/dto/order.dto';
+import { OrderService } from './order.service';
+import { ORDER_ITEMS_WITH_OMIT_PRIVATE } from 'src/common/query/order-item-query.const';
 
 @ApiTags('Customer Orders')
 @Controller('sessions/:sessionToken/orders')
 @UseGuards(SessionAuth)
-export class OrderController {
+export class CustomerOrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
@@ -55,7 +56,7 @@ export class OrderController {
     @Body() createOrderPayload: CreateOrderPayloadDto,
   ): Promise<PublicOrderWithItem<'Wide'>> {
     return await this.orderService.createOrder(
-      tableSession,
+      { id: tableSession.id },
       createOrderPayload,
     );
   }
@@ -71,7 +72,10 @@ export class OrderController {
   async list(
     @Session() tableSession: TableSession,
   ): Promise<PublicOrderWithItem<'Wide'>[]> {
-    return await this.orderService.getOrderList(tableSession);
+    return await this.orderService.getOrderList({
+      where: { tableSessionId: tableSession.id },
+      ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
+    });
   }
 
   @Get(':orderId')
@@ -86,7 +90,13 @@ export class OrderController {
     @Session() tableSession: TableSession,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem<'Wide'>> {
-    return await this.orderService.getOrderUnique({ tableSession, orderId });
+    console.log('tableSession: ', tableSession);
+    console.log('orderId: ', orderId);
+
+    return await this.orderService.getOrderUnique({
+      where: { publicId: orderId, tableSessionId: tableSession.id },
+      ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
+    });
   }
 
   @Delete(':orderId')
@@ -103,9 +113,6 @@ export class OrderController {
     @Session() tableSession: TableSession,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem<'Wide'>> {
-    return await this.orderService.cancelOrder({
-      tableSession,
-      orderId: orderId,
-    });
+    return await this.orderService.cancelOrder({ tableSession, orderId });
   }
 }

@@ -1,8 +1,8 @@
 import { PublicOwner } from "@spaceorder/db";
-import { http } from "../axios";
+import { http } from "../../axios";
 import { AxiosRequestConfig } from "axios";
 
-const prefix = "/me";
+const prefix = "/identity/v1/me";
 
 async function fetchMe(): Promise<PublicOwner> {
   const response = await http.get<PublicOwner>(`${prefix}`);
@@ -21,7 +21,7 @@ export type HealthCheckResponse = {
 async function fetchHealthCheck(
   config?: AxiosRequestConfig
 ): Promise<HealthCheckResponse> {
-  const response = await http.get<HealthCheckResponse>(``, config);
+  const response = await http.get<HealthCheckResponse>(`/`, config);
   return response.data;
 }
 

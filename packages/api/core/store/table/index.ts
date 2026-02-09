@@ -1,2 +1,2 @@
-export * from "./httpTables";
+export * from "./httpTable";
 export * from "./useTableMutation";

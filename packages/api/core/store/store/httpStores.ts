@@ -1,7 +1,7 @@
 import { PublicStore } from "@spaceorder/db";
-import { http } from "../axios/http";
+import { http } from "../../axios/http";
 
-const prefix = `/owner/v1/stores`;
+const prefix = `/stores/v1`;
 
 async function fetchList(): Promise<PublicStore[]> {
   const response = await http.get<PublicStore[]>(`${prefix}`);

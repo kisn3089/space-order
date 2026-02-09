@@ -1,2 +1,3 @@
 export * from "./admin";
-export * from "./owners";
+export * from "./owner";
+export * from "./me";

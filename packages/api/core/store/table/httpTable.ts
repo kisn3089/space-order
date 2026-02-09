@@ -1,9 +1,9 @@
 import { PublicTable } from "@spaceorder/db";
-import { http } from "../axios/http";
-import { UpdateTablePayload } from "../../schemas";
+import { http } from "../../axios/http";
+import { UpdateTablePayload } from "../../../schemas/model/table.schema";
 
 function prefix(storeId: string) {
-  return `/owner/v1/stores/${storeId}/tables`;
+  return `/stores/v1/${storeId}/tables`;
 }
 
 export type FetchTableListParams = { storeId: string };

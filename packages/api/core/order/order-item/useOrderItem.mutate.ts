@@ -32,20 +32,14 @@ export default function useOrderItem({
     }: {
       orderItemId: string;
       updateOrderItemPayload: UpdateOrderItemPayload;
-    }) =>
-      httpOrderItems.updateOrderItem(
-        { storeId, orderItemId },
-        updateOrderItemPayload
-      ),
+    }) => httpOrderItems.updateOrderItem(orderItemId, updateOrderItemPayload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/owner/v1/stores/${storeId}/orders/board`],
+        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
       });
 
       queryClient.invalidateQueries({
-        queryKey: [
-          `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`,
-        ],
+        queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],
       });
     },
   });
@@ -53,15 +47,13 @@ export default function useOrderItem({
   const removeOrderItem = useMutation({
     mutationKey: ["order-item", "remove"],
     mutationFn: ({ orderItemId }: { orderItemId: string }) =>
-      httpOrderItems.removeOrderItem({ storeId, orderItemId }),
+      httpOrderItems.removeOrderItem(orderItemId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/owner/v1/stores/${storeId}/orders/board`],
+        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
       });
       queryClient.invalidateQueries({
-        queryKey: [
-          `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`,
-        ],
+        queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],
       });
     },
   });

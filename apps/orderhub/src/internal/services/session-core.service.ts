@@ -26,10 +26,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 import { sumFromObjects } from '@spaceorder/api/utils';
 
-export type SessionIdentifier =
-  | { publicId: string }
-  | { qrCode: string }
-  | { id: bigint };
+export type TableIdentifier = { publicId: string } | { qrCode: string };
+export type SessionIdentifier = TableIdentifier | { id: bigint };
 export type SessionActivatePayload = { paidAmount?: number };
 
 @Injectable()
@@ -38,12 +36,14 @@ export class SessionCoreService {
 
   /**
    * 트랜잭션 내에서 활성 세션을 조회하거나 새로 생성
+   * - publicId, qrCode: 테이블 기준 조회 → 세션 없으면 새로 생성
+   * - id: 세션 ID 기준 조회 → 유효한 세션 없으면 에러
    */
   async txGetActivatedSessionOrCreate(
     tx: Tx,
     identifier: SessionIdentifier,
   ): Promise<SessionWithTable> {
-    const activeSession = await tx.tableSession.findFirstOrThrow({
+    const activeSession = await tx.tableSession.findFirst({
       ...this.buildActiveSessionQuery(identifier),
     });
 
@@ -52,10 +52,18 @@ export class SessionCoreService {
       activeSession,
     );
 
-    return (
-      validSession ??
-      (await tx.tableSession.create(this.buildCreateSession(activeSession)))
-    );
+    if (validSession) {
+      return validSession;
+    }
+
+    if (this.isSessionIdIdentifier(identifier)) {
+      throw new HttpException(
+        exceptionContentsIs('INVALID_TABLE_SESSION'),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return await this.createSessionFromTable(tx, identifier);
   }
   /**
    * 세션을 ACTIVE 상태로 활성화
@@ -163,21 +171,6 @@ export class SessionCoreService {
 
   // ============ Private Helper Methods ============
 
-  private buildCreateSession(sessionWithTable: SessionWithTable): {
-    data: Prisma.TableSessionCreateInput;
-    include: Prisma.TableSessionInclude;
-  } {
-    const sessionToken = generateSecureSessionToken();
-    return {
-      data: {
-        table: { connect: { id: sessionWithTable.tableId } },
-        sessionToken,
-        expiresAt: TWENTY_MINUTE(),
-      },
-      include: INCLUDE_TABLE,
-    };
-  }
-
   private buildActiveSessionQuery(identifier: SessionIdentifier) {
     return {
       where: {
@@ -194,6 +187,31 @@ export class SessionCoreService {
     }
 
     return { table: { ...identifier } };
+  }
+
+  private isSessionIdIdentifier(
+    identifier: SessionIdentifier,
+  ): identifier is { id: bigint } {
+    return 'id' in identifier;
+  }
+
+  private async createSessionFromTable(
+    tx: Tx,
+    identifier: TableIdentifier,
+  ): Promise<SessionWithTable> {
+    const table = await tx.table.findFirstOrThrow({
+      where: { ...identifier },
+    });
+
+    const sessionToken = generateSecureSessionToken();
+    return await tx.tableSession.create({
+      data: {
+        table: { connect: { id: table.id } },
+        sessionToken,
+        expiresAt: TWENTY_MINUTE(),
+      },
+      include: INCLUDE_TABLE,
+    });
   }
 
   private async validateSessionWithDeactivate(

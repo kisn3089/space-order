@@ -2,17 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { encrypt } from 'src/utils/lib/crypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@spaceorder/db';
-import { CreateAdminDto, UpdateAdminDto } from 'src/dto/admin.dto';
+import {
+  CreateAdminPayloadDto,
+  UpdateAdminPayloadDto,
+} from 'src/dto/admin.dto';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly prismaService: PrismaService) {}
   omitPrivate = { id: true, password: true, refreshToken: true } as const;
 
-  async createAdmin(createAdminPayload: CreateAdminDto) {
+  async createAdmin(createAdminPayload: CreateAdminPayloadDto) {
     const hashedPassword = await encrypt(createAdminPayload.password);
     const createdAdmin = await this.prismaService.admin.create({
       data: { ...createAdminPayload, password: hashedPassword },
+      omit: this.omitPrivate,
     });
     return createdAdmin;
   }
@@ -31,11 +35,12 @@ export class AdminService {
 
   async partialUpdateAdmin(
     publicId: string,
-    updateAdminPayload: UpdateAdminDto,
+    updateAdminPayload: UpdateAdminPayloadDto,
   ) {
     return await this.prismaService.admin.update({
       where: { publicId },
       data: updateAdminPayload,
+      omit: this.omitPrivate,
     });
   }
 

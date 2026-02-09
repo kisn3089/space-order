@@ -7,12 +7,13 @@ import {
   OrderStatus,
   SummarizedOrderWithItem,
 } from "@spaceorder/db";
-import { UpdateOwnerOrderPayload } from "@spaceorder/api/core/owner-order/httpOwnerOrder";
-import useOwnerOrder, {
-  UpdateOwnerOrder,
-} from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
+
 import { useTableOrderContext } from "./TableOrderContext";
 import { Spinner } from "@spaceorder/ui/components/spinner";
+import useOrderByTable, {
+  UpdateOrderByTable,
+} from "@spaceorder/api/core/order/order/useOrderByTable.mutate";
+import { UpdateOrderByTablePayload } from "@spaceorder/api/core/order/order/httpOrder";
 
 type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
   status: typeof OrderStatus.PENDING;
@@ -21,14 +22,13 @@ type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
 export function TableOrderAcceptAllButton() {
   const {
     state: { session },
-    meta: { storeId, tableId },
   } = useTableOrderContext();
 
   const [isPending, startTransition] = useTransition();
   const [failedUpdateItems, setFailedUpdateItems] = useState<
-    UpdateOwnerOrder[]
+    UpdateOrderByTable[]
   >([]);
-  const { updateOwnerOrder } = useOwnerOrder();
+  const { updateOrderByTable } = useOrderByTable();
 
   const pendingOrders = session?.orders?.filter(
     (order): order is FilteredPendingStatus =>
@@ -49,25 +49,21 @@ export function TableOrderAcceptAllButton() {
 
     const updateOrderItems = pendingOrders.map((order) => {
       const nextStatus = nextStatusMap[order.status];
-      const orderPayload: UpdateOwnerOrderPayload = {
+      const orderPayload: UpdateOrderByTablePayload = {
         status: nextStatus,
       };
 
       return {
-        params: {
-          storeId,
-          tableId,
-          orderId: order.publicId,
-        },
+        orderId: order.publicId,
         updateOrderPayload: orderPayload,
       };
     });
 
-    const failedOrderItems: UpdateOwnerOrder[] = [];
+    const failedOrderItems: UpdateOrderByTable[] = [];
     startTransition(async () => {
       await Promise.all(
         updateOrderItems.map((updateItem) =>
-          updateOwnerOrder.mutateAsync(updateItem).catch(() => {
+          updateOrderByTable.mutateAsync(updateItem).catch(() => {
             failedOrderItems.push(updateItem);
           })
         )

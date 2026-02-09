@@ -16,7 +16,7 @@ export const useSetCacheByStoreBoard = () => {
 
       queryClient.setQueryData<PublicTable>(
         [
-          `/owner/v1/stores/${storeId ?? lastAccessedStoreId}/tables/${table.publicId}`,
+          `/stores/v1/${storeId ?? lastAccessedStoreId}/tables/${table.publicId}`,
         ],
         table
       );

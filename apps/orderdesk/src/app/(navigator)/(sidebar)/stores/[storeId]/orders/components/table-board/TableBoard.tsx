@@ -24,7 +24,7 @@ export default function TableBoard() {
   }, [lastAccessedStoreId, router]);
 
   const { data: tables } = useSuspenseWithAuth<SummarizedOrdersByStore>(
-    `/owner/v1/stores/${lastAccessedStoreId}/orders/board`,
+    `/orders/v1/stores/${lastAccessedStoreId}/orders/summary`,
     { onSuccess: setCache }
   );
 

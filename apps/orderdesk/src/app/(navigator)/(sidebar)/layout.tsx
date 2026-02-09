@@ -15,7 +15,7 @@ export default function SidebarLayout({
   return (
     <section className="antialiased">
       <AuthGuard>
-        <ServerPrefetch url="/me" shouldSuccess>
+        <ServerPrefetch url="/identity/v1/me" shouldSuccess>
           <SidebarProvider defaultOpen={defaultOpen}>
             <NavSidebar />
             <main className="w-full">{children}</main>

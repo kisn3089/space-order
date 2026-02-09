@@ -9,10 +9,6 @@ import { TableController } from './table/table.controller';
 import { TableService } from './table/table.service';
 import { SessionController } from './session/session.controller';
 import { SessionService } from './session/session.service';
-import { OrderItemController } from './order-item/orderItem.controller';
-import { OrderItemService } from './order-item/orderItem.service';
-import { OwnerOrderController } from './owner-order/owner-order.controller';
-import { OwnerOrderService } from './owner-order/owner-order.service';
 
 @Module({
   imports: [PassportModule, JwtModule],
@@ -21,16 +17,7 @@ import { OwnerOrderService } from './owner-order/owner-order.service';
     MenuController,
     TableController,
     SessionController,
-    OrderItemController,
-    OwnerOrderController,
   ],
-  providers: [
-    StoreService,
-    MenuService,
-    TableService,
-    SessionService,
-    OrderItemService,
-    OwnerOrderService,
-  ],
+  providers: [StoreService, MenuService, TableService, SessionService],
 })
-export class OwnerModule {}
+export class StoreModule {}

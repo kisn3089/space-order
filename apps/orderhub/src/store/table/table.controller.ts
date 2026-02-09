@@ -36,7 +36,7 @@ import {
   CreateTablePayloadDto,
   UpdateTablePayloadDto,
 } from 'src/dto/table.dto';
-import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 type ListQueryParams = {
@@ -45,8 +45,8 @@ type ListQueryParams = {
 
 @ApiTags('Tables')
 @ApiBearerAuth()
-@Controller('stores/:storeId/tables')
-@UseGuards(JwtAuthGuard, OwnerStoreGuard)
+@Controller(':storeId/tables')
+@UseGuards(JwtAuthGuard, StoreAccessGuard)
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 

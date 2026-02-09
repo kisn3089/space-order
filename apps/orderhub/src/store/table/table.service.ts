@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { createId } from '@paralleldrive/cuid2';
 import { type Prisma, type PublicTable } from '@spaceorder/db';
 import {
   CreateTablePayloadDto,

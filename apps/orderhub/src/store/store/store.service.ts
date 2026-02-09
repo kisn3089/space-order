@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@spaceorder/db';
+import { Prisma, TokenPayload, User } from '@spaceorder/db';
 import {} from 'src/common/query/session-query.const';
 
 @Injectable()
@@ -18,5 +18,16 @@ export class StoreService {
     args: Prisma.SelectSubset<T, Prisma.StoreFindFirstOrThrowArgs>,
   ): Promise<Prisma.StoreGetPayload<T>> {
     return await this.prismaService.store.findFirstOrThrow(args);
+  }
+
+  addOwnerIdIfNotAdmin(
+    user: User,
+    role: TokenPayload['role'],
+  ): Prisma.StoreWhereInput {
+    if (role === 'admin') {
+      return {};
+    }
+
+    return { ownerId: user.id };
   }
 }

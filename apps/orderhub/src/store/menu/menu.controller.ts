@@ -33,13 +33,13 @@ import {
 import { menuDocs } from 'src/docs/menu.docs';
 import { paramsDocs } from 'src/docs/params.docs';
 import { CreateMenuPayloadDto, UpdateMenuPayloadDto } from 'src/dto/menu.dto';
-import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Menus')
 @ApiBearerAuth()
-@Controller('stores/:storeId/menus')
-@UseGuards(JwtAuthGuard, OwnerStoreGuard)
+@Controller(':storeId/menus')
+@UseGuards(JwtAuthGuard, StoreAccessGuard)
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 

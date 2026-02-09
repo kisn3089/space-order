@@ -18,17 +18,18 @@ import {
 } from '@nestjs/swagger';
 import { StoreService } from './store.service';
 import { Client } from 'src/decorators/client.decorator';
-import type { Owner, PublicStore } from '@spaceorder/db';
+import type { PublicStore, TokenPayload, User } from '@spaceorder/db';
 import { PublicStoreDto } from '../../dto/public/store.dto';
 import { storeDocs } from 'src/docs/store.docs';
 import { paramsDocs } from 'src/docs/params.docs';
-import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
+import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Jwt } from 'src/decorators/jwt.decorator';
 
 @ApiTags('Stores')
 @ApiBearerAuth()
-@Controller('stores')
-@UseGuards(JwtAuthGuard, OwnerStoreGuard)
+@Controller()
+@UseGuards(JwtAuthGuard, StoreAccessGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
@@ -47,9 +48,12 @@ export class StoreController {
     type: [PublicStoreDto],
   })
   @ApiResponse(storeDocs.unauthorizedResponse)
-  async list(@Client() client: Owner): Promise<PublicStore[]> {
+  async list(
+    @Client() user: User,
+    @Jwt() jwt: TokenPayload,
+  ): Promise<PublicStore[]> {
     return await this.storeService.getStoreList({
-      where: { ownerId: client.id },
+      where: this.storeService.addOwnerIdIfNotAdmin(user, jwt.role),
       omit: this.storeService.omitPrivate,
     });
   }
@@ -64,11 +68,15 @@ export class StoreController {
   @ApiResponse(storeDocs.unauthorizedResponse)
   @ApiResponse(storeDocs.notFoundResponse)
   async unique(
-    @Client() client: Owner,
+    @Client() user: User,
+    @Jwt() jwt: TokenPayload,
     @Param('storeId') storeId: string,
   ): Promise<PublicStore> {
     return await this.storeService.getStoreUnique({
-      where: { publicId: storeId, ownerId: client.id },
+      where: {
+        publicId: storeId,
+        ...this.storeService.addOwnerIdIfNotAdmin(user, jwt.role),
+      },
       omit: this.storeService.omitPrivate,
     });
   }

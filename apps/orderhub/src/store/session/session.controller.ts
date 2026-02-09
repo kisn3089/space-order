@@ -7,6 +7,7 @@ import {
   Patch,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Post,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,35 +23,53 @@ import {
   updateSessionPayloadSchema,
   storeIdParamsSchema,
   storeIdAndSessionIdSchema,
+  updateCustomerSessionPayloadSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { PublicSession, PublicSessionWithTable } from '@spaceorder/db';
+import type {
+  PublicSession,
+  PublicSessionWithTable,
+  TableSession,
+} from '@spaceorder/db';
 import type { z } from 'zod';
 import { SessionService } from './session.service';
-import { OwnerStoreGuard } from 'src/utils/guards/owner-store.guard';
-import { PublicTableSessionDto } from 'src/dto/public/table.dto';
+import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
+import {
+  PublicTableSessionDto,
+  TableWithStoreContextDto,
+} from 'src/dto/public/table.dto';
 import {
   ORDER_WITH_ITEMS_RECORD,
   SESSION_OMIT,
 } from 'src/common/query/session-query.const';
 import { TABLE_OMIT } from 'src/common/query/table-query.const';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { SessionTokenDto } from 'src/dto/public/session.dto';
+import { CreateSessionPayloadDto } from 'src/dto/session.dto';
+import { Session } from 'src/decorators/session.decorator';
+import { SessionAuth } from 'src/utils/guards/table-session-auth.guard';
+import { plainToInstance } from 'class-transformer';
 
 export type UpdateTableSessionDto = z.infer<typeof updateSessionPayloadSchema>;
+export type UpdateCustomerTableSessionDto = z.infer<
+  typeof updateCustomerSessionPayloadSchema
+>;
 
 @ApiTags('Table Sessions')
-@Controller('stores/:storeId/sessions')
+@Controller()
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, OwnerStoreGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
-  @Get()
-  @UseGuards(ZodValidation({ params: storeIdParamsSchema }))
+  @Get(':storeId/sessions')
+  @UseGuards(
+    JwtAuthGuard,
+    StoreAccessGuard,
+    ZodValidation({ params: storeIdParamsSchema }),
+  )
   @ApiOperation({ summary: tableSessionDocs.getList.summary })
   @ApiParam(paramsDocs.storeId)
-  @ApiParam(paramsDocs.sessionId)
   @ApiQuery(paramsDocs.query.filter.session)
   @ApiQuery(paramsDocs.query.include.orderItems)
   @ApiResponse({
@@ -71,8 +90,12 @@ export class SessionController {
     });
   }
 
-  @Get(':sessionId')
-  @UseGuards(JwtAuthGuard, ZodValidation({ params: storeIdAndSessionIdSchema }))
+  @Get(':storeId/sessions/:sessionId')
+  @UseGuards(
+    JwtAuthGuard,
+    StoreAccessGuard,
+    ZodValidation({ params: storeIdAndSessionIdSchema }),
+  )
   @ApiOperation({ summary: tableSessionDocs.getUnique.summary })
   @ApiParam(paramsDocs.sessionId)
   @ApiQuery(paramsDocs.query.include.orderItems)
@@ -96,8 +119,10 @@ export class SessionController {
     });
   }
 
-  @Patch(':sessionId')
+  @Patch(':storeId/sessions/:sessionId')
   @UseGuards(
+    JwtAuthGuard,
+    StoreAccessGuard,
     ZodValidation({
       params: storeIdAndSessionIdSchema,
       body: updateSessionPayloadSchema,
@@ -119,5 +144,72 @@ export class SessionController {
       { storeId, sessionId },
       updateSessionPayload,
     );
+  }
+
+  /**
+   * ============================================================
+   * Customer Sessions Endpoints
+   * /stores/v1
+   * ============================================================
+   */
+  @Post('sessions')
+  @ApiOperation({ summary: tableSessionDocs.findOrCreate.summary })
+  @ApiResponse({
+    ...tableSessionDocs.findOrCreate.successResponse,
+    type: SessionTokenDto,
+  })
+  async findActivatedSessionOrCreate(
+    @Body() createSessionPayload: CreateSessionPayloadDto,
+  ): Promise<SessionTokenDto> {
+    const findOrCreatedSession =
+      await this.sessionService.findActivatedSessionOrCreate(
+        createSessionPayload,
+      );
+
+    return plainToInstance(SessionTokenDto, findOrCreatedSession, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Get('sessions/:sessionToken')
+  @UseGuards(SessionAuth)
+  getAliveSession(
+    @Session() tableSession: TableSession,
+  ): PublicTableSessionDto {
+    const cachedSession = tableSession;
+    return new PublicTableSessionDto(cachedSession);
+  }
+
+  @Patch('sessions/:sessionToken')
+  @UseGuards(
+    SessionAuth,
+    ZodValidation({ body: updateCustomerSessionPayloadSchema }),
+  )
+  @ApiOperation({ summary: tableSessionDocs.update.summary })
+  @ApiParam(paramsDocs.tableId)
+  @ApiResponse({
+    ...tableSessionDocs.update.successResponse,
+    type: PublicTableSessionDto,
+  })
+  @ApiResponse(tableSessionDocs.sessionUnauthorizedResponse)
+  async partialUpdateByCustomer(
+    @Session() tableSession: TableSession,
+    @Body() updateSessionPayload: UpdateCustomerTableSessionDto,
+  ): Promise<PublicSession> {
+    return await this.sessionService.txableUpdateSession(
+      tableSession,
+      updateSessionPayload,
+    );
+  }
+
+  @Get('sessions/:sessionToken/store-context')
+  @UseGuards(SessionAuth)
+  async getStoreContext(
+    @Param('sessionToken') sessionToken: string,
+  ): Promise<TableWithStoreContextDto> {
+    const storeUntilMenus =
+      await this.sessionService.getStoreContext(sessionToken);
+
+    return new TableWithStoreContextDto(storeUntilMenus);
   }
 }

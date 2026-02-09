@@ -90,9 +90,6 @@ export class CustomerOrderController {
     @Session() tableSession: TableSession,
     @Param('orderId') orderId: string,
   ): Promise<PublicOrderWithItem<'Wide'>> {
-    console.log('tableSession: ', tableSession);
-    console.log('orderId: ', orderId);
-
     return await this.orderService.getOrderUnique({
       where: { publicId: orderId, tableSessionId: tableSession.id },
       ...ORDER_ITEMS_WITH_OMIT_PRIVATE,

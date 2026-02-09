@@ -38,16 +38,18 @@ import {
 } from 'src/dto/order-item.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OrderAccessGuard } from 'src/utils/guards/order-access.guard';
+import { OrderItemAccessGuard } from 'src/utils/guards/order-item-access.guard';
 
 @ApiTags('Order Items')
 @ApiBearerAuth()
 @Controller()
-@UseGuards(JwtAuthGuard, OrderAccessGuard)
+@UseGuards(JwtAuthGuard)
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
 
   @Post(':orderId/order-items')
   @UseGuards(
+    OrderAccessGuard,
     ZodValidation({
       params: orderIdParamsSchema,
       body: createOrderItemPayloadSchema,
@@ -73,7 +75,7 @@ export class OrderItemController {
   }
 
   @Get(':orderId/order-items')
-  @UseGuards(ZodValidation({ params: orderIdParamsSchema }))
+  @UseGuards(OrderAccessGuard, ZodValidation({ params: orderIdParamsSchema }))
   @ApiOperation({ summary: orderItemDocs.getList.summary })
   @ApiQuery(paramsDocs.query.filter.orderItem)
   @ApiParam(paramsDocs.orderId)
@@ -92,7 +94,10 @@ export class OrderItemController {
   }
 
   @Get('order-items/:orderItemId')
-  @UseGuards(ZodValidation({ params: orderItemIdParamsSchema }))
+  @UseGuards(
+    OrderItemAccessGuard,
+    ZodValidation({ params: orderItemIdParamsSchema }),
+  )
   @ApiOperation({ summary: orderItemDocs.getUnique.summary })
   @ApiParam(paramsDocs.orderItemId)
   @ApiResponse({
@@ -112,6 +117,7 @@ export class OrderItemController {
 
   @Patch('order-items/:orderItemId')
   @UseGuards(
+    OrderItemAccessGuard,
     ZodValidation({
       params: orderItemIdParamsSchema,
       body: partialUpdateOrderItemPayloadSchema,
@@ -139,7 +145,10 @@ export class OrderItemController {
   }
 
   @Delete('order-items/:orderItemId')
-  @UseGuards(ZodValidation({ params: orderItemIdParamsSchema }))
+  @UseGuards(
+    OrderItemAccessGuard,
+    ZodValidation({ params: orderItemIdParamsSchema }),
+  )
   @HttpCode(204)
   @ApiOperation({ summary: orderItemDocs.delete.summary })
   @ApiParam(paramsDocs.orderItemId)

@@ -147,10 +147,10 @@ export class OrderService {
       include: { tableSession: true },
     });
 
-    validateOrderSessionToWrite(order);
+    const validOrder = validateOrderSessionToWrite(order);
 
     return await this.prismaService.order.update({
-      where: whereClause,
+      where: { id: validOrder.id },
       data,
       ...ORDER_ITEMS_WITH_OMIT_PRIVATE,
     });

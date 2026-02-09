@@ -24,6 +24,7 @@ import {
   storeIdParamsSchema,
   storeIdAndSessionIdSchema,
   updateCustomerSessionPayloadSchema,
+  createSessionSchema,
 } from '@spaceorder/api/schemas';
 import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
 import type {
@@ -57,7 +58,6 @@ export type UpdateCustomerTableSessionDto = z.infer<
 
 @ApiTags('Table Sessions')
 @Controller()
-@ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
@@ -68,6 +68,7 @@ export class SessionController {
     StoreAccessGuard,
     ZodValidation({ params: storeIdParamsSchema }),
   )
+  @ApiBearerAuth()
   @ApiOperation({ summary: tableSessionDocs.getList.summary })
   @ApiParam(paramsDocs.storeId)
   @ApiQuery(paramsDocs.query.filter.session)
@@ -96,6 +97,7 @@ export class SessionController {
     StoreAccessGuard,
     ZodValidation({ params: storeIdAndSessionIdSchema }),
   )
+  @ApiBearerAuth()
   @ApiOperation({ summary: tableSessionDocs.getUnique.summary })
   @ApiParam(paramsDocs.sessionId)
   @ApiQuery(paramsDocs.query.include.orderItems)
@@ -128,6 +130,7 @@ export class SessionController {
       body: updateSessionPayloadSchema,
     }),
   )
+  @ApiBearerAuth()
   @ApiOperation({ summary: tableSessionDocs.update.summary })
   @ApiParam(paramsDocs.sessionId)
   @ApiResponse({
@@ -153,6 +156,7 @@ export class SessionController {
    * ============================================================
    */
   @Post('sessions')
+  @UseGuards(ZodValidation({ body: createSessionSchema }))
   @ApiOperation({ summary: tableSessionDocs.findOrCreate.summary })
   @ApiResponse({
     ...tableSessionDocs.findOrCreate.successResponse,

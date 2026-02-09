@@ -29,7 +29,7 @@ import { Jwt } from 'src/decorators/jwt.decorator';
 @ApiTags('Stores')
 @ApiBearerAuth()
 @Controller()
-@UseGuards(JwtAuthGuard, StoreAccessGuard)
+@UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
@@ -59,6 +59,7 @@ export class StoreController {
   }
 
   @Get(':storeId')
+  @UseGuards(StoreAccessGuard)
   @ApiOperation({ summary: storeDocs.getUnique.summary })
   @ApiParam(paramsDocs.storeId)
   @ApiResponse({
@@ -82,6 +83,7 @@ export class StoreController {
   }
 
   @Delete(':storeId')
+  @UseGuards(StoreAccessGuard)
   @ApiOperation({ summary: storeDocs.delete.summary })
   @ApiParam(paramsDocs.storeId)
   @ApiResponse(storeDocs.notImplementedResponse)

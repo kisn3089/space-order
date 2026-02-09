@@ -12,6 +12,7 @@ import signInAction from "../../actions/signInAction";
 import { useRouter } from "next/navigation";
 import { SignInPayload, signInPayloadSchema } from "@spaceorder/api";
 import { useAuthInfo } from "@spaceorder/auth";
+import { Spinner } from "@spaceorder/ui/components/spinner";
 
 export default function FormCard() {
   const { setAuthInfo } = useAuthInfo();
@@ -21,7 +22,7 @@ export default function FormCard() {
     register,
     handleSubmit,
     setError,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SignInPayload>({
     resolver: zodResolver(signInPayloadSchema),
     defaultValues: {
@@ -34,6 +35,7 @@ export default function FormCard() {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
+
     const signInResult = await signInAction(formData);
 
     if (!signInResult.success) {
@@ -67,8 +69,12 @@ export default function FormCard() {
         </div>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full font-bold">
-          로그인
+        <Button
+          type="submit"
+          className="w-full font-bold"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? <Spinner /> : "로그인"}
         </Button>
         <div className="flex items-center justify-between w-full">
           <div className="flex  gap-2">

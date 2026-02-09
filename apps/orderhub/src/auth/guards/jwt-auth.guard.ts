@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from '@spaceorder/db';
+import { PrivateRequestUser } from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 
 export interface JwtErrorInfo {
@@ -24,7 +24,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param context - 실행 컨텍스트
    * @param status - HTTP 상태 코드 (선택사항)
    */
-  handleRequest<TUser = User>(err: any, user: any, info: JwtErrorInfo): TUser {
+  handleRequest<User = PrivateRequestUser>(
+    err: any,
+    user: User,
+    info: JwtErrorInfo,
+  ): User {
     if (err || !user) {
       // [TODO:] 로깅 서비스로 변경 필요
       console.warn('user: ', user);

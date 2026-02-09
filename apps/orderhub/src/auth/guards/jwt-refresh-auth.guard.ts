@@ -15,7 +15,7 @@ import { COOKIE_TABLE } from '@spaceorder/db/constants';
 export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
   handleRequest<User = PublicUser>(
     err: any,
-    user: any,
+    user: User,
     info: JwtErrorInfo,
     context: ExecutionContext,
   ): User {

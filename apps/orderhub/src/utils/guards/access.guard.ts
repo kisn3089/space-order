@@ -6,12 +6,12 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { TokenPayload, User } from '@spaceorder/db';
+import { PrivateRequestUser } from '@spaceorder/db';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
 
 type RequestWithClient = Request & {
-  user: { info: User; jwt: TokenPayload };
+  user: PrivateRequestUser;
 };
 
 @Injectable()
@@ -20,6 +20,13 @@ export abstract class AccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithClient>();
+
+    if (!request.user) {
+      throw new HttpException(
+        exceptionContentsIs('UNAUTHORIZED'),
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
 
     const canAccess = await this.proofCanAccess(request.user, request.params);
     if (!canAccess) {
@@ -32,7 +39,7 @@ export abstract class AccessGuard implements CanActivate {
   }
 
   protected abstract proofCanAccess(
-    user: { info: User; jwt: TokenPayload },
+    user: PrivateRequestUser,
     params: Record<string, string>,
-  ): Promise<boolean>;
+  ): Promise<boolean> | boolean;
 }

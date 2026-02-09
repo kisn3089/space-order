@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
-import { TokenPayload } from '@spaceorder/db';
+import { PrivateRequestUser, TokenPayload } from '@spaceorder/db';
 import { AuthService } from '../services/auth.service';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(jwt: TokenPayload) {
+  async validate(jwt: TokenPayload): Promise<PrivateRequestUser> {
     const user = await this.authService.findUserByRole({
       role: jwt.role,
       where: { publicId: jwt.sub },

@@ -119,11 +119,13 @@ export class AuthService {
       }
 
       return user;
-    } catch {
-      throw new HttpException(
-        exceptionContentsIs('SIGNIN_FAILED'),
-        HttpStatus.UNAUTHORIZED,
-      );
+    } catch (error: unknown) {
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException(
+          exceptionContentsIs('SIGNIN_FAILED'),
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
     }
   }
 }

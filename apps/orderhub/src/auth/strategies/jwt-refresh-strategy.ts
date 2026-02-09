@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../services/auth.service';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
-import { TokenPayload } from '@spaceorder/db';
+import { PrivateRequestUser, TokenPayload } from '@spaceorder/db';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -25,7 +25,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(request: Request, payload: TokenPayload) {
+  async validate(
+    request: Request,
+    payload: TokenPayload,
+  ): Promise<PrivateRequestUser | null> {
     const refreshToken: string | null | undefined =
       request.cookies?.[COOKIE_TABLE.REFRESH];
 

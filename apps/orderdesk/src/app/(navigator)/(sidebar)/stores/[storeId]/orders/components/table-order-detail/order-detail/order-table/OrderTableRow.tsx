@@ -10,7 +10,6 @@ interface OrderTableRowProps {
 }
 export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
   const {
-    state: { isEditingFinalizedOrder },
     actions: { resetSelection, setEditingItem },
   } = useOrderDetailContext();
 
@@ -43,16 +42,19 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
     }
   };
 
+  const isFinalizedOrder =
+    row.original.orderStatus === "COMPLETED" ||
+    row.original.orderStatus === "CANCELLED";
+  const disabled = `opacity-50 pointer-events-none`;
+
   return (
     <TableRow
       role="button"
-      tabIndex={isSelected ? -1 : 0}
-      onKeyDown={
-        isSelected && !isEditingFinalizedOrder ? undefined : ignoreTabKey
-      }
+      tabIndex={isSelected || isFinalizedOrder ? -1 : 0}
+      onKeyDown={isSelected ? undefined : ignoreTabKey}
       onClick={handleRowClick}
       data-state={isSelected && "selected"}
-      className="flex flex-col"
+      className={`flex flex-col ${isFinalizedOrder ? disabled : ""}`}
     >
       {children}
     </TableRow>

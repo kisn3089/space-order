@@ -38,24 +38,15 @@ export function OrderDetailProvider({
     useState<OrderItemWithSummarizedOrder | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  const orderItems: OrderItemWithSummarizedOrder[] = orders
-    .filter(
-      (filteringOrder) =>
-        filteringOrder.status !== "CANCELLED" &&
-        filteringOrder.status !== "COMPLETED"
-    )
-    .flatMap((order) =>
-      order.orderItems.map((item) => ({
-        ...item,
-        totalPrice: item.unitPrice * item.quantity,
-        orderId: order.publicId,
-        orderStatus: order.status,
-      }))
-    );
+  const orderItems: OrderItemWithSummarizedOrder[] = orders.flatMap((order) =>
+    order.orderItems.map((item) => ({
+      ...item,
+      totalPrice: item.unitPrice * item.quantity,
+      orderId: order.publicId,
+      orderStatus: order.status,
+    }))
+  );
 
-  const isEditingFinalizedOrder =
-    editingItem?.orderStatus === "COMPLETED" ||
-    editingItem?.orderStatus === "CANCELLED";
   const totalPrice = sumFromObjects(orderItems, (item) => item.totalPrice);
 
   // Actions
@@ -95,7 +86,6 @@ export function OrderDetailProvider({
       orderItems,
       totalPrice,
       editingItem,
-      isEditingFinalizedOrder,
       rowSelection,
     },
     actions: {

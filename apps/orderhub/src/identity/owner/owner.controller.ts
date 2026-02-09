@@ -33,6 +33,7 @@ import {
   CreateOwnerPayloadDto,
   UpdateOwnerPayloadDto,
 } from 'src/dto/owner.dto';
+import { OwnerAccessGuard } from 'src/utils/guards/owner-access.guard';
 
 @ApiTags('Owner')
 @ApiBearerAuth()
@@ -60,7 +61,7 @@ export class OwnerController {
   }
 
   @Get(':ownerId')
-  @UseGuards(ZodValidation({ params: ownerIdParamsSchema }))
+  @UseGuards(OwnerAccessGuard, ZodValidation({ params: ownerIdParamsSchema }))
   @UseInterceptors(ClassSerializerInterceptor)
   @DocsOwnerGetUnique()
   async unique(@Param('ownerId') ownerId: string): Promise<PublicOwner> {
@@ -72,6 +73,7 @@ export class OwnerController {
 
   @Patch(':ownerId')
   @UseGuards(
+    OwnerAccessGuard,
     ZodValidation({
       params: ownerIdParamsSchema,
       body: updateOwnerPayloadSchema,
@@ -90,7 +92,7 @@ export class OwnerController {
 
   @Delete(':ownerId')
   @HttpCode(204)
-  @UseGuards(ZodValidation({ params: ownerIdParamsSchema }))
+  @UseGuards(OwnerAccessGuard, ZodValidation({ params: ownerIdParamsSchema }))
   @DocsOwnerDelete()
   async delete(@Param('ownerId') ownerId: string): Promise<void> {
     await this.ownerService.deleteOwner(ownerId);

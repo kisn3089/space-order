@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, TokenPayload, User } from '@spaceorder/db';
-import {} from 'src/common/query/session-query.const';
 
 @Injectable()
 export class StoreService {

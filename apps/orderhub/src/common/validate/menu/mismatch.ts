@@ -13,12 +13,15 @@ export type MenuValidationFields = Pick<
   | 'isAvailable'
 >;
 
-export function validateMenuMismatch(
+export function validateMenuMismatchOrThrow(
   findMenuList: MenuValidationFields[],
   menuPublicIds: string[],
 ): void {
   const extractedIds = new Set(findMenuList.map((m) => m.publicId));
   const missingIds = menuPublicIds.filter((id) => !extractedIds.has(id));
+
+  if (missingIds.length === 0) return;
+
   throw new HttpException(
     {
       ...exceptionContentsIs('MENU_MISMATCH'),

@@ -1,4 +1,7 @@
-import { MenuValidationFields, validateMenuMismatch } from '../menu/mismatch';
+import {
+  MenuValidationFields,
+  validateMenuMismatchOrThrow,
+} from '../menu/mismatch';
 import { Prisma } from '@spaceorder/db';
 import { getValidatedMenuOptionsSnapshot } from '../menu/options';
 import { ExtendedMap } from 'src/utils/helper/extendMap';
@@ -15,9 +18,7 @@ export function createOrderItemsWithValidMenu(
   );
   menuMap.setException('MENU_MISMATCH');
 
-  if (findMenuList.length !== menuPublicIds.length) {
-    validateMenuMismatch(findMenuList, menuPublicIds);
-  }
+  validateMenuMismatchOrThrow(findMenuList, menuPublicIds);
 
   const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
     createOrderDto.orderItems.map((orderItem) => {

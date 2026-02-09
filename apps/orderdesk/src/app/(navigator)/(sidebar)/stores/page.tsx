@@ -25,11 +25,11 @@ function FetchToRedirect() {
     data: stores,
     isSuccess: isStoresSuccess,
     isError: isStoresError,
-  } = useSuspenseWithAuth<PublicStore[]>(`/owner/v1/stores`);
+  } = useSuspenseWithAuth<PublicStore[]>(`/stores/v1`);
 
   /** TODO: store가 2개 이상일 경우 선택할 수 있도록 분기 필요 */
   const { isSuccess, isError } = useQueryWithAuth<SummarizedOrdersByStore>(
-    `/owner/v1/stores/${stores[0].publicId}/orders/board`,
+    `/orders/v1/stores/${stores[0].publicId}/orders/summary`,
     {
       onSuccess: (tableBoard) => setCache(tableBoard, stores[0].publicId),
       enabled: isStoresSuccess,

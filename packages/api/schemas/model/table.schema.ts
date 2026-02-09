@@ -27,16 +27,17 @@ export const updateTablePayloadSchema = createTablePayloadSchema
   .partial()
   .extend({
     isActive: z.boolean().optional(),
+    qrCode: commonSchema.cuid2("QRCode").optional(),
   });
 
 export type UpdateTablePayload = z.infer<typeof updateTablePayloadSchema>;
 
-export const tableParamsSchema = z
+export const tableIdParamsSchema = z
   .object({ tableId: commonSchema.cuid2("Table") })
   .strict();
 
 export const storeIdAndTableIdParamsSchema =
-  storeIdParamsSchema.merge(tableParamsSchema);
+  storeIdParamsSchema.merge(tableIdParamsSchema);
 
 /** -------- Query --------- */
 const booleanStringSchema = z

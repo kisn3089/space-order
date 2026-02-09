@@ -35,7 +35,6 @@ export interface TableOrderActions {
 
 // Meta
 export interface TableOrderMeta {
-  storeId: string;
   tableId: string;
 }
 

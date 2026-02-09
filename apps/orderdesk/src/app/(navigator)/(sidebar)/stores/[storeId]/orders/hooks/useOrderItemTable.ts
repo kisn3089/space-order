@@ -1,8 +1,8 @@
 "use client";
 
-import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
 import { useParams } from "next/navigation";
 import { OrderItemWithSummarizedOrder } from "../components/table-order-detail/order-detail/OrderDetailTable";
+import useOrderItem from "@spaceorder/api/core/order/order-item/useOrderItem.mutate";
 
 export default function useOrderItemTable() {
   const { storeId, tableId } = useParams<{

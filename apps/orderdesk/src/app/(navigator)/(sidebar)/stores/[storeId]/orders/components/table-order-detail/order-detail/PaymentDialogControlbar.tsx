@@ -1,4 +1,7 @@
-import { HealthCheckResponse, httpMe } from "@spaceorder/api/core/me/httpMe";
+import {
+  HealthCheckResponse,
+  httpMe,
+} from "@spaceorder/api/core/identity/me/httpMe";
 import { useCancelableAsync } from "@spaceorder/api/hooks/useCancelableAsync";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 import {

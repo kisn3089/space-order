@@ -81,7 +81,7 @@ const EXCEPTION_CONTENTS = {
   },
   ORDER_ALREADY_CANCELLED: {
     code: 'ORDER_ALREADY_CANCELLED',
-    message: '이미 취소된 주문입니다.',
+    message: '취소된 주문은 변경할 수 없습니다.',
   },
   /** ---Order Item--- */
   MENU_OPTIONS_INVALID: {

@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { sumFromObjects } from "@spaceorder/api";
 import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
-import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
 import {
   OrderDetailContext,
   type OrderDetailContextValue,
 } from "./OrderDetailContext";
 import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
 import { PublicOrderWithItem } from "@spaceorder/db/types";
+import useOrderItem from "@spaceorder/api/core/order/order-item/useOrderItem.mutate";
 
 interface OrderDetailProviderProps {
   params: { storeId: string; tableId: string };
@@ -21,7 +21,7 @@ export function OrderDetailProvider({
   children,
 }: OrderDetailProviderProps) {
   const { storeId, tableId } = params;
-  const fetchUrl = `/owner/v1/stores/${storeId}/tables/${tableId}/sessions/alive/orders`;
+  const fetchUrl = `/orders/v1/tables/${tableId}/active-session/orders`;
 
   const { data: orders, isRefetching } = useSuspenseWithAuth<
     PublicOrderWithItem[]

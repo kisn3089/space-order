@@ -13,7 +13,7 @@ export default function AwaitOrdersBoard({
   const { setCache } = useSetCacheByStoreBoard();
   return (
     <AwaitFetch
-      url={`/owner/v1/stores/${lastAccessedStoreId}/orders/board`}
+      url={`/orders/v1/stores/${lastAccessedStoreId}/orders/summary`}
       onSuccess={setCache}
     >
       {children}

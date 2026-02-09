@@ -3,11 +3,11 @@
 import { useParams } from "next/navigation";
 import type { SummarizedTableWithSessions } from "@spaceorder/db";
 import { nextStatusMap, OrderStatus } from "@spaceorder/db";
-import useOwnerOrder from "@spaceorder/api/core/owner-order/useOwnerOrder.mutate";
 import {
   TableOrderContext,
   type TableOrderContextValue,
 } from "./TableOrderContext";
+import useOrderByTable from "@spaceorder/api/core/order/order/useOrderByTable.mutate";
 
 interface TableOrderProviderProps {
   table: SummarizedTableWithSessions;
@@ -19,7 +19,7 @@ export function TableOrderProvider({
   children,
 }: TableOrderProviderProps) {
   const params = useParams<{ storeId: string; tableId: string }>();
-  const { updateOwnerOrder } = useOwnerOrder();
+  const { updateOrderByTable } = useOrderByTable(params.storeId);
 
   const session = table.tableSessions?.[0] ?? null;
   const isActivatedTable = table.isActive === true;
@@ -34,11 +34,8 @@ export function TableOrderProvider({
       return;
     }
 
-    await updateOwnerOrder.mutateAsync({
-      params: {
-        storeId: params.storeId,
-        orderId,
-      },
+    await updateOrderByTable.mutateAsync({
+      orderId,
       updateOrderPayload: { status: nextStatus },
     });
   };
@@ -51,10 +48,7 @@ export function TableOrderProvider({
       isSelected,
     },
     actions: { updateOrderStatus },
-    meta: {
-      storeId: params.storeId,
-      tableId: table.publicId,
-    },
+    meta: { tableId: table.publicId },
   };
 
   return (

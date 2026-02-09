@@ -7,11 +7,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { sessionTokenSchema } from '@spaceorder/api/schemas';
-import { SessionWithTable, TableSession } from '@spaceorder/db';
+import { TableSession } from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { SessionService } from 'src/customer/session/session.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ALIVE_SESSION_STATUSES } from 'src/common/query/session-query.const';
 
-/** TODO: session을 쿠키 기반 -> url param sessionToken 기반으로 변경한다면 변경되어야 함 */
 type RequestWithClient = Request & {
   session: TableSession | null;
 };
@@ -22,7 +22,7 @@ type RequestWithClient = Request & {
  */
 @Injectable()
 export class SessionAuth implements CanActivate {
-  constructor(private readonly sessionService: SessionService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithClient>();
@@ -31,8 +31,14 @@ export class SessionAuth implements CanActivate {
     const tokenValidation = sessionTokenSchema.safeParse(sessionToken);
 
     if (tokenValidation.success) {
-      const activeSession: TableSession =
-        await this.sessionService.getActiveSession(tokenValidation.data);
+      const activeSession =
+        await this.prismaService.tableSession.findFirstOrThrow({
+          where: {
+            sessionToken: tokenValidation.data,
+            expiresAt: { gt: new Date() },
+            status: { in: ALIVE_SESSION_STATUSES },
+          },
+        });
 
       request.session = activeSession;
       return true;

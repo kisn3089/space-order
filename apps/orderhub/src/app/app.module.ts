@@ -15,7 +15,7 @@ import { InternalModule } from 'src/internal/internal.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env'],
+      envFilePath: ['../../.env'],
     }),
     PrismaModule,
     InternalModule,

@@ -6,10 +6,11 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
+    "dev": "turbo run dev",
+    "docker:dev": "docker-compose -f ./docker-compose.yml",
     "dev:order": "turbo run dev --filter=@spaceorder/order",
     "prod:order": "docker-compose -f apps/order/docker-compose.prod.yml -d",
     "dev:orderdesk": "turbo run dev --filter=@spaceorder/orderdesk",
@@ -17,7 +18,12 @@
     "build:order": "turbo run build --filter=@spaceorder/order",
     "build:orderdesk": "turbo run build --filter=@spaceorder/orderdesk",
     "build:orderhub": "turbo run build --filter=@spaceorder/orderhub",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prisma:studio": "pnpm --filter=@spaceorder/db run prisma:studio",
+    "prisma:generate": "pnpm --filter=@spaceorder/db run prisma:generate",
+    "prisma:migrate": "pnpm --filter=@spaceorder/db run prisma:migrate",
+    "prisma:seed": "pnpm --filter=@spaceorder/db run prisma:seed",
+    "prisma:reset": "pnpm --filter=@spaceorder/db run prisma:reset"
   },
   "devDependencies": {
     "husky": "^9.1.7",

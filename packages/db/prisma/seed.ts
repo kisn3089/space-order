@@ -464,8 +464,8 @@ async function main() {
         menuId: americano.id,
         menuName: "아메리카노",
         basePrice: 4500,
-        optionsPrice: 1000,
-        unitPrice: 5500,
+        optionsPrice: 2000,
+        unitPrice: 6500,
         quantity: 2,
         optionsSnapshot: {
           requiredOptions: {

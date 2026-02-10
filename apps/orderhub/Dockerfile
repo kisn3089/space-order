@@ -20,8 +20,8 @@ RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 # Copy prisma schema and .env, then generate client
 COPY packages/db/prisma ./packages/db/prisma
-COPY apps/orderhub/.env ./apps/orderhub/.env
-RUN cd packages/db && pnpm run prisma:generate
+COPY .env ./.env
+RUN pnpm --filter=@spaceorder/db exec prisma generate
 
 # Development stage
 FROM deps AS development
@@ -31,7 +31,9 @@ ENV NODE_ENV=development
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "cd apps/orderhub && corepack enable pnpm && pnpm start:dev"]
+CMD ["sh", "-c", "corepack enable pnpm && pnpm prisma:migrate && pnpm prisma:seed && pnpm --filter=@spaceorder/orderhub start:dev"]
+
+
 
 # Stage 2: Builder
 FROM base AS builder

@@ -1,0 +1,152 @@
+version: "3.8"
+
+services:
+  # MySQL Database for development
+  mysql:
+    build:
+      context: .
+      dockerfile: packages/db/Dockerfile
+    container_name: orderhub-dev-mysql
+    restart: unless-stopped
+    command:
+      - --skip-log-bin
+      - --sync_binlog=0
+      - --innodb_flush_log_at_trx_commit=2
+      - --innodb_temp_data_file_path=ibtmp1:64M:autoextend:max:512M
+      # prod.yaml
+      # command:
+      #   - --innodb_flush_log_at_trx_commit=1
+      #   - --sync_binlog=1
+      #   - --binlog_expire_logs_seconds = 604800 # 7 days
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    networks:
+      - spaceorder-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p$$MYSQL_ROOT_PASSWORD",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+
+  # NestJS Backend (orderhub app) - Development
+  orderhub:
+    image: orderhub-order-backend
+    build:
+      context: .
+      dockerfile: apps/orderhub/Dockerfile
+      target: development
+    container_name: orderhub-dev-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_NAME}
+    ports:
+      - "${SERVER_PORT}:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - spaceorder-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+
+  # Next.js Frontend (orderdesk app) - Development
+  orderdesk:
+    image: space-orderdesk-frontend
+    build:
+      context: .
+      dockerfile: apps/orderdesk/Dockerfile
+      target: development
+    container_name: space-orderdesk-frontend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      NEXT_PUBLIC_API_URL: http://orderhub:8080
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      - /app/apps/orderdesk/.next
+    depends_on:
+      - orderhub
+    networks:
+      - spaceorder-network
+
+  # Next.js Frontend (order app) - Development
+  order:
+    image: space-order-frontend
+    build:
+      context: .
+      dockerfile: apps/order/Dockerfile
+      target: development
+    container_name: space-order-frontend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      - /app/apps/order/.next
+    depends_on:
+      - orderhub
+    networks:
+      - spaceorder-network
+
+  # Prisma Studio - Database GUI
+  prisma-studio:
+    build:
+      context: .
+      dockerfile: apps/orderhub/Dockerfile
+      target: development
+    container_name: spaceorder-prisma-studio
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_NAME}
+    ports:
+      - "5555:5555"
+    command: ["pnpm", "prisma:studio", "--", "--port", "5555"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - spaceorder-network
+    env_file:
+      - .env
+
+networks:
+  spaceorder-network:
+    driver: bridge
+
+volumes:
+  mysql_dev_data:
+    driver: local

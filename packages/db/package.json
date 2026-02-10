@@ -9,6 +9,7 @@
     "lint": "eslint \"src/**/*.ts\" --fix",
     "prisma:generate": "dotenv -e ../../.env -- prisma generate",
     "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "prisma:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
     "prisma:seed": "dotenv -e ../../.env -- tsx prisma/seed.ts",
     "prisma:reset": "dotenv -e ../../.env -- prisma migrate reset",
     "prisma:studio": "dotenv -e ../../.env -- prisma studio"

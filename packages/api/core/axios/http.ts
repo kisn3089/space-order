@@ -4,8 +4,8 @@ const isServer = typeof window === "undefined";
 
 export const http = axios.create({
   baseURL: isServer
-    ? process.env.NEXT_PUBLIC_API_URL
-    : process.env.ORDERHUB_URL || "http://localhost:8080",
+    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+    : process.env.NEXT_PUBLIC_ORDERHUB_URL || "http://localhost:8080",
   timeout: 10000,
   withCredentials: true,
 });

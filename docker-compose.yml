@@ -24,7 +24,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${DB_PORT}:3306"
+      - "3306:3306"
     volumes:
       - mysql_dev_data:/var/lib/mysql
     networks:
@@ -59,7 +59,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 8080
-      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_NAME}
+      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:3306/${DB_NAME}
     ports:
       - "${SERVER_PORT}:8080"
     depends_on:
@@ -97,6 +97,8 @@ services:
       - orderhub
     networks:
       - spaceorder-network
+    env_file:
+      - .env
 
   # Next.js Frontend (order app) - Development
   order:
@@ -121,6 +123,8 @@ services:
       - orderhub
     networks:
       - spaceorder-network
+    env_file:
+      - .env
 
   # Prisma Studio - Database GUI
   prisma-studio:
@@ -131,7 +135,7 @@ services:
     container_name: spaceorder-prisma-studio
     restart: unless-stopped
     environment:
-      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_NAME}
+      DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:3306/${DB_NAME}
     ports:
       - "5555:5555"
     command: ["pnpm", "prisma:studio", "--", "--port", "5555"]

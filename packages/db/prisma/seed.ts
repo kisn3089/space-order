@@ -9,6 +9,13 @@ async function encryptPassword(value: string): Promise<string> {
 }
 
 async function main() {
+  // Check if seeding has already been done
+  const existingAdmin = await prisma.admin.findFirst();
+  if (existingAdmin) {
+    console.log("⏭️  Database already seeded. Skipping...");
+    return;
+  }
+
   console.log("🌱 Starting database seeding...");
   // ==================== Admin 데이터 ====================
   console.log("📝 Creating admins...");

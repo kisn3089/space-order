@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
-import { Admin, Owner, TokenPayload, User } from '@spaceorder/db';
+import { TokenPayload, User } from '@spaceorder/db';
 import { COOKIE_TABLE } from '@spaceorder/db/constants';
 import { responseCookie } from 'src/utils/cookies';
 

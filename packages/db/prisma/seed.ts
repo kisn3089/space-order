@@ -304,6 +304,289 @@ async function main() {
     skipDuplicates: true,
   });
 
+  // 생성된 테이블 조회 (tableNumber 기준)
+  const createdTables = await prisma.table.findMany({
+    where: { storeId: store1.id },
+    orderBy: { tableNumber: "asc" },
+  });
+
+  const table1 = createdTables.find((t) => t.tableNumber === 1)!;
+  const table2 = createdTables.find((t) => t.tableNumber === 2)!;
+  const table4 = createdTables.find((t) => t.tableNumber === 4)!;
+
+  // 생성된 메뉴 조회
+  const createdMenus = await prisma.menu.findMany({
+    where: { storeId: store1.id },
+  });
+
+  const findMenu = (name: string) => createdMenus.find((m) => m.name === name)!;
+  const americano = findMenu("아메리카노");
+  const latte = findMenu("카페라떼");
+  const cappuccino = findMenu("카푸치노");
+  const croissant = findMenu("크로와상");
+  const cheesecake = findMenu("치즈케이크");
+  const dripCoffee = findMenu("드립 커피");
+
+  // ==================== TableSession 데이터 ====================
+  console.log("📝 Creating table sessions...");
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2시간 후
+
+  const session1 = await prisma.tableSession.upsert({
+    where: { publicId: "m91i4aceil90dukgd22senv5" },
+    update: {},
+    create: {
+      publicId: "m91i4aceil90dukgd22senv5",
+      tableId: table1.id,
+      status: "ACTIVE",
+      sessionToken: "ZdveYAJITM92Np-2Cd4jv0RrHw6KRkAwOZyGHPStsWs",
+      activatedAt: now,
+      expiresAt,
+      paidAmount: 0,
+    },
+  });
+
+  const session2 = await prisma.tableSession.upsert({
+    where: { publicId: "o11om68intan0v0ko3x9nlb3" },
+    update: {},
+    create: {
+      publicId: "o11om68intan0v0ko3x9nlb3",
+      tableId: table2.id,
+      status: "ACTIVE",
+      sessionToken: "PQ-mjU8nlFbRVhpS5HvQcL-qlw_-q02VMEhm_i_aaFM",
+      activatedAt: now,
+      expiresAt,
+      paidAmount: 0,
+    },
+  });
+
+  const session4 = await prisma.tableSession.upsert({
+    where: { publicId: "x14mlnrh7jqdgziucr2vw1eh" },
+    update: {},
+    create: {
+      publicId: "x14mlnrh7jqdgziucr2vw1eh",
+      tableId: table4.id,
+      status: "ACTIVE",
+      sessionToken: "wVecI3NAYcoAZn5Khbq5CLp9P7Qat1yCChSJj8qCJmY",
+      activatedAt: now,
+      expiresAt,
+      paidAmount: 0,
+    },
+  });
+
+  console.log("✅ Table sessions created");
+
+  // ==================== Order 데이터 ====================
+  console.log("📝 Creating orders...");
+
+  // 테이블 1 주문: 아메리카노 2잔 + 크로와상 (COMPLETED)
+  const order1 = await prisma.order.upsert({
+    where: { publicId: "iz8e7twkcpn232ircc9eyd4q" },
+    update: {},
+    create: {
+      publicId: "iz8e7twkcpn232ircc9eyd4q",
+      storeId: store1.id,
+      tableId: table1.id,
+      tableSessionId: session1.id,
+      status: "COMPLETED",
+      memo: "얼음 많이 넣어주세요",
+      acceptedAt: new Date(now.getTime() - 30 * 60 * 1000),
+      completedAt: new Date(now.getTime() - 15 * 60 * 1000),
+    },
+  });
+
+  // 테이블 1 주문 2: 카페라떼 1잔 (PENDING)
+  const order2 = await prisma.order.upsert({
+    where: { publicId: "k8hg56a7jhojhmbmvytdra4w" },
+    update: {},
+    create: {
+      publicId: "k8hg56a7jhojhmbmvytdra4w",
+      storeId: store1.id,
+      tableId: table1.id,
+      tableSessionId: session1.id,
+      status: "PENDING",
+    },
+  });
+
+  // 테이블 2 주문: 카푸치노 + 치즈케이크 (PREPARING)
+  const order3 = await prisma.order.upsert({
+    where: { publicId: "d3gz3p6xmdby60896v2fosui" },
+    update: {},
+    create: {
+      publicId: "d3gz3p6xmdby60896v2fosui",
+      storeId: store1.id,
+      tableId: table2.id,
+      tableSessionId: session2.id,
+      status: "PREPARING",
+      memo: "케이크 포크 2개 부탁드려요",
+      acceptedAt: new Date(now.getTime() - 10 * 60 * 1000),
+    },
+  });
+
+  // 테이블 4 주문: 드립커피 2잔 + 아메리카노 + 크로와상 + 치즈케이크 (ACCEPTED)
+  const order4 = await prisma.order.upsert({
+    where: { publicId: "y4yg7t7svyoucz9hl9cd2zur" },
+    update: {},
+    create: {
+      publicId: "y4yg7t7svyoucz9hl9cd2zur",
+      storeId: store1.id,
+      tableId: table4.id,
+      tableSessionId: session4.id,
+      status: "ACCEPTED",
+      memo: null,
+      acceptedAt: new Date(now.getTime() - 5 * 60 * 1000),
+    },
+  });
+
+  // 테이블 4 주문 2: 카페라떼 (CANCELLED)
+  const order5 = await prisma.order.upsert({
+    where: { publicId: "m93yqrg1qna04pxi95d0qi5g" },
+    update: {},
+    create: {
+      publicId: "m93yqrg1qna04pxi95d0qi5g",
+      storeId: store1.id,
+      tableId: table4.id,
+      tableSessionId: session4.id,
+      status: "CANCELLED",
+      cancelledReason: "메뉴 변경",
+    },
+  });
+
+  // ==================== OrderItem 데이터 ====================
+  console.log("📝 Creating order items...");
+
+  await prisma.orderItem.createMany({
+    data: [
+      // Order 1 (테이블 1 - COMPLETED): 아메리카노 2잔 + 크로와상
+      {
+        publicId: "zootdtfjvajoivq0x9dlf80j",
+        orderId: order1.id,
+        menuId: americano.id,
+        menuName: "아메리카노",
+        basePrice: 4500,
+        optionsPrice: 2000,
+        unitPrice: 6500,
+        quantity: 2,
+        optionsSnapshot: {
+          requiredOptions: {
+            원두: { key: "케냐", price: 1000 },
+            종류: { key: "아이스", price: 0 },
+          },
+          customOptions: {
+            카페인: { key: "진하게", price: 1000 },
+            얼음: { key: "많이", price: 0 },
+          },
+        },
+      },
+      {
+        publicId: "cyw8f52pazpolcp3nthvae1w",
+        orderId: order1.id,
+        menuId: croissant.id,
+        menuName: "크로와상",
+        basePrice: 3500,
+        optionsPrice: 0,
+        unitPrice: 3500,
+        quantity: 1,
+      },
+      // Order 2 (테이블 1 - PENDING): 카페라떼 1잔
+      {
+        publicId: "d6dmaaniichb00uirp98wcmu",
+        orderId: order2.id,
+        menuId: latte.id,
+        menuName: "카페라떼",
+        basePrice: 5000,
+        optionsPrice: 0,
+        unitPrice: 5000,
+        quantity: 1,
+      },
+      // Order 3 (테이블 2 - PREPARING): 카푸치노 + 치즈케이크
+      {
+        publicId: "zfknocuq7f3jf5mye1svzxry",
+        orderId: order3.id,
+        menuId: cappuccino.id,
+        menuName: "카푸치노",
+        basePrice: 5000,
+        optionsPrice: 0,
+        unitPrice: 5000,
+        quantity: 1,
+      },
+      {
+        publicId: "ob8xkpnlc9l0z322r6abmzab",
+        orderId: order3.id,
+        menuId: cheesecake.id,
+        menuName: "치즈케이크",
+        basePrice: 6500,
+        optionsPrice: 0,
+        unitPrice: 6500,
+        quantity: 1,
+      },
+      // Order 4 (테이블 4 - ACCEPTED): 드립커피 2잔 + 아메리카노 + 크로와상 + 치즈케이크
+      {
+        publicId: "qnavcav7tiaao582qomf5asr",
+        orderId: order4.id,
+        menuId: dripCoffee.id,
+        menuName: "드립 커피",
+        basePrice: 4600,
+        optionsPrice: 500,
+        unitPrice: 5100,
+        quantity: 2,
+        optionsSnapshot: {
+          customOptions: { 얼음: { key: "적게", price: 0 } },
+        },
+      },
+      {
+        publicId: "i0vsjtnf5hqmz7acfp55oblp",
+        orderId: order4.id,
+        menuId: americano.id,
+        menuName: "아메리카노",
+        basePrice: 4500,
+        optionsPrice: 500,
+        unitPrice: 5000,
+        quantity: 1,
+        optionsSnapshot: {
+          requiredOptions: {
+            원두: { key: "코스타리코", price: 500 },
+            종류: { key: "핫", price: 0 },
+          },
+          customOptions: { 카페인: { key: "연하게", price: 0 } },
+        },
+      },
+      {
+        publicId: "kzotggj34fp2sicjxm5378mf",
+        orderId: order4.id,
+        menuId: croissant.id,
+        menuName: "크로와상",
+        basePrice: 3500,
+        optionsPrice: 0,
+        unitPrice: 3500,
+        quantity: 1,
+      },
+      {
+        publicId: "dwcxu6otu2dt5h8ehfbh7njn",
+        orderId: order4.id,
+        menuId: cheesecake.id,
+        menuName: "치즈케이크",
+        basePrice: 6500,
+        optionsPrice: 0,
+        unitPrice: 6500,
+        quantity: 1,
+      },
+      // Order 5 (테이블 4 - CANCELLED): 카페라떼
+      {
+        publicId: "r0are9ygvbtsvotuu91763hx",
+        orderId: order5.id,
+        menuId: latte.id,
+        menuName: "카페라떼",
+        basePrice: 5000,
+        optionsPrice: 0,
+        unitPrice: 5000,
+        quantity: 1,
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log("✅ Orders and order items created");
   console.log("✅ Menus created");
   console.log("\n🎉 Seeding completed successfully!");
   console.log("\n📋 Test Accounts:");

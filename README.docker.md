@@ -9,11 +9,13 @@ This guide explains how to run the space-order monorepo using Docker and Docker 
 
 ## Architecture
 
-The Docker setup includes three services:
+The Docker setup includes four services:
 
-1. **mysql** - MySQL 8.0 database
+1. **mysql** - MySQL 8.0 database (port 3306)
 2. **orderhub** - NestJS backend API (port 8080)
-3. **order** - Next.js frontend (port 3000)
+3. **orderdesk** - Next.js admin frontend (port 3001)
+4. **order** - Next.js customer frontend (port 3000)
+5. **prisma-studio** - Prisma Studio database GUI (port 5555)
 
 ## Quick Start
 
@@ -35,58 +37,54 @@ Edit `.env` to configure:
 
 ```bash
 # Build and start all services in detached mode
-docker-compose up -d --build
+docker compose up -d --build
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # View logs for specific service
-docker-compose logs -f orderhub
-docker-compose logs -f order
+docker compose logs -f orderhub
+docker compose logs -f order
 ```
 
 ### 3. Stop Services
 
 ```bash
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (WARNING: deletes database data)
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Development Workflow
 
 ### Initial Prisma Setup
 
-After first launch, you may need to initialize Prisma:
+**Note:** In development mode, the orderhub container automatically runs `prisma:deploy` on startup. 시딩은 `RUN_PRISMA_SEED=true`로 설정한 경우에만 실행됩니다. Manual initialization is only needed when running locally without Docker.
 
 ```bash
-# Enter the orderhub container
-docker-compose exec orderhub sh
-
-# Generate Prisma Client
-npx prisma generate
-
-# Run migrations
-npx prisma migrate dev --name init
-
-# (Optional) Seed database
-npx prisma db seed
+# From host machine (without Docker)
+pnpm --filter=@spaceorder/db prisma:generate
+pnpm --filter=@spaceorder/db prisma:migrate
+pnpm --filter=@spaceorder/db prisma:seed
 ```
 
 ### Create New Prisma Migration
 
 ```bash
-# Edit apps/orderhub/prisma/schema.prisma first, then:
-docker-compose exec orderhub npx prisma migrate dev --name your_migration_name
+# Edit packages/db/prisma/schema.prisma first, then:
+pnpm --filter=@spaceorder/db prisma:migrate
+
+# If using Docker, restart orderhub to apply migrations:
+docker compose restart orderhub
 ```
 
 ### Access MySQL Database
 
 ```bash
-# Using docker-compose exec
-docker-compose exec mysql mysql -u spaceuser -p spaceorder
+# Using docker compose exec
+docker compose exec mysql mysql -u spaceuser -p spaceorder
 
 # Or connect from host machine
 mysql -h 127.0.0.1 -P 3306 -u spaceuser -p
@@ -94,9 +92,11 @@ mysql -h 127.0.0.1 -P 3306 -u spaceuser -p
 
 ## Service URLs
 
-- Frontend (Next.js): http://localhost:3000
-- Backend API (NestJS): http://localhost:8080
-- MySQL Database: localhost:3306
+- Customer Frontend (order): <http://localhost:3000>
+- Admin Frontend (orderdesk): <http://localhost:3001>
+- Backend API (orderhub): <http://localhost:8080>
+- MySQL Database: `localhost:3306`
+- Prisma Studio: <http://localhost:5555>
 
 ## Troubleshooting
 
@@ -107,41 +107,43 @@ If the orderhub app can't connect to MySQL:
 1. Check if MySQL is healthy:
 
    ```bash
-   docker-compose ps
+   docker compose ps
    ```
 
 2. Verify DATABASE_URL in orderhub service environment
 
 3. Check MySQL logs:
+
    ```bash
-   docker-compose logs mysql
+   docker compose logs mysql
    ```
 
 ### Rebuild After Code Changes
 
 ```bash
 # Rebuild specific service
-docker-compose up -d --build orderhub
-docker-compose up -d --build order
+docker compose up -d --build orderhub
+docker compose up -d --build orderdesk
+docker compose up -d --build order
 
 # Rebuild all services
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ### Clean Rebuild (Remove Cache)
 
 ```bash
 # Stop everything
-docker-compose down
+docker compose down
 
 # Remove images
-docker-compose rm -f
+docker compose rm -f
 
 # Rebuild without cache
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # Start again
-docker-compose up -d
+docker compose up -d
 ```
 
 ### View Container Resource Usage
@@ -164,26 +166,33 @@ For production deployment:
 
 ## File Structure
 
-```
+```text
 .
-├── docker-compose.yml           # Main orchestration file
+├── docker-compose.yml           # Main orchestration file (all services)
+├── .env                         # Central environment variables
 ├── .env.example                 # Example environment variables
-├── apps/
-│   ├── order/
-│   │   ├── Dockerfile           # Next.js frontend container
-│   │   ├── .dockerignore
-│   │   └── next.config.js       # (output: 'standalone' enabled)
-│   └── orderhub/
-│       ├── Dockerfile           # NestJS backend container
-│       ├── .dockerignore
-│       ├── .env.example
+├── packages/
+│   └── db/
+│       ├── init/                # MySQL initialization scripts
 │       └── prisma/
 │           └── schema.prisma    # Database schema
+├── apps/
+│   ├── order/
+│   │   ├── Dockerfile           # Next.js customer frontend container
+│   │   └── .dockerignore
+│   ├── orderdesk/
+│   │   ├── Dockerfile           # Next.js admin frontend container
+│   │   └── .dockerignore
+│   └── orderhub/
+│       ├── Dockerfile           # NestJS backend container
+│       └── .dockerignore
 ```
 
 ## Notes
 
-- The Next.js app is built in standalone mode for smaller image size
-- Prisma migrations run automatically on orderhub container startup
-- MySQL data persists in a Docker volume named `mysql_data`
-- All services communicate through the `space-order-network` bridge network
+- Next.js apps are built in standalone mode for smaller image size
+- Prisma schema is centralized in `packages/db/prisma/schema.prisma`
+- MySQL initialization scripts are loaded from `packages/db/init/`
+- MySQL data persists in a Docker volume named `mysql_dev_data`
+- All services communicate through the `spaceorder-network` bridge network
+- **orderhub development mode** automatically runs `prisma:deploy` on container startup. 시딩은 `RUN_PRISMA_SEED=true` 환경변수 설정 시에만 실행

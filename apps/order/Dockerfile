@@ -14,9 +14,16 @@ COPY apps/order/package.json ./apps/order/package.json
 COPY packages/ui/package.json ./packages/ui/package.json
 COPY packages/tsconfig/package.json ./packages/tsconfig/package.json
 COPY packages/lintconfig/package.json ./packages/lintconfig/package.json
+COPY packages/api/package.json ./packages/api/package.json
+COPY packages/db/package.json ./packages/db/package.json
 
 # Install dependencies with pnpm
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
+
+# Copy prisma schema and .env, then generate client
+COPY packages/db/prisma ./packages/db/prisma
+COPY .env ./.env
+RUN pnpm --filter=@spaceorder/db exec prisma generate
 
 # Development stage
 FROM deps AS development
@@ -26,7 +33,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "corepack enable pnpm && pnpm dev --filter=order"]
+CMD ["sh", "-c", "corepack enable pnpm && pnpm dev --filter=@spaceorder/order"]
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder

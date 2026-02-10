@@ -8,7 +8,6 @@ import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRe
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
-    isEditingFinalizedOrder: boolean;
     editingData: TData | null;
     updateEditingQuantity: (delta: number) => void;
     resetEditing: () => void;
@@ -42,11 +41,9 @@ export const tableOrderColumns: ColumnDef<OrderItemWithSummarizedOrder>[] = [
         meta.updateEditingQuantity(1);
       };
 
-      const disabledCondition = meta.isEditingFinalizedOrder;
       return (
         <div className="flex items-center justify-center gap-2 w-full">
           <ChangeQuantityButton
-            disabled={disabledCondition}
             aria-label="수량 감소"
             isSelected={isSelected}
             callback={decreaseQuantity}
@@ -55,7 +52,6 @@ export const tableOrderColumns: ColumnDef<OrderItemWithSummarizedOrder>[] = [
           </ChangeQuantityButton>
           <span className="tabular-nums">{displayQuantity}</span>
           <ChangeQuantityButton
-            disabled={disabledCondition}
             aria-label="수량 증가"
             isSelected={isSelected}
             callback={increaseQuantity}

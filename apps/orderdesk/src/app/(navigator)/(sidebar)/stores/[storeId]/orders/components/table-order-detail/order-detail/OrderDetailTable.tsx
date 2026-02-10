@@ -13,12 +13,11 @@ export type OrderItemWithSummarizedOrder = PublicOrderItem & {
 };
 export function OrderDetailTable() {
   const {
-    state: { orderItems, editingItem, rowSelection, isEditingFinalizedOrder },
+    state: { orderItems, editingItem, rowSelection },
     actions: { setRowSelection, updateEditingQuantity, resetSelection },
   } = useOrderDetailContext();
 
   const tableMeta = {
-    isEditingFinalizedOrder,
     editingData: editingItem,
     updateEditingQuantity,
     resetEditing: resetSelection,
@@ -47,7 +46,7 @@ export function OrderDetailTable() {
                 isSelected={isSelected}
               />
               <OrderTable.Item row={row} />
-              <OrderTable.Controlbar isSelected={isSelected} />
+              <OrderTable.Controlbar row={row} isSelected={isSelected} />
             </OrderTable.Row>
           );
         })}

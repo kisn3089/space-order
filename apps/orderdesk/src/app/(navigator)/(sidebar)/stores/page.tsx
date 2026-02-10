@@ -44,7 +44,14 @@ function FetchToRedirect() {
     if (isError || isStoresError) {
       throw new Error("매장 정보를 불러오는 중 오류가 발생했습니다.");
     }
-  }, [isSuccess, isError, stores, isStoresError]);
+  }, [
+    isSuccess,
+    isError,
+    stores,
+    isStoresError,
+    router,
+    setStoreInLocalStorage,
+  ]);
 
   return null;
 }

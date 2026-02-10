@@ -2,18 +2,18 @@
 
 import AwaitFetch from "@/components/AwaitFetch";
 import { useSetCacheByStoreBoard } from "../hooks/useSetCacheByStoreBoard";
-import { LAST_ACCESSED_STORE_ID } from "@spaceorder/db/constants";
+import { useParams } from "next/navigation";
 
 export default function AwaitOrdersSummary({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const lastAccessedStoreId = localStorage.getItem(LAST_ACCESSED_STORE_ID);
+  const params = useParams<{ storeId: string }>();
   const { setCache } = useSetCacheByStoreBoard();
   return (
     <AwaitFetch
-      url={`/orders/v1/stores/${lastAccessedStoreId}/orders/summary`}
+      url={`/orders/v1/stores/${params.storeId}/orders/summary`}
       onSuccess={setCache}
     >
       {children}

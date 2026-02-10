@@ -14,7 +14,7 @@ import useOrderByTable, {
   UpdateOrderByTable,
 } from "@spaceorder/api/core/order/order/useOrderByTable.mutate";
 import { UpdateOrderByTablePayload } from "@spaceorder/api/core/order/order/httpOrder";
-import { useParams } from "next/dist/client/components/navigation";
+import { useParams } from "next/navigation";
 
 type FilteredPendingStatus = Omit<SummarizedOrderWithItem, "status"> & {
   status: typeof OrderStatus.PENDING;

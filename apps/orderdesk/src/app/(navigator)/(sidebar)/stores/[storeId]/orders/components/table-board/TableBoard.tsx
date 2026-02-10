@@ -6,7 +6,7 @@ import useSuspenseWithAuth from "@spaceorder/api/hooks/useSuspenseWithAuth";
 import TableBoardLayout from "../table-order-list/TableOrderListLayout";
 import { useSetCacheByStoreBoard } from "../../hooks/useSetCacheByStoreBoard";
 import { GlobalTimerProvider } from "@/app/common/orders/GlobalTimerContext";
-import { useParams } from "next/dist/client/components/navigation";
+import { useParams } from "next/navigation";
 
 export default function TableBoard() {
   const params = useParams<{ storeId: string }>();

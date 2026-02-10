@@ -5,12 +5,12 @@
   "types": "./index.ts",
   "private": true,
   "scripts": {
+    "build": "pnpm prisma:generate",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "prisma:generate": "dotenv -e .env -- prisma generate",
     "prisma:migrate": "dotenv -e .env -- prisma migrate dev",
     "prisma:seed": "dotenv -e .env -- tsx prisma/seed.ts",
     "prisma:reset": "dotenv -e .env -- prisma migrate reset",
-    "prisma:build": "pnpm prisma:generate && tsc -b",
     "prisma:studio": "dotenv -e .env -- prisma studio"
   },
   "prisma": {

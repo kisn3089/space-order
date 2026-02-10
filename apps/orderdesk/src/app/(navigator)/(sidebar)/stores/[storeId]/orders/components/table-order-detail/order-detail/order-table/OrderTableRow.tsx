@@ -27,7 +27,7 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
   ) => {
     e.stopPropagation();
 
-    if (!isFinalizedOrder) return;
+    if (isFinalizedOrder) return;
 
     if (isSelected) {
       row.toggleSelected(false);

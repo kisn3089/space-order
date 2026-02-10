@@ -2,6 +2,7 @@ import { TableRow } from "@spaceorder/ui/components/table";
 import { useOrderDetailContext } from "../OrderDetailContext";
 import { OrderItemWithSummarizedOrder } from "../OrderDetailTable";
 import { Row, Table } from "@tanstack/react-table";
+import { OrderStatus } from "@spaceorder/db/index";
 
 interface OrderTableRowProps {
   children: React.ReactNode;
@@ -15,12 +16,18 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
 
   const isSelected = row.getIsSelected();
 
+  const isFinalizedOrder =
+    row.original.orderStatus === OrderStatus.COMPLETED ||
+    row.original.orderStatus === OrderStatus.CANCELLED;
+
   const handleRowClick = (
     e:
       | React.MouseEvent<HTMLTableRowElement>
       | React.KeyboardEvent<HTMLTableRowElement>
   ) => {
     e.stopPropagation();
+
+    if (!isFinalizedOrder) return;
 
     if (isSelected) {
       row.toggleSelected(false);
@@ -42,9 +49,6 @@ export function OrderTableRow({ children, row, table }: OrderTableRowProps) {
     }
   };
 
-  const isFinalizedOrder =
-    row.original.orderStatus === "COMPLETED" ||
-    row.original.orderStatus === "CANCELLED";
   const disabled = `opacity-50 pointer-events-none`;
 
   return (

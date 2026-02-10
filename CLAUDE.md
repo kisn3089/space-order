@@ -65,7 +65,13 @@ All database configuration lives in the root `.env` file. The `@spaceorder/db` p
 ```typescript
 // Import types and client
 import { PrismaClient } from "@spaceorder/db";
-import type { Admin, Order, OrderStatus, Table, TableSession } from "@spaceorder/db";
+import type {
+  Admin,
+  Order,
+  OrderStatus,
+  Table,
+  TableSession,
+} from "@spaceorder/db";
 ```
 
 **Models:** Admin, Owner, Store, Table, Menu, Order, OrderItem, TableSession
@@ -147,6 +153,7 @@ docker compose logs -f orderhub   # View backend logs
 - `orderhub` - NestJS backend API (port: `SERVER_PORT`, default 8080)
 - `orderdesk` - Admin Next.js app (port: 3001)
 - `order` - Customer Next.js app (port: 3000)
+- `prisma-studio` - Database GUI (port: 5555)
 
 ## Environment Variables
 
@@ -167,6 +174,7 @@ Central config in root `.env` file:
 - `ORDERHUB_URL` - Backend API URL for frontend apps
 
 **JWT:**
+
 - `JWT_ACCESS_TOKEN_SECRET`, `JWT_ACCESS_TOKEN_EXPIRATION_MS` (default: 1 hour)
 - `JWT_REFRESH_TOKEN_SECRET`, `JWT_REFRESH_TOKEN_EXPIRATION_MS` (default: 7 days)
 - `JWT_ISSUER` - Token issuer URL

@@ -8,7 +8,7 @@
 
 Space Order 프로젝트는 이 질문에서 시작되었습니다.
 
-### BYOD (Bring Your Own Device)
+## BYOD (Bring Your Own Device)
 
 고객의 스마트폰으로 QR 코드를 스캔하면 바로 주문이 가능합니다. 별도의 앱 설치 없이 브라우저에서 동작하며, 어떤 디바이스에서든 동일한 경험을 제공합니다.
 
@@ -18,7 +18,7 @@ Space Order 프로젝트는 이 질문에서 시작되었습니다.
 | 상세한 메뉴 정보로 더 나은 선택  | 하드웨어 구독 비용 불필요              |
 | 대기 없이 빠른 주문              | 메뉴/품절 상태/테이블 정보 실시간 관리 |
 
-### 확장 가능성
+## 확장 가능성
 
 - 테이블별 시간 제한 설정
 - 이벤트 및 할인 빠른 적용
@@ -64,7 +64,7 @@ Space Order는 QR 코드 기반 테이블 주문 시스템으로, 고객용 주�
 
 ## Project Structure
 
-```
+```text
 space-order/
 ├── apps/
 │   ├── order/          # 고객용 주문 앱 (Next.js, port 3000)
@@ -213,7 +213,7 @@ pnpm --filter=orderhub test:e2e    # E2E 테스트
 
 ### Order Status Flow
 
-```
+```text
 PENDING → ACCEPTED → PREPARING → COMPLETED
     ↓
 CANCELLED
@@ -221,7 +221,7 @@ CANCELLED
 
 ### Table Session Status Flow
 
-```
+```text
 WAITING_ORDER → ACTIVE → PAYMENT_PENDING → CLOSED
 ```
 
@@ -237,7 +237,7 @@ WAITING_ORDER → ACTIVE → PAYMENT_PENDING → CLOSED
 | `DATABASE_URL`             | Prisma 연결 문자열    | -                     |
 | `JWT_ACCESS_TOKEN_SECRET`  | Access 토큰 시크릿    | -                     |
 | `JWT_REFRESH_TOKEN_SECRET` | Refresh 토큰 시크릿   | -                     |
-| `ORDERHUB_URL`             | 백엔드 API URL        | http://localhost:8080 |
+| `NEXT_PUBLIC_ORDERHUB_URL` | 백엔드 API URL        | http://localhost:8080 |
 
 ## Docker Commands
 

@@ -7,12 +7,14 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
 ## Tech Stack & Versions
 
 ### Package Manager & Runtime
+
 - **pnpm**: 9.0.0+ (REQUIRED - always use pnpm, never npm or yarn)
 - **Node.js**: >=18
 
 ### Frontend Apps (apps/)
 
 #### order (Customer-facing app)
+
 - **Framework**: Next.js 14.2.33 with App Router
 - **React**: 18.3.1
 - **React Compiler**: ENABLED via `reactCompiler: true`
@@ -22,6 +24,7 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
 - **Path Alias**: `@/*` maps to `./src/*`
 
 #### orderdesk (Admin app)
+
 - **Framework**: Next.js 14.2.33 with App Router
 - **React**: 18.3.1
 - **React Compiler**: ENABLED via `reactCompiler: true`
@@ -37,10 +40,12 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
 ### Backend App (apps/)
 
 #### orderhub (API server)
+
 - **Framework**: NestJS 11.0.1 with Express platform
 - **Runtime**: Node.js with TypeScript
 - **Build Tool**: NestJS CLI with SWC builder (faster compilation)
 - **Dev Mode**: nodemon with ts-node/register for hot-reload
+- **Config**: `ConfigModule` loads from root `.env` (`envFilePath: '../../.env'`)
 - **Module Type**: CommonJS (no `"type": "module"`)
 - **Target**: ES2023, module NodeNext
 - **Port**: 8080
@@ -58,6 +63,7 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
 ### Shared Packages (packages/)
 
 #### @spaceorder/db (Database SSOT)
+
 - **ORM**: Prisma 6.19.0
 - **Client**: @prisma/client 6.19.0
 - **Database**: MySQL
@@ -66,20 +72,23 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
 - **Enums**: AdminRole (SUPER, SUPPORT, VIEWER), OrderStatus (PENDING, ACCEPTED, PREPARING, COMPLETED, CANCELLED)
 
 #### @spaceorder/api
+
 - **HTTP Client**: axios 1.13.2
 - **React Query**: @tanstack/react-query 5.90.11
 - **Purpose**: Frontend API client with React Query hooks
 - **Dependencies**: `@spaceorder/db`, `@spaceorder/auth`, `react` 18.3.1
 
 #### @spaceorder/auth
+
 - **Validation**: zod 3.25.76
 - **Purpose**: Authentication utilities, Zod schemas, hooks
 - **Dependencies**: `react` 18.3.1
 
 #### @spaceorder/ui
+
 - **React**: 18.3.1
 - **Styling**: Tailwind CSS v4.1.11 with PostCSS
-- **Component Library**: Radix UI (@radix-ui/react-*)
+- **Component Library**: Radix UI (@radix-ui/react-\*)
 - **Animation**: motion 12.23.24
 - **Utilities**:
   - class-variance-authority 0.7.1 - Component variants
@@ -88,11 +97,13 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
   - tw-animate-css 1.3.6 - Tailwind animations
 
 #### @spaceorder/lintconfig
+
 - **ESLint**: 9 FlatConfig format
 - **Configs**: base.js, next.js, react-internal.js
 - **Plugins**: @eslint/js, typescript-eslint, eslint-plugin-react, eslint-plugin-react-hooks, @next/eslint-plugin-next, eslint-plugin-turbo
 
 #### @spaceorder/tsconfig
+
 - **Configs**: base.json (ES2022, strict mode), nextjs.json, react-library.json
 
 ## Coding Standards & Guidelines
@@ -108,11 +119,13 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
      - Conditional types when needed
 
    **❌ Bad:**
+
    ```typescript
    return await prisma.menu.findFirst(...) as T;
    ```
 
    **✅ Good:**
+
    ```typescript
    async getMenuById<T = PublicMenu>(...): Promise<PublicMenu & T> {
      return await prisma.menu.findFirst(...);
@@ -164,6 +177,7 @@ This is a **Turborepo monorepo** for a restaurant ordering system using **pnpm w
 ## Common Commands
 
 ### Development
+
 ```bash
 pnpm dev                    # Run all apps
 pnpm dev:order              # Run order app (port 3000)
@@ -172,6 +186,7 @@ pnpm dev:orderhub           # Run orderhub API (port 8080)
 ```
 
 ### Database (Prisma)
+
 ```bash
 pnpm --filter=@spaceorder/db prisma:generate    # Generate Prisma Client
 pnpm --filter=@spaceorder/db prisma:migrate     # Run migrations
@@ -180,6 +195,7 @@ pnpm --filter=@spaceorder/db prisma:seed        # Seed database
 ```
 
 ### Build & Quality
+
 ```bash
 pnpm build                  # Build all apps and packages
 pnpm lint                   # Lint all packages
@@ -192,6 +208,7 @@ pnpm lint --filter=order
 ```
 
 ### Testing (orderhub)
+
 ```bash
 pnpm --filter=orderhub test              # Run unit tests
 pnpm --filter=orderhub test:watch        # Watch mode
@@ -202,20 +219,24 @@ pnpm --filter=orderhub test:cov          # Coverage report
 ## Key Technical Context
 
 ### Module Systems
+
 - **Frontend apps (order, orderdesk)**: ESM (`"type": "module"`)
 - **Backend app (orderhub)**: CommonJS (no `"type": "module"`)
 
 ### React Compiler
+
 - **Enabled** in both Next.js apps via `reactCompiler: true` in next.config.js
 - Consider compiler-friendly patterns when writing React code
 
 ### Database Architecture
+
 - **Single Source of Truth**: `@spaceorder/db` package
 - All apps import types from `@spaceorder/db`
-- Database configuration in `apps/orderhub/.env` only
+- Database configuration in root `.env` file only
 - Never duplicate DATABASE_URL across multiple .env files
 
 ### Workspace Dependencies
+
 - Use `workspace:*` protocol for local packages
 - Apps depend on shared packages:
   - `orderdesk` → `@spaceorder/api`, `@spaceorder/db`, `@spaceorder/ui`, `@spaceorder/auth`
@@ -223,26 +244,60 @@ pnpm --filter=orderhub test:cov          # Coverage report
   - `@spaceorder/api` → `@spaceorder/db`, `@spaceorder/auth`
 
 ### NestJS Patterns
+
 - Use `@ZodValidation()` decorator for DTO validation
 - JWT authentication with access/refresh tokens
 - Cookie-based refresh token handling
-- Current user via `@CurrentUser()` decorator
+- Current user via `@Client()` decorator
 - Prisma exception filters for error handling
 
 ### Path Aliases
+
 - **Frontend apps**: `@/*` maps to `./src/*`
 - **Workspace packages**: Import via `@spaceorder/[package-name]`
 
+## Docker
+
+Root `docker-compose.yml` defines all services for local development:
+
+```bash
+docker compose up -d              # Start all services
+docker compose up -d mysql        # Start only MySQL
+docker compose down               # Stop all services
+docker compose logs -f orderhub   # View backend logs
+```
+
+**Services:**
+
+- `mysql` - MySQL 8.0 database (port: `DB_PORT`, default 3306)
+- `orderhub` - NestJS backend API (port: `SERVER_PORT`, default 8080)
+- `orderdesk` - Admin Next.js app (port: 3001)
+- `order` - Customer Next.js app (port: 3000)
+
 ## Environment Variables
 
-### apps/orderhub/.env (Central configuration)
+### Root `.env` (Central configuration)
+
 ```env
-SERVER_PORT=8080
+# Database
+DB_ROOT_PASSWORD=***
+DB_PORT=3306
+DB_NAME=spaceorder
+DB_USER=spaceorder
+DB_PASSWORD=***
 DATABASE_URL="mysql://..."
+
+# Server
+SERVER_PORT=8080
+ORDERHUB_URL=http://localhost:8080
+
+# JWT
 JWT_ACCESS_TOKEN_SECRET=***
 JWT_ACCESS_TOKEN_EXPIRATION_MS=3600000
 JWT_REFRESH_TOKEN_SECRET=***
 JWT_REFRESH_TOKEN_EXPIRATION_MS=604800000
+JWT_ISSUER=***
+JWT_AUDIENCE=***
 ```
 
 ## Important Notes

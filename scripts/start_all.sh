@@ -7,6 +7,34 @@ PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 DOCKER_COMPOSE_BIN=""
 DOCKER_COMPOSE_SUBCMD=""
 
+STOP_SERVICES=false
+
+show_help() {
+  echo "Usage: $0 [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  -h, --help     도움말 표시"
+  echo "  -s, --stop     모든 서비스 중지"
+  echo ""
+  echo "Examples:"
+  echo "  $0              # 서비스 시작"
+  echo "  $0 --stop       # 서비스 중지"
+  exit 0
+}
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help )   show_help
+                    ;;
+    -s | --stop )   STOP_SERVICES=true
+                    ;;
+    * )             echo "Error: 알 수 없는 옵션: $1"
+                    show_help
+                    ;;
+  esac
+  shift
+done
+
 detect_compose_cmd() {
   if docker compose version &> /dev/null; then
     DOCKER_COMPOSE_BIN="docker"
@@ -81,7 +109,24 @@ wait_for_orderhub() {
   return 1
 }
 
+stop_services() {
+  echo "=== Stopping SpaceOrder Services ==="
+  echo ""
+
+  check_docker
+  cd "$PROJECT_ROOT"
+
+  run_compose down --remove-orphans
+  echo ""
+  echo "=== All services stopped ==="
+}
+
 main() {
+  if [ "$STOP_SERVICES" = true ]; then
+    stop_services
+    exit 0
+  fi
+
   echo "=== SpaceOrder Development Environment Setup ==="
   echo ""
 
@@ -110,8 +155,8 @@ main() {
   echo "  Prisma Studio:     http://localhost:5555"
   echo "  API Docs:          http://localhost:8080/docs"
   echo ""
-  echo "To view logs: docker compose logs -f [service]"
-  echo "To stop all:  docker compose down"
+  echo "To view logs:  docker compose logs -f [service]"
+  echo "To stop all:   $0 --stop"
 }
 
 main

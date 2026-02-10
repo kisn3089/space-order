@@ -89,7 +89,7 @@ wait_for_orderhub() {
   local attempt=0
 
   while [ $attempt -lt $max_attempts ]; do
-    if run_compose logs orderhub 2>&1 | grep -q "Nest application successfully started"; then
+    if curl -fsS "http://localhost:${SERVER_PORT:-8080}/" >/dev/null 2>&1; then
       echo "orderhub is ready!"
       return 0
     fi
@@ -135,6 +135,11 @@ main() {
   check_env_file
 
   cd "$PROJECT_ROOT"
+
+  # Load environment variables for port detection
+  set -a
+  . "$PROJECT_ROOT/.env"
+  set +a
 
   echo ""
   echo "Starting Docker containers..."

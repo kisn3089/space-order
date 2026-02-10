@@ -45,15 +45,15 @@ const customOptionsSchema = z.record(
   customOptionValueSchema
 ) satisfies z.ZodType<MenuCustomOption>;
 
-export const menuOptionsSchema = z.object({
+export const menuOptionsPayloadSchema = z.object({
   requiredOptions: requiredOptionsSchema.nullable(),
   customOptions: customOptionsSchema.nullable(),
 }) satisfies z.ZodType<MenuOption>;
 
-export const mergedStoreIdAndMenuIdParamsSchema =
+export const storeIdAndMenuIdParamsSchema =
   storeIdParamsSchema.merge(menuIdParamsSchema);
 
-export const createMenuSchema = z
+export const createMenuPayloadSchema = z
   .object({
     name: z
       .string()
@@ -75,6 +75,6 @@ export const createMenuSchema = z
   })
   .strict();
 
-export const updateMenuSchema = createMenuSchema
+export const updateMenuPayloadSchema = createMenuPayloadSchema
   .extend({ isAvailable: z.boolean() })
   .partial();

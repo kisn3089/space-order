@@ -4,10 +4,9 @@ import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { tableOrderColumns } from "../tableOrderColumns";
 import { useOrderDetailContext } from "./OrderDetailContext";
 import { OrderTable } from "./order-table";
-import { ResponseOrderItem } from "@spaceorder/db/types/responseModel.type";
-import { OrderStatus } from "@spaceorder/db/index";
+import { OrderStatus, PublicOrderItem } from "@spaceorder/db/index";
 
-export type OrderItemWithSummarizedOrder = ResponseOrderItem & {
+export type OrderItemWithSummarizedOrder = PublicOrderItem & {
   totalPrice: number;
   orderId: string;
   orderStatus: OrderStatus;

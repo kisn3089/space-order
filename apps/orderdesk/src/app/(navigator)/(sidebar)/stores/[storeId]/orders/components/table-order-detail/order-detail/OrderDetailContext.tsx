@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import type { ResponseTableWithSessions } from "@spaceorder/db/types/responseModel.type";
 import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
+import { PublicOrderWithItem } from "@spaceorder/db/types";
 
 /**
  * TableOrderDetail Compound Component의 Context 인터페이스
@@ -13,7 +13,7 @@ import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
 
 // State
 export interface OrderDetailState {
-  tableWithSessions: ResponseTableWithSessions;
+  orders: PublicOrderWithItem[];
   orderItems: OrderItemWithSummarizedOrder[];
   totalPrice: number;
   editingItem: OrderItemWithSummarizedOrder | null;

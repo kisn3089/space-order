@@ -41,7 +41,4 @@ export async function setCookieFromResponseHeader(
   for (const { name, value, expires } of responseCookies) {
     await setServerCookie(name, value, { expires });
   }
-
-  // responseCookies.forEach(async ({ name, value }) => {
-  // });
 }

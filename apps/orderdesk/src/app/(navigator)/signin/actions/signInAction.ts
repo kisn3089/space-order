@@ -1,7 +1,7 @@
 "use server";
 
 import { AxiosError } from "axios";
-import { ResponseAccessToken, httpToken } from "@spaceorder/api";
+import { AccessToken, httpAuth } from "@spaceorder/api";
 import parseCookieFromResponseHeader, {
   setCookieFromResponseHeader,
 } from "@/utils/parseCookieFromResponseHeader";
@@ -9,7 +9,7 @@ import parseCookieFromResponseHeader, {
 type ActionResponse =
   | {
       success: true;
-      data: ResponseAccessToken;
+      data: AccessToken;
     }
   | {
       success: false;
@@ -23,13 +23,23 @@ export default async function signInAction(
   formData: FormData
 ): Promise<ActionResponse> {
   try {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const email = formData.get("email");
+    const password = formData.get("password");
 
-    const createdAccessToken = await httpToken.createAccessToken({
-      email,
-      password,
-    });
+    if (typeof email !== "string" || typeof password !== "string") {
+      return {
+        success: false,
+        error: { message: "이메일과 비밀번호를 모두 입력해주세요." },
+      };
+    }
+
+    const createdAccessToken = await httpAuth.createAccessToken(
+      {
+        email,
+        password,
+      },
+      "owner"
+    );
 
     const cookieFromResponseHeader = createdAccessToken.headers["set-cookie"];
     if (cookieFromResponseHeader) {

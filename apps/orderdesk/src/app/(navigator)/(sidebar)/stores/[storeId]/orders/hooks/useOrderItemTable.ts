@@ -1,8 +1,8 @@
 "use client";
 
-import useOrderItem from "@spaceorder/api/core/order-item/useOrderItem.mutate";
 import { useParams } from "next/navigation";
 import { OrderItemWithSummarizedOrder } from "../components/table-order-detail/order-detail/OrderDetailTable";
+import useOrderItem from "@spaceorder/api/core/order/order-item/useOrderItem.mutate";
 
 export default function useOrderItemTable() {
   const { storeId, tableId } = useParams<{
@@ -19,10 +19,7 @@ export default function useOrderItemTable() {
     if (!orderItem) return;
 
     return await updateOrderItem.mutateAsync({
-      params: {
-        orderId: orderItem.orderId,
-        orderItemId: orderItem.publicId,
-      },
+      orderItemId: orderItem.publicId,
       updateOrderItemPayload: { quantity: orderItem.quantity },
     });
   };
@@ -31,10 +28,7 @@ export default function useOrderItemTable() {
     if (!orderItem) return;
 
     return await removeOrderItem.mutateAsync({
-      params: {
-        orderId: orderItem.orderId,
-        orderItemId: orderItem.publicId,
-      },
+      orderItemId: orderItem.publicId,
     });
   };
 

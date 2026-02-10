@@ -1,0 +1,51 @@
+import { TableSessionStatus } from '@spaceorder/db';
+
+/** Statuses */
+export const ALIVE_SESSION_STATUSES = [
+  TableSessionStatus.ACTIVE,
+  TableSessionStatus.WAITING_ORDER,
+];
+
+/** Expires */
+export const TWO_HOURS = () => new Date(Date.now() + 2 * 60 * 60 * 1000);
+export const TWENTY_MINUTE = () => new Date(Date.now() + 20 * 60 * 1000);
+export const ONE_HOURS = (expiresAt: Date) =>
+  new Date(expiresAt.getTime() + 60 * 60 * 1000);
+
+/** Omit */
+const ORDERS_OMIT = {
+  id: true,
+  storeId: true,
+  tableId: true,
+  tableSessionId: true,
+} as const;
+
+export const SESSION_OMIT = { id: true, tableId: true } as const;
+
+/** Include */
+export const INCLUDE_TABLE = { table: true } as const;
+
+const AVAILABLE_MENU_FILTER = { deletedAt: null, isAvailable: true } as const;
+export const INCLUDE_TABLE_STORE_AVAILABLE_MENUS = {
+  table: {
+    include: {
+      store: { include: { menus: { where: AVAILABLE_MENU_FILTER } } },
+    },
+  },
+} as const;
+
+/** Query Record */
+export const ORDER_WITH_ITEMS_RECORD = {
+  include: { orderItems: { omit: { id: true, orderId: true, menuId: true } } },
+  omit: ORDERS_OMIT,
+} as const;
+
+/** Query filter */
+export const aliveSessionFilter = () => ({
+  where: {
+    status: { in: ALIVE_SESSION_STATUSES },
+    expiresAt: { gt: new Date() },
+  },
+  take: 1,
+  orderBy: { createdAt: 'desc' as const },
+});

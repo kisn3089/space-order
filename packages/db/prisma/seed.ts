@@ -234,73 +234,73 @@ async function main() {
     skipDuplicates: true, // 중복 무시
   });
 
-  const tablesList = (store: Store) => {
+  const tables = (store: Store) => {
     return [
       {
         publicId: "ue14s3rhgdrci9lnua1eqd58",
         storeId: store.id,
         tableNumber: 1,
+        qrCode: "m66dsn0yfgdm08gugosx0j8k",
         name: "문 뒤",
         seats: 2,
         floor: 1,
         section: "창가",
         isActive: true,
-        qrCode: `/stores/${store.publicId}/tables/ue14s3rhgdrci9lnua1eqd58/session`,
         description: null,
       },
       {
         publicId: "oa5zcc6kl8du8g9z7zvqjrkg",
         storeId: store.id,
         tableNumber: 2,
+        qrCode: "n7gfe6am4s8zvz2g1rsnl61o",
         name: "문 앞",
         seats: 2,
         floor: 1,
         section: "입구",
         isActive: true,
-        qrCode: `/stores/${store.publicId}/tables/oa5zcc6kl8du8g9z7zvqjrkg/session`,
         description: null,
       },
       {
         publicId: "bpfvgpx5ch1qnm6i5d8fa75y",
         storeId: store.id,
         tableNumber: 3,
+        qrCode: "jrdprt65xh6kiqrlpireptei",
         name: "중앙",
         seats: 4,
         floor: 2,
-        section: null,
+        section: "중앙",
         isActive: true,
-        qrCode: `/stores/${store.publicId}/tables/bpfvgpx5ch1qnm6i5d8fa75y/session`,
         description: null,
       },
       {
         publicId: "lhc7159zorfjk1ojs4g77yzr",
         storeId: store.id,
         tableNumber: 4,
-        name: null,
+        qrCode: "lhc7159zorfjk1ojs4g77yzr",
+        name: "메인 테이블",
         seats: 4,
         floor: 2,
-        section: null,
-        isActive: false,
-        qrCode: `/stores/${store.publicId}/tables/lhc7159zorfjk1ojs4g77yzr/session`,
+        section: "메인",
+        isActive: true,
         description: null,
       },
       {
         publicId: "n0e72gbtnstf9d96bur1im92",
         storeId: store.id,
         tableNumber: 5,
-        name: null,
+        qrCode: "fwbs5gh9anqct151lbqb8z7e",
+        name: "대형 테이블",
         seats: 6,
         floor: 1,
-        section: null,
-        isActive: true,
-        qrCode: `/stores/${store.publicId}/tables/n0e72gbtnstf9d96bur1im92/session`,
+        section: "대형",
+        isActive: false,
         description: null,
       },
     ];
   };
 
   await prisma.table.createMany({
-    data: tablesList(store1),
+    data: tables(store1),
     skipDuplicates: true,
   });
 

@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import {
   CanActivate,
   ExecutionContext,
@@ -5,38 +6,43 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { COOKIE_TABLE } from '@spaceorder/db/constants';
 import { sessionTokenSchema } from '@spaceorder/api/schemas';
-import { SessionWithTable } from '@spaceorder/db';
+import { TableSession } from '@spaceorder/db';
 import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { TableSessionService } from 'src/table-session/tableSession.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ALIVE_SESSION_STATUSES } from 'src/common/query/session-query.const';
 
 type RequestWithClient = Request & {
-  tableSession: SessionWithTable | null;
-  cookies: Record<string, string>;
+  session: TableSession | null;
 };
 /**
- * @access CachedTableSession
- * @description Guard to check permission to access the table session and cache the result.
+ * @access Session
+ * @type TableSession
+ * @description Guard to check permission to access the session and cache the result.
  */
 @Injectable()
 export class SessionAuth implements CanActivate {
-  constructor(private readonly tableSessionService: TableSessionService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithClient>();
-    const extractedSessionInCookie: string | undefined =
-      request.cookies[COOKIE_TABLE.TABLE_SESSION];
+    const { sessionToken } = request.params;
 
-    const tokenValidation = sessionTokenSchema.safeParse(
-      extractedSessionInCookie,
-    );
+    const tokenValidation = sessionTokenSchema.safeParse(sessionToken);
 
     if (tokenValidation.success) {
-      const activeSessionWithSanitizeId: SessionWithTable =
-        await this.tableSessionService.getActiveSession(tokenValidation.data);
-      request.tableSession = activeSessionWithSanitizeId;
-      return true;
+      const activeSession = await this.prismaService.tableSession.findFirst({
+        where: {
+          sessionToken: tokenValidation.data,
+          expiresAt: { gt: new Date() },
+          status: { in: ALIVE_SESSION_STATUSES },
+        },
+      });
+
+      if (activeSession) {
+        request.session = activeSession;
+        return true;
+      }
     }
 
     throw new HttpException(

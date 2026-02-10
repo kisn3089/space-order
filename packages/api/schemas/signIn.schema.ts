@@ -1,6 +1,6 @@
-import { createOwnerSchema } from "./model/owner.schema";
+import { createOwnerPayloadSchema } from "./model/owner.schema";
 
-export const signInFormSchema = createOwnerSchema.pick({
+export const signInPayloadSchema = createOwnerPayloadSchema.pick({
   email: true,
   password: true,
 });

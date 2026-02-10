@@ -262,6 +262,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       Owner: '매니저',
       Store: '매장',
       Table: '테이블',
+      QRCode: 'QR 코드',
       Menu: '메뉴',
       Order: '주문',
       OrderItem: '주문 항목',

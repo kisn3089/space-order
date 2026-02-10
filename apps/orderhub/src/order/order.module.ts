@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
-import { OrderService } from './order.service';
-import { OrderController } from './order.controller';
-import { TableSessionModule } from 'src/table-session/tableSession.module';
-import { OrderItemModule } from 'src/order-item/orderItem.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { OrderItemController } from './order-item/orderItem.controller';
+import { OrderItemService } from './order-item/orderItem.service';
+import { OrderController } from './order/order.controller';
+import { OrderService } from './order/order.service';
+import { CustomerOrderController } from './order/customer-order.controller';
 
 @Module({
-  imports: [TableSessionModule, OrderItemModule],
-  controllers: [OrderController],
-  providers: [OrderService],
-  exports: [OrderService],
+  imports: [PassportModule, JwtModule],
+  controllers: [OrderItemController, OrderController, CustomerOrderController],
+  providers: [OrderItemService, OrderService],
 })
 export class OrderModule {}

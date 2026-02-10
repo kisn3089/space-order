@@ -3,15 +3,17 @@
 import { Card } from "@spaceorder/ui/components/card";
 import { useTableOrderContext } from "./TableOrderContext";
 import ConditionalLink from "@/components/ConditionalLink";
+import { useParams } from "next/navigation";
 
 interface TableOrderCardProps {
   children: React.ReactNode;
 }
 
 export function TableOrderCard({ children }: TableOrderCardProps) {
+  const { storeId } = useParams<{ storeId: string }>();
   const {
     state: { isActivatedTable, isSelected, session },
-    meta: { storeId, tableId },
+    meta: { tableId },
   } = useTableOrderContext();
 
   const inactiveStyle = !isActivatedTable

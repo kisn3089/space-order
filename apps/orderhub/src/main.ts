@@ -17,7 +17,6 @@ async function bootstrap() {
     origin: ['http://localhost:3000', 'http://localhost:3001'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    // allowedHeaders: 'Content-Type, Authorization',
   });
 
   // Enable validation globally
@@ -38,15 +37,6 @@ async function bootstrap() {
     .setDescription('Space Order 주문 관리 시스템 API 문서')
     .setVersion('1.0')
     .addBearerAuth()
-    .addCookieAuth(
-      COOKIE_TABLE.TABLE_SESSION,
-      {
-        type: 'apiKey',
-        in: 'cookie',
-        name: COOKIE_TABLE.TABLE_SESSION,
-      },
-      COOKIE_TABLE.TABLE_SESSION,
-    )
     .addCookieAuth(
       COOKIE_TABLE.REFRESH,
       {

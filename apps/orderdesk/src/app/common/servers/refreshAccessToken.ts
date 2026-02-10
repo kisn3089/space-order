@@ -3,11 +3,11 @@
 import parseCookieFromResponseHeader, {
   setCookieFromResponseHeader,
 } from "@/utils/parseCookieFromResponseHeader";
-import { ResponseAccessToken, httpToken } from "@spaceorder/api";
+import { AccessToken, httpAuth } from "@spaceorder/api";
 import { COOKIE_TABLE } from "@spaceorder/db/constants";
 import { getServerCookie } from "./cookies";
 
-type RefreshAccessTokenResponse = ResponseAccessToken;
+type RefreshAccessTokenResponse = AccessToken;
 
 /**
  * refresh Token으로 새로운 Access Token 발급
@@ -23,7 +23,7 @@ export async function refreshAccessToken(): Promise<RefreshAccessTokenResponse> 
   }
 
   const accessTokenByRefreshToken =
-    await httpToken.refreshAccessToken(refreshToken);
+    await httpAuth.refreshAccessToken(refreshToken);
 
   const cookieFromResponseHeader =
     accessTokenByRefreshToken.headers["set-cookie"];

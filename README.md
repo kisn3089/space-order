@@ -38,10 +38,12 @@ Space Order는 오프라인 주문을 소프트웨어와 접목시켜 **고객�
 
 Space Order는 QR 코드 기반 테이블 주문 시스템으로, 고객용 주문 앱과 매장 관리자용 주문 접수 앱으로 구성됩니다. 모노레포 구조로 공통 패키지를 공유하여 일관된 타입과 비즈니스 로직을 유지합니다.
 
+> [Architecture Decision Records (ADRs)](https://www.notion.so/ACCEPTOR-2a6b9430272080a380e2cd2c6ec17556)
+
 ## Key Features
 
-- **QR 코드 기반 주문**: 고객이 테이블의 QR 코드를 스캔하여 직접 주문
-- **실시간 주문 현황**: 매장 관리자가 테이블별 주문 상태를 실시간으로 확인
+- **QR 코드 기반 주문**: 고객이 테이블의 QR 코드를 스캔하여 직접 주문 (구현 중)
+- **실시간 주문 현황**: 매장 관리자가 테이블별 주문 상태를 실시간으로 확인 (실시간 데이터 업데이트 미구현, 새로고침 필요)
 - **주문 상태 관리**: PENDING → ACCEPTED → PREPARING → COMPLETED 흐름으로 주문 처리
 - **테이블 세션 관리**: 테이블별 세션으로 주문 그룹화 및 결제 관리
 - **메뉴 옵션 시스템**: 필수 옵션과 선택 옵션을 지원하는 유연한 메뉴 구성
@@ -110,6 +112,12 @@ cp .env.example .env
 ./scripts/start_all.sh
 ```
 
+### Stop the services
+
+```bash
+./scripts/start_all.sh --stop
+```
+
 ### Access Services
 
 | Service           | URL                        | Description           |
@@ -131,6 +139,8 @@ cp .env.example .env
     <td><b>선택한 테이블의 상세 주문 내역</b><br/><img src="./docs/images/detail-selected.png" alt="선택한 테이블의 상세한 주문 내역을 확인"></td>
   </tr>
 </table>
+
+<video src="https://github.com/user-attachments/assets/546e9bc0-23ef-4dfb-9fe8-a58333d1de09"></video>
 
 **주문 현황 페이지:** 매장의 모든 테이블과 주문 상태를 한눈에 확인할 수 있는 대시보드입니다. 테이블별로 현재 주문 내역과 상태가 실시간으로 표시됩니다.
 

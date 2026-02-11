@@ -48,7 +48,7 @@ http.interceptors.response.use(
           error.config.headers["Authorization"] =
             `Bearer ${newAccessToken.accessToken}`;
           return http(error.config);
-        } catch (refreshError) {
+        } catch {
           authCallbacks?.signOut();
         }
       }

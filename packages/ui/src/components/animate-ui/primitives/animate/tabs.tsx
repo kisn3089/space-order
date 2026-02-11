@@ -324,12 +324,10 @@ function TabsContent({
   const Component = asChild ? Slot : motion.div;
 
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     <Component
       role="tabpanel"
       data-slot="tabs-content"
-      {...(!isActive && { inert: "true" })}
+      {...(!isActive && { inert: true })}
       style={{ overflow: "hidden", ...style }}
       initial={{ filter: "blur(0px)" }}
       animate={{ filter: isActive ? "blur(0px)" : "blur(4px)" }}

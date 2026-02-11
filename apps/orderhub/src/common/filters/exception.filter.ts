@@ -33,6 +33,13 @@ type Exception = {
   details?: unknown;
 };
 
+type HttpExceptionBody = {
+  message?: string | string[];
+  error?: string;
+  code?: string;
+  details?: unknown;
+};
+
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -173,32 +180,41 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
     }
 
-    const httpException = res as any;
+    if (!this.isHttpExceptionBody(res)) {
+      return {
+        status,
+        error: this.httpErrorName(status),
+        message: '요청 처리 중 오류가 발생했습니다.',
+        code: this.httpCode(status),
+        path: ctx.path,
+        timestamp: ctx.timestamp,
+      };
+    }
 
     // ValidationPipe의 BadRequestException 포맷 표준화
     if (
       exception instanceof BadRequestException &&
-      Array.isArray(httpException?.message)
+      Array.isArray(res.message)
     ) {
       return {
         status,
-        error: httpException?.error ?? 'Bad Request',
-        message: httpException.message, // string[]
-        code: httpException?.code ?? 'VALIDATION_FAILED',
+        error: res.error ?? 'Bad Request',
+        message: res.message, // string[]
+        code: res.code ?? 'VALIDATION_FAILED',
         path: ctx.path,
         timestamp: ctx.timestamp,
-        details: httpException?.details,
+        details: res.details,
       };
     }
 
     return {
       status,
-      error: httpException?.error ?? this.httpErrorName(status),
-      message: httpException?.message ?? '요청 처리 중 오류가 발생했습니다.',
-      code: httpException?.code ?? this.httpCode(status),
+      error: res.error ?? this.httpErrorName(status),
+      message: res.message ?? '요청 처리 중 오류가 발생했습니다.',
+      code: res.code ?? this.httpCode(status),
       path: ctx.path,
       timestamp: ctx.timestamp,
-      details: httpException?.details,
+      details: res.details,
     };
   }
 
@@ -240,7 +256,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return 'HTTP_EXCEPTION';
   }
 
-  private extractModelName(meta: any): string {
+  private isHttpExceptionBody(res: object): res is HttpExceptionBody {
+    return 'message' in res;
+  }
+
+  private extractModelName(
+    meta: { modelName?: string; cause?: string } | undefined,
+  ): string {
     // Prisma meta에서 모델 이름 추출 (예: "Admin", "Owner" 등)
     const modelName = meta?.modelName || meta?.cause || 'unkown model';
     return modelName;

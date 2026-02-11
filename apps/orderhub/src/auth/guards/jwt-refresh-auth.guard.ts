@@ -14,7 +14,7 @@ import { COOKIE_TABLE } from '@spaceorder/db/constants';
 @Injectable()
 export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
   handleRequest<User = PublicUser>(
-    err: any,
+    err: unknown,
     user: User,
     info: JwtErrorInfo,
     context: ExecutionContext,
@@ -22,7 +22,7 @@ export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
     if (err || !user) {
       console.warn('-------refresh token guard-------');
       console.warn('user: ', user);
-      console.warn('error: ', err?.message);
+      console.warn('error: ', err instanceof Error ? err.message : undefined);
       console.warn('info: ', info?.name);
       console.warn('info: ', info?.message);
       console.warn('timestamp: ', new Date().toISOString());

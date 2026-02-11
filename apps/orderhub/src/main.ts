@@ -7,7 +7,7 @@ import { AppModule } from './app/app.module';
 import { COOKIE_TABLE } from '@spaceorder/db/constants/cookieTable.const';
 
 // BigInt serialization for JSON responses
-BigInt.prototype.toJSON = function () {
+BigInt.prototype.toJSON = function (this: bigint) {
   return this.toString();
 };
 
@@ -61,4 +61,4 @@ async function bootstrap() {
   console.log(`Application is running on: http://localhost:${port}`);
   console.log(`Swagger docs: http://localhost:${port}/docs`);
 }
-bootstrap();
+void bootstrap();

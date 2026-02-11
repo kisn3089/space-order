@@ -6,7 +6,7 @@ function set(
   name: (typeof COOKIE_TABLE)[keyof typeof COOKIE_TABLE],
   value: string,
   cookieOptions: Omit<CookieOptions, 'httpOnly' | 'sameSite' | 'secure'>,
-): Response<any, Record<string, any>> {
+) {
   return response.cookie(name as string, value, {
     httpOnly: true,
     sameSite: 'lax',
@@ -19,7 +19,7 @@ function remove(
   response: Response,
   name: (typeof COOKIE_TABLE)[keyof typeof COOKIE_TABLE],
   cookieOptions: Omit<CookieOptions, 'httpOnly' | 'sameSite' | 'secure'>,
-): Response<any, Record<string, any>> {
+) {
   return response.clearCookie(name as string, {
     httpOnly: true,
     sameSite: 'lax',

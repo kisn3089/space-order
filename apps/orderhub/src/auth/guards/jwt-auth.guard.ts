@@ -25,14 +25,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param status - HTTP 상태 코드 (선택사항)
    */
   handleRequest<User = PrivateRequestUser>(
-    err: any,
+    err: unknown,
     user: User,
     info: JwtErrorInfo,
   ): User {
     if (err || !user) {
       // [TODO:] 로깅 서비스로 변경 필요
       console.warn('user: ', user);
-      console.warn('error: ', err?.message);
+      console.warn('error: ', err instanceof Error ? err.message : undefined);
       console.warn('info: ', info?.name);
       console.warn('timestamp: ', new Date().toISOString());
     }

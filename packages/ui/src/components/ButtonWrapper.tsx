@@ -1,5 +1,4 @@
-interface ButtonWrapperProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+type ButtonWrapperProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export default function ButtonWrapper({
   children,

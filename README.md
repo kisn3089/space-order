@@ -33,7 +33,10 @@ Space Order는 오프라인 주문을 소프트웨어와 접목시켜 **고객�
 
 ## Architecture
 
+_Docker Compose 환경에서 각 서비스 간의 네트워크 통신과 의존 관계를 나타내는 런타임 아키텍처 다이어그램_
 ![Runtime Architecture](./docs/images/architecture-runtime.png)
+
+_모노레포 내 앱과 공유 패키지 간의 import 의존성을 나타내는 패키지 의존성 다이어그램_
 ![Package Dependencies](./docs/images/architecture-dependencies.png)
 
 Space Order는 QR 코드 기반 테이블 주문 시스템으로, 고객용 주문 앱과 매장 관리자용 주문 접수 앱으로 구성됩니다. 모노레포 구조로 공통 패키지를 공유하여 일관된 타입과 비즈니스 로직을 유지합니다.
@@ -153,6 +156,9 @@ cp .env.example .env
 ### Local Development (without Docker)
 
 ```bash
+# MySQL 실행 (Docker 필요)
+docker compose up -d mysql
+
 # 의존성 설치
 pnpm install
 
@@ -185,15 +191,6 @@ pnpm build         # 전체 빌드
 pnpm check-types   # 타입 체크
 pnpm lint          # ESLint 검사
 pnpm format        # Prettier 포맷팅
-```
-
-### Testing (orderhub)
-
-```bash
-pnpm --filter=orderhub test        # 단위 테스트
-pnpm --filter=orderhub test:watch  # 워치 모드
-pnpm --filter=orderhub test:cov    # 커버리지 리포트
-pnpm --filter=orderhub test:e2e    # E2E 테스트
 ```
 
 ## Database Schema

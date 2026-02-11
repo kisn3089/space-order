@@ -1,4 +1,4 @@
-import { TableSessionStatus } from '@spaceorder/db';
+import { TableSessionStatus } from "@spaceorder/db";
 
 /** Statuses */
 export const ALIVE_SESSION_STATUSES = [
@@ -47,5 +47,5 @@ export const aliveSessionFilter = () => ({
     expiresAt: { gt: new Date() },
   },
   take: 1,
-  orderBy: { createdAt: 'desc' as const },
+  orderBy: { createdAt: "desc" as const },
 });

@@ -6,12 +6,12 @@ import {
   Type,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ExceptionContentKeys,
   exceptionContentsIs,
-} from 'src/common/constants/exceptionContents';
-import { ZodError, ZodSchema } from 'zod';
+} from "src/common/constants/exceptionContents";
+import { ZodError, ZodSchema } from "zod";
 
 interface Schemas {
   body?: ZodSchema;
@@ -30,7 +30,7 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
         const parsedParams = this.tryParseSchema(
           schemas.params,
           params,
-          'ZOD_PARAMS_FAILED',
+          "ZOD_PARAMS_FAILED"
         );
         request.params = parsedParams;
       }
@@ -39,10 +39,10 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
         const queryResult = this.tryParseSchema(
           schemas.query,
           query,
-          'ZOD_QUERY_FAILED',
+          "ZOD_QUERY_FAILED"
         );
         /** express request의 query는 read-only이기 때문에 재정의를 통해 변경한다. */
-        Object.defineProperty(request, 'query', {
+        Object.defineProperty(request, "query", {
           value: queryResult,
           writable: true,
           enumerable: true,
@@ -54,7 +54,7 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
         const parsedPayload = this.tryParseSchema(
           schemas.body,
           body,
-          'ZOD_PAYLOAD_FAILED',
+          "ZOD_PAYLOAD_FAILED"
         );
         request.body = parsedPayload;
       }
@@ -64,7 +64,7 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
     private tryParseSchema<T>(
       schema: ZodSchema<T>,
       data: unknown,
-      exceptionError: ExceptionContentKeys,
+      exceptionError: ExceptionContentKeys
     ) {
       try {
         return schema.parse(data);
@@ -75,10 +75,10 @@ export function ZodValidation(schemas: Schemas): Type<CanActivate> {
               ...exceptionContentsIs(exceptionError),
               details: error.errors,
             },
-            HttpStatus.BAD_REQUEST,
+            HttpStatus.BAD_REQUEST
           );
         }
-        console.warn('zod-validator exception: ', error);
+        console.warn("zod-validator exception: ", error);
         throw new Error(`zod-validator exception ${JSON.stringify(error)}`);
       }
     }

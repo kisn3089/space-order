@@ -1,26 +1,26 @@
 import {
   MenuValidationFields,
   validateMenuMismatchOrThrow,
-} from '../menu/mismatch';
-import { Prisma } from '@spaceorder/db';
-import { getValidatedMenuOptionsSnapshot } from '../menu/options';
-import { ExtendedMap } from 'src/utils/helper/extendMap';
-import { CreateOrderPayloadDto } from 'src/dto/order.dto';
-import { validateMenuAvailableOrThrow } from '../menu/available';
+} from "../menu/mismatch";
+import { Prisma } from "@spaceorder/db";
+import { getValidatedMenuOptionsSnapshot } from "../menu/options";
+import { ExtendedMap } from "src/utils/helper/extendMap";
+import { CreateOrderPayloadDto } from "src/dto/order.dto";
+import { validateMenuAvailableOrThrow } from "../menu/available";
 
 export function createOrderItemsWithValidMenu(
   createOrderDto: CreateOrderPayloadDto,
   findMenuList: MenuValidationFields[],
-  menuPublicIds: string[],
+  menuPublicIds: string[]
 ): Prisma.OrderItemCreateWithoutOrderInput[] {
   const menuMap = new ExtendedMap<string, MenuValidationFields>(
-    findMenuList.map((menu) => [menu.publicId, menu]),
+    findMenuList.map((menu) => [menu.publicId, menu])
   );
-  menuMap.setException('MENU_MISMATCH');
+  menuMap.setException("MENU_MISMATCH");
 
   validateMenuMismatchOrThrow(findMenuList, menuPublicIds);
 
-  const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput['create'] =
+  const bulkCreateOrderItems: Prisma.OrderItemCreateNestedManyWithoutOrderInput["create"] =
     createOrderDto.orderItems.map((orderItem) => {
       const menu = menuMap.getOrThrow(orderItem.menuPublicId);
       validateMenuAvailableOrThrow(menu);
@@ -29,7 +29,7 @@ export function createOrderItemsWithValidMenu(
         {
           requiredOptions: orderItem.requiredOptions,
           customOptions: orderItem.customOptions,
-        },
+        }
       );
 
       return {

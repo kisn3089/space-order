@@ -4,30 +4,30 @@ import {
   ENDED_SESSION,
   ORDER_ITEMS,
   ORDERS,
-} from '@spaceorder/db';
+} from "@spaceorder/db";
 
 const baseFilter = {
-  name: 'filter',
+  name: "filter",
   required: false,
-  description: '필터 옵션',
+  description: "필터 옵션",
 };
 
 const baseInclude = {
-  name: 'include',
+  name: "include",
   required: false,
-  description: '포함할 리소스',
+  description: "포함할 리소스",
 };
 
 export const paramsDocs = {
-  storeId: { name: 'storeId', description: '매장 고유 ID' },
-  tableId: { name: 'tableId', description: '테이블 고유 ID' },
-  menuId: { name: 'menuId', description: '메뉴 고유 ID' },
-  orderId: { name: 'orderId', description: '주문 고유 ID' },
-  orderItemId: { name: 'orderItemId', description: '주문 항목 고유 ID' },
-  ownerId: { name: 'ownerId', description: '매장 소유자 고유 ID' },
-  sessionId: { name: 'sessionId', description: '세션 고유 ID' },
-  sessionToken: { name: 'sessionToken', description: '세션 토큰' },
-  adminId: { name: 'adminId', description: '관리자 고유 ID' },
+  storeId: { name: "storeId", description: "매장 고유 ID" },
+  tableId: { name: "tableId", description: "테이블 고유 ID" },
+  menuId: { name: "menuId", description: "메뉴 고유 ID" },
+  orderId: { name: "orderId", description: "주문 고유 ID" },
+  orderItemId: { name: "orderItemId", description: "주문 항목 고유 ID" },
+  ownerId: { name: "ownerId", description: "매장 소유자 고유 ID" },
+  sessionId: { name: "sessionId", description: "세션 고유 ID" },
+  sessionToken: { name: "sessionToken", description: "세션 토큰" },
+  adminId: { name: "adminId", description: "관리자 고유 ID" },
   query: {
     filter: {
       base: baseFilter,

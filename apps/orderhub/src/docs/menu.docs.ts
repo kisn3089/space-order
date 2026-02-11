@@ -1,33 +1,33 @@
-import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { PublicMenuDto } from 'src/dto/public/menu.dto';
-import { CreateMenuPayloadDto, UpdateMenuPayloadDto } from 'src/dto/menu.dto';
-import { paramsDocs } from './params.docs';
+import { applyDecorators } from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from "@nestjs/swagger";
+import { PublicMenuDto } from "src/dto/public/menu.dto";
+import { CreateMenuPayloadDto, UpdateMenuPayloadDto } from "src/dto/menu.dto";
+import { paramsDocs } from "./params.docs";
 
 const meta = {
   create: {
-    summary: '메뉴 생성',
-    ok: { status: 201, description: '메뉴 생성 성공' },
+    summary: "메뉴 생성",
+    ok: { status: 201, description: "메뉴 생성 성공" },
   },
   getList: {
-    summary: '메뉴 목록 조회',
-    ok: { status: 200, description: '메뉴 목록 반환' },
+    summary: "메뉴 목록 조회",
+    ok: { status: 200, description: "메뉴 목록 반환" },
   },
   getUnique: {
-    summary: '특정 메뉴 조회',
-    ok: { status: 200, description: '메뉴 정보 반환' },
+    summary: "특정 메뉴 조회",
+    ok: { status: 200, description: "메뉴 정보 반환" },
   },
   update: {
-    summary: '메뉴 수정',
-    ok: { status: 200, description: '메뉴 수정 성공' },
+    summary: "메뉴 수정",
+    ok: { status: 200, description: "메뉴 수정 성공" },
   },
   delete: {
-    summary: '메뉴 삭제 (소프트 삭제)',
-    ok: { status: 204, description: '메뉴 삭제 성공' },
+    summary: "메뉴 삭제 (소프트 삭제)",
+    ok: { status: 204, description: "메뉴 삭제 성공" },
   },
-  badRequest: { status: 400, description: '잘못된 요청' },
-  unauthorized: { status: 401, description: '인증되지 않은 요청' },
-  notFound: { status: 404, description: '메뉴를 찾을 수 없음' },
+  badRequest: { status: 400, description: "잘못된 요청" },
+  unauthorized: { status: 401, description: "인증되지 않은 요청" },
+  notFound: { status: 404, description: "메뉴를 찾을 수 없음" },
 };
 
 export const DocsMenuCreate = () =>
@@ -37,7 +37,7 @@ export const DocsMenuCreate = () =>
     ApiBody({ type: CreateMenuPayloadDto }),
     ApiResponse({ ...meta.create.ok, type: PublicMenuDto }),
     ApiResponse(meta.badRequest),
-    ApiResponse(meta.unauthorized),
+    ApiResponse(meta.unauthorized)
   );
 
 export const DocsMenuGetList = () =>
@@ -45,7 +45,7 @@ export const DocsMenuGetList = () =>
     ApiOperation({ summary: meta.getList.summary }),
     ApiParam(paramsDocs.storeId),
     ApiResponse({ ...meta.getList.ok, type: [PublicMenuDto] }),
-    ApiResponse(meta.unauthorized),
+    ApiResponse(meta.unauthorized)
   );
 
 export const DocsMenuGetUnique = () =>
@@ -55,7 +55,7 @@ export const DocsMenuGetUnique = () =>
     ApiParam(paramsDocs.menuId),
     ApiResponse({ ...meta.getUnique.ok, type: PublicMenuDto }),
     ApiResponse(meta.unauthorized),
-    ApiResponse(meta.notFound),
+    ApiResponse(meta.notFound)
   );
 
 export const DocsMenuUpdate = () =>
@@ -67,7 +67,7 @@ export const DocsMenuUpdate = () =>
     ApiResponse({ ...meta.update.ok, type: PublicMenuDto }),
     ApiResponse(meta.badRequest),
     ApiResponse(meta.unauthorized),
-    ApiResponse(meta.notFound),
+    ApiResponse(meta.notFound)
   );
 
 export const DocsMenuDelete = () =>
@@ -77,5 +77,5 @@ export const DocsMenuDelete = () =>
     ApiParam(paramsDocs.menuId),
     ApiResponse(meta.delete.ok),
     ApiResponse(meta.unauthorized),
-    ApiResponse(meta.notFound),
+    ApiResponse(meta.notFound)
   );

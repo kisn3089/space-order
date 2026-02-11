@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 import {
   TableSession,
   TableSessionStatus,
   PublicSession,
   SessionWithTable,
-} from '@spaceorder/db';
-import { Tx } from 'src/utils/helper/transactionPipe';
+} from "@spaceorder/db";
+import { Tx } from "src/utils/helper/transactionPipe";
 import {
   SessionCoreService,
   SessionIdentifier,
-} from '../services/session-core.service';
+} from "../services/session-core.service";
 
 export type SessionActivatePayload = {
   paidAmount?: number;
@@ -37,7 +37,7 @@ export class SessionClient {
    */
   async txGetOrCreateSession(
     tx: Tx,
-    identifier: SessionIdentifier,
+    identifier: SessionIdentifier
   ): Promise<SessionWithTable> {
     return await this.sessionCore.txGetActivatedSessionOrCreate(tx, identifier);
   }
@@ -48,12 +48,12 @@ export class SessionClient {
   async activateSession(
     tx: Tx | undefined,
     tableSession: TableSession,
-    payload?: SessionActivatePayload,
+    payload?: SessionActivatePayload
   ): Promise<PublicSession> {
     return await this.sessionCore.txActivateSession(
       tx,
       tableSession,
-      payload ?? {},
+      payload ?? {}
     );
   }
 
@@ -62,7 +62,7 @@ export class SessionClient {
    */
   async deactivateSession(
     tx: Tx | undefined,
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     return await this.sessionCore.txDeactivateSession(tx, tableSession);
   }
@@ -72,7 +72,7 @@ export class SessionClient {
    */
   async extendSessionExpiry(
     tx: Tx | undefined,
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     return await this.sessionCore.txExtendSessionExpiry(tx, tableSession);
   }
@@ -82,7 +82,7 @@ export class SessionClient {
    */
   async reactivateSession(
     tx: Tx | undefined,
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     return await this.sessionCore.txReactivateSession(tx, tableSession);
   }
@@ -91,7 +91,7 @@ export class SessionClient {
    * 결제 완료 처리 및 세션 종료
    */
   async finishSessionByPayment(
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     return await this.sessionCore.txFinishSessionByPayment(tableSession);
   }
@@ -102,8 +102,8 @@ export class SessionClient {
   async updateSessionStatus(
     tx: Tx | undefined,
     tableSession: TableSession,
-    status: TableSessionStatus | 'EXTEND_EXPIRES_AT' | 'REACTIVATE',
-    updateDto?: SessionActivatePayload,
+    status: TableSessionStatus | "EXTEND_EXPIRES_AT" | "REACTIVATE",
+    updateDto?: SessionActivatePayload
   ): Promise<PublicSession> {
     switch (status) {
       case TableSessionStatus.ACTIVE:
@@ -112,10 +112,10 @@ export class SessionClient {
       case TableSessionStatus.CLOSED:
         return await this.deactivateSession(tx, tableSession);
 
-      case 'EXTEND_EXPIRES_AT':
+      case "EXTEND_EXPIRES_AT":
         return await this.extendSessionExpiry(tx, tableSession);
 
-      case 'REACTIVATE':
+      case "REACTIVATE":
         return await this.reactivateSession(tx, tableSession);
 
       case TableSessionStatus.PAYMENT_PENDING:

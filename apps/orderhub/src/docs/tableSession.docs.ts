@@ -1,4 +1,4 @@
-import { applyDecorators } from '@nestjs/common';
+import { applyDecorators } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiBody,
@@ -6,43 +6,43 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
-} from '@nestjs/swagger';
+} from "@nestjs/swagger";
 import {
   PublicTableSessionDto,
   TableWithStoreContextDto,
-} from 'src/dto/public/table.dto';
-import { SessionTokenDto } from 'src/dto/public/session.dto';
-import { CreateSessionPayloadDto } from 'src/dto/session.dto';
-import { paramsDocs } from './params.docs';
+} from "src/dto/public/table.dto";
+import { SessionTokenDto } from "src/dto/public/session.dto";
+import { CreateSessionPayloadDto } from "src/dto/session.dto";
+import { paramsDocs } from "./params.docs";
 
 const meta = {
   findOrCreate: {
-    summary: '활성화된 세션 조회 또는 생성',
-    ok: { status: 201, description: '세션 조회 또는 생성 성공' },
+    summary: "활성화된 세션 조회 또는 생성",
+    ok: { status: 201, description: "세션 조회 또는 생성 성공" },
   },
   getList: {
-    summary: '세션 목록 조회 (매장 소유자)',
-    ok: { status: 200, description: '세션 목록 반환' },
+    summary: "세션 목록 조회 (매장 소유자)",
+    ok: { status: 200, description: "세션 목록 반환" },
   },
   getUnique: {
-    summary: '특정 세션 조회 (매장 소유자)',
-    ok: { status: 200, description: '세션 정보 반환' },
+    summary: "특정 세션 조회 (매장 소유자)",
+    ok: { status: 200, description: "세션 정보 반환" },
   },
   getAliveSession: {
-    summary: '활성 세션 조회 (고객)',
-    ok: { status: 200, description: '활성 세션 정보 반환' },
+    summary: "활성 세션 조회 (고객)",
+    ok: { status: 200, description: "활성 세션 정보 반환" },
   },
   getStoreContext: {
-    summary: '세션의 매장 컨텍스트 조회',
-    ok: { status: 200, description: '테이블, 매장, 메뉴 정보 반환' },
+    summary: "세션의 매장 컨텍스트 조회",
+    ok: { status: 200, description: "테이블, 매장, 메뉴 정보 반환" },
   },
   update: {
-    summary: '세션 수정 (만료 연장 등)',
-    ok: { status: 200, description: '세션 수정 성공' },
+    summary: "세션 수정 (만료 연장 등)",
+    ok: { status: 200, description: "세션 수정 성공" },
   },
-  unauthorized: { status: 401, description: '인증되지 않은 요청' },
-  sessionUnauthorized: { status: 401, description: '세션 인증 실패' },
-  notFound: { status: 404, description: '세션을 찾을 수 없음' },
+  unauthorized: { status: 401, description: "인증되지 않은 요청" },
+  sessionUnauthorized: { status: 401, description: "세션 인증 실패" },
+  notFound: { status: 404, description: "세션을 찾을 수 없음" },
 };
 
 export const DocsSessionGetList = () =>
@@ -53,7 +53,7 @@ export const DocsSessionGetList = () =>
     ApiQuery(paramsDocs.query.filter.session),
     ApiQuery(paramsDocs.query.include.orderItems),
     ApiResponse({ ...meta.getList.ok, type: [PublicTableSessionDto] }),
-    ApiResponse(meta.unauthorized),
+    ApiResponse(meta.unauthorized)
   );
 
 export const DocsSessionGetUnique = () =>
@@ -65,7 +65,7 @@ export const DocsSessionGetUnique = () =>
     ApiQuery(paramsDocs.query.include.orderItems),
     ApiResponse({ ...meta.getUnique.ok, type: PublicTableSessionDto }),
     ApiResponse(meta.unauthorized),
-    ApiResponse(meta.notFound),
+    ApiResponse(meta.notFound)
   );
 
 export const DocsSessionUpdate = () =>
@@ -75,14 +75,14 @@ export const DocsSessionUpdate = () =>
     ApiParam(paramsDocs.storeId),
     ApiParam(paramsDocs.sessionId),
     ApiResponse({ ...meta.update.ok, type: PublicTableSessionDto }),
-    ApiResponse(meta.sessionUnauthorized),
+    ApiResponse(meta.sessionUnauthorized)
   );
 
 export const DocsSessionFindOrCreate = () =>
   applyDecorators(
     ApiOperation({ summary: meta.findOrCreate.summary }),
     ApiBody({ type: CreateSessionPayloadDto }),
-    ApiResponse({ ...meta.findOrCreate.ok, type: SessionTokenDto }),
+    ApiResponse({ ...meta.findOrCreate.ok, type: SessionTokenDto })
   );
 
 export const DocsSessionGetAlive = () =>
@@ -90,7 +90,7 @@ export const DocsSessionGetAlive = () =>
     ApiOperation({ summary: meta.getAliveSession.summary }),
     ApiParam(paramsDocs.sessionToken),
     ApiResponse({ ...meta.getAliveSession.ok, type: PublicTableSessionDto }),
-    ApiResponse(meta.sessionUnauthorized),
+    ApiResponse(meta.sessionUnauthorized)
   );
 
 export const DocsSessionUpdateByCustomer = () =>
@@ -98,7 +98,7 @@ export const DocsSessionUpdateByCustomer = () =>
     ApiOperation({ summary: meta.update.summary }),
     ApiParam(paramsDocs.sessionToken),
     ApiResponse({ ...meta.update.ok, type: PublicTableSessionDto }),
-    ApiResponse(meta.sessionUnauthorized),
+    ApiResponse(meta.sessionUnauthorized)
   );
 
 export const DocsSessionGetStoreContext = () =>
@@ -106,5 +106,5 @@ export const DocsSessionGetStoreContext = () =>
     ApiOperation({ summary: meta.getStoreContext.summary }),
     ApiParam(paramsDocs.sessionToken),
     ApiResponse({ ...meta.getStoreContext.ok, type: TableWithStoreContextDto }),
-    ApiResponse(meta.sessionUnauthorized),
+    ApiResponse(meta.sessionUnauthorized)
   );

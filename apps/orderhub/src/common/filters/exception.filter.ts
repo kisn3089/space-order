@@ -5,9 +5,9 @@ import {
   HttpStatus,
   HttpException,
   BadRequestException,
-} from '@nestjs/common';
-import { Prisma } from '@spaceorder/db';
-import { Request, Response } from 'express';
+} from "@nestjs/common";
+import { Prisma } from "@spaceorder/db";
+import { Request, Response } from "express";
 
 type Replace<
   S extends string,
@@ -18,10 +18,10 @@ type Replace<
   : S;
 
 type ReturnHttpCode<T extends Record<string, string>> =
-  | Uppercase<Replace<T[keyof T], ' ', '_'>>
-  | 'HTTP_EXCEPTION';
+  | Uppercase<Replace<T[keyof T], " ", "_">>
+  | "HTTP_EXCEPTION";
 
-type ReplacedString<T extends string> = Uppercase<Replace<T, ' ', '_'>>;
+type ReplacedString<T extends string> = Uppercase<Replace<T, " ", "_">>;
 
 type Exception = {
   status: number;
@@ -57,7 +57,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         {
           path,
           timestamp,
-        },
+        }
       );
       return response
         .status(retrievedPrismaException.status)
@@ -74,12 +74,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         .json(retrievedHttpException);
     }
 
-    console.error('Unknown exception caught:', exception);
+    console.error("Unknown exception caught:", exception);
     const unknownException: Exception = {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      error: 'Internal Server Error',
-      message: 'Internal server error',
-      code: 'INTERNAL_SERVER_ERROR',
+      error: "Internal Server Error",
+      message: "Internal server error",
+      code: "INTERNAL_SERVER_ERROR",
       path,
       timestamp,
     };
@@ -89,40 +89,40 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private findPrismaException(
     exception: Prisma.PrismaClientKnownRequestError,
     request: Request,
-    ctx: { path: string; timestamp: string },
+    ctx: { path: string; timestamp: string }
   ): Exception {
     switch (exception.code) {
-      case 'P2002': {
+      case "P2002": {
         // Unique constraint violation
         const exceptionFields = exception.meta?.target as string | string[];
         const fieldName = Array.isArray(exceptionFields)
-          ? exceptionFields.join(', ')
+          ? exceptionFields.join(", ")
           : exceptionFields;
 
         const translatedFieldName = this.translateFieldName(fieldName);
 
         return {
           status: HttpStatus.CONFLICT,
-          error: 'Conflict',
+          error: "Conflict",
           message: `이미 사용 중인 ${translatedFieldName} 입니다.`,
-          code: 'UNIQUE_CONSTRAINT_VIOLATION',
+          code: "UNIQUE_CONSTRAINT_VIOLATION",
           path: ctx.path,
           timestamp: ctx.timestamp,
         };
       }
 
       // Record not found
-      case 'P2025': {
+      case "P2025": {
         const extractedModelName = this.extractModelName(exception.meta);
         const extractedUrl = this.extractUrl(request.url);
-        console.log('exception: ', exception);
+        console.log("exception: ", exception);
         return {
           status: HttpStatus.NOT_FOUND,
-          error: 'Not Found',
+          error: "Not Found",
           message: extractedUrl
             ? `${this.translateFieldName(extractedModelName)} ID ${extractedUrl}를 찾을 수 없습니다.`
             : `해당 ${this.translateFieldName(extractedModelName)}를 찾을 수 없습니다.`,
-          code: 'RESOURCE_NOT_FOUND',
+          code: "RESOURCE_NOT_FOUND",
           path: ctx.path,
           timestamp: ctx.timestamp,
           details: {
@@ -132,28 +132,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         };
       }
 
-      case 'P2003': {
+      case "P2003": {
         // Foreign key constraint failed
         const exceptionFieldName = exception.meta?.field_name as string;
         return {
           status: HttpStatus.BAD_REQUEST,
-          error: 'Bad Request',
+          error: "Bad Request",
           message: exceptionFieldName
             ? `유효하지 않은 ${exceptionFieldName} 값입니다.`
-            : '유효하지 않은 데이터입니다.',
-          code: 'FOREIGN_KEY_CONSTRAINT_VIOLATION',
+            : "유효하지 않은 데이터입니다.",
+          code: "FOREIGN_KEY_CONSTRAINT_VIOLATION",
           path: ctx.path,
           timestamp: ctx.timestamp,
         };
       }
 
       default: {
-        console.log('prisma-exception-filter: default case', exception);
+        console.log("prisma-exception-filter: default case", exception);
         return {
           status: HttpStatus.BAD_REQUEST,
-          error: 'Bad Request',
-          message: '데이터 처리 중 오류가 발생했습니다.',
-          code: 'PRISMA_ERROR',
+          error: "Bad Request",
+          message: "데이터 처리 중 오류가 발생했습니다.",
+          code: "PRISMA_ERROR",
           path: ctx.path,
           timestamp: ctx.timestamp,
           details: { prismaCode: exception.code },
@@ -164,12 +164,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
   private findHttpException(
     exception: HttpException,
-    ctx: { path: string; timestamp: string },
+    ctx: { path: string; timestamp: string }
   ): Exception {
     const status = exception.getStatus();
     const res = exception.getResponse();
 
-    if (typeof res === 'string') {
+    if (typeof res === "string") {
       return {
         status,
         error: this.httpErrorName(status),
@@ -184,7 +184,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       return {
         status,
         error: this.httpErrorName(status),
-        message: '요청 처리 중 오류가 발생했습니다.',
+        message: "요청 처리 중 오류가 발생했습니다.",
         code: this.httpCode(status),
         path: ctx.path,
         timestamp: ctx.timestamp,
@@ -198,9 +198,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     ) {
       return {
         status,
-        error: res.error ?? 'Bad Request',
+        error: res.error ?? "Bad Request",
         message: res.message, // string[]
-        code: res.code ?? 'VALIDATION_FAILED',
+        code: res.code ?? "VALIDATION_FAILED",
         path: ctx.path,
         timestamp: ctx.timestamp,
         details: res.details,
@@ -210,7 +210,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return {
       status,
       error: res.error ?? this.httpErrorName(status),
-      message: res.message ?? '요청 처리 중 오류가 발생했습니다.',
+      message: res.message ?? "요청 처리 중 오류가 발생했습니다.",
       code: res.code ?? this.httpCode(status),
       path: ctx.path,
       timestamp: ctx.timestamp,
@@ -219,17 +219,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private readonly httpErrorStatusRecord = {
-    [HttpStatus.BAD_REQUEST]: 'Bad Request', // 400
-    [HttpStatus.UNAUTHORIZED]: 'Unauthorized', // 401
-    [HttpStatus.FORBIDDEN]: 'Forbidden', // 403
-    [HttpStatus.NOT_FOUND]: 'Not Found', // 404
-    [HttpStatus.REQUEST_TIMEOUT]: 'Request Timeout', // 408
-    [HttpStatus.CONFLICT]: 'Conflict', // 409
-    419: 'Authentication Timeout',
+    [HttpStatus.BAD_REQUEST]: "Bad Request", // 400
+    [HttpStatus.UNAUTHORIZED]: "Unauthorized", // 401
+    [HttpStatus.FORBIDDEN]: "Forbidden", // 403
+    [HttpStatus.NOT_FOUND]: "Not Found", // 404
+    [HttpStatus.REQUEST_TIMEOUT]: "Request Timeout", // 408
+    [HttpStatus.CONFLICT]: "Conflict", // 409
+    419: "Authentication Timeout",
   } as const;
 
   private isHttpErrorStatus(
-    status: number,
+    status: number
   ): status is keyof typeof this.httpErrorStatusRecord {
     return status in this.httpErrorStatusRecord;
   }
@@ -239,32 +239,32 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const httpName = this.httpErrorStatusRecord[status];
       return httpName;
     }
-    console.warn('not defined error status: ', status);
-    return 'Error';
+    console.warn("not defined error status: ", status);
+    return "Error";
   }
 
   /** Bad Request -> BAD_REQUEST */
   private httpCode(
-    status: number,
+    status: number
   ): ReturnHttpCode<typeof this.httpErrorStatusRecord> {
     if (this.isHttpErrorStatus(status)) {
       const errorName = this.httpErrorStatusRecord[status];
-      return errorName.toUpperCase().replace(/ /g, '_') as ReplacedString<
+      return errorName.toUpperCase().replace(/ /g, "_") as ReplacedString<
         typeof errorName
       >;
     }
-    return 'HTTP_EXCEPTION';
+    return "HTTP_EXCEPTION";
   }
 
   private isHttpExceptionBody(res: object): res is HttpExceptionBody {
-    return 'message' in res;
+    return "message" in res;
   }
 
   private extractModelName(
-    meta: { modelName?: string; cause?: string } | undefined,
+    meta: { modelName?: string; cause?: string } | undefined
   ): string {
     // Prisma meta에서 모델 이름 추출 (예: "Admin", "Owner" 등)
-    const modelName = meta?.modelName || meta?.cause || 'unkown model';
+    const modelName = meta?.modelName || meta?.cause || "unknown model";
     return modelName;
   }
 
@@ -277,21 +277,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private translateFieldName(fieldName: string | undefined): string {
     // 필드명을 한국어로 번역
     const translateKoreanRecord: Record<string, string> = {
-      admin_email_key: '이메일',
-      owner_email_key: '이메일',
+      admin_email_key: "이메일",
+      owner_email_key: "이메일",
       // domain models
-      Admin: '관리자',
-      Owner: '매니저',
-      Store: '매장',
-      Table: '테이블',
-      QRCode: 'QR 코드',
-      Menu: '메뉴',
-      Order: '주문',
-      OrderItem: '주문 항목',
-      TableSession: '테이블 세션',
+      Admin: "관리자",
+      Owner: "매니저",
+      Store: "매장",
+      Table: "테이블",
+      QRCode: "QR 코드",
+      Menu: "메뉴",
+      Order: "주문",
+      OrderItem: "주문 항목",
+      TableSession: "테이블 세션",
     };
     return (
-      translateKoreanRecord[fieldName || ''] || fieldName || 'unkown model'
+      translateKoreanRecord[fieldName || ""] || fieldName || "unkown model"
     );
   }
 }

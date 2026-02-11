@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { encrypt } from 'src/utils/lib/crypt';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@spaceorder/db';
+import { Injectable } from "@nestjs/common";
+import { encrypt } from "src/utils/lib/crypt";
+import { PrismaService } from "src/prisma/prisma.service";
+import { Prisma } from "@spaceorder/db";
 import {
   CreateAdminPayloadDto,
   UpdateAdminPayloadDto,
-} from 'src/dto/admin.dto';
+} from "src/dto/admin.dto";
 
 @Injectable()
 export class AdminService {
@@ -22,20 +22,20 @@ export class AdminService {
   }
 
   async getList<T extends Prisma.AdminFindManyArgs>(
-    args: Prisma.SelectSubset<T, Prisma.AdminFindManyArgs>,
+    args: Prisma.SelectSubset<T, Prisma.AdminFindManyArgs>
   ): Promise<Prisma.AdminGetPayload<T>[]> {
     return await this.prismaService.admin.findMany(args);
   }
 
   async getUnique<T extends Prisma.AdminFindFirstOrThrowArgs>(
-    args: Prisma.SelectSubset<T, Prisma.AdminFindFirstOrThrowArgs>,
+    args: Prisma.SelectSubset<T, Prisma.AdminFindFirstOrThrowArgs>
   ): Promise<Prisma.AdminGetPayload<T>> {
     return await this.prismaService.admin.findFirstOrThrow(args);
   }
 
   async partialUpdateAdmin(
     publicId: string,
-    updateAdminPayload: UpdateAdminPayloadDto,
+    updateAdminPayload: UpdateAdminPayloadDto
   ) {
     return await this.prismaService.admin.update({
       where: { publicId },

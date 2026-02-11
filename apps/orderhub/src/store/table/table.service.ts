@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { type Prisma, type PublicTable } from '@spaceorder/db';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { type Prisma, type PublicTable } from "@spaceorder/db";
 import {
   CreateTablePayloadDto,
   UpdateTablePayloadDto,
-} from 'src/dto/table.dto';
+} from "src/dto/table.dto";
 
 type StoreIdAndTableIdParams = {
   storeId: string;
@@ -17,7 +17,7 @@ export class TableService {
 
   async createTable(
     storeId: string,
-    createTablePayload: CreateTablePayloadDto,
+    createTablePayload: CreateTablePayloadDto
   ): Promise<PublicTable> {
     const createdTable = await this.prismaService.table.create({
       data: {
@@ -30,20 +30,20 @@ export class TableService {
   }
 
   async getTableList<T extends Prisma.TableFindManyArgs>(
-    args: Prisma.SelectSubset<T, Prisma.TableFindManyArgs>,
+    args: Prisma.SelectSubset<T, Prisma.TableFindManyArgs>
   ): Promise<Prisma.TableGetPayload<T>[]> {
     return await this.prismaService.table.findMany(args);
   }
 
   async getTableUnique<T extends Prisma.TableFindFirstOrThrowArgs>(
-    args: Prisma.SelectSubset<T, Prisma.TableFindFirstOrThrowArgs>,
+    args: Prisma.SelectSubset<T, Prisma.TableFindFirstOrThrowArgs>
   ): Promise<Prisma.TableGetPayload<T>> {
     return await this.prismaService.table.findFirstOrThrow(args);
   }
 
   async partialUpdateTable(
     { storeId, tableId }: StoreIdAndTableIdParams,
-    updateTablePayload: UpdateTablePayloadDto,
+    updateTablePayload: UpdateTablePayloadDto
   ): Promise<PublicTable> {
     return await this.prismaService.table.update({
       where: { publicId: tableId, store: { publicId: storeId } },

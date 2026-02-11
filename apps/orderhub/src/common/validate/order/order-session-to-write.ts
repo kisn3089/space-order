@@ -1,26 +1,26 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from "@nestjs/common";
 import {
   Order,
   OrderStatus,
   TableSession,
   TableSessionStatus,
-} from '@spaceorder/db';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
+} from "@spaceorder/db";
+import { exceptionContentsIs } from "src/common/constants/exceptionContents";
 
 export function validateOrderSessionToWrite<
   OrderType extends Order & { tableSession: TableSession },
 >(order: OrderType | null): OrderType {
   if (!order) {
     throw new HttpException(
-      exceptionContentsIs('NOT_FOUND'),
-      HttpStatus.NOT_FOUND,
+      exceptionContentsIs("NOT_FOUND"),
+      HttpStatus.NOT_FOUND
     );
   }
 
   if (order.status === OrderStatus.CANCELLED) {
     throw new HttpException(
-      exceptionContentsIs('ORDER_ALREADY_CANCELLED'),
-      HttpStatus.BAD_REQUEST,
+      exceptionContentsIs("ORDER_ALREADY_CANCELLED"),
+      HttpStatus.BAD_REQUEST
     );
   }
 
@@ -34,8 +34,8 @@ function validateSessionActive(status: TableSessionStatus): void {
     status !== TableSessionStatus.WAITING_ORDER
   ) {
     throw new HttpException(
-      exceptionContentsIs('SESSION_INACTIVE'),
-      HttpStatus.BAD_REQUEST,
+      exceptionContentsIs("SESSION_INACTIVE"),
+      HttpStatus.BAD_REQUEST
     );
   }
 }

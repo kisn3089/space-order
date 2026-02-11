@@ -9,39 +9,39 @@ import {
   UseGuards,
   Query,
   HttpCode,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { TableService } from './table.service';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { TableService } from "./table.service";
 import {
   DocsTableCreate,
   DocsTableDelete,
   DocsTableGetList,
   DocsTableGetUnique,
   DocsTableUpdate,
-} from 'src/docs/table.docs';
+} from "src/docs/table.docs";
 import {
   createTablePayloadSchema,
   storeIdAndTableIdParamsSchema,
   storeIdParamsSchema,
   tableListQuerySchema,
   updateTablePayloadSchema,
-} from '@spaceorder/api/schemas';
-import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import type { PublicTable } from '@spaceorder/db';
+} from "@spaceorder/api/schemas";
+import { ZodValidation } from "src/utils/guards/zod-validation.guard";
+import type { PublicTable } from "@spaceorder/db";
 import {
   CreateTablePayloadDto,
   UpdateTablePayloadDto,
-} from 'src/dto/table.dto';
-import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+} from "src/dto/table.dto";
+import { StoreAccessGuard } from "src/utils/guards/store-access.guard";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 type ListQueryParams = {
   isActive?: boolean;
 };
 
-@ApiTags('Table')
+@ApiTags("Table")
 @ApiBearerAuth()
-@Controller(':storeId/tables')
+@Controller(":storeId/tables")
 @UseGuards(JwtAuthGuard, StoreAccessGuard)
 export class TableController {
   constructor(private readonly tableService: TableService) {}
@@ -51,24 +51,24 @@ export class TableController {
     ZodValidation({
       params: storeIdParamsSchema,
       body: createTablePayloadSchema,
-    }),
+    })
   )
   @DocsTableCreate()
   async create(
-    @Param('storeId') storeId: string,
-    @Body() createTablePayload: CreateTablePayloadDto,
+    @Param("storeId") storeId: string,
+    @Body() createTablePayload: CreateTablePayloadDto
   ): Promise<PublicTable> {
     return await this.tableService.createTable(storeId, createTablePayload);
   }
 
   @Get()
   @UseGuards(
-    ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema }),
+    ZodValidation({ params: storeIdParamsSchema, query: tableListQuerySchema })
   )
   @DocsTableGetList()
   async list(
-    @Param('storeId') storeId: string,
-    @Query() query?: ListQueryParams,
+    @Param("storeId") storeId: string,
+    @Query() query?: ListQueryParams
   ): Promise<PublicTable[]> {
     return await this.tableService.getTableList({
       where: {
@@ -79,12 +79,12 @@ export class TableController {
     });
   }
 
-  @Get(':tableId')
+  @Get(":tableId")
   @UseGuards(ZodValidation({ params: storeIdAndTableIdParamsSchema }))
   @DocsTableGetUnique()
   async unique(
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
+    @Param("storeId") storeId: string,
+    @Param("tableId") tableId: string
   ): Promise<PublicTable> {
     return await this.tableService.getTableUnique({
       where: { publicId: tableId, store: { publicId: storeId } },
@@ -92,32 +92,32 @@ export class TableController {
     });
   }
 
-  @Patch(':tableId')
+  @Patch(":tableId")
   @UseGuards(
     ZodValidation({
       params: storeIdAndTableIdParamsSchema,
       body: updateTablePayloadSchema,
-    }),
+    })
   )
   @DocsTableUpdate()
   async partialUpdate(
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
-    @Body() updateTablePayload: UpdateTablePayloadDto,
+    @Param("storeId") storeId: string,
+    @Param("tableId") tableId: string,
+    @Body() updateTablePayload: UpdateTablePayloadDto
   ): Promise<PublicTable> {
     return await this.tableService.partialUpdateTable(
       { storeId, tableId },
-      updateTablePayload,
+      updateTablePayload
     );
   }
 
-  @Delete(':tableId')
+  @Delete(":tableId")
   @HttpCode(204)
   @UseGuards(ZodValidation({ params: storeIdAndTableIdParamsSchema }))
   @DocsTableDelete()
   async delete(
-    @Param('storeId') storeId: string,
-    @Param('tableId') tableId: string,
+    @Param("storeId") storeId: string,
+    @Param("tableId") tableId: string
   ): Promise<void> {
     await this.tableService.deleteTable({ storeId, tableId });
   }

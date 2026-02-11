@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 import {
   TableSession,
   Prisma,
@@ -6,13 +6,13 @@ import {
   PublicSession,
   SessionWithTable,
   OrderItem,
-} from '@spaceorder/db';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Tx } from 'src/utils/helper/transactionPipe';
+} from "@spaceorder/db";
+import { PrismaService } from "src/prisma/prisma.service";
+import { Tx } from "src/utils/helper/transactionPipe";
 import {
   isActivateTableOrThrow,
   isSessionExpired,
-} from 'src/common/validate/session/alive-session';
+} from "src/common/validate/session/alive-session";
 import {
   ALIVE_SESSION_STATUSES,
   ONE_HOURS,
@@ -20,11 +20,11 @@ import {
   SESSION_OMIT,
   INCLUDE_TABLE,
   TWENTY_MINUTE,
-} from 'src/common/query/session-query.const';
-import { generateSecureSessionToken } from 'src/utils/lib/crypt';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { sumFromObjects } from '@spaceorder/api/utils';
+} from "src/common/query/session-query.const";
+import { generateSecureSessionToken } from "src/utils/lib/crypt";
+import { HttpException, HttpStatus } from "@nestjs/common";
+import { exceptionContentsIs } from "src/common/constants/exceptionContents";
+import { sumFromObjects } from "@spaceorder/api/utils";
 
 export type TableIdentifier = { publicId: string } | { qrCode: string };
 export type SessionIdentifier = TableIdentifier | { id: bigint };
@@ -41,7 +41,7 @@ export class SessionCoreService {
    */
   async txGetActivatedSessionOrCreate(
     tx: Tx,
-    identifier: SessionIdentifier,
+    identifier: SessionIdentifier
   ): Promise<SessionWithTable> {
     const activeSession = await tx.tableSession.findFirst({
       ...this.buildActiveSessionQuery(identifier),
@@ -49,7 +49,7 @@ export class SessionCoreService {
 
     const validSession = await this.validateSessionWithDeactivate(
       tx,
-      activeSession,
+      activeSession
     );
 
     if (validSession) {
@@ -58,8 +58,8 @@ export class SessionCoreService {
 
     if (this.isSessionIdIdentifier(identifier)) {
       throw new HttpException(
-        exceptionContentsIs('INVALID_TABLE_SESSION'),
-        HttpStatus.NOT_FOUND,
+        exceptionContentsIs("INVALID_TABLE_SESSION"),
+        HttpStatus.NOT_FOUND
       );
     }
 
@@ -71,11 +71,11 @@ export class SessionCoreService {
   async txActivateSession(
     tx: Tx | undefined,
     tableSession: TableSession,
-    updateSessionDto: SessionActivatePayload,
+    updateSessionDto: SessionActivatePayload
   ): Promise<PublicSession> {
     const service = tx ?? this.prismaService;
     return await service.tableSession.update(
-      this.buildSetSessionActivate(tableSession, updateSessionDto),
+      this.buildSetSessionActivate(tableSession, updateSessionDto)
     );
   }
 
@@ -84,11 +84,11 @@ export class SessionCoreService {
    */
   async txDeactivateSession(
     tx: Tx | undefined,
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     const service = tx ?? this.prismaService;
     return await service.tableSession.update(
-      this.buildSetSessionDeactivate(tableSession),
+      this.buildSetSessionDeactivate(tableSession)
     );
   }
 
@@ -97,11 +97,11 @@ export class SessionCoreService {
    */
   async txExtendSessionExpiry(
     tx: Tx | undefined,
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     const service = tx ?? this.prismaService;
     return await service.tableSession.update(
-      this.buildSetSessionExtendExpiresAt(tableSession),
+      this.buildSetSessionExtendExpiresAt(tableSession)
     );
   }
 
@@ -110,7 +110,7 @@ export class SessionCoreService {
    */
   async txReactivateSession(
     tx: Tx | undefined,
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     const service = tx ?? this.prismaService;
     return await service.tableSession.update({
@@ -124,7 +124,7 @@ export class SessionCoreService {
    * 결제 완료 처리 및 세션 종료
    */
   async txFinishSessionByPayment(
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Promise<PublicSession> {
     return await this.prismaService.$transaction(async (tx) => {
       await tx.tableSession.update({
@@ -141,20 +141,20 @@ export class SessionCoreService {
       if (!sessionOrders.length) {
         throw new HttpException(
           {
-            ...exceptionContentsIs('ORDER_IS_EMPTY'),
+            ...exceptionContentsIs("ORDER_IS_EMPTY"),
             details: { orders: sessionOrders },
           },
-          HttpStatus.NOT_FOUND,
+          HttpStatus.NOT_FOUND
         );
       }
 
       const flatMappedOrderItems = sessionOrders.flatMap(
-        (order) => order.orderItems,
+        (order) => order.orderItems
       );
 
       const totalAmount = sumFromObjects<OrderItem>(
         flatMappedOrderItems,
-        (orderItems) => orderItems.unitPrice * orderItems.quantity,
+        (orderItems) => orderItems.unitPrice * orderItems.quantity
       );
 
       return await tx.tableSession.update({
@@ -182,7 +182,7 @@ export class SessionCoreService {
   }
 
   private buildSessionIdentifier(identifier: SessionIdentifier) {
-    if ('id' in identifier) {
+    if ("id" in identifier) {
       return { id: identifier.id };
     }
 
@@ -190,14 +190,14 @@ export class SessionCoreService {
   }
 
   private isSessionIdIdentifier(
-    identifier: SessionIdentifier,
+    identifier: SessionIdentifier
   ): identifier is { id: bigint } {
-    return 'id' in identifier;
+    return "id" in identifier;
   }
 
   private async createSessionFromTable(
     tx: Tx,
-    identifier: TableIdentifier,
+    identifier: TableIdentifier
   ): Promise<SessionWithTable> {
     const table = await tx.table.findFirstOrThrow({
       where: { ...identifier },
@@ -216,7 +216,7 @@ export class SessionCoreService {
 
   private async validateSessionWithDeactivate(
     tx: Tx,
-    activeSession: SessionWithTable | null,
+    activeSession: SessionWithTable | null
   ): Promise<SessionWithTable | null> {
     if (!activeSession) {
       return null;
@@ -225,7 +225,7 @@ export class SessionCoreService {
     isActivateTableOrThrow(activeSession);
     if (isSessionExpired(activeSession)) {
       await tx.tableSession.update(
-        this.buildSetSessionDeactivate(activeSession),
+        this.buildSetSessionDeactivate(activeSession)
       );
       return null;
     }
@@ -234,7 +234,7 @@ export class SessionCoreService {
   }
 
   private buildSetSessionDeactivate(
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Prisma.TableSessionUpdateArgs {
     return {
       where: { sessionToken: tableSession.sessionToken },
@@ -245,7 +245,7 @@ export class SessionCoreService {
 
   private buildSetSessionActivate(
     tableSession: TableSession,
-    updateSessionDto: SessionActivatePayload,
+    updateSessionDto: SessionActivatePayload
   ): Prisma.TableSessionUpdateArgs {
     return {
       where: { sessionToken: tableSession.sessionToken },
@@ -255,7 +255,7 @@ export class SessionCoreService {
   }
 
   private buildSetSessionExtendExpiresAt(
-    tableSession: TableSession,
+    tableSession: TableSession
   ): Prisma.TableSessionUpdateArgs {
     return {
       where: {

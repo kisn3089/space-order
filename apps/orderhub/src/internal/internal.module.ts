@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
-import { SessionCoreService } from './services/session-core.service';
-import { SessionClient } from './clients/session.client';
+import { Global, Module } from "@nestjs/common";
+import { SessionCoreService } from "./services/session-core.service";
+import { SessionClient } from "./clients/session.client";
 
 @Global()
 @Module({

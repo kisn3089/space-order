@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
 const getTableSessionByContext = (context: ExecutionContext) => {
   return context.switchToHttp().getRequest().session;
@@ -6,5 +6,5 @@ const getTableSessionByContext = (context: ExecutionContext) => {
 
 export const Session = createParamDecorator(
   (_data: unknown, context: ExecutionContext) =>
-    getTableSessionByContext(context),
+    getTableSessionByContext(context)
 );

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, TokenPayload, User } from '@spaceorder/db';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { Prisma, TokenPayload, User } from "@spaceorder/db";
 
 @Injectable()
 export class StoreService {
@@ -8,22 +8,22 @@ export class StoreService {
   omitPrivate = { id: true, ownerId: true } as const;
 
   async getStoreList<T extends Prisma.StoreFindManyArgs>(
-    args: Prisma.SelectSubset<T, Prisma.StoreFindManyArgs>,
+    args: Prisma.SelectSubset<T, Prisma.StoreFindManyArgs>
   ): Promise<Prisma.StoreGetPayload<T>[]> {
     return await this.prismaService.store.findMany(args);
   }
 
   async getStoreUnique<T extends Prisma.StoreFindFirstOrThrowArgs>(
-    args: Prisma.SelectSubset<T, Prisma.StoreFindFirstOrThrowArgs>,
+    args: Prisma.SelectSubset<T, Prisma.StoreFindFirstOrThrowArgs>
   ): Promise<Prisma.StoreGetPayload<T>> {
     return await this.prismaService.store.findFirstOrThrow(args);
   }
 
   addOwnerIdIfNotAdmin(
     user: User,
-    role: TokenPayload['role'],
+    role: TokenPayload["role"]
   ): Prisma.StoreWhereInput {
-    if (role === 'admin') {
+    if (role === "admin") {
       return {};
     }
 

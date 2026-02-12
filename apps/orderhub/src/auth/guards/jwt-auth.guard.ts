@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { PrivateRequestUser } from '@spaceorder/db';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { PrivateRequestUser } from "@spaceorder/db";
+import { exceptionContentsIs } from "src/common/constants/exceptionContents";
 
 export interface JwtErrorInfo {
-  name?: 'TokenExpiredError' | 'Error' | 'NotBeforeError';
+  name?: "TokenExpiredError" | "Error" | "NotBeforeError";
   message?: string;
   expiredAt?: Date;
 }
@@ -15,7 +15,7 @@ export interface JwtErrorInfo {
  * @access `@Jwt` JWT 정보를 주입 [TokenPayload]
  */
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard("jwt") {
   /**
    * JWT 검증 결과를 처리하는 메서드
    * @param err - JWT 검증 중 발생한 에러
@@ -25,28 +25,28 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param status - HTTP 상태 코드 (선택사항)
    */
   handleRequest<User = PrivateRequestUser>(
-    err: any,
+    err: unknown,
     user: User,
-    info: JwtErrorInfo,
+    info: JwtErrorInfo
   ): User {
     if (err || !user) {
       // [TODO:] 로깅 서비스로 변경 필요
-      console.warn('user: ', user);
-      console.warn('error: ', err?.message);
-      console.warn('info: ', info?.name);
-      console.warn('timestamp: ', new Date().toISOString());
+      console.warn("user: ", user);
+      console.warn("error: ", err instanceof Error ? err.message : undefined);
+      console.warn("info: ", info?.name);
+      console.warn("timestamp: ", new Date().toISOString());
     }
 
-    if (info?.name === 'TokenExpiredError') {
-      throw new HttpException(exceptionContentsIs('UNAUTHORIZED'), 419);
+    if (info?.name === "TokenExpiredError") {
+      throw new HttpException(exceptionContentsIs("UNAUTHORIZED"), 419);
     }
 
     if (err) throw err;
 
     if (!user) {
       throw new HttpException(
-        exceptionContentsIs('UNAUTHORIZED'),
-        HttpStatus.UNAUTHORIZED,
+        exceptionContentsIs("UNAUTHORIZED"),
+        HttpStatus.UNAUTHORIZED
       );
     }
 

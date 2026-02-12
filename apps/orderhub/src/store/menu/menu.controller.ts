@@ -10,33 +10,33 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   HttpCode,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { MenuService } from './menu.service';
-import type { Owner, PublicMenu } from '@spaceorder/db';
-import { ZodValidation } from 'src/utils/guards/zod-validation.guard';
-import { Client } from 'src/decorators/client.decorator';
-import { PublicMenuDto } from '../../dto/public/menu.dto';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { MenuService } from "./menu.service";
+import type { Owner, PublicMenu } from "@spaceorder/db";
+import { ZodValidation } from "src/utils/guards/zod-validation.guard";
+import { Client } from "src/decorators/client.decorator";
+import { PublicMenuDto } from "../../dto/public/menu.dto";
 import {
   createMenuPayloadSchema,
   storeIdAndMenuIdParamsSchema,
   storeIdParamsSchema,
   updateMenuPayloadSchema,
-} from '@spaceorder/api/schemas';
+} from "@spaceorder/api/schemas";
 import {
   DocsMenuCreate,
   DocsMenuDelete,
   DocsMenuGetList,
   DocsMenuGetUnique,
   DocsMenuUpdate,
-} from 'src/docs/menu.docs';
-import { CreateMenuPayloadDto, UpdateMenuPayloadDto } from 'src/dto/menu.dto';
-import { StoreAccessGuard } from 'src/utils/guards/store-access.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+} from "src/docs/menu.docs";
+import { CreateMenuPayloadDto, UpdateMenuPayloadDto } from "src/dto/menu.dto";
+import { StoreAccessGuard } from "src/utils/guards/store-access.guard";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
-@ApiTags('Menu')
+@ApiTags("Menu")
 @ApiBearerAuth()
-@Controller(':storeId/menus')
+@Controller(":storeId/menus")
 @UseGuards(JwtAuthGuard, StoreAccessGuard)
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
@@ -46,12 +46,12 @@ export class MenuController {
     ZodValidation({
       params: storeIdParamsSchema,
       body: createMenuPayloadSchema,
-    }),
+    })
   )
   @DocsMenuCreate()
   async create(
-    @Param('storeId') storeId: string,
-    @Body() createMenuPayload: CreateMenuPayloadDto,
+    @Param("storeId") storeId: string,
+    @Body() createMenuPayload: CreateMenuPayloadDto
   ) {
     return await this.menuService.createMenu(storeId, createMenuPayload);
   }
@@ -61,7 +61,7 @@ export class MenuController {
   @DocsMenuGetList()
   async list(
     @Client() client: Owner,
-    @Param('storeId') storeId: string,
+    @Param("storeId") storeId: string
   ): Promise<PublicMenu[]> {
     return await this.menuService.getMenuList({
       where: {
@@ -72,11 +72,11 @@ export class MenuController {
     });
   }
 
-  @Get(':menuId')
+  @Get(":menuId")
   @UseGuards(ZodValidation({ params: storeIdAndMenuIdParamsSchema }))
   @UseInterceptors(ClassSerializerInterceptor)
   @DocsMenuGetUnique()
-  async unique(@Param('menuId') menuId: string): Promise<PublicMenuDto> {
+  async unique(@Param("menuId") menuId: string): Promise<PublicMenuDto> {
     const findMenu = await this.menuService.getMenuUnique({
       where: { publicId: menuId },
       omit: this.menuService.omitPrivate,
@@ -85,26 +85,26 @@ export class MenuController {
     return new PublicMenuDto(findMenu);
   }
 
-  @Patch(':menuId')
+  @Patch(":menuId")
   @UseGuards(
     ZodValidation({
       params: storeIdAndMenuIdParamsSchema,
       body: updateMenuPayloadSchema,
-    }),
+    })
   )
   @DocsMenuUpdate()
   async partialUpdate(
-    @Param('menuId') menuId: string,
-    @Body() updateMenuPayload: UpdateMenuPayloadDto,
+    @Param("menuId") menuId: string,
+    @Body() updateMenuPayload: UpdateMenuPayloadDto
   ): Promise<PublicMenu> {
     return await this.menuService.partialUpdateMenu(menuId, updateMenuPayload);
   }
 
-  @Delete(':menuId')
+  @Delete(":menuId")
   @HttpCode(204)
   @UseGuards(ZodValidation({ params: storeIdAndMenuIdParamsSchema }))
   @DocsMenuDelete()
-  async delete(@Param('menuId') menuId: string): Promise<void> {
+  async delete(@Param("menuId") menuId: string): Promise<void> {
     await this.menuService.softDeleteMenu(menuId);
   }
 }

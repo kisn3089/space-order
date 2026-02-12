@@ -102,7 +102,8 @@ function Tabs({
         activeValue: value ?? activeValue ?? "",
         handleValueChange,
         registerTrigger,
-      }}>
+      }}
+    >
       <div data-slot="tabs" {...props}>
         {children}
       </div>
@@ -281,18 +282,21 @@ function TabsContents({
       style={{ overflow: "hidden" }}
       animate={{ height }}
       transition={transition}
-      {...props}>
+      {...props}
+    >
       <motion.div
         className="flex -mx-2"
         animate={{ x: activeIndex * -100 + "%" }}
-        transition={transition}>
+        transition={transition}
+      >
         {childrenArray.map((child, index) => (
           <div
             key={index}
             ref={(el) => {
               itemRefs.current[index] = el;
             }}
-            className="w-full shrink-0 px-2 h-full">
+            className="w-full shrink-0 px-2 h-full"
+          >
             {child}
           </div>
         ))}
@@ -323,7 +327,7 @@ function TabsContent({
     <Component
       role="tabpanel"
       data-slot="tabs-content"
-      {...(!isActive && { inert: "true" as any })}
+      {...(!isActive && { inert: true })}
       style={{ overflow: "hidden", ...style }}
       initial={{ filter: "blur(0px)" }}
       animate={{ filter: isActive ? "blur(0px)" : "blur(4px)" }}

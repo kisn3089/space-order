@@ -1,17 +1,17 @@
 import React from "react";
 
-type AsyncFunction<TArgs extends any[], TReturn> = (
+type AsyncFunction<TArgs extends unknown[], TReturn> = (
   signal: AbortSignal,
   ...args: TArgs
 ) => Promise<TReturn>;
 
-type CancelableAsyncReturn<TArgs extends any[], TReturn> = {
+type CancelableAsyncReturn<TArgs extends unknown[], TReturn> = {
   (...args: TArgs): Promise<TReturn | undefined>;
   isPending: boolean;
   abort: () => void;
 };
 
-export function useCancelableAsync<TArgs extends any[], TReturn>(
+export function useCancelableAsync<TArgs extends unknown[], TReturn>(
   promiseFunction: AsyncFunction<TArgs, TReturn>
 ): CancelableAsyncReturn<TArgs, TReturn> {
   const [isPending, startTransition] = React.useTransition();

@@ -1,33 +1,33 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthService } from '../services/auth.service';
-import { COOKIE_TABLE } from '@spaceorder/db/constants';
-import { PrivateRequestUser, TokenPayload } from '@spaceorder/db';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PassportStrategy } from "@nestjs/passport";
+import { Request } from "express";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { AuthService } from "../services/auth.service";
+import { COOKIE_TABLE } from "@spaceorder/db/constants";
+import { PrivateRequestUser, TokenPayload } from "@spaceorder/db";
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh',
+  "jwt-refresh"
 ) {
   constructor(
     configService: ConfigService,
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => request.cookies?.[COOKIE_TABLE.REFRESH],
       ]),
-      secretOrKey: configService.getOrThrow<string>('JWT_REFRESH_TOKEN_SECRET'),
+      secretOrKey: configService.getOrThrow<string>("JWT_REFRESH_TOKEN_SECRET"),
       passReqToCallback: true,
     });
   }
 
   async validate(
     request: Request,
-    payload: TokenPayload,
+    payload: TokenPayload
   ): Promise<PrivateRequestUser | null> {
     const refreshToken: string | null | undefined =
       request.cookies?.[COOKIE_TABLE.REFRESH];
@@ -36,7 +36,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
     const user = await this.authService.validateRefreshToken(
       refreshToken,
-      payload,
+      payload
     );
 
     return { info: user, jwt: payload };

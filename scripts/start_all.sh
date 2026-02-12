@@ -8,6 +8,7 @@ DOCKER_COMPOSE_BIN=""
 DOCKER_COMPOSE_SUBCMD=""
 
 STOP_SERVICES=false
+RUN_PRISMA_SEED=false
 
 show_help() {
   echo "Usage: $0 [OPTIONS]"
@@ -70,12 +71,35 @@ check_platform() {
   export PLATFORM
 }
 
+generate_secrets() {
+  GEN_DB_ROOT_PW=$(openssl rand -hex 16)
+  GEN_DB_PW=$(openssl rand -hex 16)
+  GEN_JWT_ACCESS=$(openssl rand -hex 24)
+  GEN_JWT_REFRESH=$(openssl rand -hex 24)
+}
+
+replace_secrets() {
+  local src="$1"
+  local dest="$2"
+
+  sed \
+    -e "s|^DB_ROOT_PASSWORD=.*|DB_ROOT_PASSWORD=$GEN_DB_ROOT_PW|" \
+    -e "s|^DB_PASSWORD=.*|DB_PASSWORD=$GEN_DB_PW|" \
+    -e "s|^DATABASE_URL=.*|DATABASE_URL=mysql://spaceorder:${GEN_DB_PW}@localhost:3306/spaceorder?connection_limit=10\&pool_timeout=10|" \
+    -e "s|^JWT_ACCESS_TOKEN_SECRET=.*|JWT_ACCESS_TOKEN_SECRET=$GEN_JWT_ACCESS|" \
+    -e "s|^JWT_REFRESH_TOKEN_SECRET=.*|JWT_REFRESH_TOKEN_SECRET=$GEN_JWT_REFRESH|" \
+    "$src" > "$dest"
+}
+
 check_env_file() {
   cd "$PROJECT_ROOT"
   if [ ! -f ".env" ]; then
     if [ -f ".env.example" ]; then
-      cp ".env.example" ".env"
-      echo "Created .env from .env.example"
+      echo "Generating .env from .env.example with auto-generated secrets..."
+      generate_secrets
+      replace_secrets ".env.example" ".env"
+      RUN_PRISMA_SEED=true
+      echo "Created .env with auto-generated secrets (prisma seed enabled for first run)"
     else
       echo "Error: .env file not found. Please create one based on the project documentation."
       exit 1
@@ -143,7 +167,8 @@ main() {
 
   echo ""
   echo "Starting Docker containers..."
-  PLATFORM=$PLATFORM run_compose up --build -d
+  # RUN_PRISMA_SEED 값은 초기 데이터 시딩을 위해 최초 1회만 true로 설정됩니다.
+  PLATFORM=$PLATFORM RUN_PRISMA_SEED=$RUN_PRISMA_SEED run_compose up --build -d
 
   echo ""
   run_compose ps

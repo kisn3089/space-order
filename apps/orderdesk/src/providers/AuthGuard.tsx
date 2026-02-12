@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { ReactNode, useEffect } from "react";
 import { refreshAccessToken } from "../app/common/servers/refreshAccessToken";
 import { isExpired, useAuthInfo } from "@spaceorder/auth";
 import { getAccessToken } from "@/app/common/servers/getAccessToken";
@@ -8,13 +8,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import { updateAxiosAuthorizationHeader } from "@spaceorder/api";
 
 type AuthGuardProps = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 export default function AuthGuard({ children }: AuthGuardProps) {
   const { authInfo, setAuthInfo, signOut } = useAuthInfo();
   const queryClient = useQueryClient();
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const signOutWithCacheClear = () => {
+      queryClient.clear();
+      signOut();
+    };
+
     /** 새로고침 시 useAuthInfo 갱신 */
     (async () => {
       const accessToken = await getAccessToken();
@@ -31,14 +36,10 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         setAuthInfo({ accessToken: refreshedAccessToken.accessToken });
       } catch (error: unknown) {
         console.error("[AuthGuard] Failed to refresh access token", error);
-        signOut();
+        signOutWithCacheClear();
       }
     })();
-
-    return () => {
-      queryClient.clear();
-    };
-  }, []);
+  }, [queryClient, setAuthInfo, signOut]);
 
   if (!authInfo.accessToken) {
     return null;

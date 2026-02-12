@@ -14,17 +14,17 @@ import { config as baseConfig } from "./base.js";
  * @type {import("eslint").Linter.Config[]}
  * */
 export const nextJsConfig = [
-  ...baseConfig,
   js.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
-  // globalIgnores([
-  //   // Default ignores of eslint-config-next:
-  //   ".next/**",
-  //   "out/**",
-  //   "build/**",
-  //   "next-env.d.ts",
-  // ]),
+  ...baseConfig,
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
   {
     ...pluginReact.configs.flat.recommended,
     languageOptions: {

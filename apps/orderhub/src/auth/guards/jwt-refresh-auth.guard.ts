@@ -3,29 +3,29 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { PublicUser } from '@spaceorder/db';
-import { JwtErrorInfo } from './jwt-auth.guard';
-import { Response } from 'express';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { COOKIE_TABLE } from '@spaceorder/db/constants';
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { PublicUser } from "@spaceorder/db";
+import { JwtErrorInfo } from "./jwt-auth.guard";
+import { Response } from "express";
+import { exceptionContentsIs } from "src/common/constants/exceptionContents";
+import { COOKIE_TABLE } from "@spaceorder/db/constants";
 
 @Injectable()
-export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
+export class JwtRefreshAuthGuard extends AuthGuard("jwt-refresh") {
   handleRequest<User = PublicUser>(
-    err: any,
+    err: unknown,
     user: User,
     info: JwtErrorInfo,
-    context: ExecutionContext,
+    context: ExecutionContext
   ): User {
     if (err || !user) {
-      console.warn('-------refresh token guard-------');
-      console.warn('user: ', user);
-      console.warn('error: ', err?.message);
-      console.warn('info: ', info?.name);
-      console.warn('info: ', info?.message);
-      console.warn('timestamp: ', new Date().toISOString());
+      console.warn("-------refresh token guard-------");
+      console.warn("user: ", user);
+      console.warn("error: ", err instanceof Error ? err.message : undefined);
+      console.warn("info: ", info?.name);
+      console.warn("info: ", info?.message);
+      console.warn("timestamp: ", new Date().toISOString());
     }
 
     if (err) throw err;
@@ -34,8 +34,8 @@ export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
       const response = context.switchToHttp().getResponse<Response>();
       response.clearCookie(COOKIE_TABLE.REFRESH as string);
       throw new HttpException(
-        exceptionContentsIs('REFRESH_FAILED'),
-        HttpStatus.UNAUTHORIZED,
+        exceptionContentsIs("REFRESH_FAILED"),
+        HttpStatus.UNAUTHORIZED
       );
     }
 

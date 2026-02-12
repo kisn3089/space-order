@@ -1,11 +1,11 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from "@nestjs/common";
 import {
   ExceptionContentKeys,
   exceptionContentsIs,
-} from 'src/common/constants/exceptionContents';
+} from "src/common/constants/exceptionContents";
 
 export class ExtendedMap<K, V> extends Map<K, V> {
-  private exceptionContent: ExceptionContentKeys = 'BADREQUEST';
+  private exceptionContent: ExceptionContentKeys = "BADREQUEST";
   private exceptionStatus: number = HttpStatus.BAD_REQUEST;
 
   getOrThrow(key: K): V {
@@ -16,7 +16,7 @@ export class ExtendedMap<K, V> extends Map<K, V> {
           ...exceptionContentsIs(this.exceptionContent),
           details: { missingKey: key },
         },
-        this.exceptionStatus,
+        this.exceptionStatus
       );
     }
     return value;

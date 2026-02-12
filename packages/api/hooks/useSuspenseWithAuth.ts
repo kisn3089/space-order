@@ -9,7 +9,7 @@ type QueryParams<Data, Error> = {
   queryOptions?: UseSuspenseQueryOptions<Data, Error>;
   onSuccess?: (data: Data) => void;
 };
-export default function useSuspenseWithAuth<Data, Error = any>(
+export default function useSuspenseWithAuth<Data, Error = unknown>(
   url: string,
   queryParams?: QueryParams<Data, Error>
 ) {

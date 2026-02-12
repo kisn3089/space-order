@@ -1,21 +1,21 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { exceptionContentsIs } from '../../constants/exceptionContents';
-import { Menu } from '@spaceorder/db';
+import { HttpException, HttpStatus } from "@nestjs/common";
+import { exceptionContentsIs } from "../../constants/exceptionContents";
+import { Menu } from "@spaceorder/db";
 
 export type MenuValidationFields = Pick<
   Menu,
-  | 'id'
-  | 'publicId'
-  | 'name'
-  | 'price'
-  | 'requiredOptions'
-  | 'customOptions'
-  | 'isAvailable'
+  | "id"
+  | "publicId"
+  | "name"
+  | "price"
+  | "requiredOptions"
+  | "customOptions"
+  | "isAvailable"
 >;
 
 export function validateMenuMismatchOrThrow(
   findMenuList: MenuValidationFields[],
-  menuPublicIds: string[],
+  menuPublicIds: string[]
 ): void {
   const extractedIds = new Set(findMenuList.map((m) => m.publicId));
   const missingIds = menuPublicIds.filter((id) => !extractedIds.has(id));
@@ -24,9 +24,9 @@ export function validateMenuMismatchOrThrow(
 
   throw new HttpException(
     {
-      ...exceptionContentsIs('MENU_MISMATCH'),
+      ...exceptionContentsIs("MENU_MISMATCH"),
       details: { missingMenuIds: missingIds },
     },
-    HttpStatus.BAD_REQUEST,
+    HttpStatus.BAD_REQUEST
   );
 }

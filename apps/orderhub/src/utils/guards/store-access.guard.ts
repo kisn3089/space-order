@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { PrivateRequestUser } from '@spaceorder/db';
-import { AccessGuard } from './access.guard';
-import { isAdmin } from '../isAdmin';
+import { Injectable } from "@nestjs/common";
+import { PrivateRequestUser } from "@spaceorder/db";
+import { AccessGuard } from "./access.guard";
+import { isAdmin } from "../isAdmin";
 
 @Injectable()
 export class StoreAccessGuard extends AccessGuard {
   protected async proofCanAccess(
     user: PrivateRequestUser,
-    params: Record<string, string>,
+    params: Record<string, string>
   ): Promise<boolean> {
     const { jwt } = user;
 

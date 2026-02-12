@@ -10,13 +10,6 @@ import { cn } from "@spaceorder/ui/lib/utils";
 import { Button } from "@spaceorder/ui/components/button";
 import { Input } from "@spaceorder/ui/components/input";
 import { Separator } from "@spaceorder/ui/components/separator";
-// import {
-//   Sheet,
-//   SheetContent,
-//   SheetDescription,
-//   SheetHeader,
-//   SheetTitle,
-// } from "@spaceorder/ui/components/sheet";
 import { Skeleton } from "@spaceorder/ui/components/skeleton";
 import {
   Tooltip,
@@ -181,7 +174,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { state, open } = useSidebar();
+    const { state } = useSidebar();
 
     // if (collapsible === "none") {
     //   return (
@@ -225,10 +218,7 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className={cn(
-          "group peer text-sidebar-foreground md:block "
-          // `max-w-[${open ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_ICON}]`
-        )}
+        className={cn("group peer text-sidebar-foreground md:block")}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
@@ -240,7 +230,6 @@ const Sidebar = React.forwardRef<
             "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
-            // "group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2",
             variant === "floating" || variant === "inset"
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon))]"
               : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"

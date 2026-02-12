@@ -3,22 +3,22 @@
 import { refreshAccessToken } from "@/app/common/servers/refreshAccessToken";
 import { setupAuthInterceptor } from "@spaceorder/api";
 import { useAuthInfo } from "@spaceorder/auth";
-import React from "react";
+import React, { ReactNode, useEffect } from "react";
 
 export default function AxiosInterceptor({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   const { setAuthInfo, signOut } = useAuthInfo();
 
-  React.useEffect(() => {
+  useEffect(() => {
     setupAuthInterceptor({
       refreshAccessToken,
       setAuthInfo,
       signOut,
     });
-  }, []);
+  }, [setAuthInfo, signOut]);
 
   return <>{children}</>;
 }

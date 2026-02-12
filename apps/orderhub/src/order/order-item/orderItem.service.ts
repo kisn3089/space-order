@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { OrderStatus, Prisma, PublicOrderItem } from '@spaceorder/db';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { getValidatedMenuOptionsSnapshot } from 'src/common/validate/menu/options';
+import { Injectable } from "@nestjs/common";
+import { OrderStatus, Prisma, PublicOrderItem } from "@spaceorder/db";
+import { PrismaService } from "src/prisma/prisma.service";
+import { getValidatedMenuOptionsSnapshot } from "src/common/validate/menu/options";
 import {
   CreateOrderItemPayloadDto,
   UpdateOrderItemPayloadDto,
-} from 'src/dto/order-item.dto';
-import { Tx } from 'src/utils/helper/transactionPipe';
-import { validateOrderSessionToWrite } from 'src/common/validate/order/order-session-to-write';
-import { validateMenuAvailableOrThrow } from 'src/common/validate/menu/available';
-import { MENU_VALIDATION_FIELDS_SELECT } from 'src/common/query/menu-query.const';
+} from "src/dto/order-item.dto";
+import { Tx } from "src/utils/helper/transactionPipe";
+import { validateOrderSessionToWrite } from "src/common/validate/order/order-session-to-write";
+import { validateMenuAvailableOrThrow } from "src/common/validate/menu/available";
+import { MENU_VALIDATION_FIELDS_SELECT } from "src/common/query/menu-query.const";
 
 @Injectable()
 export class OrderItemService {
@@ -18,8 +18,8 @@ export class OrderItemService {
 
   async createOrderItem(
     orderId: string,
-    createPayload: CreateOrderItemPayloadDto,
-  ): Promise<PublicOrderItem<'Wide'>> {
+    createPayload: CreateOrderItemPayloadDto
+  ): Promise<PublicOrderItem<"Wide">> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       createPayload;
 
@@ -31,7 +31,7 @@ export class OrderItemService {
     validateOrderSessionToWrite(order);
 
     const menu = await this.prismaService.menu.findFirstOrThrow(
-      this.buildMenuQuery(menuPublicId, order.store.publicId),
+      this.buildMenuQuery(menuPublicId, order.store.publicId)
     );
 
     validateMenuAvailableOrThrow(menu);
@@ -41,7 +41,7 @@ export class OrderItemService {
       {
         requiredOptions,
         customOptions,
-      },
+      }
     );
 
     return await this.prismaService.orderItem.create({
@@ -61,7 +61,7 @@ export class OrderItemService {
 
   private buildMenuQuery(menuId: string | bigint, storeId: string) {
     const menuIdField =
-      typeof menuId === 'string' ? { publicId: menuId } : { id: menuId };
+      typeof menuId === "string" ? { publicId: menuId } : { id: menuId };
 
     return {
       where: { ...menuIdField, store: { publicId: storeId }, deletedAt: null },
@@ -70,14 +70,14 @@ export class OrderItemService {
   }
 
   async getOrderItemList<T extends Prisma.OrderItemFindManyArgs>(
-    args: Prisma.SelectSubset<T, Prisma.OrderItemFindManyArgs>,
+    args: Prisma.SelectSubset<T, Prisma.OrderItemFindManyArgs>
   ): Promise<Prisma.OrderItemGetPayload<T>[]> {
     return await this.prismaService.orderItem.findMany(args);
   }
 
   async getOrderItemUnique<T extends Prisma.OrderItemFindFirstOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.OrderItemFindFirstOrThrowArgs>,
-    tx?: Tx,
+    tx?: Tx
   ): Promise<Prisma.OrderItemGetPayload<T>> {
     const service = tx ?? this.prismaService;
     return await service.orderItem.findFirstOrThrow(args);
@@ -85,8 +85,8 @@ export class OrderItemService {
 
   async partialUpdateOrderItem(
     orderItemId: string,
-    updatePayload: UpdateOrderItemPayloadDto,
-  ): Promise<PublicOrderItem<'Wide'>> {
+    updatePayload: UpdateOrderItemPayloadDto
+  ): Promise<PublicOrderItem<"Wide">> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       updatePayload;
 
@@ -126,7 +126,7 @@ export class OrderItemService {
     /** menuPublicId가 있으면 새 메뉴 조회, 없으면 기존 메뉴 사용 */
     const menu = menuPublicId
       ? await this.prismaService.menu.findFirstOrThrow(
-          this.buildMenuQuery(menuPublicId, orderItem.order.store.publicId),
+          this.buildMenuQuery(menuPublicId, orderItem.order.store.publicId)
         )
       : orderItem.menu;
 
@@ -137,7 +137,7 @@ export class OrderItemService {
       {
         requiredOptions,
         customOptions,
-      },
+      }
     );
 
     return await this.prismaService.orderItem.update({

@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm prisma:generate",
-    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint . --fix",
     "prisma:generate": "dotenv -e ../../.env -- prisma generate",
     "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "prisma:deploy": "dotenv -e ../../.env -- prisma migrate deploy",

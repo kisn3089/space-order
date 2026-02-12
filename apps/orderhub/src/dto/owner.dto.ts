@@ -1,12 +1,12 @@
 import {
   createOwnerPayloadSchema,
   updateOwnerPayloadSchema,
-} from '@spaceorder/api/schemas/model/owner.schema';
-import { createZodDto } from 'nestjs-zod';
+} from "@spaceorder/api/schemas/model/owner.schema";
+import { createZodDto } from "nestjs-zod";
 
 export class CreateOwnerPayloadDto extends createZodDto(
-  createOwnerPayloadSchema,
+  createOwnerPayloadSchema
 ) {}
 export class UpdateOwnerPayloadDto extends createZodDto(
-  updateOwnerPayloadSchema,
+  updateOwnerPayloadSchema
 ) {}

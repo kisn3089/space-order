@@ -1,16 +1,16 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from "@nestjs/common";
 import {
   Menu,
   MenuCustomOptionValue,
   MenuOption,
   MenuOptionValue,
   OptionSnapshotValue,
-} from '@spaceorder/db';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { ExtendedMap } from 'src/utils/helper/extendMap';
-import { menuOptionsPayloadSchema } from '@spaceorder/api/schemas/model/menu.schema';
+} from "@spaceorder/db";
+import { exceptionContentsIs } from "src/common/constants/exceptionContents";
+import { ExtendedMap } from "src/utils/helper/extendMap";
+import { menuOptionsPayloadSchema } from "@spaceorder/api/schemas/model/menu.schema";
 
-type JsonMenuOptions = Pick<Menu, 'requiredOptions' | 'customOptions'>;
+type JsonMenuOptions = Pick<Menu, "requiredOptions" | "customOptions">;
 type PayloadOptions = {
   requiredOptions?: Record<string, string>;
   customOptions?: Record<string, string>;
@@ -38,16 +38,16 @@ function getValidatedMenuOptions<
   ValidMenuOption extends MenuOptionValue[] | MenuCustomOptionValue,
 >(
   menuOption: Record<string, ValidMenuOption> | null,
-  payloadOption: Record<string, string> = {},
+  payloadOption: Record<string, string> = {}
 ): ValidatedMenuOptionsReturn {
   const menuOptionsMap = new ExtendedMap<string, ValidMenuOption>(
-    Object.entries(menuOption || {}),
+    Object.entries(menuOption || {})
   );
   const payloadMenuMap = new Map<string, string>(
-    Object.entries(payloadOption || {}),
+    Object.entries(payloadOption || {})
   );
 
-  menuOptionsMap.setException('MENU_OPTIONS_INVALID');
+  menuOptionsMap.setException("MENU_OPTIONS_INVALID");
 
   const validatedOptions: ValidatedMenuOptionsReturn = {
     optionsPrice: 0,
@@ -60,16 +60,16 @@ function getValidatedMenuOptions<
       : menuOptions.options;
 
     const findOption = optionArray.find(
-      (option) => option.key === payloadValue,
+      (option) => option.key === payloadValue
     );
 
     if (!findOption) {
       throw new HttpException(
         {
-          ...exceptionContentsIs('MENU_OPTIONS_INVALID'),
+          ...exceptionContentsIs("MENU_OPTIONS_INVALID"),
           details: { key: payloadKey, invalidOption: payloadValue },
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
 
@@ -81,7 +81,7 @@ function getValidatedMenuOptions<
 
 export function getValidatedMenuOptionsSnapshot(
   menuOptions: JsonMenuOptions,
-  payloadOptions: PayloadOptions,
+  payloadOptions: PayloadOptions
 ): GetValidatedMenuOptionsSnapshotReturn {
   const parsedMenuOptions: MenuOption = parseMenuOptions(menuOptions);
   const {
@@ -90,23 +90,23 @@ export function getValidatedMenuOptionsSnapshot(
   } = payloadOptions;
 
   const requiredMenuOptionsKeys = Object.keys(
-    parsedMenuOptions.requiredOptions || {},
+    parsedMenuOptions.requiredOptions || {}
   );
   const payloadRequiredOptionsKeys = Object.keys(payloadRequiredOptions || {});
 
   if (requiredMenuOptionsKeys.length !== payloadRequiredOptionsKeys.length) {
     const missingRequiredOptionsKeys = requiredMenuOptionsKeys.filter(
-      (key) => !payloadRequiredOptionsKeys.includes(key),
+      (key) => !payloadRequiredOptionsKeys.includes(key)
     );
 
     throw new HttpException(
       {
-        ...exceptionContentsIs('MENU_OPTIONS_REQUIRED'),
+        ...exceptionContentsIs("MENU_OPTIONS_REQUIRED"),
         details: {
           missingRequiredOptions: missingRequiredOptionsKeys,
         },
       },
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
     );
   }
 
@@ -114,12 +114,12 @@ export function getValidatedMenuOptionsSnapshot(
   if (!parsedMenuOptions.customOptions && payloadCustomOptionsKeys.length > 0) {
     throw new HttpException(
       {
-        ...exceptionContentsIs('MENU_OPTIONS_SHOULD_BE_EMPTY'),
+        ...exceptionContentsIs("MENU_OPTIONS_SHOULD_BE_EMPTY"),
         details: {
           shouldBeEmptyOptions: payloadCustomOptionsKeys,
         },
       },
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
     );
   }
 
@@ -128,7 +128,7 @@ export function getValidatedMenuOptionsSnapshot(
     optionsSnapshot: requiredOptionsSnapshot,
   } = getValidatedMenuOptions<MenuOptionValue[]>(
     parsedMenuOptions.requiredOptions,
-    payloadRequiredOptions,
+    payloadRequiredOptions
   );
 
   const {
@@ -136,7 +136,7 @@ export function getValidatedMenuOptionsSnapshot(
     optionsSnapshot: customOptionsSnapshot,
   } = getValidatedMenuOptions<MenuCustomOptionValue>(
     parsedMenuOptions.customOptions,
-    payloadCustomOptions,
+    payloadCustomOptions
   );
 
   const mergedOptionsSnapshot = {

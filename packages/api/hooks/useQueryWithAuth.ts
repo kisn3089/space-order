@@ -7,7 +7,7 @@ type QueryParams<Data, Error> = {
   enabled?: boolean;
   onSuccess?: (data: Data) => void;
 };
-export default function useQueryWithAuth<Data, Error = any>(
+export default function useQueryWithAuth<Data, Error = unknown>(
   url: string,
   queryParams?: QueryParams<Data, Error>
 ) {

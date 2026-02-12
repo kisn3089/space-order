@@ -14,7 +14,8 @@ export function NextThemeProviders({
       defaultTheme="system"
       enableSystem
       // disableTransitionOnChange
-      enableColorScheme>
+      enableColorScheme
+    >
       {children}
     </NextThemesProvider>
   );

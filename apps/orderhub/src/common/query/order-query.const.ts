@@ -1,4 +1,4 @@
-import { aliveSessionFilter } from './session-query.const';
+import { aliveSessionFilter } from "./session-query.const";
 
 export const ORDER_SITUATION_PAYLOAD = {
   tableSessions: {

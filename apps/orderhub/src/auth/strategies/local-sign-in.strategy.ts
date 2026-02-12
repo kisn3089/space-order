@@ -1,9 +1,9 @@
-import type { Request } from 'express';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-local';
-import { User } from '@spaceorder/db';
-import { AuthService } from '../services/auth.service';
+import type { Request } from "express";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
+import { Strategy } from "passport-local";
+import { User } from "@spaceorder/db";
+import { AuthService } from "../services/auth.service";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -12,7 +12,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * passReqToCallback: true로 설정하면 validate 메서드에 request 객체가 전달됨
    */
   constructor(private readonly authService: AuthService) {
-    super({ usernameField: 'email', passReqToCallback: true });
+    super({ usernameField: "email", passReqToCallback: true });
   }
 
   /**
@@ -21,23 +21,23 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(
     req: Request,
     email: string,
-    password: string,
+    password: string
   ): Promise<{ info: User | undefined }> {
     const path = req.path;
 
-    if (path.includes('/owner/')) {
+    if (path.includes("/owner/")) {
       const user = await this.authService.validateSignInPayload(
         { email, password },
-        'owner',
+        "owner"
       );
       if (user) {
         return { info: user };
       }
     }
-    if (path.includes('/admin/')) {
+    if (path.includes("/admin/")) {
       const user = await this.authService.validateSignInPayload(
         { email, password },
-        'admin',
+        "admin"
       );
       if (user) {
         return { info: user };

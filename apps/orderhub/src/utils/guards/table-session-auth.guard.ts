@@ -1,16 +1,16 @@
-import { Request } from 'express';
+import { Request } from "express";
 import {
   CanActivate,
   ExecutionContext,
   HttpException,
   HttpStatus,
   Injectable,
-} from '@nestjs/common';
-import { sessionTokenSchema } from '@spaceorder/api/schemas';
-import { TableSession } from '@spaceorder/db';
-import { exceptionContentsIs } from 'src/common/constants/exceptionContents';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ALIVE_SESSION_STATUSES } from 'src/common/query/session-query.const';
+} from "@nestjs/common";
+import { sessionTokenSchema } from "@spaceorder/api/schemas";
+import { TableSession } from "@spaceorder/db";
+import { exceptionContentsIs } from "src/common/constants/exceptionContents";
+import { PrismaService } from "src/prisma/prisma.service";
+import { ALIVE_SESSION_STATUSES } from "src/common/query/session-query.const";
 
 type RequestWithClient = Request & {
   session: TableSession | null;
@@ -46,8 +46,8 @@ export class SessionAuth implements CanActivate {
     }
 
     throw new HttpException(
-      exceptionContentsIs('INVALID_TABLE_SESSION'),
-      HttpStatus.UNAUTHORIZED,
+      exceptionContentsIs("INVALID_TABLE_SESSION"),
+      HttpStatus.UNAUTHORIZED
     );
   }
 }

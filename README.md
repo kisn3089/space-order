@@ -131,6 +131,34 @@ cp .env.example .env
 | **Swagger Docs**  | http://localhost:8080/docs | API 문서              |
 | **Prisma Studio** | http://localhost:5555      | 데이터베이스 GUI      |
 
+### API Testing (Postman)
+
+[GitHub Release](https://github.com/kisn3089/space-order/releases/tag/v1.0.0)에서 `space-order-postman.zip`을 다운로드하여 사용할 수 있습니다.
+
+#### Import
+
+1. `space-order-postman.zip` 다운로드 후 압축 해제
+2. Postman에서 **Import** 클릭
+3. 아래 두 파일을 함께 Import:
+   - `space-order.postman_collection.json` (API 컬렉션)
+   - `space-order.postman_environment.json` (환경 변수)
+4. 우측 상단 환경 드롭다운에서 **Space Order - Local** 선택
+
+#### 인증 플로우
+
+1. **Auth/v1 > Owner > SignIn** 또는 **Auth/v1 > Admin > SignIn** 요청 실행
+2. 응답의 `accessToken`이 환경 변수 `access_token`에 자동 저장됨
+3. 이후 모든 인증 필요 요청에 Bearer Token이 자동 적용
+
+#### 환경 변수
+
+| 변수                                 | 설명                                    | 자동 설정           |
+| ------------------------------------ | --------------------------------------- | ------------------- |
+| `base_url`                           | API 서버 주소 (`http://localhost:8080`) | 초기값 설정됨       |
+| `access_token`                       | JWT Access Token                        | 로그인 시 자동      |
+| `store_id`, `table_id`, `menu_id` 등 | 리소스 Public ID                        | Create 요청 시 자동 |
+| `session_token`                      | 고객 세션 토큰                          | 세션 생성 시 자동   |
+
 ## Web UI
 
 <table>

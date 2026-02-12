@@ -6,12 +6,21 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // for devolopment convenience
+  reactStrictMode: true,
   output: "standalone",
   experimental: {
     outputFileTracingRoot: path.join(__dirname, "../../"),
   },
   transpilePackages: ["@spaceorder/ui"],
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/stores",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

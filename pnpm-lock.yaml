@@ -47,7 +47,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/postcss':
-        specifier: ^4
+        specifier: ^4.1.11
         version: 4.1.17
       '@types/node':
         specifier: ^20
@@ -68,7 +68,7 @@ importers:
         specifier: 14.2.33
         version: 14.2.33(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2)
       tailwindcss:
-        specifier: ^4
+        specifier: ^4.1.11
         version: 4.1.17
       typescript:
         specifier: ^5

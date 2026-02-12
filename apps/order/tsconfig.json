@@ -1,42 +1,29 @@
 {
+  "extends": "@spaceorder/tsconfig/nextjs.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@spaceorder/ui/*": ["../../packages/ui/src/*"],
+      "@spaceorder/auth/*": ["../../packages/auth/src/*"],
+      "@spaceorder/api/*": ["../../packages/api/src/*"],
+      "@spaceorder/order/*": ["../../packages/order/src/*"],
+      "@spaceorder/db/*": ["../../packages/db/*"]
+    },
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+    "incremental": true,
+    "resolveJsonModule": true
   },
   "include": [
     "next-env.d.ts",
+    "next.config.mjs",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

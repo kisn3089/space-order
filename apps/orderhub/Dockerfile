@@ -31,7 +31,7 @@ ENV NODE_ENV=development
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "corepack enable pnpm && pnpm prisma:deploy && if [ \"$RUN_PRISMA_SEED\" = \"true\" ]; then pnpm prisma:seed; fi && pnpm --filter=@spaceorder/orderhub dev"]
+CMD ["sh", "-c", "corepack enable pnpm && pnpm --filter=@spaceorder/db exec prisma migrate deploy && if [ \"$RUN_PRISMA_SEED\" = \"true\" ]; then pnpm --filter=@spaceorder/db exec prisma db seed; fi && pnpm --filter=@spaceorder/orderhub dev"]
 
 
 

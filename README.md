@@ -102,18 +102,17 @@ git clone https://github.com/kisn3089/space-order
 cd space-order
 ```
 
-#### 2. Configure environment variables
-
-```bash
-cp .env.example .env
-# .env 파일을 열어 필요한 값 설정
-```
-
-#### 3. Start the services
+#### 2. Start the services
 
 ```bash
 ./scripts/start_all.sh
 ```
+
+#### 3. Test Demo Process
+
+- Open http://localhost:3001
+  - Email: owner@test.com
+  - Password: qwer1234!
 
 ### Stop the services
 

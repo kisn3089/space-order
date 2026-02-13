@@ -100,6 +100,8 @@ check_env_file() {
       replace_secrets ".env.example" ".env"
       RUN_PRISMA_SEED=true
       echo "Created .env with auto-generated secrets (prisma seed enabled for first run)"
+      echo "Installing dependencies..."
+      pnpm install
     else
       echo "Error: .env file not found. Please create one based on the project documentation."
       exit 1

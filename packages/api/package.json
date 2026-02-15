@@ -20,7 +20,7 @@
     "@spaceorder/lintconfig": "workspace:*",
     "@spaceorder/tsconfig": "workspace:*",
     "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/react": "^18",
     "typescript": "^5"
   }
 }

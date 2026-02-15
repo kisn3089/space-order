@@ -24,7 +24,9 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
     order.status === OrderStatus.COMPLETED ||
     order.status === OrderStatus.CANCELLED;
 
-  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onOrderStatusUpdate = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault();
     if (isError) setIsError(false);
 
@@ -36,7 +38,7 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
   };
 
   return (
-    <ButtonWrapper disabled={isFinishStatus} onClick={handleClick}>
+    <ButtonWrapper disabled={isFinishStatus} onClick={onOrderStatusUpdate}>
       <CardContent
         className={`rounded-lg bg-accent ${!isFinishStatus ? "hover:bg-background" : ""} border p-2 font-semibold flex flex-col justify-center`}
       >
@@ -44,7 +46,7 @@ export function TableOrderItem({ order }: TableOrderItemProps) {
           <Button
             className="w-full mb-2"
             variant={"destructive"}
-            onClick={handleClick}
+            onClick={onOrderStatusUpdate}
           >
             다시 시도
           </Button>

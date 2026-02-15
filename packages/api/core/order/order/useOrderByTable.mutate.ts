@@ -14,7 +14,7 @@ export type UpdateOrderByTable = {
   updateOrderPayload: UpdateOrderByTablePayload;
 };
 
-export default function useOrderByTable(storeId: string) {
+export default function useOrderByTable(storeId: string, tableId?: string) {
   const queryClient = useQueryClient();
 
   const createOrderByTable = useMutation({
@@ -27,7 +27,16 @@ export default function useOrderByTable(storeId: string) {
     mutationKey: ["owner", "order", "update"],
     mutationFn: ({ orderId, updateOrderPayload }: UpdateOrderByTable) =>
       httpOrder.updateOrderByTable(orderId, updateOrderPayload),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (
+        (tableId && data.status === "COMPLETED") ||
+        data.status === "CANCELLED"
+      ) {
+        queryClient.invalidateQueries({
+          queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],
+        });
+      }
+
       queryClient.invalidateQueries({
         queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
       });

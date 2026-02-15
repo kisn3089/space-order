@@ -203,6 +203,8 @@ export class SessionCoreService {
       where: { ...identifier },
     });
 
+    isActivateTableOrThrow(table.isActive);
+
     const sessionToken = generateSecureSessionToken();
     return await tx.tableSession.create({
       data: {
@@ -222,7 +224,7 @@ export class SessionCoreService {
       return null;
     }
 
-    isActivateTableOrThrow(activeSession);
+    isActivateTableOrThrow(activeSession.table.isActive);
     if (isSessionExpired(activeSession)) {
       await tx.tableSession.update(
         this.buildSetSessionDeactivate(activeSession)

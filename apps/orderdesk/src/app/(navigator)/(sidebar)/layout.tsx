@@ -4,12 +4,12 @@ import NavSidebar from "./components/NavSidebar";
 import AuthGuard from "@/providers/AuthGuard";
 import ServerPrefetch from "@/components/ServerPrefetch";
 
-export default function SidebarLayout({
+export default async function SidebarLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (

@@ -6,8 +6,8 @@ import { Skeleton } from "@spaceorder/ui/components/skeleton";
 import AwaitOrdersSummary from "./components/AwaitOrdersSummary";
 
 export const metadata: Metadata = {
-  title: "Orders",
-  description: "orders page",
+  title: "주문 관리",
+  description: "주문 목록을 확인하고 관리하세요.",
 };
 
 export default function OrdersLayout({

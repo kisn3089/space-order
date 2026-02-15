@@ -29,8 +29,8 @@ export default function useOrderByTable(storeId: string, tableId?: string) {
       httpOrder.updateOrderByTable(orderId, updateOrderPayload),
     onSuccess: (data) => {
       if (
-        (tableId && data.status === "COMPLETED") ||
-        data.status === "CANCELLED"
+        tableId &&
+        (data.status === "COMPLETED" || data.status === "CANCELLED")
       ) {
         queryClient.invalidateQueries({
           queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],

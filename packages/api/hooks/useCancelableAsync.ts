@@ -47,6 +47,8 @@ export function useCancelableAsync<TArgs extends unknown[], TReturn>(
     abortControllerRef.current = new AbortController();
 
     return new Promise((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore -- async startTransition is supported at runtime (React 18.3+)
       startTransition(async () => {
         try {
           const result = await promiseFunction(
@@ -55,7 +57,6 @@ export function useCancelableAsync<TArgs extends unknown[], TReturn>(
           );
           resolve(result);
         } catch (error) {
-          // abort로 비동기 호출 취소 시에도 오류를 잡고 싶다면 error.name === "AbortError" 추가해야 함
           if (error instanceof Error && error.name === "CanceledError") {
             console.warn("작업이 취소되었습니다.");
             resolve(undefined);

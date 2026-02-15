@@ -163,7 +163,10 @@ function TabsTrigger({
   const { activeValue, handleValueChange, registerTrigger } = useTabs();
 
   const localRef = React.useRef<HTMLButtonElement | null>(null);
-  React.useImperativeHandle(ref, () => localRef.current as HTMLButtonElement);
+  React.useImperativeHandle(
+    typeof ref === "string" ? null : ref,
+    () => localRef.current as HTMLButtonElement
+  );
 
   React.useEffect(() => {
     registerTrigger(value, localRef.current);
@@ -316,15 +319,18 @@ function TabsContent({
   value,
   style,
   asChild = false,
+  ref,
   ...props
 }: TabsContentProps) {
   const { activeValue } = useTabs();
   const isActive = activeValue === value;
 
   const Component = asChild ? Slot : motion.div;
+  const safeRef = typeof ref === "string" ? undefined : ref;
 
   return (
     <Component
+      ref={safeRef}
       role="tabpanel"
       data-slot="tabs-content"
       {...(!isActive && { inert: true })}

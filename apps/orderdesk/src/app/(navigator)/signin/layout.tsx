@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "로그인",
+  title: "로그인 - ACCEPTOR",
   description: "로그인하여 주문을 관리하세요.",
 };
 

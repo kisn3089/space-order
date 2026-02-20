@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import TableBoard from "./components/table-board/TableBoard";
 import TableBoardLayout from "./components/table-order-list/TableOrderListLayout";

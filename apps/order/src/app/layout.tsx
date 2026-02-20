@@ -27,11 +27,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const mobileView = `max-w-3xl h-dvh mx-auto`;
   return (
-    <html lang="en">
+    <html lang="ko">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased ${mobileView}`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased max-w-2xl h-dvh mx-auto`}
       >
         {children}
       </body>

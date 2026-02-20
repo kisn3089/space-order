@@ -1,12 +1,12 @@
 import { Button } from "@spaceorder/ui/components/button";
-import { CardContent } from "@spaceorder/ui/components/card";
+import { CardContent, CardDescription } from "@spaceorder/ui/components/card";
 
 export default function PostmanGuide() {
   return (
-    <>
-      <CardContent className="p-0 mt-2 whitespace-pre font-semibold text-sm">
+    <CardContent>
+      <CardDescription className="whitespace-pre font-semibold text-sm">
         {`현재는 구현 단계입니다. \nPostman으로 API를 이용해보세요!`}
-      </CardContent>
+      </CardDescription>
       <Button asChild className="w-full mt-4 h-12 font-bold">
         <a
           href="https://github.com/kisn3089/space-order/releases/tag/v1.0.0"
@@ -16,6 +16,6 @@ export default function PostmanGuide() {
           Postman Collection 다운로드
         </a>
       </Button>
-    </>
+    </CardContent>
   );
 }

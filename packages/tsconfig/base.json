@@ -14,8 +14,8 @@
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true,
-    "lib": ["es2022", "DOM", "DOM.Iterable"],
-    "target": "ES2022"
+    "lib": ["es2024", "DOM", "DOM.Iterable"],
+    "target": "ES2024"
   },
   "exclude": ["node_modules"]
 }

@@ -1,5 +1,30 @@
 import { PublicMenu } from "@spaceorder/db/types";
 
+export type MenuOptionItem = Record<
+  string,
+  {
+    options: { key: string; price: number }[];
+    defaultKey: string;
+    trigger?: null | { group: string; in: string[] }[];
+  }
+>;
+export type MenuOptionEntry = {
+  key: string;
+  value: {
+    options: {
+      key: string;
+      price: number;
+    }[];
+    defaultKey: string;
+    trigger?:
+      | null
+      | {
+          group: string;
+          in: string[];
+        }[];
+  };
+};
+
 export const MOCK_MENUS: PublicMenu[] = [
   {
     publicId: "1",
@@ -8,22 +33,64 @@ export const MOCK_MENUS: PublicMenu[] = [
     sortOrder: 1,
     isAvailable: true,
     category: "커피",
-    description:
-      "진하면서도 부드러운 시그니처 리스트레토 3샷에 폼을 살짝 낸 스팀 밀크를 더해 짙은 커피 풍미를 즐길 수 있는 코르타도입니다. 227ml(8 fl oz) 숏 사이즈로만 제공됩니다.",
+    description: "진하면서도 부드러운 시그니처 리스트레",
     imageUrl:
       "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     createdAt: new Date(),
     updatedAt: new Date(),
     deletedAt: null,
-    requiredOptions: null,
-    customOptions: null,
+    requiredOptions: {
+      종류: {
+        options: [
+          { key: "아이스", price: 0 },
+          { key: "핫", price: 0 },
+        ],
+        defaultKey: "아이스",
+      },
+      용량: {
+        options: [
+          { key: "TALL", price: 0 },
+          { key: "GRANDE", price: 500 },
+          { key: "VENTI", price: 1000 },
+        ],
+        defaultKey: "TALL",
+      },
+      원두: {
+        options: [
+          { key: "케냐", price: 0 },
+          { key: "코스타리코", price: 500 },
+          { key: "아프리카", price: 1000 },
+        ],
+        defaultKey: "케냐",
+      },
+    },
+    customOptions: {
+      카페인: {
+        options: [
+          { key: "연하게", price: 0 },
+          { key: "진하게", price: 1000 },
+        ],
+        trigger: [{ group: "원두", in: ["코스타리코", "아프리카"] }],
+        defaultKey: "연하게",
+      },
+      얼음: {
+        options: [
+          { key: "보통", price: 0 },
+          { key: "없이", price: 0 },
+          { key: "적게", price: 0 },
+          { key: "많이", price: 0 },
+        ],
+        trigger: null,
+        defaultKey: "보통",
+      },
+    },
   },
   {
     publicId: "2",
     name: "카페 라떼",
     price: 5000,
     sortOrder: 3,
-    isAvailable: true,
+    isAvailable: false,
     category: "커피",
     description:
       "진하면서도 부드러운 시그니처 리스트레토 3샷에 폼을 살짝 낸 스팀 밀크를 더해 짙은 커피 풍미를 즐길 수 있는 코르타도입니다. 227ml(8 fl oz) 숏 사이즈로만 제공됩니다.",
@@ -42,8 +109,7 @@ export const MOCK_MENUS: PublicMenu[] = [
     sortOrder: 4,
     isAvailable: true,
     category: "커피",
-    description:
-      "진하면서도 부드러운 시그니처 리스트레토 3샷에 폼을 살짝 낸 스팀 밀크와 초콜릿 시럽을 더해 짙은 커피 풍미를 즐길 수 있는 코르타도입니다. 227ml(8 fl oz) 숏 사이즈로만 제공됩니다.",
+    description: null,
     imageUrl:
       "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     createdAt: new Date(),
@@ -142,6 +208,186 @@ export const MOCK_MENUS: PublicMenu[] = [
     price: 5000,
     description:
       "진하면서도 부드러운 시그니처 리스트레토 3샷에 폼을 살짝 낸 스팀 밀크와 헤이즐넛 시럽을 더해 짙은 커피 풍미를 즐길 수 있는 코르타도입니다. 227ml(8 fl oz) 숏 사이즈로만 제공됩니다.",
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "100",
+    name: "레몬 에이드",
+    sortOrder: 2,
+    category: "음료",
+    isAvailable: true,
+    price: 5200,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "101",
+    name: "블루베리 에이드",
+    sortOrder: 1,
+    category: "음료",
+    isAvailable: true,
+    price: 5200,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "121",
+    name: "딸기 에이드",
+    sortOrder: 3,
+    category: "음료",
+    isAvailable: true,
+    price: 5200,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "122",
+    name: "청포도 에이드",
+    sortOrder: 4,
+    category: "음료",
+    isAvailable: true,
+    price: 5200,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "123",
+    name: "샤인머스켓 에이드",
+    sortOrder: 5,
+    category: "음료",
+    isAvailable: true,
+    price: 5200,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "102",
+    name: "소금빵",
+    sortOrder: 1,
+    category: "베이커리",
+    isAvailable: true,
+    price: 3600,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "103",
+    name: "앙버터",
+    sortOrder: 3,
+    category: "베이커리",
+    isAvailable: true,
+    price: 4200,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "104",
+    name: "치아바타",
+    sortOrder: 2,
+    category: "베이커리",
+    isAvailable: true,
+    price: 4700,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "105",
+    name: "딸기잼 토스트",
+    sortOrder: 3,
+    category: "베이커리",
+    isAvailable: true,
+    price: 4700,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "106",
+    name: "블루베리잼 토스트",
+    sortOrder: 4,
+    category: "베이커리",
+    isAvailable: true,
+    price: 4700,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "107",
+    name: "자바칩 토스트",
+    sortOrder: 5,
+    category: "베이커리",
+    isAvailable: true,
+    price: 4700,
+    description: null,
+    imageUrl: "/coffee_sample.jpg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    requiredOptions: null,
+    customOptions: null,
+  },
+  {
+    publicId: "108",
+    name: "머스타드 토스트",
+    sortOrder: 6,
+    category: "베이커리",
+    isAvailable: true,
+    price: 4700,
+    description: null,
     imageUrl: "/coffee_sample.jpg",
     createdAt: new Date(),
     updatedAt: new Date(),

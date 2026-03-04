@@ -2,7 +2,7 @@
 
 import { Card } from "@spaceorder/ui/components/card";
 import CartItem from "./CartItem";
-import MenuCounter from "../../menu/[menuId]/components/menu-info/MenuCounter";
+import MenuCounter from "../../../components/MenuCounter";
 import { Button } from "@spaceorder/ui/components/button";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
@@ -56,14 +56,14 @@ const MOCK_ORDER_ITEMS: CartOrderItem[] = MOCK_MENU_DATA.map((menu) => {
 
 export default function CartOrderItems() {
   const { qrCode } = useParams<{ qrCode: string }>();
-  const [quantitys, setQuantitys] = useState<Record<string, number>>(
+  const [quantities, setQuantities] = useState<Record<string, number>>(
     Object.fromEntries(
       MOCK_ORDER_ITEMS.map((item) => [item.menuPublicId, item.quantity])
     )
   );
 
   const changeQuantity = (menuPublicId: string, newQuantity: number) => {
-    setQuantitys((prev) => ({ ...prev, [menuPublicId]: newQuantity }));
+    setQuantities((prev) => ({ ...prev, [menuPublicId]: newQuantity }));
   };
 
   return (
@@ -73,7 +73,7 @@ export default function CartOrderItems() {
           <CartItem key={menu.menuPublicId} cartItem={menu}>
             <MenuCounter
               isAvailable={menu.isAvailable}
-              quantity={quantitys[menu.menuPublicId] || 1}
+              quantity={quantities[menu.menuPublicId] || 1}
               changeQuantity={(newQuantity) =>
                 changeQuantity(menu.menuPublicId, newQuantity)
               }

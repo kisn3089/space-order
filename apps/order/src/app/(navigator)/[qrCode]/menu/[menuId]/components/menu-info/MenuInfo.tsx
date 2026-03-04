@@ -1,7 +1,7 @@
 "use client";
 
 import { Item } from "@spaceorder/ui/components/item";
-import MenuImage from "./MenuImage";
+import MenuImage from "../../../../../components/MenuImage";
 import MenuContent from "./MenuContent";
 import { PublicMenu } from "@spaceorder/db/types";
 

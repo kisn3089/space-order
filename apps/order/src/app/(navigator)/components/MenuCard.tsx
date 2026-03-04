@@ -1,7 +1,6 @@
 "use client";
 
 import { PublicMenu } from "@spaceorder/db/types";
-import { Button } from "@spaceorder/ui/components/button";
 import {
   Item,
   ItemContent,
@@ -9,11 +8,11 @@ import {
   ItemFooter,
   ItemTitle,
 } from "@spaceorder/ui/components/item";
-import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import MenuImage from "../[qrCode]/menu/[menuId]/components/menu-info/MenuImage";
+import MenuImage from "./MenuImage";
 import { transCurrencyFormat } from "@spaceorder/api/utils/priceFormatter";
+import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
 
 type MenuCardProps = {
   menu: PublicMenu;
@@ -30,21 +29,14 @@ export default function MenuCard({ menu }: MenuCardProps) {
           <ItemFooter className="text-base font-semibold text-primary">
             {transCurrencyFormat(menu.price)}
           </ItemFooter>
-          <ItemDescription className="leading-4 pt-2">
-            {menu.description}
-          </ItemDescription>
+          <ActivityRender mode={menu.description ? "visible" : "hidden"}>
+            <ItemDescription className="leading-4 pt-2">
+              {menu.description}
+            </ItemDescription>
+          </ActivityRender>
         </ItemContent>
         <div className="flex items-center">
-          <MenuImage src={menu.imageUrl} alt={menu.name} size="item">
-            <Button
-              size={"sm"}
-              variant={"secondary"}
-              className="absolute bottom-1 right-1 rounded-sm"
-              aria-label={`${menu.name} 장바구니에 추가`}
-            >
-              <ShoppingCart strokeWidth={2.5} />
-            </Button>
-          </MenuImage>
+          <MenuImage src={menu.imageUrl} alt={menu.name} size="item" />
         </div>
       </Item>
     </Link>

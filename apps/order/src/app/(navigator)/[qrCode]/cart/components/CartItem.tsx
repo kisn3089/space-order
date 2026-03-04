@@ -3,7 +3,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@spaceorder/ui/components/card";
-import MenuImage from "../../menu/[menuId]/components/menu-info/MenuImage";
+import MenuImage from "../../../components/MenuImage";
 import { X } from "lucide-react";
 import { Button } from "@spaceorder/ui/components/button";
 import { transCurrencyFormat } from "@spaceorder/api/utils/priceFormatter";
@@ -44,6 +44,7 @@ export default function CartItem({ children, cartItem }: CartItemProps) {
             variant={"ghost"}
             className="py-1 px-2 size-2 h-fit hover:bg-transparent"
             onClick={() =>
+              // TODO: 카트에서 제거하는 API로 변경 필요
               console.log("해당 메뉴 카트에서 제거!: ", cartItem.menuName)
             }
           >

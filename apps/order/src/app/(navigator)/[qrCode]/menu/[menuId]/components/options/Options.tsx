@@ -1,10 +1,10 @@
 "use client";
 
 import OptionItem from "./OptionItem";
-import { EntriesdMenuOptionItem } from "@/app/(navigator)/components/MENU_DATA";
+import { MenuOptionEntry } from "@/app/(navigator)/components/MENU_DATA";
 
 type OptionsProps = {
-  options: EntriesdMenuOptionItem[];
+  options: MenuOptionEntry[];
   selectedOptions: Map<string, string>;
   setSelectedOptions: React.Dispatch<React.SetStateAction<Map<string, string>>>;
 };

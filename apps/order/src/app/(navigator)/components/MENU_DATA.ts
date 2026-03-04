@@ -8,7 +8,7 @@ export type MenuOptionItem = Record<
     trigger?: null | { group: string; in: string[] }[];
   }
 >;
-export type EntriesdMenuOptionItem = {
+export type MenuOptionEntry = {
   key: string;
   value: {
     options: {
@@ -59,6 +59,7 @@ export const MOCK_MENUS: PublicMenu[] = [
         options: [
           { key: "케냐", price: 0 },
           { key: "코스타리코", price: 500 },
+          { key: "아프리카", price: 1000 },
         ],
         defaultKey: "케냐",
       },
@@ -69,7 +70,7 @@ export const MOCK_MENUS: PublicMenu[] = [
           { key: "연하게", price: 0 },
           { key: "진하게", price: 1000 },
         ],
-        trigger: [{ group: "원두", in: ["케냐"] }],
+        trigger: [{ group: "원두", in: ["코스타리코", "아프리카"] }],
         defaultKey: "연하게",
       },
       얼음: {
@@ -108,8 +109,7 @@ export const MOCK_MENUS: PublicMenu[] = [
     sortOrder: 4,
     isAvailable: true,
     category: "커피",
-    description:
-      "진하면서도 부드러운 시그니처 리스트레토 3샷에 폼을 살짝 낸 스팀 밀크와 초콜릿 시럽을 더해 짙은 커피 풍미를 즐길 수 있는 코르타도입니다. 227ml(8 fl oz) 숏 사이즈로만 제공됩니다.",
+    description: null,
     imageUrl:
       "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     createdAt: new Date(),

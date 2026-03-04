@@ -1,11 +1,11 @@
-import { EntriesdMenuOptionItem } from "@/app/(navigator)/components/MENU_DATA";
+import { MenuOptionEntry } from "@/app/(navigator)/components/MENU_DATA";
 import { PublicMenu } from "@spaceorder/db/types";
 import { Button } from "@spaceorder/ui/components/button";
 
 type AddCartProps = {
   menu: PublicMenu;
   quantity: number;
-  options: EntriesdMenuOptionItem[];
+  options: MenuOptionEntry[];
   selectedOptions: Map<string, string>;
 };
 export default function AddCart({
@@ -34,6 +34,7 @@ export default function AddCart({
       options: Object.fromEntries(selectedOptions),
     };
 
+    // TODO: API 연동으로 변경 필요
     console.log("장바구니에 담기:", cartItem);
   };
 

@@ -5,12 +5,12 @@ import AddCart from "./components/AddCart";
 import MenuInfo from "./components/menu-info/MenuInfo";
 import Options from "./components/options/Options";
 import {
-  EntriesdMenuOptionItem,
+  MenuOptionEntry,
   MOCK_MENUS,
 } from "@/app/(navigator)/components/MENU_DATA";
 import { useParams } from "next/navigation";
-import { PublicMenu } from "@spaceorder/db/types/publicModel.type";
-import MenuCounter from "./components/menu-info/MenuCounter";
+import { PublicMenu } from "@spaceorder/db/types";
+import MenuCounter from "../../../components/MenuCounter";
 
 export default function MenuDetailPage() {
   const params = useParams<{ menuId: string }>();
@@ -27,7 +27,7 @@ export default function MenuDetailPage() {
   const options = Object.assign({}, menu.requiredOptions, menu.customOptions);
   const [selectedOptions, setSelectedOptions] = useState(
     new Map(
-      entiredOptions(options).map((option) => [
+      toOptionEntries(options).map((option) => [
         option.key,
         option.value.defaultKey,
       ])
@@ -46,22 +46,22 @@ export default function MenuDetailPage() {
       <Options
         selectedOptions={selectedOptions}
         setSelectedOptions={setSelectedOptions}
-        options={entiredOptions(options)}
+        options={toOptionEntries(options)}
       />
       <AddCart
         menu={menu}
         quantity={quantity}
-        options={entiredOptions(options)}
+        options={toOptionEntries(options)}
         selectedOptions={selectedOptions}
       />
     </div>
   );
 }
 
-function entiredOptions(
+function toOptionEntries(
   options: PublicMenu["requiredOptions"] | PublicMenu["customOptions"]
-): EntriesdMenuOptionItem[] {
-  const result: EntriesdMenuOptionItem[] = [];
+): MenuOptionEntry[] {
+  const result: MenuOptionEntry[] = [];
   if (options) {
     for (const [key, value] of Object.entries(options)) {
       result.push({ key, value });

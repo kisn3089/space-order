@@ -1,5 +1,5 @@
 import {
-  EntriesdMenuOptionItem,
+  MenuOptionEntry,
   MenuOptionItem,
 } from "@/app/(navigator)/components/MENU_DATA";
 import ActivityRender from "@spaceorder/ui/components/activity-render/ActivityRender";
@@ -7,7 +7,7 @@ import { Button } from "@spaceorder/ui/components/button";
 import { Item, ItemTitle } from "@spaceorder/ui/components/item";
 
 type OptionItemProps = {
-  option: EntriesdMenuOptionItem;
+  option: MenuOptionEntry;
   selectedOptions: Map<string, string>;
   setSelectedOptions: React.Dispatch<React.SetStateAction<Map<string, string>>>;
 };
@@ -72,7 +72,7 @@ function isTrigger(
     return true;
   }
 
-  return !value.trigger.every((trigger) => {
+  return value.trigger.some((trigger) => {
     const selectedOption = selectedOptions.get(trigger.group);
     return trigger.in.includes(selectedOption || "");
   });

@@ -11,6 +11,7 @@ export default function CartPayment() {
         </div>
         <div className="flex justify-between text-lg py-2">
           <p>총 결제 금액</p>
+          {/* TODO: API 연동된 금액으로 변경 필요 */}
           <p className="text-orange-700">12,000원</p>
         </div>
       </div>

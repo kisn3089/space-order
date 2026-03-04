@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 
+const FIXED_HEADER_HEIGHT = 100;
+
 export default function useScrollCategory({
   setCategory,
 }: {
@@ -15,7 +17,7 @@ export default function useScrollCategory({
       categoryRefs.current.forEach((element, category) => {
         const top = element.getBoundingClientRect().top;
 
-        if (top >= 0 && top < 116) {
+        if (top >= 0 && top < FIXED_HEADER_HEIGHT) {
           inRangeCategory = category;
         } else if (top < 0) {
           aboveCategory = category;

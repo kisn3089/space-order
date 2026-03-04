@@ -1,12 +1,12 @@
 "use client";
 
-import { forwardRef, Fragment, use, useEffect, useRef, useState } from "react";
+import { forwardRef, Fragment, use, useState } from "react";
 import { MOCK_MENUS } from "../components/MENU_DATA";
 import MenuCard from "../components/MenuCard";
 import MenuCategory from "../components/MenuCategory";
 import useScrollCategory from "./menu/[menuId]/hooks/useScrollCategory";
 
-const menuCategorieSet = new Set(
+const menuCategoriesSet = new Set(
   MOCK_MENUS.map((menu) => menu.category).filter(
     (category): category is string => category !== null
   )
@@ -21,12 +21,12 @@ export default function OrdersPage({
   const [touched, setTouched] = useState<string | null>(null);
 
   const [selectedCategory, setSelectedCategory] = useState(
-    menuCategorieSet.values().next().value
+    menuCategoriesSet.values().next().value
   );
 
   const categoryRefs = useScrollCategory({ setCategory: setSelectedCategory });
 
-  if (menuCategorieSet.size === 0) {
+  if (menuCategoriesSet.size === 0) {
     return <div className="text-center py-10">No menu available</div>;
   }
 
@@ -41,12 +41,12 @@ export default function OrdersPage({
   return (
     <>
       <MenuCategory
-        menuCategories={menuCategorieSet}
+        menuCategories={menuCategoriesSet}
         selectedCategory={selectedCategory}
       />
       <section>
-        {groupedCategories.map(([category, menus], i) => (
-          <Fragment key={category + i}>
+        {groupedCategories.map(([category, menus]) => (
+          <Fragment key={category}>
             <CategoryLine
               category={category}
               ref={(el) => {

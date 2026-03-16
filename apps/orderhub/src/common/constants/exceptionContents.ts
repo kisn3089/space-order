@@ -48,7 +48,7 @@ const EXCEPTION_CONTENTS = {
   },
   SESSION_EXPIRED: {
     code: "SESSION_EXPIRED",
-    message: "요청한 세션은 만료되었습니다.",
+    message: "세션이 만료되었습니다.",
   },
   INVALID_TABLE_SESSION: {
     code: "INVALID_TABLE_SESSION",
@@ -104,6 +104,10 @@ const EXCEPTION_CONTENTS = {
   CART_JSON_PARSE_ERROR: {
     code: "CART_JSON_PARSE_ERROR",
     message: "올바른 장바구니 데이터 구조가 아닙니다.",
+  },
+  CART_LOCK_FAILED: {
+    code: "CART_LOCK_FAILED",
+    message: "장바구니 잠금에 실패했습니다. 잠시 후 다시 시도해주세요.",
   },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {

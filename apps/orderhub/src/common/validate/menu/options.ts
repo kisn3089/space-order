@@ -56,11 +56,7 @@ function getValidatedMenuOptions<
   };
   payloadMenuMap.forEach((payloadValue, payloadKey) => {
     const menuOptions = menuOptionsMap.getOrThrow(payloadKey);
-    const optionArray = Array.isArray(menuOptions)
-      ? menuOptions
-      : menuOptions.options;
-
-    const findOption = optionArray.find(
+    const findOption = menuOptions.options.find(
       (option) => option.key === payloadValue
     );
 

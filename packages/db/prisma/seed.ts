@@ -131,14 +131,20 @@ async function main() {
       imageUrl:
         "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       requiredOptions: {
-        원두: [
-          { key: "케냐", price: 1000 },
-          { key: "코스타리코", price: 500 },
-        ],
-        종류: [
-          { key: "아이스", price: 0 },
-          { key: "핫", price: 0 },
-        ],
+        원두: {
+          options: [
+            { key: "케냐", price: 1000 },
+            { key: "코스타리코", price: 500 },
+          ],
+          defaultKey: "케냐",
+        },
+        종류: {
+          options: [
+            { key: "아이스", price: 0 },
+            { key: "핫", price: 0 },
+          ],
+          defaultKey: "아이스",
+        },
       },
       customOptions: {
         카페인: {
@@ -147,6 +153,7 @@ async function main() {
             { key: "연하게", price: 0 },
           ],
           trigger: [{ group: "원두", in: ["케냐", "코스타리코"] }],
+          defaultKey: "연하게",
         },
         얼음: {
           options: [
@@ -154,6 +161,7 @@ async function main() {
             { key: "적게", price: 0 },
           ],
           trigger: [{ group: "종류", in: ["아이스"] }],
+          defaultKey: "많이",
         },
       },
     },
@@ -217,6 +225,7 @@ async function main() {
             { key: "많이", price: 500 },
             { key: "적게", price: 500 },
           ],
+          defaultKey: "많이",
         },
       },
     },

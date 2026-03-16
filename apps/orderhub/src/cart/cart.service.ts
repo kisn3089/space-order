@@ -57,7 +57,7 @@ export class CartService {
       await this.redis.del(this.cartKey(sessionToken));
       throw new HttpException(
         exceptionContentsIs("CART_JSON_PARSE_ERROR"),
-        HttpStatus.NOT_FOUND
+        HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
   }
@@ -170,8 +170,27 @@ export class CartService {
     cartItemId: string,
     payload: UpdateCartItemPayloadDto
   ): Promise<CartData> {
+    const preCart = await this.readCart(session.sessionToken);
+    const preItem = preCart.items.find((i) => i.id === cartItemId);
+    if (!preItem) {
+      throw new HttpException(
+        exceptionContentsIs("CART_ITEM_NOT_FOUND"),
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    const { optionsPrice, menu } = await this.getOptionsPrice(
+      preItem.menuPublicId,
+      {
+        requiredOptions:
+          payload.requiredOptions ?? preItem.requiredOptions ?? undefined,
+        customOptions:
+          payload.customOptions ?? preItem.customOptions ?? undefined,
+      }
+    );
+
     const lock = await this.redlock
-      .acquire([this.cartLockKey(session.sessionToken)], 5000)
+      .acquire([this.cartLockKey(session.sessionToken)], 3000)
       .catch(() => {
         throw new HttpException(
           exceptionContentsIs("CART_LOCK_FAILED"),
@@ -181,7 +200,6 @@ export class CartService {
 
     try {
       const cart = await this.readCart(session.sessionToken);
-
       const itemIndex = cart.items.findIndex((i) => i.id === cartItemId);
       if (itemIndex === -1) {
         throw new HttpException(
@@ -191,26 +209,15 @@ export class CartService {
       }
 
       const item = cart.items[itemIndex];
-
-      const { optionsPrice, menu } = await this.getOptionsPrice(
-        item.menuPublicId,
-        {
-          requiredOptions:
-            payload.requiredOptions || item.requiredOptions || undefined,
-          customOptions:
-            payload.customOptions || item.customOptions || undefined,
-        }
-      );
-
       cart.items[itemIndex] = {
         ...item,
         basePrice: menu.price,
         optionsPrice,
         unitPrice: menu.price + optionsPrice,
-        quantity: payload.quantity || item.quantity,
+        quantity: payload.quantity ?? item.quantity,
         requiredOptions:
-          payload.requiredOptions || item.requiredOptions || null,
-        customOptions: payload.customOptions || item.customOptions || null,
+          payload.requiredOptions ?? item.requiredOptions ?? null,
+        customOptions: payload.customOptions ?? item.customOptions ?? null,
       };
 
       return this.writeCart(session, cart);

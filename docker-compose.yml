@@ -51,6 +51,10 @@ services:
     container_name: spaceorder-redis
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
     networks:
       - spaceorder-network
 
@@ -164,4 +168,6 @@ networks:
 
 volumes:
   mysql_dev_data:
+    driver: local
+  redis_data:
     driver: local

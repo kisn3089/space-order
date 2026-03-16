@@ -16,6 +16,25 @@ export const storeIdAndSessionTokenSchema = storeIdParamsSchema.merge(
 
 const optionItemSchema = z.record(z.string(), z.string());
 
+export const cartItemSchema = z.object({
+  id: z.string(),
+  menuPublicId: z.string(),
+  menuName: z.string(),
+  basePrice: z.number(),
+  optionsPrice: z.number(),
+  unitPrice: z.number(),
+  quantity: z.number().int().min(1),
+  requiredOptions: optionItemSchema.nullable(),
+  customOptions: optionItemSchema.nullable(),
+  addedAt: z.string(),
+});
+
+export const cartSchema = z.object({
+  sessionToken: z.string(),
+  items: z.array(cartItemSchema),
+  updatedAt: z.string(),
+});
+
 export const addCartItemPayloadSchema = z
   .object({
     menuPublicId: commonSchema.cuid2("Menu"),
@@ -27,4 +46,5 @@ export const addCartItemPayloadSchema = z
 
 export const updateCartItemPayloadSchema = addCartItemPayloadSchema
   .omit({ menuPublicId: true })
+  .partial()
   .strict();

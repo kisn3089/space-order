@@ -96,6 +96,15 @@ const EXCEPTION_CONTENTS = {
     code: "MENU_OPTIONS_SHOULD_BE_EMPTY",
     message: "해당 메뉴는 선택 옵션 값이 존재할 수 없습니다.",
   },
+  /** ---Cart--- */
+  CART_ITEM_NOT_FOUND: {
+    code: "CART_ITEM_NOT_FOUND",
+    message: "장바구니에서 해당 항목을 찾을 수 없습니다.",
+  },
+  CART_JSON_PARSE_ERROR: {
+    code: "CART_JSON_PARSE_ERROR",
+    message: "올바른 장바구니 데이터 구조가 아닙니다.",
+  },
   /** ---ZOD--- */
   ZOD_PARAMS_FAILED: {
     code: "ZOD_PARAMS_FAILED",

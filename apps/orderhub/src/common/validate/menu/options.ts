@@ -4,6 +4,7 @@ import {
   MenuCustomOptionValue,
   MenuOption,
   MenuOptionValue,
+  MenuRequiredOptionValue,
   OptionSnapshotValue,
 } from "@spaceorder/db";
 import { exceptionContentsIs } from "src/common/constants/exceptionContents";
@@ -35,7 +36,7 @@ function parseMenuOptions(menu: JsonMenuOptions): MenuOption {
 }
 
 function getValidatedMenuOptions<
-  ValidMenuOption extends MenuOptionValue[] | MenuCustomOptionValue,
+  ValidMenuOption extends MenuRequiredOptionValue | MenuCustomOptionValue,
 >(
   menuOption: Record<string, ValidMenuOption> | null,
   payloadOption: Record<string, string> = {}
@@ -126,7 +127,7 @@ export function getValidatedMenuOptionsSnapshot(
   const {
     optionsPrice: requiredOptionsPrice,
     optionsSnapshot: requiredOptionsSnapshot,
-  } = getValidatedMenuOptions<MenuOptionValue[]>(
+  } = getValidatedMenuOptions<MenuRequiredOptionValue>(
     parsedMenuOptions.requiredOptions,
     payloadRequiredOptions
   );

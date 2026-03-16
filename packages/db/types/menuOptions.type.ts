@@ -4,12 +4,18 @@ export type MenuOptionValue = {
   price: number;
 };
 
+export type MenuRequiredOptionValue = {
+  options: MenuOptionValue[];
+  defaultKey: string;
+};
+
 export type MenuCustomOptionValue = {
   options: MenuOptionValue[];
   trigger?: { group: string; in: string[] }[];
+  defaultKey: string;
 };
 
-export type MenuRequiredOption = Record<string, MenuOptionValue[]>;
+export type MenuRequiredOption = Record<string, MenuRequiredOptionValue>;
 export type MenuCustomOption = Record<string, MenuCustomOptionValue>;
 
 export type MenuOption = {

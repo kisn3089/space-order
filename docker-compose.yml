@@ -45,6 +45,19 @@ services:
     env_file:
       - .env
 
+  # Redis Cache
+  redis:
+    image: redis:7.0-alpine
+    container_name: spaceorder-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - spaceorder-network
+
   # NestJS Backend (orderhub app) - Development
   orderhub:
     image: orderhub-order-backend
@@ -59,11 +72,14 @@ services:
       PORT: 8080
       DATABASE_URL: mysql://${DB_USER}:${DB_PASSWORD}@mysql:3306/${DB_NAME}
       RUN_PRISMA_SEED: ${RUN_PRISMA_SEED}
+      REDIS_HOST: redis
     ports:
       - "${SERVER_PORT}:8080"
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - spaceorder-network
     volumes:
@@ -153,4 +169,6 @@ networks:
 
 volumes:
   mysql_dev_data:
+    driver: local
+  redis_data:
     driver: local

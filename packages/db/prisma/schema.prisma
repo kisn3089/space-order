@@ -136,7 +136,7 @@ model Menu {
    * 메뉴 카테고리 (예: 음료, 디저트, 식사 등)
    * orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }]
    */
-  category        String?
+  category        String
   /**
    * 메뉴 순서 정렬을 위한 필드
    * data: { sortOrder: 0 } 최상단 배치
@@ -320,3 +320,4 @@ model TableSession {
   @@index([sessionToken])
   @@map("table_session")
 }
+

@@ -285,6 +285,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       Store: "매장",
       Table: "테이블",
       QRCode: "QR 코드",
+      CartItem: "장바구니 항목",
       Menu: "메뉴",
       Order: "주문",
       OrderItem: "주문 항목",

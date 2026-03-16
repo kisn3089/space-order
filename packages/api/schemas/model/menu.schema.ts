@@ -5,8 +5,9 @@ import {
   MenuCustomOptionValue,
   MenuCustomOption,
   MenuOption,
-  MenuRequiredOption,
   MenuOptionValue,
+  MenuRequiredOptionValue,
+  MenuRequiredOption,
 } from "@spaceorder/db";
 
 const menuIdParamsSchema = z
@@ -21,24 +22,27 @@ const optionSchema = z
   })
   .strict() satisfies z.ZodType<MenuOptionValue>;
 
-const requiredOptionsSchema = z.record(
-  z.string(),
-  z.array(optionSchema)
-) satisfies z.ZodType<MenuRequiredOption>;
+const requiredOptionValuesSchema = z.object({
+  options: z.array(optionSchema),
+  defaultKey: z.string(),
+}) satisfies z.ZodType<MenuRequiredOptionValue>;
 
 const triggerSchema = z
-  .object({
-    group: z.string(),
-    in: z.array(z.string()),
-  })
+  .object({ group: z.string(), in: z.array(z.string()) })
   .strict();
 
 const customOptionValueSchema = z
   .object({
     options: z.array(optionSchema),
     trigger: z.array(triggerSchema).optional(),
+    defaultKey: z.string(),
   })
   .strict() satisfies z.ZodType<MenuCustomOptionValue>;
+
+const requiredOptionsSchema = z.record(
+  z.string(),
+  requiredOptionValuesSchema
+) satisfies z.ZodType<MenuRequiredOption>;
 
 const customOptionsSchema = z.record(
   z.string(),
@@ -65,10 +69,7 @@ export const createMenuPayloadSchema = z
       .max(100, "메뉴 설명은 최대 100자까지 가능합니다.")
       .optional(),
     imageUrl: z.string().url("유효한 이미지 URL이어야 합니다.").optional(),
-    category: z
-      .string()
-      .max(20, "카테고리 이름은 최대 20자까지 가능합니다.")
-      .optional(),
+    category: z.string().max(20, "카테고리 이름은 최대 20자까지 가능합니다."),
     sortOrder: z.number().min(0, "정렬 순서는 0 이상이어야 합니다.").optional(),
     requiredOptions: requiredOptionsSchema.optional(),
     customOptions: customOptionsSchema.optional(),

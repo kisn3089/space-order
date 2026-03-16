@@ -4,6 +4,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { StoreModule } from "../store/store.module";
 import { OrderModule } from "../order/order.module";
+import { CartModule } from "../cart/cart.module";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { APP_FILTER, RouterModule } from "@nestjs/core";
 import { GlobalExceptionFilter } from "src/common/filters/exception.filter";
@@ -23,12 +24,14 @@ import { InternalModule } from "src/internal/internal.module";
     IdentityModule,
     StoreModule,
     OrderModule,
+    CartModule,
 
     RouterModule.register([
       { path: "auth/v1", module: AuthModule },
       { path: "identity/v1", module: IdentityModule },
       { path: "stores/v1", module: StoreModule },
       { path: "orders/v1", module: OrderModule },
+      { path: "cart/v1", module: CartModule },
     ]),
   ],
   controllers: [AppController],

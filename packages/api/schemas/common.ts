@@ -1,7 +1,7 @@
 import z from "zod";
 import { Prisma } from "../../db";
 
-const cuid2 = (modelName: Prisma.ModelName | "QRCode") => {
+const cuid2 = (modelName: Prisma.ModelName | "QRCode" | "CartItem") => {
   return z
     .string()
     .min(24, `${modelName}Id 길이가 올바르지 않습니다.`)

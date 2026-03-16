@@ -4,12 +4,12 @@ import { JwtModule } from "@nestjs/jwt";
 import { CartController } from "./cart.controller";
 import { CartOwnerController } from "./cart-owner.controller";
 import { CartService } from "./cart.service";
-import { redisProvider } from "../redis/redis.provider";
+import { redisProvider, redlockProvider } from "../redis/redis.provider";
 
 @Module({
   imports: [PassportModule, JwtModule],
   controllers: [CartController, CartOwnerController],
-  providers: [CartService, redisProvider],
+  providers: [CartService, redisProvider, redlockProvider],
   exports: [CartService],
 })
 export class CartModule {}

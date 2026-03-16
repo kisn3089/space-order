@@ -7,6 +7,7 @@ import { StoreAccessGuard } from "src/utils/guards/store-access.guard";
 import type { CartData } from "./cart.service";
 import { CartService } from "./cart.service";
 import { SessionAuth } from "src/utils/guards/table-session-auth.guard";
+import { DocsOwnerCartGet } from "src/docs/cart.docs";
 
 @ApiTags("Owner Cart")
 @Controller(":storeId/sessions/:sessionToken/carts")
@@ -16,6 +17,7 @@ export class CartOwnerController {
 
   @Get()
   @UseGuards(ZodValidation({ params: storeIdAndSessionTokenSchema }))
+  @DocsOwnerCartGet()
   async getCart(
     @Param("storeId") storeId: string,
     @Param("sessionToken") sessionToken: string

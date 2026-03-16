@@ -25,6 +25,13 @@ import {
   CreateCartItemPayloadDto,
   UpdateCartItemPayloadDto,
 } from "src/dto/cart.dto";
+import {
+  DocsCustomerCartGet,
+  DocsCustomerCartAddItem,
+  DocsCustomerCartUpdateItem,
+  DocsCustomerCartRemoveItem,
+  DocsCustomerCartClear,
+} from "src/docs/cart.docs";
 
 @ApiTags("Customer Cart")
 @Controller("sessions/:sessionToken/carts")
@@ -34,6 +41,7 @@ export class CartController {
 
   @Get()
   @UseGuards(ZodValidation({ params: sessionTokenParamsSchema }))
+  @DocsCustomerCartGet()
   async getCart(@Session() session: TableSession): Promise<CartData> {
     return this.cartService.getCart(session.sessionToken);
   }
@@ -45,6 +53,7 @@ export class CartController {
       body: addCartItemPayloadSchema,
     })
   )
+  @DocsCustomerCartAddItem()
   async addItem(
     @Session() session: TableSession,
     @Body() addCartItemPayload: CreateCartItemPayloadDto
@@ -59,6 +68,7 @@ export class CartController {
       body: updateCartItemPayloadSchema,
     })
   )
+  @DocsCustomerCartUpdateItem()
   async updateItem(
     @Session() session: TableSession,
     @Param("cartItemId") cartItemId: string,
@@ -73,6 +83,7 @@ export class CartController {
 
   @Delete(":cartItemId")
   @UseGuards(ZodValidation({ params: sessionAndCartItemIdParamsSchema }))
+  @DocsCustomerCartRemoveItem()
   async removeItem(
     @Session() session: TableSession,
     @Param("cartItemId") cartItemId: string
@@ -82,6 +93,7 @@ export class CartController {
 
   @Delete()
   @UseGuards(ZodValidation({ params: sessionTokenParamsSchema }))
+  @DocsCustomerCartClear()
   async clearCart(@Session() session: TableSession): Promise<void> {
     return this.cartService.clearCart(session);
   }

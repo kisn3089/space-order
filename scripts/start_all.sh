@@ -186,7 +186,7 @@ main() {
   echo "  order (Customer):  http://localhost:3000"
   echo "  orderdesk (Admin): http://localhost:3001"
   echo "  orderhub (API):    http://localhost:8080"
-  echo "  redis (Cache):     http://localhost:6379"
+  echo "  redis (Cache):     redis://localhost:6379"
   echo "  Prisma Studio:     http://localhost:5555"
   echo "  API Docs:          http://localhost:8080/docs"
   echo ""

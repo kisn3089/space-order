@@ -45,6 +45,15 @@ services:
     env_file:
       - .env
 
+  # Redis Cache
+  redis:
+    image: redis:7.0-alpine
+    container_name: spaceorder-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - spaceorder-network
+
   # NestJS Backend (orderhub app) - Development
   orderhub:
     image: orderhub-order-backend
@@ -64,6 +73,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - spaceorder-network
     volumes:

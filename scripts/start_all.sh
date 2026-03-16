@@ -76,6 +76,7 @@ generate_secrets() {
   GEN_DB_PW=$(openssl rand -hex 16)
   GEN_JWT_ACCESS=$(openssl rand -hex 24)
   GEN_JWT_REFRESH=$(openssl rand -hex 24)
+  GEN_REDIS_PW=$(openssl rand -hex 24)
 }
 
 replace_secrets() {
@@ -88,6 +89,7 @@ replace_secrets() {
     -e "s|^DATABASE_URL=.*|DATABASE_URL=mysql://spaceorder:${GEN_DB_PW}@localhost:3306/spaceorder?connection_limit=10\&pool_timeout=10|" \
     -e "s|^JWT_ACCESS_TOKEN_SECRET=.*|JWT_ACCESS_TOKEN_SECRET=$GEN_JWT_ACCESS|" \
     -e "s|^JWT_REFRESH_TOKEN_SECRET=.*|JWT_REFRESH_TOKEN_SECRET=$GEN_JWT_REFRESH|" \
+    -e "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$GEN_REDIS_PW|" \
     "$src" > "$dest"
 }
 
@@ -184,6 +186,7 @@ main() {
   echo "  order (Customer):  http://localhost:3000"
   echo "  orderdesk (Admin): http://localhost:3001"
   echo "  orderhub (API):    http://localhost:8080"
+  echo "  redis (Cache):     http://localhost:6379"
   echo "  Prisma Studio:     http://localhost:5555"
   echo "  API Docs:          http://localhost:8080/docs"
   echo ""

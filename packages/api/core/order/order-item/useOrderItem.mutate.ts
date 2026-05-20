@@ -36,9 +36,7 @@ export default function useOrderItem({
     }) => httpOrderItems.updateOrderItem(orderItemId, updateOrderItemPayload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(
-          `/orders/v1/stores/${storeId}/orders/summary`
-        ),
+        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
       });
 
       queryClient.invalidateQueries({
@@ -55,9 +53,7 @@ export default function useOrderItem({
       httpOrderItems.removeOrderItem(orderItemId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(
-          `/orders/v1/stores/${storeId}/orders/summary`
-        ),
+        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
       });
       queryClient.invalidateQueries({
         queryKey: pathToQueryKey(

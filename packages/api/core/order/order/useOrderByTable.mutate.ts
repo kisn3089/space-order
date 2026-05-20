@@ -41,9 +41,7 @@ export default function useOrderByTable(storeId: string, tableId?: string) {
       }
 
       queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(
-          `/orders/v1/stores/${storeId}/orders/summary`
-        ),
+        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
       });
     },
   });

@@ -7,9 +7,6 @@ export const cartItemIdSchema = z
   .object({ cartItemId: commonSchema.cuid2("CartItem") })
   .strict();
 
-export const sessionAndCartItemIdParamsSchema =
-  sessionTokenParamsSchema.merge(cartItemIdSchema);
-
 export const storeIdAndSessionTokenSchema = storeIdParamsSchema.merge(
   sessionTokenParamsSchema
 );
@@ -23,6 +20,7 @@ export const cartItemSchema = z.object({
   basePrice: z.number(),
   optionsPrice: z.number(),
   unitPrice: z.number(),
+  image: z.string().nullable(),
   quantity: z.number().int().min(1),
   requiredOptions: optionItemSchema.nullable(),
   customOptions: optionItemSchema.nullable(),
@@ -31,7 +29,7 @@ export const cartItemSchema = z.object({
 
 export const cartSchema = z.object({
   sessionToken: z.string(),
-  items: z.array(cartItemSchema),
+  menus: z.array(cartItemSchema),
   updatedAt: z.string(),
 });
 

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { httpTables, UpdateTableParams } from "./httpTable";
+import { pathToQueryKey } from "../../../utils/pathToQueryKey";
 
 export default function useTableMutation(storeId: string) {
   const queryClient = useQueryClient();
@@ -9,10 +10,10 @@ export default function useTableMutation(storeId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/stores/v1/${storeId}/tables`],
+        queryKey: pathToQueryKey(`/stores/v1/${storeId}/tables`),
       });
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
+        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
       });
     },
   });

@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { httpOrderItems, UpdateOrderItemPayload } from "./httpOrderItem";
 import { PublicOrderItem } from "@spaceorder/db/types/publicModel.type";
+import { pathToQueryKey } from "../../../utils/pathToQueryKey";
 
 type UseOrderItemParams = { storeId: string; tableId: string };
 type UseOrderItemReturn = {
@@ -35,11 +36,15 @@ export default function useOrderItem({
     }) => httpOrderItems.updateOrderItem(orderItemId, updateOrderItemPayload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
+        queryKey: pathToQueryKey(
+          `/orders/v1/stores/${storeId}/orders/summary`
+        ),
       });
 
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],
+        queryKey: pathToQueryKey(
+          `/orders/v1/tables/${tableId}/active-session/orders`
+        ),
       });
     },
   });
@@ -50,10 +55,14 @@ export default function useOrderItem({
       httpOrderItems.removeOrderItem(orderItemId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
+        queryKey: pathToQueryKey(
+          `/orders/v1/stores/${storeId}/orders/summary`
+        ),
       });
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],
+        queryKey: pathToQueryKey(
+          `/orders/v1/tables/${tableId}/active-session/orders`
+        ),
       });
     },
   });

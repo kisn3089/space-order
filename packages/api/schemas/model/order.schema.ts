@@ -2,16 +2,12 @@ import z from "zod";
 import { commonSchema } from "../common";
 import { OrderStatus } from "../../../db";
 import { createOrderItemPayloadSchema } from "./orderItem.schema";
-import { sessionTokenParamsSchema } from "./tableSession.schema";
 
 export const orderIdParamsSchema = z
   .object({
     orderId: commonSchema.cuid2("Order"),
   })
   .strict();
-
-export const sessionAndOrderIdParamsSchema =
-  sessionTokenParamsSchema.merge(orderIdParamsSchema);
 
 export const orderItemIdParamsSchema = z
   .object({

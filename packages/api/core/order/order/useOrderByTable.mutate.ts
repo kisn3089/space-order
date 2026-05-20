@@ -4,6 +4,7 @@ import {
   httpOrder,
   UpdateOrderByTablePayload,
 } from "./httpOrder";
+import { pathToQueryKey } from "../../../utils/pathToQueryKey";
 
 type CreateOrderByTable = {
   tableId: string;
@@ -33,12 +34,16 @@ export default function useOrderByTable(storeId: string, tableId?: string) {
         (data.status === "COMPLETED" || data.status === "CANCELLED")
       ) {
         queryClient.invalidateQueries({
-          queryKey: [`/orders/v1/tables/${tableId}/active-session/orders`],
+          queryKey: pathToQueryKey(
+            `/orders/v1/tables/${tableId}/active-session/orders`
+          ),
         });
       }
 
       queryClient.invalidateQueries({
-        queryKey: [`/orders/v1/stores/${storeId}/orders/summary`],
+        queryKey: pathToQueryKey(
+          `/orders/v1/stores/${storeId}/orders/summary`
+        ),
       });
     },
   });

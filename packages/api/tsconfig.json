@@ -1,7 +1,7 @@
 {
   "extends": "@spaceorder/tsconfig/react-library.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "noEmit": true
   },
   "include": ["."],
   "exclude": ["node_modules", "dist"]

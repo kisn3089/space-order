@@ -1,4 +1,3 @@
-import { useAuthInfo } from "@spaceorder/auth";
 import {
   useSuspenseQuery,
   UseSuspenseQueryOptions,
@@ -13,24 +12,18 @@ type QueryParams<Data, Error, SelectedData> = {
   >;
   onSuccess?: (data: Data) => void;
 };
-export default function useSuspenseWithAuth<
+
+export default function useSuspenseWithSession<
   Data,
   SelectedData = Data,
   Error = unknown,
 >(url: string, queryParams?: QueryParams<Data, Error, SelectedData>) {
-  const { authInfo } = useAuthInfo();
-
   const { queryOptions, onSuccess } = queryParams ?? {};
+
   return useSuspenseQuery<Data, Error, SelectedData>({
     queryKey: pathToQueryKey(url),
     queryFn: async () => {
-      const result = await http
-        .get(url, {
-          headers: {
-            Authorization: `Bearer ${authInfo.accessToken}`,
-          },
-        })
-        .then((res) => res.data);
+      const result = await http.get(url).then((res) => res.data);
       if (onSuccess) {
         onSuccess(result);
       }

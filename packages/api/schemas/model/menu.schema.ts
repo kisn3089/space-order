@@ -69,7 +69,7 @@ export const createMenuPayloadSchema = z
       .max(100, "메뉴 설명은 최대 100자까지 가능합니다.")
       .optional(),
     imageUrl: z.string().url("유효한 이미지 URL이어야 합니다.").optional(),
-    category: z.string().max(20, "카테고리 이름은 최대 20자까지 가능합니다."),
+    categoryId: commonSchema.cuid2("Category"),
     sortOrder: z.number().min(0, "정렬 순서는 0 이상이어야 합니다.").optional(),
     requiredOptions: requiredOptionsSchema.optional(),
     customOptions: customOptionsSchema.optional(),

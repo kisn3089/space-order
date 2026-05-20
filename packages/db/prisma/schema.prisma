@@ -76,12 +76,38 @@ model Store {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  owner  Owner   @relation(fields: [ownerId], references: [id])
-  tables Table[]
-  menus  Menu[]
-  orders Order[]
+  owner      Owner      @relation(fields: [ownerId], references: [id])
+  tables     Table[]
+  orders     Order[]
+  categories Category[]
 
   @@map("store")
+}
+
+/**
+ * 매장 메뉴의 분류
+ * 매장 → 카테고리 → 메뉴 계층 구조
+ */
+model Category {
+  id       BigInt @id @default(autoincrement())
+  publicId String @unique @default(cuid(2)) @map("public_id")
+  storeId  BigInt @map("store_id")
+  name     String
+  /**
+   * 카테고리 표시 순서 (Sparse 패턴)
+   * 10, 20, 30... 으로 부여하여 사이 삽입 시 15만 넣으면 됨.
+   * 가득 차면 재정규화(10, 20, 30... 재할당) 필요.
+   * orderBy: { sortOrder: 'asc' }
+   */
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  store Store  @relation(fields: [storeId], references: [id])
+  menus Menu[]
+
+  @@unique([storeId, name])
+  @@map("category")
 }
 
 /**
@@ -126,20 +152,15 @@ model Table {
 model Menu {
   id              BigInt    @id @default(autoincrement())
   publicId        String    @unique @default(cuid(2)) @map("public_id")
-  storeId         BigInt    @map("store_id")
+  categoryId      BigInt    @map("category_id")
   name            String
   price           Int
   description     String?   @db.VarChar(500)
   imageUrl        String?   @map("image_url") @db.VarChar(500)
   isAvailable     Boolean   @default(true) @map("is_available")
   /**
-   * 메뉴 카테고리 (예: 음료, 디저트, 식사 등)
-   * orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }]
-   */
-  category        String
-  /**
-   * 메뉴 순서 정렬을 위한 필드
-   * data: { sortOrder: 0 } 최상단 배치
+   * 카테고리 내 메뉴 표시 순서 (Sparse 패턴: 10, 20, 30...)
+   * orderBy: [{ category: { sortOrder: 'asc' } }, { sortOrder: 'asc' }]
    */
   sortOrder       Int       @default(0) @map("sort_order")
   createdAt       DateTime  @default(now()) @map("created_at")
@@ -173,9 +194,10 @@ model Menu {
   // MVP 기능은 아니기 때문에 일단 보류
   // switchMenu ice_americano 선택 시 상세 페이지에서 변경 가능한 메뉴(예시: 스타벅스) hot_americano 등으로 변경할 수 있도록 menu 선택지 제공
 
-  store      Store       @relation(fields: [storeId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
   orderItems OrderItem[]
 
+  @@index([categoryId, sortOrder])
   @@map("menu")
 }
 

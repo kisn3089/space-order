@@ -116,6 +116,28 @@ async function main() {
     store1: store1.name,
     store2: store2.name,
   });
+  // ==================== Category 데이터 ====================
+  console.log("📝 Creating categories...");
+  const CATEGORY_DEFS = [
+    { key: "커피", sortOrder: 10 },
+    { key: "디저트", sortOrder: 20 },
+  ] as const;
+
+  for (const store of [store1, store2]) {
+    for (const def of CATEGORY_DEFS) {
+      await prisma.category.upsert({
+        where: { storeId_name: { storeId: store.id, name: def.key } },
+        update: { sortOrder: def.sortOrder },
+        create: {
+          storeId: store.id,
+          name: def.key,
+          sortOrder: def.sortOrder,
+        },
+      });
+    }
+  }
+  console.log("✅ Categories created");
+
   // ==================== Menu 데이터 ====================
   console.log("📝 Creating menus...");
   // Store1 메뉴 (카페)
@@ -127,7 +149,7 @@ async function main() {
       description: "신선한 원두로 내린 아메리카노",
       category: "커피",
       isAvailable: true,
-      sortOrder: 1,
+      sortOrder: 10,
       imageUrl:
         "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       requiredOptions: {
@@ -172,7 +194,7 @@ async function main() {
       description: "부드러운 우유와 에스프레소의 조화",
       category: "커피",
       isAvailable: true,
-      sortOrder: 3,
+      sortOrder: 30,
       imageUrl:
         "https://images.unsplash.com/photo-1729364983489-d4d569978fd7?q=80&w=1296&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
@@ -183,9 +205,20 @@ async function main() {
       description: "풍부한 거품의 카푸치노",
       category: "커피",
       isAvailable: true,
-      sortOrder: 4,
+      sortOrder: 40,
       imageUrl:
         "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "clspywcpjuanpifv64l8qfgq",
+      name: "피넛 라떼",
+      price: 5500,
+      description: "풍부한 거품의 피넛 라뗴",
+      category: "커피",
+      isAvailable: true,
+      sortOrder: 50,
+      imageUrl:
+        "https://images.unsplash.com/photo-1674038135897-3c22cc49a15e?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       publicId: "lwhdq1qwcmckm3k4nni89b1",
@@ -194,7 +227,7 @@ async function main() {
       description: "버터 풍미 가득한 크로와상",
       category: "디저트",
       isAvailable: true,
-      sortOrder: 1,
+      sortOrder: 10,
       imageUrl:
         "https://images.unsplash.com/photo-1681218079567-35aef7c8e7e4?q=80&w=2148&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
@@ -205,9 +238,97 @@ async function main() {
       description: "부드러운 뉴욕 스타일 치즈케이크",
       category: "디저트",
       isAvailable: true,
-      sortOrder: 2,
+      sortOrder: 20,
       imageUrl:
         "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "gyi72p9yncptb62pb2pcc34g",
+      name: "초코 크로플",
+      price: 4000,
+      description: "부드러운 초콜릿이 듬뿍 들어간 크로플",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 30,
+      imageUrl:
+        "https://images.unsplash.com/photo-1737700087938-ebdf93f15b50?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "bun98dtbprj7lyessgn1i8f5",
+      name: "플레인 크로플",
+      price: 3500,
+      description: "부드러운 크로플",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 30,
+      imageUrl:
+        "https://images.unsplash.com/photo-1558584724-0e4d32ca55a4?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "gyi72p9yncptb62pb2pcc34g",
+      name: "초코 크로플",
+      price: 4000,
+      description: "부드러운 초콜릿이 듬뿍 들어간 크로플",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 40,
+      imageUrl:
+        "https://images.unsplash.com/photo-1737700087938-ebdf93f15b50?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "b10c9h3cg23ghiio7njqolxs",
+      name: "카라멜 크로플",
+      price: 4000,
+      description: "부드러운 초콜릿이 듬뿍 들어간 크로플",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 50,
+      imageUrl:
+        "https://images.unsplash.com/photo-1627435605887-326ef07f81f2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "fgigzvvca0l01qkbqklo01jd",
+      name: "소금빵",
+      price: 4000,
+      description: "부드러운 소금빵",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 60,
+      imageUrl:
+        "https://images.unsplash.com/photo-1733210437318-b76aca1f18ba?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "lxuurz3i3pficmjadk3vifhx",
+      name: "초코 소금빵",
+      price: 4500,
+      description: "부드러운 초코 소금빵",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 70,
+      imageUrl:
+        "https://images.unsplash.com/photo-1686172368295-6d72432ca765?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "n9553xbiawzgrd86xrkq2gvc",
+      name: "치아바타",
+      price: 5500,
+      description: "부드러운 치아바타",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 80,
+      imageUrl:
+        "https://images.unsplash.com/photo-1586657395688-476c3f92b5f6?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      publicId: "my3yamq9rk252r3g0rj48a6g",
+      name: "티라미수",
+      price: 5000,
+      description: "부드러운 티라미수",
+      category: "디저트",
+      isAvailable: true,
+      sortOrder: 90,
+      imageUrl:
+        "https://images.unsplash.com/photo-1639744211487-b27e3551b07c?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       publicId: "tq2qu2n7aayzxzf837cto4a",
@@ -216,9 +337,9 @@ async function main() {
       description: "최고급 원두로 내린 드립 커피",
       category: "커피",
       isAvailable: true,
-      sortOrder: 2,
+      sortOrder: 20,
       imageUrl:
-        "https://images.unsplash.com/photo-1531835207745-506a1bc035d8?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1587955245893-389f2215c6eb?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       customOptions: {
         얼음: {
           options: [
@@ -231,11 +352,20 @@ async function main() {
     },
   ];
 
+  // 카테고리를 매장별로 조회해 이름→id 맵 구성
+  const categoryMapByStore = new Map<bigint, Map<string, bigint>>();
+  for (const store of [store1, store2]) {
+    const cats = await prisma.category.findMany({
+      where: { storeId: store.id },
+    });
+    categoryMapByStore.set(store.id, new Map(cats.map((c) => [c.name, c.id])));
+  }
+
   const [menu1, menu2] = [store1, store2].map((store, index) =>
-    createMenus.map((menu) => ({
-      ...menu,
-      publicId: `${menu.publicId}${index}`,
-      storeId: store.id,
+    createMenus.map(({ category, ...rest }) => ({
+      ...rest,
+      publicId: `${rest.publicId}${index}`,
+      categoryId: categoryMapByStore.get(store.id)!.get(category)!,
     }))
   );
   await prisma.menu.createMany({
@@ -325,7 +455,7 @@ async function main() {
 
   // 생성된 메뉴 조회
   const createdMenus = await prisma.menu.findMany({
-    where: { storeId: store1.id },
+    where: { category: { storeId: store1.id } },
   });
 
   const findMenu = (name: string) => createdMenus.find((m) => m.name === name)!;

@@ -18,6 +18,15 @@ export type MenuCustomOptionValue = {
 export type MenuRequiredOption = Record<string, MenuRequiredOptionValue>;
 export type MenuCustomOption = Record<string, MenuCustomOptionValue>;
 
+export type MenuOptionEntry<
+  OptionType extends "required" | "custom" = "required",
+> = {
+  key: string;
+  optionInfo: OptionType extends "required"
+    ? MenuRequiredOptionValue
+    : MenuCustomOptionValue;
+};
+
 export type MenuOption = {
   requiredOptions: MenuRequiredOption | null;
   customOptions: MenuCustomOption | null;

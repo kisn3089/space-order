@@ -1,5 +1,18 @@
-import type { Menu, Store, Table } from "@prisma/client";
+import type { Category, Menu, Store, Table } from "@prisma/client";
+import { PublicMenu, PublicStore, PublicTable } from "./publicModel.type";
+
+export type CategoryWithMenus = Category & { menus: Menu[] };
 
 export type TableWithStoreContext = Table & {
-  store: Store & { menus: Menu[] };
+  store: Store & { categories: CategoryWithMenus[] };
+};
+
+export type PublicCategoryWithMenus = Omit<Category, "id" | "storeId"> & {
+  menus: PublicMenu[];
+};
+
+export type StoreContext = {
+  table: PublicTable & {
+    store: PublicStore & { categories: PublicCategoryWithMenus[] };
+  };
 };

@@ -7,7 +7,7 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { sessionTokenSchema } from "@spaceorder/api/schemas";
-import { TableSession } from "@spaceorder/db";
+import { COOKIE_TABLE, TableSession } from "@spaceorder/db";
 import { exceptionContentsIs } from "src/common/constants/exceptionContents";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ALIVE_SESSION_STATUSES } from "src/common/query/session-query.const";
@@ -26,7 +26,7 @@ export class SessionAuth implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithClient>();
-    const { sessionToken } = request.params;
+    const sessionToken = request.cookies?.[COOKIE_TABLE.SESSION_TOKEN];
 
     const tokenValidation = sessionTokenSchema.safeParse(sessionToken);
 

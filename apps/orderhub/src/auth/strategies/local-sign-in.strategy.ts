@@ -5,6 +5,8 @@ import { Strategy } from "passport-local";
 import { User } from "@spaceorder/db";
 import { AuthService } from "../services/auth.service";
 
+type UserType = "owner" | "admin";
+
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   /**
@@ -24,25 +26,30 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     password: string
   ): Promise<{ info: User | undefined }> {
     const path = req.path;
+    const userType = this.extractUserTypeByUrl(path);
 
-    if (path.includes("/owner/")) {
-      const user = await this.authService.validateSignInPayload(
-        { email, password },
-        "owner"
-      );
-      if (user) {
-        return { info: user };
-      }
+    if (!userType) {
+      throw new UnauthorizedException("유효하지 않은 로그인 경로입니다.");
     }
-    if (path.includes("/admin/")) {
-      const user = await this.authService.validateSignInPayload(
-        { email, password },
-        "admin"
-      );
-      if (user) {
-        return { info: user };
-      }
+
+    const user = await this.authService.validateSignInPayload(
+      { email, password },
+      userType
+    );
+    if (user) {
+      return { info: user };
     }
+
     throw new UnauthorizedException();
+  }
+
+  extractUserTypeByUrl(url: string): UserType | null {
+    if (url.includes("/owner/")) {
+      return "owner";
+    }
+    if (url.includes("/admin/")) {
+      return "admin";
+    }
+    return null;
   }
 }

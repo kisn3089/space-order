@@ -106,10 +106,41 @@ export class PublicTableDto extends TableDto {
   }
 }
 
-class StoreWithMenusDto extends PublicStoreDto {
+class CategoryWithMenusDto {
+  @ApiProperty({ description: "카테고리 고유 ID" })
+  @Expose()
+  publicId: string;
+
+  @ApiProperty({ description: "카테고리 이름" })
+  @Expose()
+  name: string;
+
+  @ApiProperty({ description: "카테고리 표시 순서" })
+  @Expose()
+  sortOrder: number;
+
+  @ApiProperty({ description: "메뉴 목록", type: [PublicMenuDto] })
   @Expose()
   @Type(() => PublicMenuDto)
   menus: PublicMenuDto[];
+
+  @Exclude()
+  id: bigint;
+
+  @Exclude()
+  storeId: bigint;
+
+  @Exclude()
+  createdAt: Date;
+
+  @Exclude()
+  updatedAt: Date;
+}
+
+class StoreWithCategoriesDto extends PublicStoreDto {
+  @Expose()
+  @Type(() => CategoryWithMenusDto)
+  categories: CategoryWithMenusDto[];
 
   constructor(partial: Partial<PublicStoreDto>) {
     super(partial);
@@ -119,8 +150,8 @@ class StoreWithMenusDto extends PublicStoreDto {
 
 class TableWithStoreMenusDto extends TableDto {
   @Expose()
-  @Type(() => StoreWithMenusDto)
-  declare store: StoreWithMenusDto;
+  @Type(() => StoreWithCategoriesDto)
+  declare store: StoreWithCategoriesDto;
 
   constructor(partial: Partial<PublicTableDto>) {
     super(partial);

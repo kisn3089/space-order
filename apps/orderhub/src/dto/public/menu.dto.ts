@@ -1,4 +1,4 @@
-import type { Menu, OrderItem, Store } from "@spaceorder/db";
+import type { Category, Menu, OrderItem } from "@spaceorder/db";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
 
@@ -27,11 +27,7 @@ export class PublicMenuDto {
   @Expose()
   isAvailable: boolean;
 
-  @ApiProperty({ description: "카테고리" })
-  @Expose()
-  category: string;
-
-  @ApiProperty({ description: "정렬 순서" })
+  @ApiProperty({ description: "카테고리 내 정렬 순서" })
   @Expose()
   sortOrder: number;
 
@@ -55,10 +51,10 @@ export class PublicMenuDto {
   id: bigint;
 
   @Exclude()
-  storeId: bigint;
+  categoryId: bigint;
 
   @Exclude()
-  store: Store;
+  category: Category;
 
   @Exclude()
   orderItems: OrderItem[];

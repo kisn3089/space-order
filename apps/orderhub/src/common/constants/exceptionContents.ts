@@ -52,7 +52,7 @@ const EXCEPTION_CONTENTS = {
   },
   INVALID_TABLE_SESSION: {
     code: "INVALID_TABLE_SESSION",
-    message: "테이블 세션 값이 비어있거나 검증되지 않았습니다.",
+    message: "테이블 세션이 만료되었거나, 검증되지 않았습니다.",
   },
   INVALID_PAYLOAD_TABLE_SESSION: {
     code: "INVALID_PAYLOAD_TABLE_SESSION",

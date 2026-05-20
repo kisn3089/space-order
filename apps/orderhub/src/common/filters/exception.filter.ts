@@ -6,6 +6,7 @@ import {
   HttpException,
   BadRequestException,
 } from "@nestjs/common";
+import { Exception } from "@spaceorder/api";
 import { Prisma } from "@spaceorder/db";
 import { Request, Response } from "express";
 
@@ -22,16 +23,6 @@ type ReturnHttpCode<T extends Record<string, string>> =
   | "HTTP_EXCEPTION";
 
 type ReplacedString<T extends string> = Uppercase<Replace<T, " ", "_">>;
-
-type Exception = {
-  status: number;
-  error: string;
-  message: string | string[];
-  code?: string;
-  path: string;
-  timestamp: string;
-  details?: unknown;
-};
 
 type HttpExceptionBody = {
   message?: string | string[];

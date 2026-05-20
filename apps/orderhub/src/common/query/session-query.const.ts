@@ -25,11 +25,23 @@ export const SESSION_OMIT = { id: true, tableId: true } as const;
 /** Include */
 export const INCLUDE_TABLE = { table: true } as const;
 
-const AVAILABLE_MENU_FILTER = { deletedAt: null, isAvailable: true } as const;
+const AVAILABLE_MENU_FILTER = { deletedAt: null } as const;
 export const INCLUDE_TABLE_STORE_AVAILABLE_MENUS = {
   table: {
     include: {
-      store: { include: { menus: { where: AVAILABLE_MENU_FILTER } } },
+      store: {
+        include: {
+          categories: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              menus: {
+                where: AVAILABLE_MENU_FILTER,
+                orderBy: { sortOrder: "asc" },
+              },
+            },
+          },
+        },
+      },
     },
   },
 } as const;

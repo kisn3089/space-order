@@ -11,14 +11,26 @@ import {
   PublicTableSessionDto,
   TableWithStoreContextDto,
 } from "src/dto/public/table.dto";
-import { SessionTokenDto } from "src/dto/public/session.dto";
 import { CreateSessionPayloadDto } from "src/dto/session.dto";
 import { paramsDocs } from "./params.docs";
 
 const meta = {
   findOrCreate: {
-    summary: "활성화된 세션 조회 또는 생성",
-    ok: { status: 201, description: "세션 조회 또는 생성 성공" },
+    summary: "활성화된 세션 조회 또는 생성 후 매장 페이지로 리다이렉트",
+    ok: {
+      status: 302,
+      description: "세션 쿠키 발급 후 `/stores/{storePublicId}`로 리다이렉트",
+      headers: {
+        Location: {
+          description: "리다이렉트 대상 매장 페이지 경로",
+          schema: { type: "string", example: "/stores/abc123" },
+        },
+        "Set-Cookie": {
+          description: "세션 토큰 쿠키",
+          schema: { type: "string" },
+        },
+      },
+    },
   },
   getList: {
     summary: "세션 목록 조회 (매장 소유자)",
@@ -82,7 +94,7 @@ export const DocsSessionFindOrCreate = () =>
   applyDecorators(
     ApiOperation({ summary: meta.findOrCreate.summary }),
     ApiBody({ type: CreateSessionPayloadDto }),
-    ApiResponse({ ...meta.findOrCreate.ok, type: SessionTokenDto })
+    ApiResponse(meta.findOrCreate.ok)
   );
 
 export const DocsSessionGetAlive = () =>

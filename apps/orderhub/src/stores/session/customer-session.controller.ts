@@ -33,11 +33,9 @@ import {
   PublicTableSessionDto,
   TableWithStoreContextDto,
 } from "src/dto/public/table.dto";
-import { SessionTokenDto } from "src/dto/public/session.dto";
 import { CreateSessionPayloadDto } from "src/dto/session.dto";
 import { Session } from "src/decorators/session.decorator";
 import { SessionAuth } from "src/utils/guards/table-session-auth.guard";
-import { plainToInstance } from "class-transformer";
 import { responseCookie } from "src/utils/cookies";
 
 export type UpdateCustomerTableSessionDto = z.infer<
@@ -55,8 +53,8 @@ export class CustomerSessionController {
   @DocsSessionFindOrCreate()
   async findActivatedSessionOrCreate(
     @Body() createSessionPayload: CreateSessionPayloadDto,
-    @Res({ passthrough: true }) response: Response
-  ): Promise<SessionTokenDto> {
+    @Res() response: Response
+  ): Promise<void> {
     const findOrCreatedSession =
       await this.sessionService.findActivatedSessionOrCreate(
         createSessionPayload
@@ -71,9 +69,8 @@ export class CustomerSessionController {
       }
     );
 
-    return plainToInstance(SessionTokenDto, findOrCreatedSession, {
-      excludeExtraneousValues: true,
-    });
+    const storePublicId = findOrCreatedSession.table.store.publicId;
+    response.redirect(302, `/stores/${storePublicId}`);
   }
 
   @Get("me")

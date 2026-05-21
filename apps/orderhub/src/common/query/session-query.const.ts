@@ -23,7 +23,9 @@ const ORDERS_OMIT = {
 export const SESSION_OMIT = { id: true, tableId: true } as const;
 
 /** Include */
-export const INCLUDE_TABLE = { table: true } as const;
+export const INCLUDE_TABLE = {
+  table: { include: { store: { select: { publicId: true } } } },
+} as const;
 
 const AVAILABLE_MENU_FILTER = { deletedAt: null } as const;
 export const INCLUDE_TABLE_STORE_AVAILABLE_MENUS = {

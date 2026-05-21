@@ -52,7 +52,7 @@ const EXCEPTION_CONTENTS = {
   },
   INVALID_TABLE_SESSION: {
     code: "INVALID_TABLE_SESSION",
-    message: "테이블 세션이 만료되었거나, 검증되지 않았습니다.",
+    message: "세션이 만료되었거나 검증되지 않았습니다. 다시 스캔해주세요.",
   },
   INVALID_PAYLOAD_TABLE_SESSION: {
     code: "INVALID_PAYLOAD_TABLE_SESSION",
@@ -60,11 +60,11 @@ const EXCEPTION_CONTENTS = {
   },
   TABLE_SESSION_NOT_ACTIVE: {
     code: "TABLE_SESSION_NOT_ACTIVE",
-    message: "테이블 세션이 활성화 상태가 아닙니다.",
+    message: "세션이 활성화 상태가 아닙니다.",
   },
   TABLE_SESSION_ALREADY_ACTIVE: {
     code: "TABLE_SESSION_ALREADY_ACTIVE",
-    message: "이미 테이블 세션이 활성화 상태입니다.",
+    message: "이미 세션이 활성화 상태입니다.",
   },
   /** ----Order ----- */
   ORDER_IS_EMPTY: {

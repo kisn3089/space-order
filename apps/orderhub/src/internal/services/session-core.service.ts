@@ -251,7 +251,11 @@ export class SessionCoreService {
   ): Prisma.TableSessionUpdateArgs {
     return {
       where: { sessionToken: tableSession.sessionToken },
-      data: { ...updateSessionDto, expiresAt: TWO_HOURS() },
+      data: {
+        ...updateSessionDto,
+        status: TableSessionStatus.ACTIVE,
+        expiresAt: TWO_HOURS(),
+      },
       omit: SESSION_OMIT,
     };
   }

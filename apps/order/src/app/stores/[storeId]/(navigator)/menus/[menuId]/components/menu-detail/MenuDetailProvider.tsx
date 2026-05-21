@@ -86,7 +86,7 @@ export function MenuDetailProvider({
       toast.success("장바구니에 담았습니다.");
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        if (error.status === 401) {
+        if (error.response?.status === 401) {
           toast.error("세션이 만료되었습니다. 다시 QR코드를 스캔해주세요.");
           return;
         }

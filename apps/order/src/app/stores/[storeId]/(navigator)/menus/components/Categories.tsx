@@ -22,13 +22,13 @@ export default function Categories({ children }: CategoriesProps) {
     },
   });
 
+  ThrowUnavailableMenu(menuCategories.length);
+
   const [selectedCategory, setSelectedCategory] = useState(
     menuCategories[0].name
   );
 
   const categoryRefs = useScrollCategory(setSelectedCategory);
-
-  ThrowUnavailableMenu(menuCategories.length);
 
   const moveScrollAtCategory = (category: string) => {
     const categoryElement = document.querySelector(

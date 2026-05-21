@@ -1,9 +1,9 @@
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "@spaceorder/ui/globals.css";
-import { NextThemeProviders } from "@/components/theme/ThemeProviders";
 import TanstackProvider from "@spaceorder/api/core/TanstackProvider";
 import React from "react";
 import { OrderdeskAuthProvider } from "@/providers/OrderdeskAuthProvider";
+import { NextThemeProviders } from "@spaceorder/ui/components/theme/ThemeProviders";
 
 const inter = Inter({
   variable: "--font-geist-sans",

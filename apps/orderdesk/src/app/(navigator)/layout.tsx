@@ -1,4 +1,4 @@
-import { ToggleTheme } from "@/components/theme/ToggleTheme";
+import { ToggleTheme } from "@spaceorder/ui/components/theme/ToggleTheme";
 import Link from "next/link";
 
 export default function NavigatorLayout({

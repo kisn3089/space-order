@@ -1,27 +1,33 @@
-"use client";
-
-import useSuspenseWithSession from "@spaceorder/api/hooks/useSuspenseWithSession";
-import { PublicOrderWithItem } from "@spaceorder/db/types";
 import MenuImage from "../../(navigator)/menus/components/MenuImage";
+import CountIcon from "../../(navigator)/common/CountIcon";
 
-export default function OrderItemThumbnail() {
-  const { data: orders } = useSuspenseWithSession<
-    PublicOrderWithItem<"Wide">[]
-  >("/orders/v1/sessions/orders");
-
-  if (orders.length === 0) {
-    return (
-      <div className="rounded-md bg-cyan-400 w-24 h-24 flex items-center justify-center">
-        <span className="text-white text-sm">주문 내역이 없습니다.</span>
-      </div>
-    );
-  }
-
-  const order = orders[0].orderItems[0];
-
+type OrderItemThumbnailProps = {
+  menuImageUrl: string | null;
+  menuName: string;
+  quantity: number;
+};
+export default function OrderItemThumbnail({
+  menuImageUrl,
+  menuName,
+  quantity,
+}: OrderItemThumbnailProps) {
   return (
-    <div className="rounded-md bg-cyan-400 w-24 h-24 overflow-hidden">
-      <MenuImage size="item" src={order.menuImageUrl} alt={order.menuName} />
+    <div className="flex flex-col gap-y-2 w-fit">
+      <div className="relative w-fit">
+        <MenuImage
+          size="item"
+          src={menuImageUrl}
+          alt={menuName}
+          className="shadow-2xl rounded-xl"
+        />
+        <CountIcon
+          count={quantity}
+          color="white"
+          size="sm"
+          className="border-2 border-black -bottom-1 -right-1"
+        />
+      </div>
+      <span className="font-semibold text-sm text-center">{menuName}</span>
     </div>
   );
 }

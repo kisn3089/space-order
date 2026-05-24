@@ -7,6 +7,7 @@ import { Button } from "@spaceorder/ui/components/button";
 import { ConciergeBell } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import CountIcon from "../common/CountIcon";
 
 export default function CartLink() {
   const { storeId } = useParams<{ storeId: string }>();
@@ -23,13 +24,11 @@ export default function CartLink() {
   );
 
   return (
-    <Button variant={"secondary"} className="relative" asChild>
+    <Button variant={"outline"} className="relative" asChild>
       <Link href={`/stores/${storeId}/carts`}>
         <ConciergeBell />
         <ActivityRender mode={cartMenuCount > 0 ? "visible" : "hidden"}>
-          <div className="absolute top-0 right-0 w-4 h-4 grid place-content-center bg-black text-white rounded-full text-[0.6rem] font-semibold">
-            {cartMenuCount}
-          </div>
+          <CountIcon count={cartMenuCount} className="-top-0.5 -right-0.5" />
         </ActivityRender>
       </Link>
     </Button>

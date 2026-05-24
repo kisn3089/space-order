@@ -33,7 +33,7 @@ export default function CartPayment() {
           loading: "주문 생성 중...",
         }}
         onClick={actions.createOrderRequest}
-        className="w-full h-12 font-bold"
+        className="w-full h-12 font-bold rounded-3xl"
         disabled={menus.length === 0}
       >
         주문 하기

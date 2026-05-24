@@ -22,7 +22,7 @@ export default function MenuDetailAddCart() {
             error: `${price.toLocaleString("ko-KR")}원 - 장바구니 다시 담기`,
             loading: "장바구니에 추가 중...",
           }}
-          className="w-full h-12 font-bold tracking-wide"
+          className="w-full h-12 font-bold tracking-wide rounded-3xl"
           onClick={addCart}
           disabled={!menu.isAvailable || addCartMutate.isPending}
         >

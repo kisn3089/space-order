@@ -9,7 +9,7 @@ export default function MoveMenusPageButton() {
 
   return (
     <Link href={`/stores/${storeId}/menus`} className="w-full">
-      <Button size={"lg"} className="w-full font-semibold">
+      <Button size={"lg"} className="w-full h-12 font-semibold rounded-3xl">
         주문하러 가기
       </Button>
     </Link>

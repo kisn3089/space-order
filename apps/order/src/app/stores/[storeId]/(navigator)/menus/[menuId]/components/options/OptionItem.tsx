@@ -31,7 +31,7 @@ export default function OptionItem({
             <Button
               key={opt.key}
               variant={selected ? "default" : "outline"}
-              className={`h-14 min-w-fit font-semibold border`}
+              className={`h-14 min-w-fit font-semibold border rounded-xl`}
               onClick={() => changeOption(key, opt.key)}
               disabled={!isTriggered}
             >

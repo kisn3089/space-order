@@ -17,7 +17,12 @@ export default function CartMenu({ menu }: CartMenuProps) {
 
   return (
     <CardHeader className="flex flex-row gap-x-4 p-4">
-      <MenuImage src={menu.menuImageUrl} alt={menu.menuName} size="item" />
+      <MenuImage
+        src={menu.menuImageUrl}
+        alt={menu.menuName}
+        size="item"
+        className="rounded-xl"
+      />
       <div className="w-full">
         <div className="flex justify-between w-full">
           <CartMenuContent menu={menu} />

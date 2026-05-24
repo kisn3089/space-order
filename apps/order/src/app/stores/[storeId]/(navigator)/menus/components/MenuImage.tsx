@@ -38,7 +38,7 @@ export default function MenuImage({
   return (
     <ItemMedia
       variant={"image"}
-      className={`${sizeClassMap[size].class} ${className}`}
+      className={`${sizeClassMap[size].class} ${className} shadow-lg`}
     >
       <Image
         src={src || "/coffee_sample.jpg"}

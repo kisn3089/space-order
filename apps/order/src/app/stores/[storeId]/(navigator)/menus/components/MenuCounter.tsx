@@ -22,7 +22,7 @@ export default function MenuCounter({
         variant={"outline"}
         size={"icon"}
         disabled={disabled || !isAvailable}
-        className="border-r-0 disabled:opacity-100"
+        className="border-r-0 disabled:opacity-100 shadow-sm"
         onClick={() => changeQuantity(Math.max(1, quantity - 1))}
       >
         <MinusIcon className={disabled || !isAvailable ? "opacity-30" : ""} />
@@ -35,7 +35,7 @@ export default function MenuCounter({
       <Button
         variant={"outline"}
         size={"icon"}
-        className="border-l-0 disabled:opacity-100"
+        className="border-l-0 disabled:opacity-100 shadow-sm"
         onClick={() => changeQuantity(quantity + 1)}
         disabled={!isAvailable}
       >

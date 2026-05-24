@@ -21,6 +21,7 @@ export default function MenuDetailInfo({
           priority={true}
           alt={menu.name}
           size="cover"
+          className="rounded-3xl"
         />
         <MenuContent menu={menu}>{children}</MenuContent>
       </Item>

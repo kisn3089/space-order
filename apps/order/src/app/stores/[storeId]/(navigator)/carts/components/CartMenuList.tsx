@@ -14,12 +14,12 @@ export default function CartMenuList() {
 
   return (
     <section className="p-4 flex flex-col gap-y-2 bg-white">
-      <Card className="divide-y divide-accent">
+      <Card className="divide-y divide-accent shadow-lg rounded-3xl">
         {state.menus.map((menu) => (
           <CartMenu key={`${menu.menuPublicId}${menu.id}`} menu={menu} />
         ))}
         <div className="p-4 grid place-content-center">
-          <Button className="w-full" asChild>
+          <Button className="w-full rounded-3xl" asChild>
             <Link href={`/stores/${storeId}/menus`}>
               <PlusIcon strokeWidth={2.5} />
               메뉴 추가

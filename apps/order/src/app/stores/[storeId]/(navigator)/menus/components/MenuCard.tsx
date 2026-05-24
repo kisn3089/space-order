@@ -42,6 +42,7 @@ export default function MenuCard({ menu, priority = false }: MenuCardProps) {
             alt={menu.name}
             size="item"
             priority={priority}
+            className="rounded-xl"
           />
         </div>
       </Item>

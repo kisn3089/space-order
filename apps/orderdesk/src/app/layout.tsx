@@ -27,7 +27,14 @@ export default function RootLayout({
       >
         <OrderdeskAuthProvider>
           <TanstackProvider>
-            <NextThemeProviders>{children}</NextThemeProviders>
+            <NextThemeProviders
+              options={{
+                position: "bottom-right",
+                swipeDirections: ["right"],
+              }}
+            >
+              {children}
+            </NextThemeProviders>
           </TanstackProvider>
         </OrderdeskAuthProvider>
       </body>

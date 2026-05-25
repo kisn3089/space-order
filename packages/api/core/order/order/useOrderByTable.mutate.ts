@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   CreateOrderByTablePayload,
   httpOrder,
   UpdateOrderByTablePayload,
 } from "./httpOrder";
-import { pathToQueryKey } from "../../../utils/pathToQueryKey";
 
 type CreateOrderByTable = {
   tableId: string;
@@ -15,9 +14,7 @@ export type UpdateOrderByTable = {
   updateOrderPayload: UpdateOrderByTablePayload;
 };
 
-export default function useOrderByTable(storeId: string, tableId?: string) {
-  const queryClient = useQueryClient();
-
+export default function useOrderByTable() {
   const createOrderByTable = useMutation({
     mutationKey: ["owner", "order", "create"],
     mutationFn: ({ tableId, createOrderPayload }: CreateOrderByTable) =>
@@ -28,22 +25,6 @@ export default function useOrderByTable(storeId: string, tableId?: string) {
     mutationKey: ["owner", "order", "update"],
     mutationFn: ({ orderId, updateOrderPayload }: UpdateOrderByTable) =>
       httpOrder.updateOrderByTable(orderId, updateOrderPayload),
-    onSuccess: (data) => {
-      if (
-        tableId &&
-        (data.status === "COMPLETED" || data.status === "CANCELLED")
-      ) {
-        queryClient.invalidateQueries({
-          queryKey: pathToQueryKey(
-            `/orders/v1/tables/${tableId}/active-session/orders`
-          ),
-        });
-      }
-
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
-      });
-    },
   });
 
   return { createOrderByTable, updateOrderByTable };

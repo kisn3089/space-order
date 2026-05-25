@@ -2,11 +2,14 @@
 
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { Toaster, ToasterProps } from "../sonner";
 
 export function NextThemeProviders({
   children,
+  options,
 }: {
   children: React.ReactNode;
+  options?: ToasterProps;
 }) {
   return (
     <NextThemesProvider
@@ -16,6 +19,7 @@ export function NextThemeProviders({
       // disableTransitionOnChange
       enableColorScheme
     >
+      <Toaster {...options} />
       {children}
     </NextThemesProvider>
   );

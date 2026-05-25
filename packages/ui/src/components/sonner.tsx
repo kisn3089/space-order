@@ -10,7 +10,14 @@ import {
 import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 
-type ToasterProps = React.ComponentProps<typeof Sonner>;
+type ToastLevel = "info" | "success" | "error";
+export const toastByLevel = (
+  level: ToastLevel,
+  message: string,
+  options?: ToasterProps
+) => toast[level](message, options);
+
+export type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
@@ -30,6 +37,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         classNames: {
           toast:
             "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg md:w-160",
+          title: "group-[.toast]:font-bold!",
           description: "group-[.toast]:text-muted-foreground",
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",

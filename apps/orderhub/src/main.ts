@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app/app.module";
 import { COOKIE_TABLE } from "@spaceorder/db/constants/cookieTable.const";
+import { RedisIoAdapter } from "./realtime/redis-io.adapter";
 
 // BigInt serialization for JSON responses
 BigInt.prototype.toJSON = function (this: bigint) {
@@ -30,6 +31,10 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
+  const ioAdapter = new RedisIoAdapter(app);
+  ioAdapter.connectToRedis();
+  app.useWebSocketAdapter(ioAdapter);
 
   // Swagger 설정
   const config = new DocumentBuilder()

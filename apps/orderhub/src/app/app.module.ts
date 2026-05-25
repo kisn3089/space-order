@@ -11,6 +11,8 @@ import { GlobalExceptionFilter } from "src/common/filters/exception.filter";
 import { AuthModule } from "src/auth/auth.module";
 import { IdentityModule } from "src/identity/identity.module";
 import { InternalModule } from "src/internal/internal.module";
+import { RedisModule } from "src/redis/redis.module";
+import { RealtimeModule } from "src/realtime/realtime.module";
 
 @Module({
   imports: [
@@ -19,12 +21,14 @@ import { InternalModule } from "src/internal/internal.module";
       envFilePath: ["../../.env"],
     }),
     PrismaModule,
+    RedisModule,
     InternalModule,
     AuthModule,
     IdentityModule,
     StoreModule,
     OrderModule,
     CartModule,
+    RealtimeModule,
 
     RouterModule.register([
       { path: "auth/v1", module: AuthModule },

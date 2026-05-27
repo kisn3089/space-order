@@ -31,6 +31,7 @@ export default function RootLayout({
               options={{
                 position: "bottom-right",
                 swipeDirections: ["right"],
+                richColors: true,
               }}
             >
               {children}

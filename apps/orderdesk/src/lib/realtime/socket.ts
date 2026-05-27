@@ -7,6 +7,8 @@ export const REALTIME_EVENT = {
   ORDER_CREATED: "order.created",
   ORDER_UPDATED: "order.updated",
   ORDER_CANCELLED: "order.cancelled",
+  ORDER_ITEM_UPDATED: "order.item.updated",
+  ORDER_ITEM_DELETED: "order.item.deleted",
   SUBSCRIBE_ADMIN: "subscribe:admin",
   UNSUBSCRIBE_ADMIN: "unsubscribe:admin",
 } as const;

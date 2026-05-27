@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import TableBoard from "./components/table-board/TableBoard";
 import AwaitOrdersSummary from "./components/AwaitOrdersSummary";
 import GridLayout from "./components/GridLayout";
-import OrderRealtimeDaemon from "./components/OrderRealtimeDeamon";
+import OrderSyncDaemon from "./components/OrderSyncDaemon";
 
 export const metadata: Metadata = {
   title: "주문 관리",
@@ -15,12 +15,11 @@ export default function OrdersLayout({
   return (
     <GridLayout>
       <AwaitOrdersSummary>
-        <OrderRealtimeDaemon>
-          <div className="flex flex-col h-full w-full">
-            <TableBoard />
-          </div>
-          {children}
-        </OrderRealtimeDaemon>
+        <OrderSyncDaemon />
+        <div className="flex flex-col h-full w-full">
+          <TableBoard />
+        </div>
+        {children}
       </AwaitOrdersSummary>
     </GridLayout>
   );

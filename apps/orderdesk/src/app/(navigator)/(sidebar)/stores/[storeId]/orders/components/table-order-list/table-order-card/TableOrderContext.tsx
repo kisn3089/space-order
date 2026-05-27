@@ -15,7 +15,7 @@ import type {
 
 // State
 export interface TableOrderState {
-  table: SummarizedTableWithSessions;
+  summarizedTable: SummarizedTableWithSessions;
   session: SummarizedTableWithSessions["tableSessions"] extends
     | (infer T)[]
     | undefined

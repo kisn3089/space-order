@@ -10,10 +10,10 @@ import { useTableOrderContext } from "./TableOrderContext";
 
 export function TableOrderHeader() {
   const {
-    state: { table },
+    state: { summarizedTable },
   } = useTableOrderContext();
 
-  const { tableNumber, section } = table;
+  const { tableNumber, section } = summarizedTable;
 
   return (
     <CardHeader className="flex flex-row justify-between gap-1 p-2">

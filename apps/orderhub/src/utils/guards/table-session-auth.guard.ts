@@ -7,17 +7,17 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { sessionTokenSchema } from "@spaceorder/api/schemas";
-import { COOKIE_TABLE, TableSession } from "@spaceorder/db";
+import { COOKIE_TABLE, SessionWithTable } from "@spaceorder/db";
 import { exceptionContentsIs } from "src/common/constants/exceptionContents";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ALIVE_SESSION_STATUSES } from "src/common/query/session-query.const";
 
 type RequestWithClient = Request & {
-  session: TableSession | null;
+  session: SessionWithTable | null;
 };
 /**
  * @access Session
- * @type TableSession
+ * @type SessionWithTable
  * @description Guard to check permission to access the session and cache the result.
  */
 @Injectable()
@@ -36,6 +36,9 @@ export class SessionAuth implements CanActivate {
           sessionToken: tokenValidation.data,
           expiresAt: { gt: new Date() },
           status: { in: ALIVE_SESSION_STATUSES },
+        },
+        include: {
+          table: { include: { store: { select: { publicId: true } } } },
         },
       });
 

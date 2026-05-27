@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app/app.module";
 import { COOKIE_TABLE } from "@spaceorder/db/constants/cookieTable.const";
+import { RedisIoAdapter } from "./realtime/redis-io.adapter";
 
 // BigInt serialization for JSON responses
 BigInt.prototype.toJSON = function (this: bigint) {
@@ -13,8 +14,12 @@ BigInt.prototype.toJSON = function (this: bigint) {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   app.enableCors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      configService.getOrThrow<string>("ORDER_APP_URL"),
+      configService.getOrThrow<string>("ORDERDESK_APP_URL"),
+    ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
   });
@@ -30,6 +35,10 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
+  const ioAdapter = new RedisIoAdapter(app);
+  ioAdapter.connectToRedis();
+  app.useWebSocketAdapter(ioAdapter);
 
   // Swagger 설정
   const config = new DocumentBuilder()
@@ -54,7 +63,6 @@ async function bootstrap() {
     },
   });
 
-  const configService = app.get(ConfigService);
   const port = configService.get<number>("PORT", 9090);
 
   await app.listen(port);

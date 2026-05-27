@@ -6,9 +6,10 @@ import { OrderItemService } from "./order-item/orderItem.service";
 import { OrdersController } from "./orders/orders.controller";
 import { OrdersService } from "./orders/orders.service";
 import { CustomerOrdersController } from "./orders/customer-orders.controller";
+import { RealtimeModule } from "src/realtime/realtime.module";
 
 @Module({
-  imports: [PassportModule, JwtModule],
+  imports: [PassportModule, JwtModule, RealtimeModule],
   controllers: [
     OrderItemController,
     OrdersController,

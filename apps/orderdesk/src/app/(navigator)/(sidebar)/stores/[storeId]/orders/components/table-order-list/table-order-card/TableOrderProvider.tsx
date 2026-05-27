@@ -10,23 +10,24 @@ import {
 import useOrderByTable from "@spaceorder/api/core/order/order/useOrderByTable.mutate";
 
 interface TableOrderProviderProps {
-  table: SummarizedTableWithSessions;
+  summarizedTable: SummarizedTableWithSessions;
   children: React.ReactNode;
 }
 
 export function TableOrderProvider({
-  table,
+  summarizedTable,
   children,
 }: TableOrderProviderProps) {
   const params = useParams<{ storeId: string; tableId: string }>();
-  const { updateOrderByTable } = useOrderByTable(
-    params.storeId,
-    params.tableId
-  );
 
-  const session = table.tableSessions?.[0] ?? null;
-  const isActivatedTable = table.isActive === true;
-  const isSelected = params.tableId === table.publicId;
+  const { updateOrderByTable } = useOrderByTable({
+    storeId: params.storeId,
+    tableId: summarizedTable.publicId,
+  });
+
+  const session = summarizedTable.tableSessions?.[0] ?? null;
+  const isActivatedTable = summarizedTable.isActive === true;
+  const isSelected = params.tableId === summarizedTable.publicId;
 
   const updateOrderStatus = async (
     orderId: string,
@@ -45,13 +46,13 @@ export function TableOrderProvider({
 
   const contextValue: TableOrderContextValue = {
     state: {
-      table,
+      summarizedTable,
       session,
       isActivatedTable,
       isSelected,
     },
     actions: { updateOrderStatus },
-    meta: { tableId: table.publicId },
+    meta: { tableId: summarizedTable.publicId },
   };
 
   return (

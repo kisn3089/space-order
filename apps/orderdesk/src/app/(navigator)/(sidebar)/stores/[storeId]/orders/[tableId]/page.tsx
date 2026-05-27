@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import TableOrderDetail from "../components/table-order-detail/TableOrderDetail";
+import TableOrderDetail from "./table-order-detail/TableOrderDetail";
 import ErrorFallback from "@/components/ErrorFallback";
 import { Suspense } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";

@@ -10,6 +10,18 @@ import { Tx } from "src/utils/helper/transactionPipe";
 import { validateOrderSessionToWrite } from "src/common/validate/order/order-session-to-write";
 import { validateMenuAvailableOrThrow } from "src/common/validate/menu/available";
 import { MENU_VALIDATION_FIELDS_SELECT } from "src/common/query/menu-query.const";
+import { OrderSubscriber } from "src/realtime/order-events.service";
+import { MetaInfo } from "src/realtime/realtime.constants";
+import { withOrderLock } from "src/utils/helper/withOrderLock";
+
+type UpdatedOrderItem<Meta = unknown> = {
+  orderItem: PublicOrderItem<"Wide">;
+  subscriber: OrderSubscriber;
+} & MetaInfo<Meta>;
+
+type DeletedOrderItem<Meta = unknown> = {
+  subscriber: OrderSubscriber;
+} & MetaInfo<Meta>;
 
 @Injectable()
 export class OrderItemService {
@@ -93,7 +105,7 @@ export class OrderItemService {
     orderItemId: string,
     ownerId: bigint,
     updatePayload: UpdateOrderItemPayloadDto
-  ): Promise<PublicOrderItem<"Wide">> {
+  ): Promise<UpdatedOrderItem<{ tableNumber: number }>> {
     const { menuPublicId, requiredOptions, customOptions, quantity } =
       updatePayload;
 
@@ -104,35 +116,47 @@ export class OrderItemService {
     const updateWhereCondition = { publicId: orderItemId } as const;
 
     /** 메뉴에 관한 업데이트가 없을 때 */
-    if (!menuPublicId && !requiredOptions && !customOptions) {
-      const orderItem = await this.prismaService.orderItem.findFirstOrThrow({
-        where: whereCondition,
-        include: { order: { include: { tableSession: true } } },
-      });
-
-      validateOrderSessionToWrite(orderItem.order);
-
-      return await this.prismaService.orderItem.update({
-        where: updateWhereCondition,
-        data: updatePayload,
-        omit: this.omitPrivate,
-      });
-    }
+    const isNotMenuUpdate = !menuPublicId && !requiredOptions && !customOptions;
+    const includeMenu = isNotMenuUpdate
+      ? {}
+      : { menu: { select: MENU_VALIDATION_FIELDS_SELECT } };
 
     const orderItem = await this.prismaService.orderItem.findFirstOrThrow({
       where: whereCondition,
       include: {
-        menu: { select: MENU_VALIDATION_FIELDS_SELECT },
+        ...includeMenu,
         order: {
           include: {
             tableSession: true,
             store: { select: { publicId: true } },
+            table: { select: { publicId: true, tableNumber: true } },
           },
         },
       },
     });
 
-    validateOrderSessionToWrite(orderItem.order);
+    const validatedOrder = validateOrderSessionToWrite(orderItem.order);
+
+    const subscriber = {
+      storePublicId: validatedOrder.store.publicId,
+      tablePublicId: validatedOrder.table.publicId,
+    };
+
+    const tableNumber = validatedOrder.table.tableNumber;
+
+    if (isNotMenuUpdate) {
+      const updatedOrderItem = await this.prismaService.orderItem.update({
+        where: updateWhereCondition,
+        data: updatePayload,
+        omit: this.omitPrivate,
+      });
+
+      return {
+        orderItem: updatedOrderItem,
+        subscriber,
+        meta: { tableNumber },
+      };
+    }
 
     /** menuPublicId가 있으면 새 메뉴 조회, 없으면 기존 메뉴 사용 */
     const menu = menuPublicId
@@ -151,7 +175,7 @@ export class OrderItemService {
       }
     );
 
-    return await this.prismaService.orderItem.update({
+    const updatedOrderItem = await this.prismaService.orderItem.update({
       where: updateWhereCondition,
       data: {
         menu: { connect: { id: menu.id } },
@@ -165,10 +189,25 @@ export class OrderItemService {
       },
       omit: this.omitPrivate,
     });
+
+    return {
+      orderItem: updatedOrderItem,
+      subscriber,
+      meta: { tableNumber },
+    };
   }
 
-  async deleteOrderItem(orderItemId: string, ownerId: bigint): Promise<void> {
-    await this.prismaService.$transaction(async (tx) => {
+  async deleteOrderItem(
+    orderItemId: string,
+    ownerId: bigint
+  ): Promise<
+    DeletedOrderItem<{
+      tableNumber: number;
+      menuName: string;
+      orderAutoCancelled: boolean;
+    }>
+  > {
+    return await this.prismaService.$transaction(async (tx) => {
       const parentOrder = await tx.order.findFirst({
         where: {
           store: { ownerId },
@@ -176,20 +215,45 @@ export class OrderItemService {
         },
         include: {
           tableSession: true,
-          _count: { select: { orderItems: true } },
+          store: { select: { publicId: true } },
+          table: { select: { publicId: true, tableNumber: true } },
         },
       });
 
       const validatedOrder = validateOrderSessionToWrite(parentOrder);
 
-      await tx.orderItem.delete({ where: { publicId: orderItemId } });
-
-      if (validatedOrder._count.orderItems === 1) {
-        await tx.order.update({
-          where: { id: validatedOrder.id },
-          data: { status: OrderStatus.CANCELLED },
+      return await withOrderLock(tx, validatedOrder.id, async () => {
+        const { menuName } = await tx.orderItem.delete({
+          where: { publicId: orderItemId },
         });
-      }
+
+        const rows = await tx.$queryRaw<{ cnt: bigint }[]>(Prisma.sql`
+          SELECT COUNT(*) AS cnt
+          FROM \`order_item\`
+          WHERE order_id = ${validatedOrder.id}
+          FOR UPDATE
+        `);
+
+        const orderAutoCancelled = Number(rows[0].cnt) === 0;
+        if (orderAutoCancelled) {
+          await tx.order.update({
+            where: { id: validatedOrder.id },
+            data: { status: OrderStatus.CANCELLED },
+          });
+        }
+
+        return {
+          subscriber: {
+            storePublicId: validatedOrder.store.publicId,
+            tablePublicId: validatedOrder.table.publicId,
+          },
+          meta: {
+            tableNumber: validatedOrder.table.tableNumber,
+            menuName,
+            orderAutoCancelled,
+          },
+        };
+      });
     });
   }
 }

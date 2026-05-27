@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   Param,
   Patch,
@@ -16,7 +17,7 @@ import {
   orderIdParamsSchema,
   orderItemIdParamsSchema,
 } from "@spaceorder/api/schemas";
-import type { PublicOrderItem } from "@spaceorder/db";
+import type { PublicOrderItem, SyncNotice } from "@spaceorder/db";
 import {
   createOrderItemPayloadSchema,
   partialUpdateOrderItemPayloadSchema,
@@ -37,13 +38,17 @@ import { OrderAccessGuard } from "src/utils/guards/order-access.guard";
 import { OrderItemAccessGuard } from "src/utils/guards/order-item-access.guard";
 import { Client } from "src/decorators/client.decorator";
 import type { Owner } from "@spaceorder/db";
+import { OrderEventsService } from "src/realtime/order-events.service";
 
 @ApiTags("Order Item")
 @ApiBearerAuth()
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class OrderItemController {
-  constructor(private readonly orderItemService: OrderItemService) {}
+  constructor(
+    private readonly orderItemService: OrderItemService,
+    private readonly orderEvents: OrderEventsService
+  ) {}
 
   @Post(":orderId/order-items")
   @UseGuards(
@@ -112,13 +117,31 @@ export class OrderItemController {
   async partialUpdate(
     @Client() client: Owner,
     @Param("orderItemId") orderItemId: string,
-    @Body() updateOrderItemDto: UpdateOrderItemPayloadDto
+    @Body() updateOrderItemDto: UpdateOrderItemPayloadDto,
+    @Headers("x-socket-id") socketId?: string
   ): Promise<PublicOrderItem<"Wide">> {
-    return await this.orderItemService.partialUpdateOrderItem(
-      orderItemId,
-      client.id,
-      updateOrderItemDto
-    );
+    const { orderItem, subscriber, meta } =
+      await this.orderItemService.partialUpdateOrderItem(
+        orderItemId,
+        client.id,
+        updateOrderItemDto
+      );
+
+    const notice: SyncNotice = {
+      level: "info",
+      message: {
+        owner: `${meta.tableNumber}테이블 ${orderItem.menuName} 수량을 ${orderItem.quantity}개로 변경했습니다.`,
+        customer: `매장에서 ${orderItem.menuName} 수량을 ${orderItem.quantity}개로 변경했습니다.`,
+      },
+    };
+
+    this.orderEvents.emitOrderItemUpdated({
+      subscriber,
+      payload: { notice },
+      excludeSocketId: socketId,
+    });
+
+    return orderItem;
   }
 
   @Delete("order-items/:orderItemId")
@@ -130,8 +153,42 @@ export class OrderItemController {
   @DocsOrderItemDelete()
   async delete(
     @Client() client: Owner,
-    @Param("orderItemId") orderItemId: string
+    @Param("orderItemId") orderItemId: string,
+    @Headers("x-socket-id") socketId?: string
   ): Promise<void> {
-    return await this.orderItemService.deleteOrderItem(orderItemId, client.id);
+    const { subscriber, meta } = await this.orderItemService.deleteOrderItem(
+      orderItemId,
+      client.id
+    );
+
+    const emitOrderItem = { subscriber, excludeSocketId: socketId };
+
+    if (meta.orderAutoCancelled) {
+      const notice: SyncNotice = {
+        level: "info",
+        message: {
+          owner: `${meta.tableNumber}테이블 ${meta.menuName} 메뉴 제외로 주문이 자동 취소되었습니다.`,
+          customer: `매장에서 ${meta.menuName} 메뉴 제외로 주문이 자동 취소되었습니다.`,
+        },
+      };
+      this.orderEvents.emitOrderCancelled({
+        ...emitOrderItem,
+        payload: { notice },
+      });
+      return;
+    }
+
+    const notice: SyncNotice = {
+      level: "info",
+      message: {
+        owner: `${meta.tableNumber}테이블 ${meta.menuName} 메뉴가 주문에서 제외되었습니다.`,
+        customer: `매장에서 ${meta.menuName} 메뉴를 주문에서 제외하였습니다.`,
+      },
+    };
+
+    this.orderEvents.emitOrderItemRemoved({
+      ...emitOrderItem,
+      payload: { notice },
+    });
   }
 }

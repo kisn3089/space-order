@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 import useSuspenseWithSession from "@spaceorder/api/hooks/useSuspenseWithSession";
 import { CreateOrderRequest, useCartMutations } from "@spaceorder/api/core";
 import type { Cart, PublicCartItem } from "@spaceorder/db/types/cart.type";
@@ -9,10 +9,10 @@ import { PublicOrderWithItem } from "@spaceorder/db/types/publicModel.type";
 import { UseMutationResult } from "@tanstack/react-query";
 import { toast } from "@spaceorder/ui/components/sonner";
 import { useParams, useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 type CartState = {
   menus: PublicCartItem[];
-  quantities: Record<string, number>;
   createOrderMutate: UseMutationResult<
     PublicOrderWithItem,
     Error,
@@ -22,8 +22,8 @@ type CartState = {
 };
 
 type CartActions = {
-  changeQuantity: (menuPublicId: string, newQuantity: number) => void;
-  removeMenu: (menuId: string) => Promise<Cart>;
+  changeQuantity: (cartItemId: string, newQuantity: number) => Promise<void>;
+  removeMenu: (menuId: string) => Promise<void>;
   createOrderRequest: () => Promise<void>;
 };
 
@@ -54,33 +54,31 @@ export default function CartProvider({
 }) {
   const { storeId } = useParams<{ storeId: string }>();
   const router = useRouter();
-  const { data: menus } = useSuspenseWithSession<Cart, PublicCartItem[]>(
-    "/carts/v1/sessions/carts",
-    { queryOptions: { select: (carts) => carts.menus } }
+  const { data: cart } = useSuspenseWithSession<Cart>(
+    "/carts/v1/sessions/carts"
   );
-
-  useEffect(() => {
-    return () => {
-      // 수량 변경된 부분이 있을 경우 redis cart에 반영
-    };
-  }, []);
 
   const cartMutate = useCartMutations();
   const createOrderMutate = useOrderByCustomer().createOrderByCustomer;
 
-  const [quantities, setQuantities] = useState<Record<string, number>>(
-    Object.fromEntries(menus.map((menu) => [menu.menuPublicId, menu.quantity]))
-  );
-
-  const changeQuantity = (menuPublicId: string, newQuantity: number) => {
-    setQuantities((prev) => ({ ...prev, [menuPublicId]: newQuantity }));
+  const changeQuantity = async (cartItemId: string, newQuantity: number) => {
+    try {
+      await cartMutate.update.mutateAsync({
+        cartItemId,
+        payload: { quantity: newQuantity },
+      });
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        toast.error("수량 변경에 실패했습니다.");
+      }
+    }
   };
 
   const createOrderRequest = async () => {
     const payload: CreateOrderRequest = {
-      orderItems: menus.map((menu) => ({
+      orderItems: cart.menus.map((menu) => ({
         menuPublicId: menu.menuPublicId,
-        quantity: quantities[menu.menuPublicId] || menu.quantity,
+        quantity: menu.quantity,
         menuName: menu.menuName,
         ...(menu.requiredOptions
           ? { requiredOptions: menu.requiredOptions }
@@ -93,7 +91,7 @@ export default function CartProvider({
 
     try {
       await createOrderMutate.mutateAsync(payload);
-      toast.success("주문이 완료되었습니다.");
+      toast.success("주문이 완료되었습니다 🎉");
       router.push(`/stores/${storeId}`);
     } catch (error) {
       console.error("Error creating order:", error);
@@ -102,21 +100,28 @@ export default function CartProvider({
     }
   };
 
-  const totalPrice = menus.reduce((acc, menu) => {
-    const quantity = quantities[menu.menuPublicId] || menu.quantity;
+  const totalPrice = cart.menus.reduce((acc, menu) => {
+    const quantity = menu.quantity;
     return acc + menu.unitPrice * quantity;
   }, 0);
 
-  const removeMenu = (menuId: string) => {
-    return cartMutate.remove.mutateAsync(menuId);
+  const removeMenu = async (menuId: string) => {
+    try {
+      await cartMutate.remove.mutateAsync(menuId);
+    } catch (error: unknown) {
+      let errorMessage = "메뉴 삭제에 실패했습니다.";
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        errorMessage = "해당 메뉴를 찾을 수 없습니다.";
+      }
+      toast.error(errorMessage);
+    }
   };
 
   return (
     <CartContext.Provider
       value={{
         state: {
-          menus,
-          quantities,
+          menus: cart.menus,
           createOrderMutate,
         },
         actions: {

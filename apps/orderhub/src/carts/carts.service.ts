@@ -1,6 +1,11 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { createId } from "@paralleldrive/cuid2";
-import type { Cart, PublicCartItem, TableSession } from "@spaceorder/db";
+import type {
+  Cart,
+  PublicCartItem,
+  SessionWithTable,
+  TableSession,
+} from "@spaceorder/db";
 import type Redis from "ioredis";
 import Redlock from "redlock";
 import { cartSchema } from "@spaceorder/api";
@@ -13,6 +18,13 @@ import {
   CreateCartItemPayloadDto,
   UpdateCartItemPayloadDto,
 } from "src/dto/cart.dto";
+import { CartSubscriber } from "src/realtime/cart-events.service";
+import { MetaInfo } from "src/realtime/realtime.constants";
+
+type ReturnCart<Meta = unknown> = {
+  cart: Cart;
+  subscriber: CartSubscriber;
+} & MetaInfo<Meta>;
 
 @Injectable()
 export class CartService {
@@ -32,6 +44,33 @@ export class CartService {
 
   private ttlSeconds(expiresAt: Date) {
     return Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
+  }
+
+  private subscriberOf(session: SessionWithTable): CartSubscriber {
+    return {
+      storePublicId: session.table.store.publicId,
+      tablePublicId: session.table.publicId,
+    };
+  }
+
+  private async withCartLock<T>(
+    sessionToken: string,
+    fn: () => Promise<T>
+  ): Promise<T> {
+    const lock = await this.redlock
+      .acquire([this.cartLockKey(sessionToken)], 3000)
+      .catch(() => {
+        throw new HttpException(
+          exceptionContentsIs("CART_LOCK_FAILED"),
+          HttpStatus.SERVICE_UNAVAILABLE
+        );
+      });
+
+    try {
+      return await fn();
+    } finally {
+      await lock.release();
+    }
   }
 
   private async readCart(sessionToken: string): Promise<Cart> {
@@ -110,11 +149,11 @@ export class CartService {
   }
 
   async addItem(
-    session: TableSession,
+    sessionWithTable: SessionWithTable,
     payload: CreateCartItemPayloadDto
-  ): Promise<Cart> {
+  ): Promise<ReturnCart<{ menuName: string }>> {
     const { optionsPrice, menu } = await this.getOptionsPriceWithValidate(
-      session,
+      sessionWithTable,
       payload.menuPublicId,
       {
         requiredOptions: payload.requiredOptions,
@@ -138,43 +177,25 @@ export class CartService {
       addedAt: new Date().toISOString(),
     };
 
-    const lock = await this.redlock
-      .acquire([this.cartLockKey(session.sessionToken)], 3000)
-      .catch(() => {
-        throw new HttpException(
-          exceptionContentsIs("CART_LOCK_FAILED"),
-          HttpStatus.SERVICE_UNAVAILABLE
-        );
-      });
-
-    try {
-      const cart = await this.readCart(session.sessionToken);
+    return this.withCartLock(sessionWithTable.sessionToken, async () => {
+      const cart = await this.readCart(sessionWithTable.sessionToken);
       cart.menus.push(item);
-      return this.writeCart(session, cart);
-    } catch (error) {
-      if (
-        error instanceof HttpException &&
-        error.getStatus() === Number(HttpStatus.NOT_FOUND)
-      ) {
-        const newCart: Cart = {
-          sessionToken: session.sessionToken,
-          menus: [item],
-          updatedAt: new Date().toISOString(),
-        };
-        return this.writeCart(session, newCart);
-      }
-      throw error;
-    } finally {
-      await lock.release();
-    }
+      const updated = await this.writeCart(sessionWithTable, cart);
+
+      return {
+        cart: updated,
+        subscriber: this.subscriberOf(sessionWithTable),
+        meta: { menuName: menu.name },
+      };
+    });
   }
 
   async updateItem(
-    session: TableSession,
+    sessionWithTable: SessionWithTable,
     cartItemId: string,
     payload: UpdateCartItemPayloadDto
-  ): Promise<Cart> {
-    const preCart = await this.readCart(session.sessionToken);
+  ): Promise<ReturnCart> {
+    const preCart = await this.readCart(sessionWithTable.sessionToken);
     const preItem = preCart.menus.find((i) => i.id === cartItemId);
     if (!preItem) {
       throw new HttpException(
@@ -184,7 +205,7 @@ export class CartService {
     }
 
     const { optionsPrice, menu } = await this.getOptionsPriceWithValidate(
-      session,
+      sessionWithTable,
       preItem.menuPublicId,
       {
         requiredOptions:
@@ -194,17 +215,8 @@ export class CartService {
       }
     );
 
-    const lock = await this.redlock
-      .acquire([this.cartLockKey(session.sessionToken)], 3000)
-      .catch(() => {
-        throw new HttpException(
-          exceptionContentsIs("CART_LOCK_FAILED"),
-          HttpStatus.SERVICE_UNAVAILABLE
-        );
-      });
-
-    try {
-      const cart = await this.readCart(session.sessionToken);
+    return this.withCartLock(sessionWithTable.sessionToken, async () => {
+      const cart = await this.readCart(sessionWithTable.sessionToken);
       const itemIndex = cart.menus.findIndex((i) => i.id === cartItemId);
       if (itemIndex === -1) {
         throw new HttpException(
@@ -230,27 +242,20 @@ export class CartService {
         ...(customOptions && { customOptions }),
       };
 
-      return this.writeCart(session, cart);
-    } finally {
-      await lock.release();
-    }
+      const updated = await this.writeCart(sessionWithTable, cart);
+
+      return { cart: updated, subscriber: this.subscriberOf(sessionWithTable) };
+    });
   }
 
-  async removeItem(session: TableSession, cartItemId: string): Promise<Cart> {
-    const lock = await this.redlock
-      .acquire([this.cartLockKey(session.sessionToken)], 3000)
-      .catch(() => {
-        throw new HttpException(
-          exceptionContentsIs("CART_LOCK_FAILED"),
-          HttpStatus.SERVICE_UNAVAILABLE
-        );
-      });
-
-    try {
-      const cart = await this.readCart(session.sessionToken);
-      const itemExists = cart.menus.some((i) => i.id === cartItemId);
-
-      if (!itemExists) {
+  async removeItem(
+    sessionWithTable: SessionWithTable,
+    cartItemId: string
+  ): Promise<ReturnCart<{ menuName: string }>> {
+    return this.withCartLock(sessionWithTable.sessionToken, async () => {
+      const cart = await this.readCart(sessionWithTable.sessionToken);
+      const removed = cart.menus.find((i) => i.id === cartItemId);
+      if (!removed) {
         throw new HttpException(
           exceptionContentsIs("CART_ITEM_NOT_FOUND"),
           HttpStatus.NOT_FOUND
@@ -258,14 +263,21 @@ export class CartService {
       }
 
       cart.menus = cart.menus.filter((i) => i.id !== cartItemId);
-      return this.writeCart(session, cart);
-    } finally {
-      await lock.release();
-    }
+      const updated = await this.writeCart(sessionWithTable, cart);
+
+      return {
+        cart: updated,
+        subscriber: this.subscriberOf(sessionWithTable),
+        meta: { menuName: removed.menuName },
+      };
+    });
   }
 
-  async clearCart(session: TableSession): Promise<void> {
-    await this.redis.del(this.cartKey(session.sessionToken));
+  async clearCart(sessionWithTable: SessionWithTable): Promise<CartSubscriber> {
+    return this.withCartLock(sessionWithTable.sessionToken, async () => {
+      await this.redis.del(this.cartKey(sessionWithTable.sessionToken));
+      return this.subscriberOf(sessionWithTable);
+    });
   }
 
   async getCartByStore(storeId: string, sessionToken: string): Promise<Cart> {

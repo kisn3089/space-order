@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
@@ -26,14 +27,17 @@ import {
   DocsOwnerOrderGetUnique,
   DocsOwnerOrderUpdate,
 } from "src/docs/ownerOrder.docs";
+import { OrderStatus } from "@spaceorder/db";
 import type {
   Owner,
   PublicOrderWithItem,
   SummarizedOrdersByStore,
+  SyncNotice,
 } from "@spaceorder/db";
 import { Client } from "src/decorators/client.decorator";
 import { ZodValidation } from "src/utils/guards/zod-validation.guard";
 import { OrdersService } from "./orders.service";
+import { OrderEventsService } from "src/realtime/order-events.service";
 import { StoreAccessGuard } from "src/utils/guards/store-access.guard";
 import {
   CreateOrderPayloadDto,
@@ -43,13 +47,17 @@ import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { OrderAccessGuard } from "src/utils/guards/order-access.guard";
 import { TableAccessGuard } from "src/utils/guards/table-access.guard";
 import { ORDER_ITEMS_WITH_OMIT_PRIVATE } from "src/common/query/order-item-query.const";
+import { ORDER_STATUS_MESSAGE_MAP } from "./orders-status-notice-message.const";
 
 @ApiTags("Order")
 @ApiBearerAuth()
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
-  constructor(private readonly orderService: OrdersService) {}
+  constructor(
+    private readonly orderService: OrdersService,
+    private readonly orderEvents: OrderEventsService
+  ) {}
 
   // ============================================================
   // Store Orders
@@ -107,13 +115,27 @@ export class OrdersController {
   async partialUpdate(
     @Client() client: Owner,
     @Param("orderId") orderId: string,
-    @Body() updatePayload: UpdateOrderPayloadDto
+    @Body() updatePayload: UpdateOrderPayloadDto,
+    @Headers("x-socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
-    return await this.orderService.partialUpdateOrder(
-      orderId,
-      client.id,
-      updatePayload
-    );
+    const { order, subscriber, meta } =
+      await this.orderService.partialUpdateOrder(
+        orderId,
+        client.id,
+        updatePayload
+      );
+
+    const notice: SyncNotice = {
+      level: "info",
+      message: ORDER_STATUS_MESSAGE_MAP[meta.orderStatus],
+    };
+
+    this.orderEvents.emitOrderUpdated({
+      subscriber,
+      payload: { notice },
+      excludeSocketId: socketId,
+    });
+    return order;
   }
 
   /** 특정 주문 삭제(소프트) */
@@ -122,12 +144,26 @@ export class OrdersController {
   @DocsOwnerOrderCancel()
   async cancel(
     @Client() client: Owner,
-    @Param("orderId") orderId: string
+    @Param("orderId") orderId: string,
+    @Headers("x-socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
-    return await this.orderService.cancelOrder({
+    const { order, subscriber } = await this.orderService.cancelOrder({
+      kind: "owner",
       orderId,
       ownerId: client.id,
     });
+
+    const notice: SyncNotice = {
+      level: "error",
+      message: ORDER_STATUS_MESSAGE_MAP[OrderStatus.CANCELLED],
+    };
+
+    this.orderEvents.emitOrderCancelled({
+      subscriber,
+      payload: { notice },
+      excludeSocketId: socketId,
+    });
+    return order;
   }
 
   // ============================================================
@@ -156,12 +192,28 @@ export class OrdersController {
   @DocsOwnerOrderCreate()
   async create(
     @Param("tableId") tableId: string,
-    @Body() createPayload: CreateOrderPayloadDto
+    @Body() createPayload: CreateOrderPayloadDto,
+    @Headers("x-socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
-    return await this.orderService.createOrder(
+    const { order, subscriber, meta } = await this.orderService.createOrder(
       { publicId: tableId },
       createPayload
     );
+
+    const notice: SyncNotice = {
+      level: "success",
+      message: {
+        owner: `${meta?.tableNumber}번 테이블에서 새 주문이 들어왔습니다.`,
+        customer: "매장에서 주문을 생성하였습니다.",
+      },
+    };
+
+    this.orderEvents.emitOrderCreated({
+      subscriber,
+      payload: { notice },
+      excludeSocketId: socketId,
+    });
+    return order;
   }
 
   /** table에 속한 주문 조회 */

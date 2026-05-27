@@ -35,13 +35,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased max-w-2xl min-h-dvh mx-auto`}
       >
-        <NextThemeProviders>
+        <NextThemeProviders
+          options={{
+            position: "top-center",
+            mobileOffset: { left: "60px", right: "60px" },
+            richColors: true,
+          }}
+        >
           <TanstackProvider>{children}</TanstackProvider>
-          <Toaster
-            mobileOffset={{ left: "60px", right: "60px" }}
-            position="top-center"
-            richColors
-          />
         </NextThemeProviders>
       </body>
     </html>

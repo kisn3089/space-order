@@ -7,7 +7,7 @@ type TableBoardProps = {
 
 export default function TableOrderList({ sanitizedTable }: TableBoardProps) {
   return (
-    <TableOrderCard.Provider table={sanitizedTable}>
+    <TableOrderCard.Provider summarizedTable={sanitizedTable}>
       <TableOrderCard.Card>
         <TableOrderCard.Header />
         <TableOrderCard.Content>

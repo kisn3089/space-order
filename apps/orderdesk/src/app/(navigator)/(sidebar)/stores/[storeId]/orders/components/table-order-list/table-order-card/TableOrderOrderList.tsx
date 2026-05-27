@@ -12,9 +12,11 @@ export function TableOrderOrderList() {
   return (
     <div className="flex flex-col gap-y-1 p-2">
       <ActivityRender mode={session ? "visible" : "hidden"}>
-        {session?.orders?.map((order) => (
-          <TableOrderItem key={order.publicId} order={order} />
-        ))}
+        {session?.orders
+          ?.filter((order) => order.orderItems.length > 0)
+          .map((order) => (
+            <TableOrderItem key={order.publicId} order={order} />
+          ))}
       </ActivityRender>
     </div>
   );

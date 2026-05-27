@@ -17,6 +17,7 @@ import {
 import UserNameDropDown from "../../components/UserNameDropDown";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import RealtimeStatusDot from "@/components/realtime/RealtimeStatusDot";
 
 export default function NavSidebar() {
   const pathname = usePathname();
@@ -53,6 +54,9 @@ export default function NavSidebar() {
       <SidebarFooter>
         <SidebarGroup>
           <SidebarMenu>
+            <SidebarMenuItem key={"realtimeStatus"}>
+              <RealtimeStatusDot />
+            </SidebarMenuItem>
             <SidebarMenuItem key={"userName"}>
               <UserNameDropDown />
             </SidebarMenuItem>

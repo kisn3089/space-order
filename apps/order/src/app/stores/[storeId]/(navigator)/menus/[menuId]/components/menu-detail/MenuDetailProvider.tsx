@@ -81,17 +81,18 @@ export function MenuDetailProvider({
         customOptions: Object.fromEntries(deletedNotTriggeredOptions),
       }),
     };
+
     try {
       await addCartMutate.mutateAsync(cartItem);
-      toast.success("장바구니에 담았습니다.");
+      toast.success(`${menu.name} 메뉴가 장바구니에 추가되었습니다.`);
     } catch (error: unknown) {
+      let message = "장바구니에 담는 중 오류가 발생했습니다.";
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) {
-          toast.error("세션이 만료되었습니다. 다시 QR코드를 스캔해주세요.");
-          return;
+          message = "세션이 만료되었습니다. 다시 QR코드를 스캔해주세요.";
         }
       }
-      toast.error("장바구니에 담는 중 오류가 발생했습니다.");
+      toast.error(message);
     }
   };
 

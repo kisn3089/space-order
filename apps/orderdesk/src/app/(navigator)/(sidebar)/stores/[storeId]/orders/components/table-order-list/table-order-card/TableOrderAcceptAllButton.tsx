@@ -30,7 +30,7 @@ export function TableOrderAcceptAllButton() {
   const [failedUpdateItems, setFailedUpdateItems] = useState<
     UpdateOrderByTable[]
   >([]);
-  const { updateOrderByTable } = useOrderByTable(params.storeId);
+  const { updateOrderByTable } = useOrderByTable({ storeId: params.storeId });
 
   const pendingOrders = session?.orders?.filter(
     (order): order is FilteredPendingStatus =>

@@ -5,3 +5,4 @@ export * from "./summarized.type";
 export * from "./menuOptions.type";
 export * from "./session.type";
 export * from "./cart.type";
+export * from "./syncNotice.type";

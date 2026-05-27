@@ -1,3 +1,4 @@
+import { pathToQueryKey } from "@spaceorder/api/utils";
 import {
   LAST_ACCESSED_STORE_ID,
   PublicTable,
@@ -15,7 +16,9 @@ export const useSetCacheByStoreBoard = () => {
       const { tableSessions: _, ...table } = tableWithSessinos;
 
       queryClient.setQueryData<PublicTable>(
-        [`/stores/v1/${storeId ?? params.storeId}/tables/${table.publicId}`],
+        pathToQueryKey(
+          `/stores/v1/${storeId ?? params.storeId}/tables/${table.publicId}`
+        ),
         table
       );
     });

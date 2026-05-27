@@ -13,7 +13,7 @@ type CartMenuProps = {
 };
 
 export default function CartMenu({ menu }: CartMenuProps) {
-  const { state, actions } = useCart();
+  const { actions } = useCart();
 
   return (
     <CardHeader className="flex flex-row gap-x-4 p-4">
@@ -30,9 +30,9 @@ export default function CartMenu({ menu }: CartMenuProps) {
         </div>
         <div className="flex justify-end pt-3">
           <MenuCounter
-            quantity={state.quantities[menu.menuPublicId]}
+            quantity={menu.quantity}
             changeQuantity={(newQuantity) =>
-              actions.changeQuantity(menu.menuPublicId, newQuantity)
+              actions.changeQuantity(menu.id, newQuantity)
             }
           />
         </div>

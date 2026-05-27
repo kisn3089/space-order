@@ -4,6 +4,7 @@ import NavSidebar from "./components/NavSidebar";
 import AuthGuard from "@/providers/AuthGuard";
 import ServerPrefetch from "@/components/ServerPrefetch";
 import OrderNoticeDaemon from "@/components/realtime/OrderNoticeDaemon";
+import RealtimeStatusBanner from "@/components/realtime/RealtimeStatusBanner";
 
 export default async function SidebarLayout({
   children,
@@ -19,7 +20,10 @@ export default async function SidebarLayout({
         <ServerPrefetch url="/identity/v1/me" shouldSuccess>
           <SidebarProvider defaultOpen={defaultOpen}>
             <NavSidebar />
-            <main className="w-full">{children}</main>
+            <main className="w-full">
+              <RealtimeStatusBanner />
+              {children}
+            </main>
             <OrderNoticeDaemon />
           </SidebarProvider>
         </ServerPrefetch>

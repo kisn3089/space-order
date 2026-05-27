@@ -4,7 +4,7 @@ import { useStoreOrderSyncDaemon } from "@/lib/realtime/useStoreOrderSyncDaemon"
 import { LAST_ACCESSED_STORE_ID } from "@spaceorder/db";
 import { OrderSyncEvent } from "@spaceorder/db/types";
 import { toastByLevel } from "@spaceorder/ui/components/sonner";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
@@ -13,13 +13,19 @@ import { useEffect, useState } from "react";
  * @see order-events.service.ts
  */
 export default function OrderNoticeDaemon() {
+  const params = useParams<{ storeId?: string }>();
   const pathname = usePathname();
-  const [storeId, setStoreId] = useState<string | undefined>(undefined);
+  const [fallbackStoreId, setFallbackStoreId] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
+    if (params.storeId) return;
     const id = localStorage.getItem(LAST_ACCESSED_STORE_ID);
-    setStoreId(id ?? undefined);
-  }, [pathname]);
+    setFallbackStoreId(id ?? undefined);
+  }, [pathname, params.storeId]);
+
+  const storeId = params.storeId ?? fallbackStoreId;
 
   const triggerNotice = ({ notice }: OrderSyncEvent) => {
     const { level, message } = notice || {};

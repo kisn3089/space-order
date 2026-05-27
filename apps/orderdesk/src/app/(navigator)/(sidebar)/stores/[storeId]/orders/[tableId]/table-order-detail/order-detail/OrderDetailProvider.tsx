@@ -29,7 +29,7 @@ export function OrderDetailProvider({
     queryOptions: { refetchOnMount: true },
   });
 
-  const { update, remove } = useOrderItem();
+  const { update, remove } = useOrderItem({ storeId, tableId });
 
   const [editingItem, setEditingItem] =
     useState<OrderItemWithSummarizedOrder | null>(null);

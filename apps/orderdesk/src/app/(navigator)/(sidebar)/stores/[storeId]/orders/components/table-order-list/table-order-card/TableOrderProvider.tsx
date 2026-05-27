@@ -18,9 +18,12 @@ export function TableOrderProvider({
   summarizedTable,
   children,
 }: TableOrderProviderProps) {
-  const params = useParams<{ tableId: string }>();
+  const params = useParams<{ storeId: string; tableId: string }>();
 
-  const { updateOrderByTable } = useOrderByTable();
+  const { updateOrderByTable } = useOrderByTable({
+    storeId: params.storeId,
+    tableId: params.tableId,
+  });
 
   const session = summarizedTable.tableSessions?.[0] ?? null;
   const isActivatedTable = summarizedTable.isActive === true;

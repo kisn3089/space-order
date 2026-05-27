@@ -12,6 +12,7 @@ import { validateMenuAvailableOrThrow } from "src/common/validate/menu/available
 import { MENU_VALIDATION_FIELDS_SELECT } from "src/common/query/menu-query.const";
 import { OrderSubscriber } from "src/realtime/order-events.service";
 import { MetaInfo } from "src/realtime/realtime.constants";
+import { withOrderLock } from "src/utils/helper/withOrderLock";
 
 type UpdatedOrderItem<Meta = unknown> = {
   orderItem: PublicOrderItem<"Wide">;
@@ -216,35 +217,43 @@ export class OrderItemService {
           tableSession: true,
           store: { select: { publicId: true } },
           table: { select: { publicId: true, tableNumber: true } },
-          _count: { select: { orderItems: true } },
         },
       });
 
       const validatedOrder = validateOrderSessionToWrite(parentOrder);
 
-      const { menuName } = await tx.orderItem.delete({
-        where: { publicId: orderItemId },
-      });
-
-      const orderAutoCancelled = validatedOrder._count.orderItems === 1;
-      if (orderAutoCancelled) {
-        await tx.order.update({
-          where: { id: validatedOrder.id },
-          data: { status: OrderStatus.CANCELLED },
+      return await withOrderLock(tx, validatedOrder.id, async () => {
+        const { menuName } = await tx.orderItem.delete({
+          where: { publicId: orderItemId },
         });
-      }
 
-      return {
-        subscriber: {
-          storePublicId: validatedOrder.store.publicId,
-          tablePublicId: validatedOrder.table.publicId,
-        },
-        meta: {
-          tableNumber: validatedOrder.table.tableNumber,
-          menuName,
-          orderAutoCancelled,
-        },
-      };
+        const rows = await tx.$queryRaw<{ cnt: bigint }[]>(Prisma.sql`
+          SELECT COUNT(*) AS cnt
+          FROM \`order_item\`
+          WHERE order_id = ${validatedOrder.id}
+          FOR UPDATE
+        `);
+
+        const orderAutoCancelled = Number(rows[0].cnt) === 0;
+        if (orderAutoCancelled) {
+          await tx.order.update({
+            where: { id: validatedOrder.id },
+            data: { status: OrderStatus.CANCELLED },
+          });
+        }
+
+        return {
+          subscriber: {
+            storePublicId: validatedOrder.store.publicId,
+            tablePublicId: validatedOrder.table.publicId,
+          },
+          meta: {
+            tableNumber: validatedOrder.table.tableNumber,
+            menuName,
+            orderAutoCancelled,
+          },
+        };
+      });
     });
   }
 }

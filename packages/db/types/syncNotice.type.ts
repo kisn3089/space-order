@@ -16,7 +16,6 @@ export type OrderSyncEvent = {
 };
 
 export type CartSyncEvent = {
-  sessionToken: string;
   notice?: SyncNotice;
   updatedAt: Date;
 };

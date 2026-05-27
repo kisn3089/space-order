@@ -10,6 +10,7 @@ import {
 import { OrderItemWithSummarizedOrder } from "./OrderDetailTable";
 import { PublicOrderWithItem } from "@spaceorder/db/types";
 import useOrderItem from "@spaceorder/api/core/order/order-item/useOrderItem.mutate";
+import { toast } from "@spaceorder/ui/components/sonner";
 
 interface OrderDetailProviderProps {
   params: { storeId: string; tableId: string };
@@ -61,20 +62,31 @@ export function OrderDetailProvider({
   const updateOrderItem = async () => {
     if (!editingItem) return;
 
-    await update.mutateAsync({
-      orderItemId: editingItem.publicId,
-      updateOrderItemPayload: { quantity: editingItem.quantity },
-    });
-    resetSelection();
+    try {
+      await update.mutateAsync({
+        orderItemId: editingItem.publicId,
+        updateOrderItemPayload: { quantity: editingItem.quantity },
+      });
+      toast.success(
+        `${editingItem.menuName} 수량을 ${editingItem.quantity}개로 변경했습니다.`
+      );
+      resetSelection();
+    } catch {
+      toast.error(`${editingItem.menuName} 수량을 변경하는데 실패했습니다.`);
+    }
   };
 
   const removeOrderItem = async () => {
     if (!editingItem) return;
-
-    await remove.mutateAsync({
-      orderItemId: editingItem.publicId,
-    });
-    resetSelection();
+    try {
+      await remove.mutateAsync({ orderItemId: editingItem.publicId });
+      toast.success(`${editingItem.menuName} 메뉴를 주문에서 제외했습니다.`);
+      resetSelection();
+    } catch {
+      toast.error(
+        `${editingItem.menuName} 메뉴를 주문에서 제외하는데 실패했습니다.`
+      );
+    }
   };
 
   const contextValue: OrderDetailContextValue = {

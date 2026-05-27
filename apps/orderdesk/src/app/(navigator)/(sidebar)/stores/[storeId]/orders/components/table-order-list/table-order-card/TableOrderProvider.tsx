@@ -22,7 +22,7 @@ export function TableOrderProvider({
 
   const { updateOrderByTable } = useOrderByTable({
     storeId: params.storeId,
-    tableId: params.tableId,
+    tableId: summarizedTable.publicId,
   });
 
   const session = summarizedTable.tableSessions?.[0] ?? null;

@@ -29,10 +29,7 @@ export function OrderDetailProvider({
     queryOptions: { refetchOnMount: true },
   });
 
-  const { updateOrderItem, removeOrderItem } = useOrderItem({
-    storeId,
-    tableId,
-  });
+  const { update, remove } = useOrderItem();
 
   const [editingItem, setEditingItem] =
     useState<OrderItemWithSummarizedOrder | null>(null);
@@ -61,20 +58,20 @@ export function OrderDetailProvider({
     setEditingItem(null);
   };
 
-  const handleUpdateOrderItem = async () => {
+  const updateOrderItem = async () => {
     if (!editingItem) return;
 
-    await updateOrderItem.mutateAsync({
+    await update.mutateAsync({
       orderItemId: editingItem.publicId,
       updateOrderItemPayload: { quantity: editingItem.quantity },
     });
     resetSelection();
   };
 
-  const handleRemoveOrderItem = async () => {
+  const removeOrderItem = async () => {
     if (!editingItem) return;
 
-    await removeOrderItem.mutateAsync({
+    await remove.mutateAsync({
       orderItemId: editingItem.publicId,
     });
     resetSelection();
@@ -93,8 +90,8 @@ export function OrderDetailProvider({
       setRowSelection,
       updateEditingQuantity,
       resetSelection,
-      updateOrderItem: handleUpdateOrderItem,
-      removeOrderItem: handleRemoveOrderItem,
+      updateOrderItem,
+      removeOrderItem,
     },
     meta: {
       storeId,

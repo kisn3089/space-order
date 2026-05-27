@@ -19,27 +19,23 @@ type UseOrderItemReturn = {
   remove: UseMutationResult<void, Error, { orderItemId: string }>;
 };
 
-type Params = { storeId?: string; tableId?: string };
+type Params = { storeId: string; tableId: string };
 
 export default function useOrderItem({
   storeId,
   tableId,
-}: Params = {}): UseOrderItemReturn {
+}: Params): UseOrderItemReturn {
   const queryClient = useQueryClient();
 
   const invalidate = () => {
-    if (storeId) {
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
-      });
-    }
-    if (tableId) {
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(
-          `/orders/v1/tables/${tableId}/active-session/orders`
-        ),
-      });
-    }
+    queryClient.invalidateQueries({
+      queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
+    });
+    queryClient.invalidateQueries({
+      queryKey: pathToQueryKey(
+        `/orders/v1/tables/${tableId}/active-session/orders`
+      ),
+    });
   };
 
   const update = useMutation({

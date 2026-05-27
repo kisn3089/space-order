@@ -1,15 +1,9 @@
-import {
-  useMutation,
-  UseMutationResult,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { httpOrderItems, UpdateOrderItemPayload } from "./httpOrderItem";
 import { PublicOrderItem } from "@spaceorder/db/types/publicModel.type";
-import { pathToQueryKey } from "../../../utils/pathToQueryKey";
 
-type UseOrderItemParams = { storeId: string; tableId: string };
 type UseOrderItemReturn = {
-  updateOrderItem: UseMutationResult<
+  update: UseMutationResult<
     PublicOrderItem,
     Error,
     {
@@ -17,15 +11,10 @@ type UseOrderItemReturn = {
       updateOrderItemPayload: UpdateOrderItemPayload;
     }
   >;
-  removeOrderItem: UseMutationResult<void, Error, { orderItemId: string }>;
+  remove: UseMutationResult<void, Error, { orderItemId: string }>;
 };
-export default function useOrderItem({
-  storeId,
-  tableId,
-}: UseOrderItemParams): UseOrderItemReturn {
-  const queryClient = useQueryClient();
-
-  const updateOrderItem = useMutation({
+export default function useOrderItem(): UseOrderItemReturn {
+  const update = useMutation({
     mutationKey: ["order-item", "update"],
     mutationFn: ({
       orderItemId,
@@ -34,34 +23,13 @@ export default function useOrderItem({
       orderItemId: string;
       updateOrderItemPayload: UpdateOrderItemPayload;
     }) => httpOrderItems.updateOrderItem(orderItemId, updateOrderItemPayload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(
-          `/orders/v1/tables/${tableId}/active-session/orders`
-        ),
-      });
-    },
   });
 
-  const removeOrderItem = useMutation({
+  const remove = useMutation({
     mutationKey: ["order-item", "remove"],
     mutationFn: ({ orderItemId }: { orderItemId: string }) =>
       httpOrderItems.removeOrderItem(orderItemId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(`/orders/v1/stores/${storeId}/orders/summary`),
-      });
-      queryClient.invalidateQueries({
-        queryKey: pathToQueryKey(
-          `/orders/v1/tables/${tableId}/active-session/orders`
-        ),
-      });
-    },
   });
 
-  return { updateOrderItem, removeOrderItem };
+  return { update, remove };
 }

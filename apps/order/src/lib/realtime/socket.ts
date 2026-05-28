@@ -1,7 +1,7 @@
-import { http } from "@spaceorder/api";
+import { http, resolveOrderhubBaseURL } from "@spaceorder/api";
 import { io, Socket } from "socket.io-client";
 
-const REALTIME_URL = `${process.env.NEXT_PUBLIC_ORDERHUB_URL ?? "http://localhost:8080"}/events`;
+const REALTIME_URL = `${resolveOrderhubBaseURL()}/events`;
 const REALTIME_PATH = "/ws/";
 
 let socket: Socket | null = null;

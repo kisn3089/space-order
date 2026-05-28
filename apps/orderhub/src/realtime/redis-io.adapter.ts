@@ -5,7 +5,7 @@ import { Server, ServerOptions } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import type { Redis } from "ioredis";
 import { REDIS_PUB_CLIENT, REDIS_SUB_CLIENT } from "../redis/redis.module";
-import { getRealtimeCorsOrigins } from "./realtime.constants";
+import { getRealtimeCorsOrigin } from "./realtime.constants";
 
 export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor?: ReturnType<typeof createAdapter>;
@@ -25,7 +25,7 @@ export class RedisIoAdapter extends IoAdapter {
     const server: Server = super.createIOServer(port, {
       ...options,
       cors: {
-        origin: getRealtimeCorsOrigins(config),
+        origin: getRealtimeCorsOrigin(config),
         credentials: true,
       },
     });

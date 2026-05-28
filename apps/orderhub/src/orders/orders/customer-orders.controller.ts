@@ -54,7 +54,7 @@ export class CustomerOrdersController {
     @Session() tableSession: TableSession,
     @Body() createOrderPayload: CreateOrderPayloadDto,
     @Res({ passthrough: true }) response: Response,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<
     PublicOrderWithItem<"Wide", { sessionToken: string; expiresAt: Date }>
   > {
@@ -119,7 +119,7 @@ export class CustomerOrdersController {
   async delete(
     @Session() tableSession: TableSession,
     @Param("orderId") orderId: string,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
     const { order, subscriber } = await this.orderService.cancelOrder({
       kind: "customer",

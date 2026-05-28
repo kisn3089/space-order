@@ -24,7 +24,7 @@ function installSocketIdInterceptor(): void {
   socketIdInterceptorInstalled = true;
   http.interceptors.request.use((config) => {
     const id = socket?.id;
-    if (id) config.headers.set("X-Socket-Id", id);
+    if (id) config.headers.set("Socket-Id", id);
     return config;
   });
 }

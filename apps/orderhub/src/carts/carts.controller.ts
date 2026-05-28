@@ -54,7 +54,7 @@ export class CartController {
   async addItem(
     @Session() session: SessionWithTable,
     @Body() addCartItemPayload: CreateCartItemPayloadDto,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<Cart> {
     const { cart, subscriber, meta } = await this.cartService.addItem(
       session,
@@ -89,7 +89,7 @@ export class CartController {
     @Session() session: SessionWithTable,
     @Param("cartItemId") cartItemId: string,
     @Body() updateCartItemPayload: UpdateCartItemPayloadDto,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<Cart> {
     const { cart, subscriber } = await this.cartService.updateItem(
       session,
@@ -111,7 +111,7 @@ export class CartController {
   async removeItem(
     @Session() session: SessionWithTable,
     @Param("cartItemId") cartItemId: string,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<Cart> {
     const { cart, subscriber, meta } = await this.cartService.removeItem(
       session,
@@ -137,7 +137,7 @@ export class CartController {
   @DocsCustomerCartClear()
   async clearCart(
     @Session() session: SessionWithTable,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<void> {
     const subscriber = await this.cartService.clearCart(session);
     this.cartEvents.emitCartCleared({

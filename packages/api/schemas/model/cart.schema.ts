@@ -25,6 +25,7 @@ export const cartItemSchema = z.object({
   requiredOptions: optionItemSchema.optional(),
   customOptions: optionItemSchema.optional(),
   addedAt: z.string(),
+  fingerprint: z.string(),
 });
 
 export const cartSchema = z.object({

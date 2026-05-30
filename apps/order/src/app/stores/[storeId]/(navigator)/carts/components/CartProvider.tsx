@@ -7,7 +7,7 @@ import type { Cart, PublicCartItem } from "@spaceorder/db/types/cart.type";
 import useOrderByCustomer from "@spaceorder/api/core/order/order/useOrderByCustomer.mutate";
 import { PublicOrderWithItem } from "@spaceorder/db/types/publicModel.type";
 import { UseMutationResult } from "@tanstack/react-query";
-import { toast } from "@spaceorder/ui/components/sonner";
+import { toast, toastByLevel } from "@spaceorder/ui/components/sonner";
 import { useParams, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 
@@ -63,10 +63,13 @@ export default function CartProvider({
 
   const changeQuantity = async (cartItemId: string, newQuantity: number) => {
     try {
-      await cartMutate.update.mutateAsync({
+      const { notice } = await cartMutate.update.mutateAsync({
         cartItemId,
         payload: { quantity: newQuantity },
       });
+      if (notice) {
+        toastByLevel(notice.level, notice.message.customer);
+      }
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         toast.error("수량 변경에 실패했습니다.");

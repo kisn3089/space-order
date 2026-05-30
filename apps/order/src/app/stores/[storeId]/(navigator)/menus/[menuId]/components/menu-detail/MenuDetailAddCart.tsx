@@ -8,10 +8,6 @@ export default function MenuDetailAddCart() {
     actions: { addCart },
   } = useMenuDetailContext();
 
-  if (addCartMutate.failureReason) {
-    throw addCartMutate.failureReason;
-  }
-
   return (
     <div className="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto">
       <footer className="bg-white border-t border-border p-4">

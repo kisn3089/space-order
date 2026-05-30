@@ -1,4 +1,9 @@
-import { Cart, PublicCartItem } from "@spaceorder/db";
+import {
+  Cart,
+  PublicCartItem,
+  CartWithNotice,
+  CartWithOptionalNotice,
+} from "@spaceorder/db";
 import { http } from "../axios";
 
 const prefix = "/carts/v1";
@@ -15,24 +20,31 @@ async function getCart(): Promise<Cart> {
   return res.data;
 }
 
-async function addCartItem(payload: AddCartItemPayload): Promise<Cart> {
-  const res = await http.post<Cart>(`${prefix}/sessions/carts`, payload);
+async function addCartItem(
+  payload: AddCartItemPayload
+): Promise<CartWithNotice> {
+  const res = await http.post<CartWithNotice>(
+    `${prefix}/sessions/carts`,
+    payload
+  );
   return res.data;
 }
 
 async function updateCartItem(
   cartItemId: string,
   payload: UpdateCartItemPayload
-): Promise<Cart> {
-  const res = await http.patch<Cart>(
+): Promise<CartWithOptionalNotice> {
+  const res = await http.patch<CartWithOptionalNotice>(
     `${prefix}/sessions/carts/${cartItemId}`,
     payload
   );
   return res.data;
 }
 
-async function removeCartItem(cartItemId: string): Promise<Cart> {
-  const res = await http.delete<Cart>(`${prefix}/sessions/carts/${cartItemId}`);
+async function removeCartItem(cartItemId: string): Promise<CartWithNotice> {
+  const res = await http.delete<CartWithNotice>(
+    `${prefix}/sessions/carts/${cartItemId}`
+  );
   return res.data;
 }
 

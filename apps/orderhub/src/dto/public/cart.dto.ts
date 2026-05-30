@@ -28,19 +28,22 @@ export class PublicCartItemDto {
   @ApiProperty({
     description: "필수 옵션 선택값",
     type: Object,
-    nullable: true,
+    required: false,
   })
-  requiredOptions: Record<string, string> | null;
+  requiredOptions?: Record<string, string>;
 
   @ApiProperty({
     description: "커스텀 옵션 선택값",
     type: Object,
-    nullable: true,
+    required: false,
   })
-  customOptions: Record<string, string> | null;
+  customOptions?: Record<string, string>;
 
   @ApiProperty({ description: "장바구니 추가 시간 (ISO 8601)" })
   addedAt: string;
+
+  @ApiProperty({ description: "옵션 조합 식별 지문 (동일 옵션 합산 기준)" })
+  fingerprint: string;
 }
 
 export class CartDataDto {
@@ -48,8 +51,53 @@ export class CartDataDto {
   sessionToken: string;
 
   @ApiProperty({ description: "장바구니 항목 목록", type: [PublicCartItemDto] })
-  items: PublicCartItemDto[];
+  menus: PublicCartItemDto[];
 
   @ApiProperty({ description: "마지막 수정 시간 (ISO 8601)" })
   updatedAt: string;
+}
+
+export class SyncNoticeMessageDto {
+  @ApiProperty({ description: "점주용 안내 메시지", required: false })
+  owner?: string;
+
+  @ApiProperty({ description: "고객용 안내 메시지", required: false })
+  customer?: string;
+}
+
+export class SyncNoticeDto {
+  @ApiProperty({
+    description: "안내 레벨",
+    enum: ["info", "success", "error"],
+  })
+  level: "info" | "success" | "error";
+
+  @ApiProperty({
+    description: "대상별 안내 메시지",
+    type: SyncNoticeMessageDto,
+  })
+  message: SyncNoticeMessageDto;
+
+  @ApiProperty({ description: "알림음 재생 여부", required: false })
+  sound?: boolean;
+}
+
+export class CartWithNoticeDto {
+  @ApiProperty({ description: "장바구니 데이터", type: CartDataDto })
+  cart: CartDataDto;
+
+  @ApiProperty({ description: "장바구니 변경 안내", type: SyncNoticeDto })
+  notice: SyncNoticeDto;
+}
+
+export class CartWithOptionalNoticeDto {
+  @ApiProperty({ description: "장바구니 데이터", type: CartDataDto })
+  cart: CartDataDto;
+
+  @ApiProperty({
+    description: "장바구니 변경 안내 (변경이 없으면 생략)",
+    type: SyncNoticeDto,
+    required: false,
+  })
+  notice?: SyncNoticeDto;
 }

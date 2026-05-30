@@ -6,7 +6,11 @@ import {
   ApiParam,
   ApiResponse,
 } from "@nestjs/swagger";
-import { CartDataDto } from "src/dto/public/cart.dto";
+import {
+  CartDataDto,
+  CartWithNoticeDto,
+  CartWithOptionalNoticeDto,
+} from "src/dto/public/cart.dto";
 import {
   CreateCartItemPayloadDto,
   UpdateCartItemPayloadDto,
@@ -65,7 +69,7 @@ export const DocsCustomerCartAddItem = () =>
     ApiOperation({ summary: meta.addItem.summary }),
     ApiParam(paramsDocs.sessionToken),
     ApiBody({ type: CreateCartItemPayloadDto }),
-    ApiResponse({ ...meta.addItem.ok, type: CartDataDto }),
+    ApiResponse({ ...meta.addItem.ok, type: CartWithNoticeDto }),
     ApiResponse(meta.badRequest),
     ApiResponse(meta.unauthorized),
     ApiResponse(meta.serviceUnavailable)
@@ -77,7 +81,7 @@ export const DocsCustomerCartUpdateItem = () =>
     ApiParam(paramsDocs.sessionToken),
     ApiParam({ name: "cartItemId", description: "장바구니 항목 고유 ID" }),
     ApiBody({ type: UpdateCartItemPayloadDto }),
-    ApiResponse({ ...meta.updateItem.ok, type: CartDataDto }),
+    ApiResponse({ ...meta.updateItem.ok, type: CartWithOptionalNoticeDto }),
     ApiResponse(meta.badRequest),
     ApiResponse(meta.unauthorized),
     ApiResponse(meta.notFound),
@@ -89,7 +93,7 @@ export const DocsCustomerCartRemoveItem = () =>
     ApiOperation({ summary: meta.removeItem.summary }),
     ApiParam(paramsDocs.sessionToken),
     ApiParam({ name: "cartItemId", description: "장바구니 항목 고유 ID" }),
-    ApiResponse({ ...meta.removeItem.ok, type: CartDataDto }),
+    ApiResponse({ ...meta.removeItem.ok, type: CartWithNoticeDto }),
     ApiResponse(meta.unauthorized),
     ApiResponse(meta.notFound),
     ApiResponse(meta.serviceUnavailable)

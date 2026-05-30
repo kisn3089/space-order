@@ -26,6 +26,12 @@ type ReturnCart<Meta = unknown> = {
   subscriber: CartSubscriber;
 } & MetaInfo<Meta>;
 
+type CartItemFingerprint = {
+  menuPublicId: string;
+  requiredOptions?: Record<string, string>;
+  customOptions?: Record<string, string>;
+};
+
 @Injectable()
 export class CartService {
   constructor(
@@ -148,10 +154,25 @@ export class CartService {
     };
   }
 
+  private getCartItemFingerprint({
+    menuPublicId,
+    requiredOptions,
+    customOptions,
+  }: CartItemFingerprint) {
+    const canonical = (obj?: Record<string, string>) =>
+      obj
+        ? Object.keys(obj)
+            .sort()
+            .map((k) => `${k}=${obj[k]}`)
+            .join("&")
+        : "";
+    return `${menuPublicId}|r:${canonical(requiredOptions)}|c:${canonical(customOptions)}`;
+  }
+
   async addItem(
     sessionWithTable: SessionWithTable,
     payload: CreateCartItemPayloadDto
-  ): Promise<ReturnCart<{ menuName: string }>> {
+  ): Promise<ReturnCart<{ menuName: string; isMerged?: boolean }>> {
     const { optionsPrice, menu } = await this.getOptionsPriceWithValidate(
       sessionWithTable,
       payload.menuPublicId,
@@ -161,24 +182,41 @@ export class CartService {
       }
     );
 
-    const item: PublicCartItem = {
-      id: createId(),
-      menuPublicId: menu.publicId,
-      menuName: menu.name,
-      menuImageUrl: menu.imageUrl,
-      basePrice: menu.price,
-      optionsPrice,
-      unitPrice: menu.price + optionsPrice,
-      quantity: payload.quantity,
-      ...(payload.requiredOptions && {
-        requiredOptions: payload.requiredOptions,
-      }),
-      ...(payload.customOptions && { customOptions: payload.customOptions }),
-      addedAt: new Date().toISOString(),
-    };
-
     return this.withCartLock(sessionWithTable.sessionToken, async () => {
       const cart = await this.readCart(sessionWithTable.sessionToken);
+      const fingerprint = this.getCartItemFingerprint(payload);
+      const existingItem = cart.menus.find(
+        (item) => item.fingerprint === fingerprint
+      );
+
+      if (existingItem) {
+        existingItem.quantity += payload.quantity;
+        const updated = await this.writeCart(sessionWithTable, cart);
+
+        return {
+          cart: updated,
+          subscriber: this.subscriberOf(sessionWithTable),
+          meta: { menuName: existingItem.menuName, isMerged: true },
+        };
+      }
+
+      const item: PublicCartItem = {
+        id: createId(),
+        menuPublicId: menu.publicId,
+        menuName: menu.name,
+        menuImageUrl: menu.imageUrl,
+        basePrice: menu.price,
+        optionsPrice,
+        unitPrice: menu.price + optionsPrice,
+        quantity: payload.quantity,
+        ...(payload.requiredOptions && {
+          requiredOptions: payload.requiredOptions,
+        }),
+        ...(payload.customOptions && { customOptions: payload.customOptions }),
+        addedAt: new Date().toISOString(),
+        fingerprint,
+      };
+
       cart.menus.push(item);
       const updated = await this.writeCart(sessionWithTable, cart);
 
@@ -194,7 +232,7 @@ export class CartService {
     sessionWithTable: SessionWithTable,
     cartItemId: string,
     payload: UpdateCartItemPayloadDto
-  ): Promise<ReturnCart> {
+  ): Promise<ReturnCart<{ menuName: string; isMerged?: boolean }>> {
     const preCart = await this.readCart(sessionWithTable.sessionToken);
     const preItem = preCart.menus.find((i) => i.id === cartItemId);
     if (!preItem) {
@@ -204,47 +242,70 @@ export class CartService {
       );
     }
 
-    const { optionsPrice, menu } = await this.getOptionsPriceWithValidate(
-      sessionWithTable,
-      preItem.menuPublicId,
-      {
-        requiredOptions:
-          payload.requiredOptions ?? preItem.requiredOptions ?? undefined,
-        customOptions:
-          payload.customOptions ?? preItem.customOptions ?? undefined,
-      }
-    );
-
     return this.withCartLock(sessionWithTable.sessionToken, async () => {
       const cart = await this.readCart(sessionWithTable.sessionToken);
-      const itemIndex = cart.menus.findIndex((i) => i.id === cartItemId);
-      if (itemIndex === -1) {
+      const updateItem = cart.menus.find((i) => i.id === cartItemId);
+      if (!updateItem) {
         throw new HttpException(
           exceptionContentsIs("CART_ITEM_NOT_FOUND"),
           HttpStatus.NOT_FOUND
         );
       }
 
-      const item = cart.menus[itemIndex];
-
       const { requiredOptions, customOptions } = {
-        requiredOptions: payload.requiredOptions ?? item.requiredOptions,
-        customOptions: payload.customOptions ?? item.customOptions,
+        requiredOptions: payload.requiredOptions ?? updateItem.requiredOptions,
+        customOptions: payload.customOptions ?? updateItem.customOptions,
       };
 
-      cart.menus[itemIndex] = {
-        ...item,
+      const { optionsPrice, menu } = await this.getOptionsPriceWithValidate(
+        sessionWithTable,
+        updateItem.menuPublicId,
+        {
+          requiredOptions,
+          customOptions,
+        }
+      );
+
+      const fingerprint = this.getCartItemFingerprint({
+        menuPublicId: updateItem.menuPublicId,
+        customOptions,
+        requiredOptions,
+      });
+
+      const existingItem = cart.menus.find(
+        (item) => item.id !== cartItemId && item.fingerprint === fingerprint
+      );
+
+      if (existingItem) {
+        existingItem.quantity += payload.quantity ?? updateItem.quantity;
+
+        cart.menus = cart.menus.filter((i) => i.id !== cartItemId);
+        const updated = await this.writeCart(sessionWithTable, cart);
+
+        return {
+          cart: updated,
+          subscriber: this.subscriberOf(sessionWithTable),
+          meta: { menuName: existingItem.menuName, isMerged: true },
+        };
+      }
+
+      Object.assign(updateItem, {
         basePrice: menu.price,
         optionsPrice,
         unitPrice: menu.price + optionsPrice,
-        quantity: payload.quantity ?? item.quantity,
+        quantity: payload.quantity ?? updateItem.quantity,
+        fingerprint,
         ...(requiredOptions && { requiredOptions }),
         ...(customOptions && { customOptions }),
-      };
+      });
 
       const updated = await this.writeCart(sessionWithTable, cart);
 
-      return { cart: updated, subscriber: this.subscriberOf(sessionWithTable) };
+      return {
+        cart: updated,
+        subscriber: this.subscriberOf(sessionWithTable),
+        meta: { menuName: updateItem.menuName },
+      };
     });
   }
 

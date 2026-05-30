@@ -10,7 +10,13 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import type { Cart, SessionWithTable, SyncNotice } from "@spaceorder/db";
+import type {
+  Cart,
+  SessionWithTable,
+  SyncNotice,
+  CartWithNotice,
+  CartWithOptionalNotice,
+} from "@spaceorder/db";
 import {
   addCartItemPayloadSchema,
   cartItemIdSchema,
@@ -55,17 +61,19 @@ export class CartController {
     @Session() session: SessionWithTable,
     @Body() addCartItemPayload: CreateCartItemPayloadDto,
     @Headers("socket-id") socketId?: string
-  ): Promise<Cart> {
+  ): Promise<CartWithNotice> {
     const { cart, subscriber, meta } = await this.cartService.addItem(
       session,
       addCartItemPayload
     );
 
+    const customerMessage = meta.isMerged
+      ? `기존 장바구니의 ${meta.menuName} 수량이 합산되었습니다.`
+      : `${meta.menuName} 메뉴가 장바구니에 추가되었습니다.`;
+
     const notice: SyncNotice = {
       level: "info",
-      message: {
-        customer: `${meta.menuName} 메뉴가 장바구니에 추가되었습니다.`,
-      },
+      message: { customer: customerMessage },
     };
 
     this.cartEvents.emitCartAdd({
@@ -74,7 +82,7 @@ export class CartController {
       excludeSocketId: socketId,
     });
 
-    return cart;
+    return { cart, notice };
   }
 
   @Patch(":cartItemId")
@@ -90,19 +98,32 @@ export class CartController {
     @Param("cartItemId") cartItemId: string,
     @Body() updateCartItemPayload: UpdateCartItemPayloadDto,
     @Headers("socket-id") socketId?: string
-  ): Promise<Cart> {
-    const { cart, subscriber } = await this.cartService.updateItem(
+  ): Promise<CartWithOptionalNotice> {
+    const { cart, subscriber, meta } = await this.cartService.updateItem(
       session,
       cartItemId,
       updateCartItemPayload
     );
 
+    const notice: SyncNotice | undefined = meta.isMerged
+      ? {
+          level: "info",
+          message: {
+            customer: `옵션이 같아져 기존 ${meta.menuName} 메뉴와 합산되었습니다.`,
+          },
+        }
+      : undefined;
+
     this.cartEvents.emitCartUpdated({
       subscriber,
-      payload: { updatedAt: new Date(cart.updatedAt).toISOString() },
+      payload: {
+        notice,
+        updatedAt: new Date(cart.updatedAt).toISOString(),
+      },
       excludeSocketId: socketId,
     });
-    return cart;
+
+    return { cart, notice };
   }
 
   @Delete(":cartItemId")
@@ -112,7 +133,7 @@ export class CartController {
     @Session() session: SessionWithTable,
     @Param("cartItemId") cartItemId: string,
     @Headers("socket-id") socketId?: string
-  ): Promise<Cart> {
+  ): Promise<CartWithNotice> {
     const { cart, subscriber, meta } = await this.cartService.removeItem(
       session,
       cartItemId
@@ -130,7 +151,8 @@ export class CartController {
       payload: { notice, updatedAt: new Date(cart.updatedAt).toISOString() },
       excludeSocketId: socketId,
     });
-    return cart;
+
+    return { cart, notice };
   }
 
   @Delete()

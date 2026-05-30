@@ -8,7 +8,7 @@ import {
   type SelectedOptions,
 } from "./MenuDetailContext";
 import { AxiosError } from "axios";
-import { toast } from "@spaceorder/ui/components/sonner";
+import { toast, toastByLevel } from "@spaceorder/ui/components/sonner";
 import { AddCartItemPayload, useCartMutations } from "@spaceorder/api/core";
 import { deleteNotTriggeredOptions } from "@/utils/optionTrigger";
 
@@ -83,8 +83,8 @@ export function MenuDetailProvider({
     };
 
     try {
-      await addCartMutate.mutateAsync(cartItem);
-      toast.success(`${menu.name} 메뉴가 장바구니에 추가되었습니다.`);
+      const { notice } = await addCartMutate.mutateAsync(cartItem);
+      toastByLevel(notice.level, notice.message.customer);
     } catch (error: unknown) {
       let message = "장바구니에 담는 중 오류가 발생했습니다.";
       if (error instanceof AxiosError) {

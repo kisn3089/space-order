@@ -18,8 +18,7 @@ export function useCartMutations() {
   const add = useMutation({
     mutationKey: ["cart", "add"],
     mutationFn: (payload: AddCartItemPayload) => httpCart.addCartItem(payload),
-    onSuccess: (serverCart) =>
-      queryClient.setQueryData(cartQueryKey, serverCart),
+    onSuccess: ({ cart }) => queryClient.setQueryData(cartQueryKey, cart),
   });
 
   const update = useMutation({
@@ -57,16 +56,15 @@ export function useCartMutations() {
       }
       invalidate();
     },
-    onSuccess: (serverCart) => {
-      queryClient.setQueryData<Cart>(cartQueryKey, serverCart);
+    onSuccess: ({ cart }) => {
+      queryClient.setQueryData<Cart>(cartQueryKey, cart);
     },
   });
 
   const remove = useMutation({
     mutationKey: ["cart", "remove"],
     mutationFn: (cartItemId: string) => httpCart.removeCartItem(cartItemId),
-    onSuccess: (serverCart) =>
-      queryClient.setQueryData(cartQueryKey, serverCart),
+    onSuccess: ({ cart }) => queryClient.setQueryData(cartQueryKey, cart),
   });
 
   const clearCart = useMutation({

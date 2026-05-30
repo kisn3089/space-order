@@ -13,5 +13,10 @@ export default function TableNumber() {
     }
   );
 
-  return <p className="font-semibold">{tableNumber}</p>;
+  return (
+    <span className="font-semibold flex items-baseline gap-x-2">
+      {tableNumber}
+      <span className="text-xs text-muted-foreground">테이블</span>
+    </span>
+  );
 }

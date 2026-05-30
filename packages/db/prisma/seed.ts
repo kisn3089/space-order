@@ -155,7 +155,7 @@ async function main() {
       requiredOptions: {
         원두: {
           options: [
-            { key: "케냐", price: 1000 },
+            { key: "케냐", price: 0 },
             { key: "코스타리코", price: 500 },
           ],
           defaultKey: "케냐",
@@ -227,7 +227,7 @@ async function main() {
             { key: "없이", price: 0 },
             { key: "많이", price: 300 },
           ],
-          trigger: null,
+          trigger: [],
           defaultKey: "보통",
         },
       },
@@ -271,8 +271,8 @@ async function main() {
             { key: "딸기잼", price: 500 },
             { key: "크림치즈28g", price: 1000 },
           ],
-          trigger: null,
-          defaultKey: "보통",
+          trigger: [],
+          defaultKey: "없이",
         },
       },
     },
@@ -359,7 +359,7 @@ async function main() {
             { key: "많이", price: 0 },
             { key: "적게", price: 0 },
           ],
-          defaultKey: "많이",
+          defaultKey: "보통",
         },
       },
     },
@@ -613,6 +613,7 @@ async function main() {
       {
         publicId: "zootdtfjvajoivq0x9dlf80j",
         orderId: order1.id,
+        menuImageUrl: americano.imageUrl,
         menuId: americano.id,
         menuName: "아메리카노",
         basePrice: 4500,
@@ -621,7 +622,7 @@ async function main() {
         quantity: 2,
         optionsSnapshot: {
           requiredOptions: {
-            원두: { key: "케냐", price: 1000 },
+            원두: { key: "케냐", price: 0 },
             종류: { key: "아이스", price: 0 },
           },
           customOptions: {
@@ -633,6 +634,7 @@ async function main() {
       {
         publicId: "cyw8f52pazpolcp3nthvae1w",
         orderId: order1.id,
+        menuImageUrl: croissant.imageUrl,
         menuId: croissant.id,
         menuName: "크로와상",
         basePrice: 3500,
@@ -644,6 +646,7 @@ async function main() {
       {
         publicId: "d6dmaaniichb00uirp98wcmu",
         orderId: order2.id,
+        menuImageUrl: latte.imageUrl,
         menuId: latte.id,
         menuName: "카페라떼",
         basePrice: 5000,
@@ -655,6 +658,7 @@ async function main() {
       {
         publicId: "zfknocuq7f3jf5mye1svzxry",
         orderId: order3.id,
+        menuImageUrl: cappuccino.imageUrl,
         menuId: cappuccino.id,
         menuName: "카푸치노",
         basePrice: 5000,
@@ -665,6 +669,7 @@ async function main() {
       {
         publicId: "ob8xkpnlc9l0z322r6abmzab",
         orderId: order3.id,
+        menuImageUrl: cheesecake.imageUrl,
         menuId: cheesecake.id,
         menuName: "치즈케이크",
         basePrice: 6500,
@@ -676,6 +681,7 @@ async function main() {
       {
         publicId: "qnavcav7tiaao582qomf5asr",
         orderId: order4.id,
+        menuImageUrl: dripCoffee.imageUrl,
         menuId: dripCoffee.id,
         menuName: "드립 커피",
         basePrice: 4600,
@@ -689,6 +695,7 @@ async function main() {
       {
         publicId: "i0vsjtnf5hqmz7acfp55oblp",
         orderId: order4.id,
+        menuImageUrl: americano.imageUrl,
         menuId: americano.id,
         menuName: "아메리카노",
         basePrice: 4500,
@@ -706,6 +713,7 @@ async function main() {
       {
         publicId: "kzotggj34fp2sicjxm5378mf",
         orderId: order4.id,
+        menuImageUrl: croissant.imageUrl,
         menuId: croissant.id,
         menuName: "크로와상",
         basePrice: 3500,
@@ -716,6 +724,7 @@ async function main() {
       {
         publicId: "dwcxu6otu2dt5h8ehfbh7njn",
         orderId: order4.id,
+        menuImageUrl: cheesecake.imageUrl,
         menuId: cheesecake.id,
         menuName: "치즈케이크",
         basePrice: 6500,
@@ -727,6 +736,7 @@ async function main() {
       {
         publicId: "r0are9ygvbtsvotuu91763hx",
         orderId: order5.id,
+        menuImageUrl: latte.imageUrl,
         menuId: latte.id,
         menuName: "카페라떼",
         basePrice: 5000,

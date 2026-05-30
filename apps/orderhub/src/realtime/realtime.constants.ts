@@ -9,17 +9,63 @@ export const REALTIME_PATH = "/ws/";
 
 export type OriginKind = "admin" | "customer";
 
-export const getRealtimeOriginKindMap = (
-  config: ConfigService
-): Record<string, OriginKind> => ({
-  [config.getOrThrow<string>("ORDER_APP_URL")]: "customer",
-  [config.getOrThrow<string>("ORDERDESK_APP_URL")]: "admin",
-});
+export const PRIVATE_HOST_ORIGIN =
+  /^https?:\/\/(localhost|127\.0\.0\.1|10(\.\d{1,3}){3}|192\.168(\.\d{1,3}){2}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2})(:\d+)?$/;
 
-export const getRealtimeCorsOrigins = (config: ConfigService): string[] => [
-  config.getOrThrow<string>("ORDER_APP_URL"),
-  config.getOrThrow<string>("ORDERDESK_APP_URL"),
-];
+const isDev = (config: ConfigService): boolean =>
+  config.get("NODE_ENV") !== "production";
+
+const getPort = (url: string): string | null => {
+  try {
+    return new URL(url).port || null;
+  } catch {
+    return null;
+  }
+};
+
+export const getRealtimeOriginKind = (
+  config: ConfigService,
+  origin: string | undefined
+): OriginKind | null => {
+  if (!origin) return null;
+  const orderUrl = config.getOrThrow<string>("ORDER_APP_URL");
+  const orderdeskUrl = config.getOrThrow<string>("ORDERDESK_APP_URL");
+  if (origin === orderUrl) return "customer";
+  if (origin === orderdeskUrl) return "admin";
+
+  if (isDev(config) && PRIVATE_HOST_ORIGIN.test(origin)) {
+    const port = getPort(origin);
+    return port === getPort(orderdeskUrl) ? "admin" : "customer";
+  }
+  return null;
+};
+
+type CorsOriginFn = (
+  origin: string | undefined,
+  cb: (err: Error | null, allow?: boolean) => void
+) => void;
+
+export const getRealtimeCorsOrigin = (
+  config: ConfigService
+): string[] | CorsOriginFn => {
+  const allowed = [
+    config.getOrThrow<string>("ORDER_APP_URL"),
+    config.getOrThrow<string>("ORDERDESK_APP_URL"),
+  ];
+  if (!isDev(config)) return allowed;
+
+  return (origin, cb) => {
+    if (
+      !origin ||
+      allowed.includes(origin) ||
+      PRIVATE_HOST_ORIGIN.test(origin)
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("CORS blocked"));
+    }
+  };
+};
 
 export const REALTIME_EVENT = {
   ORDER_CREATED: "order.created",

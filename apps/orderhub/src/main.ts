@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { AppModule } from "./app/app.module";
 import { COOKIE_TABLE } from "@spaceorder/db/constants/cookieTable.const";
 import { RedisIoAdapter } from "./realtime/redis-io.adapter";
+import { PRIVATE_HOST_ORIGIN } from "./realtime/realtime.constants";
 
 // BigInt serialization for JSON responses
 BigInt.prototype.toJSON = function (this: bigint) {
@@ -15,11 +16,24 @@ BigInt.prototype.toJSON = function (this: bigint) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  const isDev = configService.get("NODE_ENV") !== "production";
   app.enableCors({
-    origin: [
-      configService.getOrThrow<string>("ORDER_APP_URL"),
-      configService.getOrThrow<string>("ORDERDESK_APP_URL"),
-    ],
+    origin: isDev
+      ? (
+          origin: string | undefined,
+          callback: (err: Error | null, allow?: boolean) => void
+        ) => {
+          // 개발 환경: localhost 및 사설 IP(모바일 테스트)에서 오는 요청 허용
+          if (!origin || PRIVATE_HOST_ORIGIN.test(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("CORS blocked"));
+          }
+        }
+      : [
+          configService.getOrThrow<string>("ORDER_APP_URL"),
+          configService.getOrThrow<string>("ORDERDESK_APP_URL"),
+        ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
   });
@@ -65,7 +79,7 @@ async function bootstrap() {
 
   const port = configService.get<number>("PORT", 9090);
 
-  await app.listen(port);
+  await app.listen(port, "0.0.0.0");
   console.log(`Application is running on: http://localhost:${port}`);
   console.log(`Swagger docs: http://localhost:${port}/docs`);
 }

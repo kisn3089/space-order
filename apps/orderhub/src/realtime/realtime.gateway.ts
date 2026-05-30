@@ -12,8 +12,7 @@ import {
 import { DefaultEventsMap, Namespace, Socket } from "socket.io";
 import { isAdmin } from "src/utils/isAdmin";
 import {
-  getRealtimeOriginKindMap,
-  OriginKind,
+  getRealtimeOriginKind,
   REALTIME_EVENT,
   REALTIME_NAMESPACE,
   REALTIME_PATH,
@@ -44,7 +43,6 @@ export class RealtimeGateway
   implements OnGatewayInit<AppNamespace>, OnGatewayConnection
 {
   private readonly logger = new Logger(RealtimeGateway.name);
-  private readonly originKindMap: Record<string, OriginKind>;
 
   @WebSocketServer()
   server!: AppNamespace;
@@ -52,9 +50,7 @@ export class RealtimeGateway
   constructor(
     private readonly wsAuth: WsAuthService,
     private readonly config: ConfigService
-  ) {
-    this.originKindMap = getRealtimeOriginKindMap(this.config);
-  }
+  ) {}
 
   afterInit(namespace: AppNamespace): void {
     namespace.use((socket, next) => {
@@ -79,7 +75,7 @@ export class RealtimeGateway
     socket: AppSocket
   ): Promise<RealtimePrincipal | null> {
     const origin = socket.handshake.headers.origin;
-    const kind = origin ? this.originKindMap[origin] : undefined;
+    const kind = getRealtimeOriginKind(this.config, origin);
     if (!kind) {
       this.logger.warn(`ws auth: unrecognized origin=${origin ?? "(none)"}`);
       return null;

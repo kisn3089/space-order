@@ -116,7 +116,7 @@ export class OrdersController {
     @Client() client: Owner,
     @Param("orderId") orderId: string,
     @Body() updatePayload: UpdateOrderPayloadDto,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
     const { order, subscriber, meta } =
       await this.orderService.partialUpdateOrder(
@@ -145,7 +145,7 @@ export class OrdersController {
   async cancel(
     @Client() client: Owner,
     @Param("orderId") orderId: string,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
     const { order, subscriber } = await this.orderService.cancelOrder({
       kind: "owner",
@@ -193,7 +193,7 @@ export class OrdersController {
   async create(
     @Param("tableId") tableId: string,
     @Body() createPayload: CreateOrderPayloadDto,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<PublicOrderWithItem<"Wide">> {
     const { order, subscriber, meta } = await this.orderService.createOrder(
       { publicId: tableId },

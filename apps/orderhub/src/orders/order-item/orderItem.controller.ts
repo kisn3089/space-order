@@ -118,7 +118,7 @@ export class OrderItemController {
     @Client() client: Owner,
     @Param("orderItemId") orderItemId: string,
     @Body() updateOrderItemDto: UpdateOrderItemPayloadDto,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<PublicOrderItem<"Wide">> {
     const { orderItem, subscriber, meta } =
       await this.orderItemService.partialUpdateOrderItem(
@@ -154,7 +154,7 @@ export class OrderItemController {
   async delete(
     @Client() client: Owner,
     @Param("orderItemId") orderItemId: string,
-    @Headers("x-socket-id") socketId?: string
+    @Headers("socket-id") socketId?: string
   ): Promise<void> {
     const { subscriber, meta } = await this.orderItemService.deleteOrderItem(
       orderItemId,

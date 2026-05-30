@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
       },
     ],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30일: 메뉴 이미지는 자주 바뀌지 않으므로 길게 캐싱
   },
 };
 

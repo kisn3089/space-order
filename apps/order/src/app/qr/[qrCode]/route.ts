@@ -17,11 +17,30 @@ export async function GET(
 
   const location = apiResponse.headers.get("location");
 
+  const host = request.headers.get("host") ?? request.nextUrl.host;
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    request.nextUrl.protocol.replace(":", "");
+  const origin = `${proto}://${host}`;
+
   if (apiResponse.status !== 302 || !location) {
-    return NextResponse.redirect(new URL("/error", request.url));
+    return NextResponse.redirect(`${origin}/error`);
   }
 
-  const response = NextResponse.redirect(new URL(location, request.url));
+  const redirectUrl = (() => {
+    if (!location.startsWith("http")) {
+      return `${origin}${location.startsWith("/") ? location : `/${location}`}`;
+    }
+
+    try {
+      const parsed = new URL(location);
+      return `${origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch {
+      return `${origin}/error`;
+    }
+  })();
+
+  const response = NextResponse.redirect(redirectUrl);
 
   const setCookie = apiResponse.headers.get("set-cookie");
   if (setCookie) {

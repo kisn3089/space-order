@@ -3,7 +3,6 @@
 import useSuspenseWithSession from "@spaceorder/api/hooks/useSuspenseWithSession";
 import { PublicCategoryWithMenus, StoreContext } from "@spaceorder/db/types";
 import CategoryLine from "./CategoryLine";
-import { Fragment } from "react";
 import MenuList from "./MenuList";
 
 export default function CategoryMenuList({
@@ -23,19 +22,19 @@ export default function CategoryMenuList({
   return (
     <>
       {categories.map((category, index) => (
-        <Fragment key={category.name}>
-          <CategoryLine
-            category={category.name}
-            ref={(el) => {
-              if (el) {
-                categoryRefs.current.set(category.name, el);
-              } else {
-                categoryRefs.current.delete(category.name);
-              }
-            }}
-          />
+        <div
+          key={category.name}
+          ref={(el) => {
+            if (el) {
+              categoryRefs.current.set(category.name, el);
+            } else {
+              categoryRefs.current.delete(category.name);
+            }
+          }}
+        >
+          <CategoryLine category={category.name} />
           <MenuList menus={category.menus} priority={index === 0} />
-        </Fragment>
+        </div>
       ))}
     </>
   );

@@ -1,24 +1,65 @@
 "use client";
 
-// import { Metadata } from "next";
-import Categories from "./components/Categories";
+import useSuspenseWithSession from "@spaceorder/api/hooks/useSuspenseWithSession";
+import { PublicCategoryWithMenus, StoreContext } from "@spaceorder/db/types";
+import { useState } from "react";
+import useObservingCategory from "./hooks/useObservingCategory";
+import { Button } from "@spaceorder/ui/components/button";
 import CategoryMenuList from "./components/CategoryMenuList";
 
-// export const metadata: Metadata = {
-//   title: "메뉴 - TADER",
-//   description: "메뉴를 확인하고 주문해보세요.",
-// };
-
 export default function MenuListPage() {
-  return <Categories>{menusWithCategory}</Categories>;
+  const { data: menuCategories } = useSuspenseWithSession<
+    StoreContext,
+    PublicCategoryWithMenus[]
+  >("/stores/v1/sessions/me/store-context", {
+    queryOptions: {
+      select: (storeContext) => storeContext.table.store.categories,
+    },
+  });
+
+  ThrowUnavailableMenu(menuCategories.length);
+
+  const [selectedCategory, setSelectedCategory] = useState(
+    menuCategories[0].name
+  );
+
+  const categoryRefs = useObservingCategory(setSelectedCategory);
+
+  const moveScrollAtCategory = (category: string) => {
+    const categoryElement = document.querySelector(
+      `[data-category="${CSS.escape(category)}"]`
+    );
+    if (categoryElement) {
+      categoryElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  return (
+    <>
+      <ul className="flex items-center gap-2 px-4 py-2 sticky bg-white top-12 z-10">
+        {menuCategories.map((category) => (
+          <li key={category.name}>
+            <Button
+              className={`h-9 font-semibold text-sm rounded-3xl`}
+              variant={
+                selectedCategory === category.name ? "default" : "secondary"
+              }
+              onClick={() => moveScrollAtCategory(category.name)}
+            >
+              {category.name}
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <section>
+        <CategoryMenuList categoryRefs={categoryRefs} />
+      </section>
+    </>
+  );
 }
 
-function menusWithCategory(
-  categoryRefs: React.MutableRefObject<Map<string, HTMLDivElement>>
-) {
-  return (
-    <section>
-      <CategoryMenuList categoryRefs={categoryRefs} />
-    </section>
-  );
+function ThrowUnavailableMenu(size: number) {
+  if (size === 0) {
+    throw new Error("No menu available");
+  }
 }

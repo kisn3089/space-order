@@ -1,17 +1,10 @@
-import { use } from "react";
 import MoveMenusPageButton from "../components/MoveMenusPageButton";
 import SectionCardView from "../components/SectionCardView";
 import OrderHistory from "../components/order-history/OrderHistory";
 import StoreOrdersQueue from "../components/store-orders-queue/StoreOrdersQueue";
 import NoticeTitle from "./components/NoticeTitle";
 
-export default function StorePage({
-  params,
-}: {
-  params: Promise<{ storeId: string }>;
-}) {
-  const { storeId: _ } = use(params);
-
+export default function StorePage() {
   return (
     <div className="min-h-[calc(100vh-48px)] p-2">
       <NoticeTitle />
